@@ -238,21 +238,185 @@ export const QUIZ_TYPES = {
 // Advanced Insights Data
 export const ADVANCED_INSIGHTS = {
     ISTJ: {
-        strengths: ['Reliable and responsible', 'Practical and realistic', 'Organized and systematic'],
-        weaknesses: ['Can be rigid and inflexible', 'May struggle with change', 'Can be overly critical'],
-        careerPaths: ['Accountant', 'Project Manager', 'Military Officer', 'Quality Control'],
-        relationships: ['Loyal and committed', 'Value stability and tradition', 'Show love through actions']
+        strengths: ['Reliable and responsible', 'Practical and organized', 'Detail-oriented', 'Loyal and committed'],
+        weaknesses: ['Can be rigid and inflexible', 'May resist change', 'Can be overly critical', 'May struggle with abstract concepts'],
+        careers: ['Accountant', 'Project Manager', 'Military Officer', 'Quality Control Specialist'],
+        development: ['Practice flexibility and adaptability', 'Learn to embrace change', 'Develop creative thinking', 'Improve emotional expression']
     },
-    // ... Add for all types
+    ISFJ: {
+        strengths: ['Caring and supportive', 'Loyal and reliable', 'Practical and organized', 'Good at following through'],
+        weaknesses: ['Can be overly self-sacrificing', 'May resist change', 'Can be too modest', 'May avoid conflict'],
+        careers: ['Nurse', 'Teacher', 'Social Worker', 'Administrative Assistant'],
+        development: ['Learn to set boundaries', 'Practice self-advocacy', 'Embrace new experiences', 'Develop assertiveness']
+    },
+    INFJ: {
+        strengths: ['Insightful and intuitive', 'Creative and imaginative', 'Compassionate and caring', 'Determined and idealistic'],
+        weaknesses: ['Can be overly idealistic', 'May be too sensitive', 'Can be perfectionistic', 'May withdraw when stressed'],
+        careers: ['Counselor', 'Writer', 'Teacher', 'Human Resources Manager'],
+        development: ['Practice realistic goal-setting', 'Develop emotional resilience', 'Learn to accept imperfection', 'Build social connections']
+    },
+    INTJ: {
+        strengths: ['Strategic and analytical', 'Independent and determined', 'Creative problem-solver', 'High standards'],
+        weaknesses: ['Can be overly critical', 'May seem arrogant', 'Can be perfectionistic', 'May struggle with emotions'],
+        careers: ['Scientist', 'Engineer', 'Investment Banker', 'Management Consultant'],
+        development: ['Practice empathy and understanding', 'Learn to accept feedback', 'Develop emotional intelligence', 'Build collaborative skills']
+    },
+    ISTP: {
+        strengths: ['Flexible and adaptable', 'Practical problem-solver', 'Calm under pressure', 'Hands-on learner'],
+        weaknesses: ['Can be impulsive', 'May avoid commitment', 'Can be insensitive', 'May resist structure'],
+        careers: ['Mechanic', 'Pilot', 'Athlete', 'Computer Programmer'],
+        development: ['Practice long-term planning', 'Develop follow-through', 'Improve emotional sensitivity', 'Learn to work within structure']
+    },
+    ISFP: {
+        strengths: ['Artistic and creative', 'Gentle and caring', 'Practical and realistic', 'Loyal and supportive'],
+        weaknesses: ['Can be overly sensitive', 'May avoid conflict', 'Can be disorganized', 'May resist change'],
+        careers: ['Artist', 'Interior Designer', 'Veterinarian', 'Massage Therapist'],
+        development: ['Develop organizational skills', 'Practice assertiveness', 'Learn to handle criticism', 'Embrace new experiences']
+    },
+    INFP: {
+        strengths: ['Idealistic and creative', 'Compassionate and caring', 'Open-minded and flexible', 'Authentic and genuine'],
+        weaknesses: ['Can be overly idealistic', 'May be too sensitive', 'Can be disorganized', 'May avoid conflict'],
+        careers: ['Writer', 'Artist', 'Counselor', 'Social Worker'],
+        development: ['Practice realistic planning', 'Develop emotional resilience', 'Improve organization', 'Learn to handle conflict']
+    },
+    INTP: {
+        strengths: ['Analytical and logical', 'Creative problem-solver', 'Independent thinker', 'Open to new ideas'],
+        weaknesses: ['Can be overly theoretical', 'May seem aloof', 'Can be disorganized', 'May struggle with emotions'],
+        careers: ['Scientist', 'Philosopher', 'Computer Programmer', 'Architect'],
+        development: ['Practice practical application', 'Develop social skills', 'Improve organization', 'Build emotional intelligence']
+    },
+    ESTP: {
+        strengths: ['Energetic and action-oriented', 'Practical problem-solver', 'Flexible and adaptable', 'Good at reading people'],
+        weaknesses: ['Can be impulsive', 'May avoid planning', 'Can be insensitive', 'May resist structure'],
+        careers: ['Entrepreneur', 'Sales Representative', 'Athlete', 'Police Officer'],
+        development: ['Practice long-term planning', 'Develop patience', 'Improve sensitivity', 'Learn to work within structure']
+    },
+    ESFP: {
+        strengths: ['Enthusiastic and friendly', 'Practical and realistic', 'Good at connecting with people', 'Adaptable and flexible'],
+        weaknesses: ['Can be disorganized', 'May avoid planning', 'Can be overly emotional', 'May seek constant stimulation'],
+        careers: ['Event Planner', 'Sales Representative', 'Teacher', 'Nurse'],
+        development: ['Develop organizational skills', 'Practice long-term planning', 'Learn emotional regulation', 'Build focus and concentration']
+    },
+    ENFP: {
+        strengths: ['Enthusiastic and creative', 'Good at connecting with people', 'Flexible and adaptable', 'Inspiring and motivating'],
+        weaknesses: ['Can be disorganized', 'May avoid routine', 'Can be overly emotional', 'May struggle with follow-through'],
+        careers: ['Journalist', 'Teacher', 'Marketing Manager', 'Counselor'],
+        development: ['Develop organizational skills', 'Practice routine and structure', 'Learn emotional regulation', 'Improve follow-through']
+    },
+    ENTP: {
+        strengths: ['Innovative and creative', 'Quick-witted and adaptable', 'Good at debating', 'Enthusiastic about new ideas'],
+        weaknesses: ['Can be argumentative', 'May avoid routine', 'Can be insensitive', 'May struggle with follow-through'],
+        careers: ['Entrepreneur', 'Lawyer', 'Consultant', 'Marketing Manager'],
+        development: ['Practice diplomacy', 'Develop routine and structure', 'Improve sensitivity', 'Build follow-through skills']
+    },
+    ESTJ: {
+        strengths: ['Organized and efficient', 'Practical and realistic', 'Good at leading', 'Reliable and responsible'],
+        weaknesses: ['Can be rigid and inflexible', 'May be too controlling', 'Can be insensitive', 'May resist change'],
+        careers: ['Manager', 'Military Officer', 'Accountant', 'Project Manager'],
+        development: ['Practice flexibility', 'Learn to delegate', 'Improve sensitivity', 'Embrace change and innovation']
+    },
+    ESFJ: {
+        strengths: ['Caring and supportive', 'Organized and efficient', 'Good at connecting with people', 'Loyal and committed'],
+        weaknesses: ['Can be overly concerned with others', 'May be too traditional', 'Can be sensitive to criticism', 'May avoid change'],
+        careers: ['Nurse', 'Teacher', 'Human Resources Manager', 'Event Planner'],
+        development: ['Practice self-care', 'Embrace new ideas', 'Develop resilience to criticism', 'Learn to adapt to change']
+    },
+    ENFJ: {
+        strengths: ['Charismatic and inspiring', 'Good at connecting with people', 'Organized and efficient', 'Caring and supportive'],
+        weaknesses: ['Can be overly idealistic', 'May be too controlling', 'Can be sensitive to criticism', 'May avoid conflict'],
+        careers: ['Teacher', 'Counselor', 'Human Resources Manager', 'Non-profit Director'],
+        development: ['Practice realistic goal-setting', 'Learn to let go of control', 'Develop resilience', 'Learn to handle conflict']
+    },
+    ENTJ: {
+        strengths: ['Strategic and analytical', 'Good at leading', 'Efficient and organized', 'Confident and decisive'],
+        weaknesses: ['Can be overly controlling', 'May seem arrogant', 'Can be insensitive', 'May be too demanding'],
+        careers: ['CEO', 'Management Consultant', 'Investment Banker', 'Lawyer'],
+        development: ['Practice empathy', 'Learn to listen', 'Improve sensitivity', 'Develop collaborative leadership']
+    }
 };
 
 // Famous Personalities Data
 export const FAMOUS_PERSONALITIES = {
     ISTJ: [
-        { name: 'Queen Elizabeth II', field: 'Monarchy', image: 'queen-elizabeth.jpg' },
-        { name: 'George Washington', field: 'Politics', image: 'george-washington.jpg' }
+        { name: 'Queen Elizabeth II', profession: 'Monarch', image: '👑' },
+        { name: 'George Washington', profession: 'President', image: '🇺🇸' },
+        { name: 'Angela Merkel', profession: 'Chancellor', image: '🇩🇪' }
     ],
-    // ... Add for all types
+    ISFJ: [
+        { name: 'Mother Teresa', profession: 'Humanitarian', image: '✝️' },
+        { name: 'Rosa Parks', profession: 'Civil Rights Activist', image: '🚌' },
+        { name: 'Kate Middleton', profession: 'Royal', image: '👑' }
+    ],
+    INFJ: [
+        { name: 'Nelson Mandela', profession: 'Leader', image: '🇿🇦' },
+        { name: 'Martin Luther King Jr.', profession: 'Civil Rights Leader', image: '✊' },
+        { name: 'Mother Teresa', profession: 'Humanitarian', image: '✝️' }
+    ],
+    INTJ: [
+        { name: 'Elon Musk', profession: 'Entrepreneur', image: '🚀' },
+        { name: 'Stephen Hawking', profession: 'Physicist', image: '🌌' },
+        { name: 'Mark Zuckerberg', profession: 'Tech CEO', image: '💻' }
+    ],
+    ISTP: [
+        { name: 'Michael Jordan', profession: 'Athlete', image: '🏀' },
+        { name: 'Tom Cruise', profession: 'Actor', image: '🎬' },
+        { name: 'Bruce Lee', profession: 'Martial Artist', image: '🥋' }
+    ],
+    ISFP: [
+        { name: 'Marilyn Monroe', profession: 'Actress', image: '💄' },
+        { name: 'Bob Dylan', profession: 'Musician', image: '🎸' },
+        { name: 'Frida Kahlo', profession: 'Artist', image: '🎨' }
+    ],
+    INFP: [
+        { name: 'William Shakespeare', profession: 'Playwright', image: '📜' },
+        { name: 'J.R.R. Tolkien', profession: 'Author', image: '📚' },
+        { name: 'Vincent van Gogh', profession: 'Artist', image: '🌻' }
+    ],
+    INTP: [
+        { name: 'Albert Einstein', profession: 'Physicist', image: '⚡' },
+        { name: 'Isaac Newton', profession: 'Scientist', image: '🍎' },
+        { name: 'Charles Darwin', profession: 'Naturalist', image: '🐒' }
+    ],
+    ESTP: [
+        { name: 'Ernest Hemingway', profession: 'Author', image: '📖' },
+        { name: 'Madonna', profession: 'Singer', image: '🎤' },
+        { name: 'Jack Nicholson', profession: 'Actor', image: '🎭' }
+    ],
+    ESFP: [
+        { name: 'Elvis Presley', profession: 'Singer', image: '🎸' },
+        { name: 'Marilyn Monroe', profession: 'Actress', image: '💄' },
+        { name: 'Will Smith', profession: 'Actor', image: '🎬' }
+    ],
+    ENFP: [
+        { name: 'Walt Disney', profession: 'Entrepreneur', image: '🏰' },
+        { name: 'Robin Williams', profession: 'Actor', image: '😄' },
+        { name: 'Oscar Wilde', profession: 'Writer', image: '✒️' }
+    ],
+    ENTP: [
+        { name: 'Thomas Edison', profession: 'Inventor', image: '💡' },
+        { name: 'Benjamin Franklin', profession: 'Founding Father', image: '⚡' },
+        { name: 'Steve Jobs', profession: 'Entrepreneur', image: '🍎' }
+    ],
+    ESTJ: [
+        { name: 'Franklin D. Roosevelt', profession: 'President', image: '🇺🇸' },
+        { name: 'Margaret Thatcher', profession: 'Prime Minister', image: '🇬🇧' },
+        { name: 'John D. Rockefeller', profession: 'Businessman', image: '💰' }
+    ],
+    ESFJ: [
+        { name: 'Bill Clinton', profession: 'President', image: '🇺🇸' },
+        { name: 'Taylor Swift', profession: 'Singer', image: '🎤' },
+        { name: 'Sandra Bullock', profession: 'Actress', image: '🎬' }
+    ],
+    ENFJ: [
+        { name: 'Barack Obama', profession: 'President', image: '🇺🇸' },
+        { name: 'Oprah Winfrey', profession: 'Media Mogul', image: '📺' },
+        { name: 'Mahatma Gandhi', profession: 'Leader', image: '🕉️' }
+    ],
+    ENTJ: [
+        { name: 'Napoleon Bonaparte', profession: 'Military Leader', image: '⚔️' },
+        { name: 'Steve Jobs', profession: 'Entrepreneur', image: '🍎' },
+        { name: 'Margaret Thatcher', profession: 'Prime Minister', image: '🇬🇧' }
+    ]
 };
 
 // Export all data
