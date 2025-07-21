@@ -202,6 +202,88 @@ body {
     flex-direction: column;
 }
 
+.quiz-header {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.btn-back {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Exit Quiz Confirmation Modal */
+.exit-confirmation {
+    max-width: 400px;
+    text-align: center;
+}
+
+.exit-confirmation-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #e74c3c;
+}
+
+.exit-confirmation-header i {
+    font-size: 1.5rem;
+}
+
+.exit-confirmation-header h3 {
+    margin: 0;
+    color: #e74c3c;
+}
+
+.exit-confirmation p {
+    margin-bottom: 25px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.exit-confirmation-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
 .progress-bar {
     background: #e9ecef;
     height: 8px;
@@ -875,6 +957,51 @@ body {
     font-size: 0.9rem;
     font-style: italic;
     margin-top: 10px;
+}
+
+/* Premium Quiz Types */
+.quiz-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.btn-premium-quiz {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-premium-quiz:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-premium-quiz i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.btn-premium-quiz span {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.btn-premium-quiz small {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    font-weight: 400;
 }
 
 /* Responsive adjustments for premium features */

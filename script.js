@@ -9,6 +9,7 @@ class MBTIQuiz {
             T: 0, F: 0, // Thinking vs Feeling
             J: 0, P: 0  // Judging vs Perceiving
         };
+        this.currentQuizType = 'mbti'; // Default quiz type
         this.questions = this.generateQuestions();
         this.selectedOption = null;
     }
@@ -16,6 +17,11 @@ class MBTIQuiz {
     generateQuestions() {
         // Check if user is premium to determine quiz length
         const isPremiumUser = isPremium();
+        
+        // Handle different quiz types for premium users
+        if (isPremiumUser && this.currentQuizType !== 'mbti') {
+            return this.generateSpecializedQuestions();
+        }
         
         if (isPremiumUser) {
             // Full 60-question premium quiz
@@ -932,8 +938,136 @@ class MBTIQuiz {
             ];
         }
     }
+    
+    generateSpecializedQuestions() {
+        // Each specialized quiz now has 20+ questions
+        const quizTypes = {
+            'leadership': [
+                // 20 Leadership questions
+                { question: "When leading a team, you prefer to:", options: ["Set clear goals and delegate tasks", "Collaborate and build consensus", "Lead by example and inspire", "Adapt your style to the situation"], dimension: "EI", weights: [2, -1, -2, 1] },
+                { question: "In a crisis, you typically:", options: ["Take charge and make quick decisions", "Gather input from the team", "Analyze the situation thoroughly", "Stay calm and provide reassurance"], dimension: "TF", weights: [2, -1, 1, -2] },
+                { question: "You motivate others by:", options: ["Setting challenging goals", "Building personal relationships", "Providing clear direction", "Encouraging creativity and innovation"], dimension: "SN", weights: [1, -2, 2, -1] },
+                { question: "When making team decisions, you:", options: ["Rely on data and analysis", "Consider team morale and feelings", "Trust your intuition", "Seek input from all stakeholders"], dimension: "TF", weights: [2, -2, 0, 1] },
+                { question: "Your leadership style is best described as:", options: ["Directive and results-focused", "Supportive and people-oriented", "Visionary and inspiring", "Flexible and adaptive"], dimension: "JP", weights: [2, -1, -2, 1] },
+                { question: "You handle conflict in your team by:", options: ["Addressing it directly", "Mediating and finding compromise", "Letting the team resolve it", "Avoiding confrontation"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "When delegating tasks, you:", options: ["Assign based on strengths", "Ask for volunteers", "Rotate responsibilities", "Let team members self-organize"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You prefer meetings that are:", options: ["Structured with clear agenda", "Open and collaborative", "Short and to the point", "Flexible and creative"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "When giving feedback, you:", options: ["Are direct and honest", "Are supportive and encouraging", "Focus on improvement", "Balance praise and critique"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You inspire your team by:", options: ["Setting a strong vision", "Building trust and rapport", "Recognizing achievements", "Encouraging innovation"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "Your decision-making style is:", options: ["Quick and decisive", "Consultative", "Analytical", "Flexible and adaptive"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You handle underperformance by:", options: ["Addressing it immediately", "Providing support and coaching", "Setting clear expectations", "Allowing time for improvement"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to lead:", options: ["From the front", "By example", "From behind the scenes", "As part of the team"], dimension: "EI", weights: [2, -1, 1, -2] },
+                { question: "When setting goals, you:", options: ["Make them specific and measurable", "Align them with team values", "Focus on long-term vision", "Allow for flexibility"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You handle change by:", options: ["Embracing it", "Supporting the team through it", "Planning carefully", "Adapting as needed"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "You build team culture by:", options: ["Setting clear expectations", "Encouraging collaboration", "Celebrating success", "Fostering innovation"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "You prefer to communicate:", options: ["Directly and clearly", "With empathy", "Through stories and examples", "By listening first"], dimension: "EI", weights: [2, -1, 1, -2] },
+                { question: "You handle stress as a leader by:", options: ["Staying focused on goals", "Seeking support from others", "Taking time to reflect", "Adapting your approach"], dimension: "TF", weights: [2, -1, 1, -2] },
+                { question: "You encourage growth by:", options: ["Providing learning opportunities", "Giving constructive feedback", "Setting stretch goals", "Supporting risk-taking"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "You measure success by:", options: ["Achieving results", "Team satisfaction", "Personal growth", "Innovation and change"], dimension: "JP", weights: [2, -1, 1, -2] }
+            ],
+            'communication': [
+                // 20 Communication questions
+                { question: "When explaining something, you prefer to:", options: ["Use concrete examples and facts", "Share stories and analogies", "Provide step-by-step instructions", "Focus on the big picture"], dimension: "SN", weights: [3, -1, 1, -2] },
+                { question: "In conversations, you tend to:", options: ["Listen more than speak", "Ask questions to understand", "Share your thoughts openly", "Guide the conversation"], dimension: "EI", weights: [2, 0, -2, -1] },
+                { question: "When giving feedback, you:", options: ["Focus on facts and improvement", "Consider the person's feelings", "Be direct and honest", "Be encouraging and supportive"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer written communication that is:", options: ["Concise and to the point", "Detailed and comprehensive", "Personal and engaging", "Creative and inspiring"], dimension: "JP", weights: [2, -1, -2, 1] },
+                { question: "In group discussions, you:", options: ["Contribute when you have something valuable to say", "Actively participate and share ideas", "Listen and process before speaking", "Facilitate and guide the discussion"], dimension: "EI", weights: [1, -2, 2, -1] },
+                { question: "You express disagreement by:", options: ["Stating your view directly", "Asking questions to clarify", "Listening and then responding", "Trying to find common ground"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to communicate in:", options: ["Person", "Writing", "Groups", "One-on-one"], dimension: "EI", weights: [2, -1, 1, -2] },
+                { question: "When someone misunderstands you, you:", options: ["Clarify immediately", "Ask what they heard", "Restate your point", "Let it go and move on"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You find it easier to:", options: ["Express ideas verbally", "Write your thoughts", "Show through actions", "Use visuals or diagrams"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "You prefer meetings that are:", options: ["Short and focused", "Collaborative and open", "Structured and organized", "Flexible and creative"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You handle conflict in communication by:", options: ["Addressing it directly", "Seeking compromise", "Listening to all sides", "Avoiding confrontation"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to receive feedback:", options: ["Directly and honestly", "With encouragement", "In writing", "In private"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You communicate best when:", options: ["You have time to prepare", "You can improvise", "You have a clear goal", "You can collaborate"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You prefer to listen to:", options: ["Facts and data", "Stories and experiences", "Ideas and concepts", "Feelings and emotions"], dimension: "SN", weights: [2, -1, 1, -2] },
+                { question: "You find small talk:", options: ["Easy and enjoyable", "Awkward but necessary", "A waste of time", "A way to connect"], dimension: "EI", weights: [2, -1, 1, -2] },
+                { question: "You prefer to communicate with:", options: ["Many people", "A few close friends", "Colleagues", "Family"], dimension: "EI", weights: [2, -1, 1, -2] },
+                { question: "You handle misunderstandings by:", options: ["Clarifying immediately", "Letting it go", "Discussing later", "Writing it out"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to persuade others by:", options: ["Using logic and facts", "Appealing to emotions", "Telling stories", "Showing examples"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You communicate best in:", options: ["Structured settings", "Casual conversations", "Presentations", "Written reports"], dimension: "JP", weights: [2, -1, 1, -2] },
+                { question: "You prefer to end conversations:", options: ["With a clear conclusion", "When everyone is satisfied", "When the topic is done", "When you feel ready"], dimension: "JP", weights: [2, -1, 1, -2] }
+            ],
+            'stress': [
+                // 20 Stress questions
+                { question: "When stressed, you typically:", options: ["Withdraw and need alone time", "Seek support from others", "Become more focused and productive", "Feel overwhelmed and scattered"], dimension: "EI", weights: [3, -2, -1, 1] },
+                { question: "Under pressure, you prefer to:", options: ["Analyze the situation logically", "Trust your instincts", "Seek advice from others", "Take action immediately"], dimension: "TF", weights: [2, -1, -2, 1] },
+                { question: "Stress affects your thinking by making you:", options: ["More focused on details", "More creative and innovative", "More systematic and organized", "More flexible and adaptable"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "To manage stress, you:", options: ["Create structured routines", "Allow flexibility and spontaneity", "Seek social support", "Find quiet time to reflect"], dimension: "JP", weights: [2, -2, -1, 1] },
+                { question: "When overwhelmed, you need:", options: ["Clear priorities and deadlines", "Space to process and reflect", "Support and encouragement", "Time to explore options"], dimension: "JP", weights: [2, -2, -1, 1] },
+                { question: "You handle stress at work by:", options: ["Focusing on tasks", "Talking to colleagues", "Taking breaks", "Reprioritizing"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You recover from stress by:", options: ["Resting alone", "Spending time with friends", "Doing something creative", "Exercising"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You notice stress when:", options: ["You feel tired", "You get irritable", "You lose focus", "You withdraw"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You manage deadlines by:", options: ["Planning ahead", "Working under pressure", "Asking for help", "Adjusting priorities"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You handle criticism by:", options: ["Reflecting on it", "Discussing it", "Ignoring it", "Using it to improve"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You cope with uncertainty by:", options: ["Seeking information", "Trusting your gut", "Waiting it out", "Making a plan"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You deal with setbacks by:", options: ["Trying again", "Seeking support", "Changing your approach", "Taking a break"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You notice stress in others by:", options: ["Their mood changes", "They withdraw", "They get irritable", "They ask for help"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You handle stress at home by:", options: ["Spending time alone", "Talking to family", "Doing hobbies", "Resting"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You manage stress long-term by:", options: ["Building routines", "Staying flexible", "Seeking support", "Taking breaks"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You notice stress physically by:", options: ["Tension", "Fatigue", "Restlessness", "Headaches"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You handle stress in relationships by:", options: ["Talking it out", "Taking space", "Finding compromise", "Letting it go"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You manage stress at school by:", options: ["Studying ahead", "Asking for help", "Taking breaks", "Staying organized"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You notice stress emotionally by:", options: ["Feeling anxious", "Getting sad", "Getting angry", "Feeling numb"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You handle stress best when:", options: ["You have support", "You have time alone", "You can take action", "You can talk it out"], dimension: "EI", weights: [2, -2, 1, -1] }
+            ],
+            'learning': [
+                // 20 Learning questions
+                { question: "You learn best when:", options: ["Following structured lessons", "Exploring concepts independently", "Working with others in groups", "Applying knowledge to real situations"], dimension: "EI", weights: [1, 2, -2, -1] },
+                { question: "When studying, you prefer:", options: ["Reading and taking notes", "Discussing with others", "Hands-on practice", "Visual aids and diagrams"], dimension: "SN", weights: [1, -1, 2, -2] },
+                { question: "You understand new concepts by:", options: ["Breaking them down into parts", "Seeing the overall pattern", "Relating them to experience", "Exploring different perspectives"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "In learning environments, you:", options: ["Prefer clear structure and deadlines", "Like flexibility and open exploration", "Enjoy collaborative projects", "Focus on practical applications"], dimension: "JP", weights: [2, -2, -1, 1] },
+                { question: "You retain information best when:", options: ["It's organized systematically", "It's presented creatively", "You can discuss it with others", "You can apply it immediately"], dimension: "JP", weights: [2, -2, -1, 1] },
+                { question: "You prefer to learn:", options: ["By doing", "By listening", "By reading", "By watching"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You study best:", options: ["In silence", "With background noise", "With music", "With others"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You remember information by:", options: ["Writing it down", "Saying it aloud", "Drawing diagrams", "Teaching others"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You prefer assignments that are:", options: ["Structured", "Open-ended", "Collaborative", "Creative"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You learn best in:", options: ["Short sessions", "Long sessions", "Group settings", "Solo study"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You prefer teachers who:", options: ["Are organized", "Are flexible", "Are enthusiastic", "Are supportive"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You like to review by:", options: ["Summarizing notes", "Discussing with others", "Making flashcards", "Drawing mind maps"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You prefer to work on:", options: ["One project at a time", "Multiple projects", "Group projects", "Creative projects"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You learn best from:", options: ["Examples", "Lectures", "Discussions", "Experiments"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You prefer to study:", options: ["In the morning", "At night", "Whenever you can", "With friends"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You like to organize your notes:", options: ["By topic", "By date", "By importance", "By color"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You prefer to learn about:", options: ["Facts", "Theories", "Applications", "Ideas"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You remember best when:", options: ["You teach others", "You write it down", "You discuss it", "You see it visually"], dimension: "SN", weights: [2, -2, 1, -1] },
+                { question: "You like to prepare for tests by:", options: ["Reviewing notes", "Taking practice tests", "Studying with others", "Making summaries"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You prefer to learn in:", options: ["A structured environment", "A flexible environment", "A collaborative environment", "A creative environment"], dimension: "JP", weights: [2, -2, 1, -1] }
+            ],
+            'relationships': [
+                // 20 Relationship questions
+                { question: "In relationships, you value:", options: ["Deep emotional connection", "Intellectual compatibility", "Shared activities and experiences", "Mutual respect and understanding"], dimension: "TF", weights: [-2, 2, 0, 1] },
+                { question: "You show affection by:", options: ["Spending quality time together", "Giving thoughtful gifts", "Physical touch and closeness", "Acts of service and support"], dimension: "EI", weights: [-1, 1, -2, 2] },
+                { question: "When resolving conflicts, you:", options: ["Address issues directly", "Consider feelings and emotions", "Seek compromise and understanding", "Give space and time to process"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer relationships that are:", options: ["Stable and predictable", "Dynamic and exciting", "Deep and meaningful", "Light and fun"], dimension: "JP", weights: [2, -2, -1, 1] },
+                { question: "In social situations, you:", options: ["Form deep connections with few people", "Enjoy meeting many new people", "Focus on meaningful conversations", "Keep interactions light and enjoyable"], dimension: "EI", weights: [2, -2, -1, 1] },
+                { question: "You feel loved when:", options: ["You receive words of affirmation", "You get gifts", "You spend quality time", "You get physical affection"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to resolve disagreements by:", options: ["Talking it out", "Taking space", "Finding compromise", "Letting it go"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You like to spend time with your partner:", options: ["Doing activities together", "Having deep conversations", "Going on adventures", "Relaxing at home"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You value honesty in relationships:", options: ["Above all else", "As long as it's kind", "When it's necessary", "When it helps growth"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to plan dates that are:", options: ["Organized and thoughtful", "Spontaneous and fun", "Romantic and meaningful", "Relaxed and casual"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You handle jealousy by:", options: ["Discussing it openly", "Keeping it to yourself", "Letting it pass", "Seeking reassurance"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to express love:", options: ["With words", "With actions", "With gifts", "With time"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You like to celebrate milestones:", options: ["With a big event", "With a small gathering", "With a private moment", "With a gift"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You handle long-distance relationships by:", options: ["Communicating often", "Trusting your partner", "Planning visits", "Staying busy"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You prefer to meet new people:", options: ["Through friends", "At events", "Online", "Randomly"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You value independence in relationships:", options: ["A lot", "Somewhat", "Not much", "Not at all"], dimension: "JP", weights: [2, -2, 1, -1] },
+                { question: "You handle breakups by:", options: ["Moving on quickly", "Taking time to heal", "Staying friends", "Cutting off contact"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to spend holidays:", options: ["With family", "With partner", "With friends", "Alone"], dimension: "EI", weights: [2, -2, 1, -1] },
+                { question: "You like to show appreciation by:", options: ["Giving gifts", "Saying thank you", "Doing something nice", "Spending time together"], dimension: "TF", weights: [2, -2, 1, -1] },
+                { question: "You prefer to resolve misunderstandings by:", options: ["Talking immediately", "Waiting until calm", "Writing a message", "Letting it go"], dimension: "TF", weights: [2, -2, 1, -1] }
+            ]
+        };
+        
+        return quizTypes[this.currentQuizType] || quizTypes['leadership'];
+    }
 
     startQuiz() {
+        this.questions = this.generateQuestions(); // <-- Add this line
+        this.currentQuestion = 0;
+        this.answers = [];
+        this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        this.selectedOption = null;
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'flex';
         this.displayQuestion();
@@ -2382,14 +2516,54 @@ function checkAndShowLastResultsButton() {
 function updateQuizDescription() {
     const questionCountSpan = document.getElementById('questionCount');
     const quizDescription = document.getElementById('quizDescription');
+    const premiumQuizTypes = document.getElementById('premiumQuizTypes');
     
     if (isPremium()) {
         questionCountSpan.textContent = '60';
         quizDescription.innerHTML = 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of <span id="questionCount">60</span> questions that will evaluate your preferences across four dimensions:';
+        if (premiumQuizTypes) {
+            premiumQuizTypes.style.display = 'block';
+        }
     } else {
         questionCountSpan.textContent = '20';
         quizDescription.innerHTML = 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of <span id="questionCount">20</span> questions that will evaluate your preferences across four dimensions: <span style="color: #ffd700; font-weight: 600;">(Upgrade to Premium for the full 60-question assessment)</span>';
+        if (premiumQuizTypes) {
+            premiumQuizTypes.style.display = 'none';
+        }
     }
+}
+
+// Function to start different quiz types
+function startQuizType(quizType) {
+    if (!isPremium()) {
+        openPremiumModal();
+        return;
+    }
+    
+    // Set current quiz type
+    quiz.currentQuizType = quizType;
+    
+    // Update welcome screen to show quiz type
+    const welcomeContent = document.querySelector('.welcome-content h2');
+    const originalTitle = welcomeContent.textContent;
+    
+    const quizTypeTitles = {
+        'leadership': 'Leadership Style Assessment',
+        'communication': 'Communication Style Assessment',
+        'stress': 'Stress Response Assessment',
+        'learning': 'Learning Style Assessment',
+        'relationships': 'Relationship Dynamics Assessment'
+    };
+    
+    welcomeContent.textContent = quizTypeTitles[quizType] || 'MBTI Personality Quiz';
+    
+    // Start the quiz
+    quiz.startQuiz();
+    
+    // Restore original title when quiz ends
+    setTimeout(() => {
+        welcomeContent.textContent = originalTitle;
+    }, 100);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2437,4 +2611,38 @@ function restartQuiz() {
 
 function shareResults() {
     if (quiz) quiz.shareResults();
+}
+
+function exitQuiz() {
+    // Show custom confirmation modal
+    document.getElementById('exitQuizModal').style.display = 'flex';
+}
+
+function closeExitQuizModal() {
+    document.getElementById('exitQuizModal').style.display = 'none';
+}
+
+function confirmExitQuiz() {
+    // Reset quiz state
+    if (quiz) {
+        quiz.currentQuestion = 0;
+        quiz.answers = [];
+        quiz.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        quiz.selectedOption = null;
+    }
+    
+    // Return to welcome screen
+    document.getElementById('quizQuestions').style.display = 'none';
+    document.getElementById('welcomeScreen').style.display = 'flex';
+    
+    // Reset quiz type to default
+    if (quiz) {
+        quiz.currentQuizType = 'mbti';
+    }
+    
+    // Update quiz description
+    updateQuizDescription();
+    
+    // Close the modal
+    closeExitQuizModal();
 } 

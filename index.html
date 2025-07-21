@@ -57,6 +57,40 @@
                     <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="margin-left: 10px; display: none;">
                         <i class="fas fa-history"></i> View Last Results
                     </button>
+                    
+                    <!-- Premium Quiz Types -->
+                    <div id="premiumQuizTypes" style="display: none; margin-top: 20px;">
+                        <h3 style="color: #ffd700; margin-bottom: 15px;">
+                            <i class="fas fa-star"></i> Premium Quiz Types
+                        </h3>
+                        <div class="quiz-types-grid">
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('leadership')">
+                                <i class="fas fa-crown"></i>
+                                <span>Leadership Style</span>
+                                <small>Discover your leadership approach</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('communication')">
+                                <i class="fas fa-comments"></i>
+                                <span>Communication Style</span>
+                                <small>Understand how you communicate</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('stress')">
+                                <i class="fas fa-brain"></i>
+                                <span>Stress Response</span>
+                                <small>Learn how you handle stress</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('learning')">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Learning Style</span>
+                                <small>Find your optimal learning method</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('relationships')">
+                                <i class="fas fa-heart"></i>
+                                <span>Relationship Dynamics</span>
+                                <small>Explore your relationship patterns</small>
+                            </button>
+                        </div>
+                    </div>
                     <div class="dev-tools" id="devToolsWelcome" style="display: none; margin-top: 20px;">
                         <button class="btn btn-dev" onclick="fillAllRandomAnswersFromWelcome()">
                             <i class="fas fa-dice"></i> Random Answers
@@ -67,6 +101,12 @@
 
             <!-- Quiz Questions -->
             <div class="quiz-questions" id="quizQuestions" style="display: none;">
+                <div class="quiz-header">
+                    <button class="btn btn-back" onclick="exitQuiz()">
+                        <i class="fas fa-arrow-left"></i> Exit Quiz
+                    </button>
+                </div>
+                
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -100,6 +140,25 @@
                     </button>
                 </div>
                 
+            </div>
+
+            <!-- Exit Quiz Confirmation Modal -->
+            <div class="modal" id="exitQuizModal" style="display: none;">
+                <div class="modal-content exit-confirmation">
+                    <div class="exit-confirmation-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Exit Quiz?</h3>
+                    </div>
+                    <p>Are you sure you want to exit the quiz? Your progress will be lost.</p>
+                    <div class="exit-confirmation-buttons">
+                        <button class="btn btn-secondary" onclick="closeExitQuizModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmExitQuiz()">
+                            <i class="fas fa-sign-out-alt"></i> Exit Quiz
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Results Screen -->
