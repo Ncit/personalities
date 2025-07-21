@@ -13,8 +13,12 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
+            <div class="state-badge" id="stateBadge" onclick="toggleAppState()">STATE</div>
             <h1><i class="fas fa-brain"></i> MBTI Personality Quiz</h1>
             <p>Discover your personality type with our comprehensive 16 personalities assessment</p>
+            <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
+                <i class="fas fa-star"></i> Upgrade to Premium
+            </button>
         </header>
 
         <!-- Quiz Container -->
@@ -50,6 +54,11 @@
                     <button class="btn btn-secondary" onclick="openTypesModal()" style="margin-left: 10px;">
                         <i class="fas fa-book-open"></i> Browse Types
                     </button>
+                    <div class="dev-tools" id="devToolsWelcome" style="display: none; margin-top: 20px;">
+                        <button class="btn btn-dev" onclick="fillAllRandomAnswersFromWelcome()">
+                            <i class="fas fa-dice"></i> Random Answers
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -85,6 +94,13 @@
                     <span class="question-counter" id="questionCounter">1 / 60</span>
                     <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>
                         Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Development Tools -->
+                <div class="dev-tools" id="devTools" style="display: none;">
+                    <button class="btn btn-dev" onclick="fillRandomAnswers()">
+                        <i class="fas fa-dice"></i> Random Answers
                     </button>
                 </div>
             </div>
@@ -136,6 +152,134 @@
                         </div>
                     </div>
 
+                    <!-- Premium Features -->
+                    <div class="premium-features">
+                        <!-- Advanced Insights -->
+                        <div class="premium-section" id="advancedInsightsSection">
+                            <div class="premium-locked" id="advancedInsightsLocked">
+                                <h3>Advanced Personality Insights</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Get deeper analysis of your personality type including strengths, weaknesses, career recommendations, and growth opportunities.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-star"></i> Unlock Advanced Insights
+                                </button>
+                            </div>
+                            <div class="premium-content" id="advancedInsightsContent" style="display: none;">
+                                <h3><i class="fas fa-chart-bar"></i> Advanced Personality Insights</h3>
+                                <div class="insights-grid">
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-star"></i> Key Strengths</h4>
+                                        <div id="strengthsList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-exclamation-triangle"></i> Growth Areas</h4>
+                                        <div id="weaknessesList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-briefcase"></i> Career Recommendations</h4>
+                                        <div id="careerList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-lightbulb"></i> Personal Development</h4>
+                                        <div id="developmentList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Analytics -->
+                        <div class="premium-section" id="analyticsSection">
+                            <div class="premium-locked" id="analyticsLocked">
+                                <h3>Visual Analytics</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Explore detailed charts and graphs showing your personality dimensions and preferences.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-chart-pie"></i> Unlock Analytics
+                                </button>
+                            </div>
+                            <div class="premium-content" id="analyticsContent" style="display: none;">
+                                <h3><i class="fas fa-chart-pie"></i> Visual Analytics</h3>
+                                <div class="analytics-grid">
+                                    <div class="chart-container">
+                                        <h4>Personality Radar Chart</h4>
+                                        <canvas id="radarChart" width="300" height="300"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h4>Dimension Comparison</h4>
+                                        <canvas id="barChart" width="300" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Famous Personalities -->
+                        <div class="premium-section" id="famousSection">
+                            <div class="premium-locked" id="famousLocked">
+                                <h3>Famous Personalities</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Discover famous people who share your personality type and learn from their achievements.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-user-tie"></i> Unlock Famous People
+                                </button>
+                            </div>
+                            <div class="premium-content" id="famousContent" style="display: none;">
+                                <h3><i class="fas fa-user-tie"></i> Famous Personalities</h3>
+                                <div class="famous-grid" id="famousGrid"></div>
+                            </div>
+                        </div>
+
+                        <!-- PDF Download -->
+                        <div class="premium-section" id="pdfSection">
+                            <div class="premium-locked" id="pdfLocked">
+                                <h3>Download PDF Report</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Get a comprehensive PDF report of your personality analysis to save and share.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-file-pdf"></i> Unlock PDF Download
+                                </button>
+                            </div>
+                            <div class="premium-content" id="pdfContent" style="display: none;">
+                                <h3><i class="fas fa-file-pdf"></i> Download PDF Report</h3>
+                                <p>Generate a comprehensive report including your personality type, insights, and recommendations.</p>
+                                <button class="btn btn-primary" onclick="generatePDF()">
+                                    <i class="fas fa-download"></i> Download PDF Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Save/Share Results -->
+                        <div class="premium-section" id="shareSection">
+                            <div class="premium-locked" id="shareLocked">
+                                <h3>Save & Share Results</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Save your results and share them with friends using a custom link.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-link"></i> Unlock Save & Share
+                                </button>
+                            </div>
+                            <div class="premium-content" id="shareContent" style="display: none;">
+                                <h3><i class="fas fa-link"></i> Save & Share Results</h3>
+                                <div class="share-container">
+                                    <input type="text" id="shareLink" readonly placeholder="Your results link will appear here">
+                                    <button class="btn btn-secondary" onclick="copyShareLink()">
+                                        <i class="fas fa-copy"></i> Copy Link
+                                    </button>
+                                </div>
+                                <p class="share-note">Share this link with friends to show them your personality type!</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="action-buttons">
                         <button class="btn btn-secondary" onclick="restartQuiz()">
                             <i class="fas fa-redo"></i> Take Quiz Again
@@ -161,11 +305,39 @@
             <div class="modal-content">
                 <span class="close" onclick="closeTypesModal()">&times;</span>
                 <h2>MBTI Personality Types</h2>
+                <div class="types-header">
+                    <p>Explore all 16 personality types. <span class="premium-note">Full descriptions available with Premium.</span></p>
+                    <button class="btn btn-premium" onclick="openPremiumModal()">
+                        <i class="fas fa-star"></i> Upgrade to Premium
+                    </button>
+                </div>
                 <div id="typesList" class="types-list"></div>
+            </div>
+        </div>
+
+        <!-- Premium Modal -->
+        <div id="premiumModal" class="modal" style="display:none;">
+            <div class="modal-content premium-modal-content">
+                <span class="close" onclick="closePremiumModal()">&times;</span>
+                <h2>Unlock Premium Features</h2>
+                <ul class="premium-benefits-list">
+                    <li><i class="fas fa-chart-bar"></i> Advanced personality insights</li>
+                    <li><i class="fas fa-file-pdf"></i> Downloadable PDF report</li>
+                    <li><i class="fas fa-user-tie"></i> Comparison to famous personalities</li>
+                    <li><i class="fas fa-link"></i> Save/share results with a custom link</li>
+                    <li><i class="fas fa-book-open"></i> Full type descriptions</li>
+                    <li><i class="fas fa-chart-pie"></i> Visual analytics (charts/graphs)</li>
+                    <li><i class="fas fa-ban"></i> Ad-free experience</li>
+                </ul>
+                <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
+                    <i class="fas fa-unlock"></i> Unlock Premium (Demo)
+                </button>
+                <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html> 
