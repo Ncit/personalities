@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 16 Personalities Quiz</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-brain"></i> MBTI Personality Quiz</h1>
+            <p>Discover your personality type with our comprehensive 16 personalities assessment</p>
+        </header>
+
+        <!-- Quiz Container -->
+        <div class="quiz-container" id="quizContainer">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <h2>Welcome to the MBTI Personality Quiz</h2>
+                    <p>This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of 60 questions that will evaluate your preferences across four dimensions:</p>
+                    
+                    <div class="dimensions">
+                        <div class="dimension">
+                            <h3><i class="fas fa-users"></i> Extraversion (E) vs Introversion (I)</h3>
+                            <p>How you direct and receive energy</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-eye"></i> Sensing (S) vs Intuition (N)</h3>
+                            <p>How you take in information</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-balance-scale"></i> Thinking (T) vs Feeling (F)</h3>
+                            <p>How you make decisions</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-clock"></i> Judging (J) vs Perceiving (P)</h3>
+                            <p>How you approach the outer world</p>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="startQuiz()">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                    <button class="btn btn-secondary" onclick="openTypesModal()" style="margin-left: 10px;">
+                        <i class="fas fa-book-open"></i> Browse Types
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Questions -->
+            <div class="quiz-questions" id="quizQuestions" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div class="question-container">
+                    <h3 class="question-text" id="questionText"></h3>
+                    
+                    <div class="options">
+                        <button class="option-btn" onclick="selectOption(1)">
+                            <span class="option-text" id="option1"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(2)">
+                            <span class="option-text" id="option2"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(3)">
+                            <span class="option-text" id="option3"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(4)">
+                            <span class="option-text" id="option4"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <span class="question-counter" id="questionCounter">1 / 60</span>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="results-screen" id="resultsScreen" style="display: none;">
+                <div class="results-content">
+                    <h2>Your Personality Type: <span id="personalityType"></span></h2>
+                    <div class="personality-card" id="personalityCard">
+                        <div class="personality-header">
+                            <h3 id="personalityTitle"></h3>
+                            <p id="personalitySubtitle"></p>
+                        </div>
+                        <div class="personality-description" id="personalityDescription"></div>
+                        <div class="personality-traits" id="personalityTraits"></div>
+                    </div>
+
+                    <div class="dimension-breakdown">
+                        <h3>Your Preferences Breakdown</h3>
+                        <div class="dimension-bars">
+                            <div class="dimension-bar">
+                                <span>Extraversion (E)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="eBar"></div>
+                                </div>
+                                <span>Introversion (I)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Sensing (S)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="sBar"></div>
+                                </div>
+                                <span>Intuition (N)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Thinking (T)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="tBar"></div>
+                                </div>
+                                <span>Feeling (F)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Judging (J)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="jBar"></div>
+                                </div>
+                                <span>Perceiving (P)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="restartQuiz()">
+                            <i class="fas fa-redo"></i> Take Quiz Again
+                        </button>
+                        <button class="btn btn-primary" onclick="shareResults()">
+                            <i class="fas fa-share"></i> Share Results
+                        </button>
+                        <button class="btn btn-secondary" onclick="openTypesModal()">
+                            <i class="fas fa-book-open"></i> Browse Types
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 MBTI Personality Quiz. Based on the Myers-Briggs Type Indicator® framework.</p>
+        </footer>
+
+        <!-- MBTI Types Modal -->
+        <div id="typesModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeTypesModal()">&times;</span>
+                <h2>MBTI Personality Types</h2>
+                <div id="typesList" class="types-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
