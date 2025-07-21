@@ -86,7 +86,99 @@ export const en = {
         errorSharingResults: 'Error sharing results:',
         errorFillingRandomAnswers: 'Error filling random answers:',
         errorTogglingAppState: 'Error toggling app state:',
-        errorExitingQuiz: 'Error exiting quiz:'
+        errorExitingQuiz: 'Error exiting quiz:',
+        randomAnswersFilled: 'Random answers filled from welcome screen!',
+        randomAnswersFilledTesting: 'Random answers filled for testing!',
+        appStateChanged: 'App state changed to: {state}',
+        currentAppState: 'Current app state: {state}'
+    },
+    
+    // UI Messages
+    ui: {
+        // Quiz-related
+        questionCounter: 'Question {current} of {total}',
+        startQuiz: 'Start Quiz',
+        nextQuestion: 'Next Question',
+        previousQuestion: 'Previous Question',
+        restartQuiz: 'Take Quiz Again',
+        exitQuiz: 'Exit Quiz',
+        browseTypes: 'Browse Types',
+        viewLastResults: 'View Last Results',
+        
+        // Results-related
+        shareResults: 'Share Results',
+        downloadPDF: 'Download PDF Report',
+        copyLink: 'Copy Link',
+        generatingPDF: 'Generating PDF...',
+        pdfGenerated: 'PDF Generated!',
+        copied: 'Copied!',
+        resultsCopiedAlert: 'Results copied to clipboard!',
+        
+        // Premium-related
+        upgradeToPremium: 'Upgrade to Premium',
+        premiumActive: 'Premium Active',
+        premiumUnlocked: '🎉 Premium unlocked! Enjoy all features.',
+        unlockPremium: 'Unlock Premium (Demo)',
+        
+        // App state
+        development: 'DEVELOPMENT',
+        release: 'RELEASE',
+        
+        // Quiz types
+        mbtiQuiz: 'MBTI Personality Quiz',
+        leadershipQuiz: 'Leadership Style Quiz',
+        communicationQuiz: 'Communication Style Quiz',
+        stressQuiz: 'Stress Response Quiz',
+        learningQuiz: 'Learning Style Quiz',
+        relationshipsQuiz: 'Relationship Dynamics Quiz',
+        creativityQuiz: 'Creativity & Innovation Quiz',
+        decisionQuiz: 'Decision Making Quiz',
+        
+        // Quiz descriptions
+        mbtiDescription: 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of {count} questions that will evaluate your preferences across four dimensions:',
+        premiumUpgradeNote: '(Upgrade to Premium for the full 60-question assessment)',
+        
+        // Dimensions
+        dimensionEI: 'Extraversion (E) vs Introversion (I)',
+        dimensionSN: 'Sensing (S) vs Intuition (N)',
+        dimensionTF: 'Thinking (T) vs Feeling (F)',
+        dimensionJP: 'Judging (J) vs Perceiving (P)',
+        dimensionEIDesc: 'How you direct and receive energy',
+        dimensionSNDesc: 'How you take in information',
+        dimensionTFDesc: 'How you make decisions',
+        dimensionJPDesc: 'How you approach the outer world',
+        
+        // Welcome screen
+        welcomeTitle: 'Welcome to the MBTI Personality Quiz',
+        welcomeDescription: 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of {count} questions that will evaluate your preferences across four dimensions:',
+        
+        // Premium features
+        premiumFeatures: {
+            advancedInsights: 'Advanced personality insights',
+            pdfReport: 'Downloadable PDF report',
+            famousPersonalities: 'Comparison to famous personalities',
+            saveShare: 'Save/share results with a custom link',
+            fullDescriptions: 'Full type descriptions',
+            visualAnalytics: 'Visual analytics (charts/graphs)',
+            adFree: 'Ad-free experience'
+        },
+        
+        // Modal titles
+        unlockPremiumTitle: 'Unlock Premium Features',
+        mbtiTypesTitle: 'MBTI Personality Types',
+        typesHeader: 'Explore all 16 personality types. Full descriptions available with Premium.',
+        
+        // PDF content
+        pdfTitle: 'Personality Report',
+        pdfPersonalDevelopment: 'Personal Development:',
+        
+        // Buttons
+        close: 'Close',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        save: 'Save',
+        loading: 'Loading...',
+        processing: 'Processing...'
     }
 };
 

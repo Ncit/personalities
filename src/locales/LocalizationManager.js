@@ -4,14 +4,16 @@
  */
 
 import { en } from './en.js';
+import { ru } from './ru.js';
 
 class LocalizationManager {
     constructor() {
-        this.currentLocale = 'en';
+        this.currentLocale = 'ru';
         this.locales = {
             en: en,
+            ru: ru
         };
-        this.fallbackLocale = 'en';
+        this.fallbackLocale = 'ru';
     }
 
     /**
