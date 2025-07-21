@@ -789,6 +789,10 @@ class MBTIQuiz {
         document.getElementById('resultsScreen').style.display = 'block';
         
         const personalityType = this.calculatePersonalityType();
+        
+        // Save results to localStorage
+        this.saveResultsToStorage(personalityType);
+        
         this.displayPersonalityResults(personalityType);
         this.displayDimensionBreakdown();
         
@@ -965,6 +969,60 @@ class MBTIQuiz {
         
         document.getElementById('resultsScreen').style.display = 'none';
         document.getElementById('welcomeScreen').style.display = 'block';
+        
+        // Check and show last results button after restart
+        checkAndShowLastResultsButton();
+    }
+    
+    saveResultsToStorage(personalityType) {
+        const results = {
+            personalityType: personalityType,
+            scores: this.scores,
+            answers: this.answers,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString()
+        };
+        
+        localStorage.setItem('mbti_last_results', JSON.stringify(results));
+    }
+    
+    loadResultsFromStorage() {
+        const saved = localStorage.getItem('mbti_last_results');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return null;
+    }
+    
+    hasPreviousResults() {
+        return localStorage.getItem('mbti_last_results') !== null;
+    }
+    
+    displayLastResults() {
+        const results = this.loadResultsFromStorage();
+        if (!results) return false;
+        
+        // Restore scores and answers
+        this.scores = results.scores;
+        this.answers = results.answers;
+        
+        // Display results
+        this.displayPersonalityResults(results.personalityType);
+        this.displayDimensionBreakdown();
+        
+        // Show premium features if user is premium
+        if (isPremium()) {
+            displayAdvancedInsights(results.personalityType);
+            displayFamousPersonalities(results.personalityType);
+            createAnalyticsCharts();
+            
+            // Generate share link
+            const shareLink = document.getElementById('shareLink');
+            const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
+            shareLink.value = link;
+        }
+        
+        return true;
     }
 
     shareResults() {
@@ -1846,10 +1904,44 @@ function toggleAppState() {
     changeAppState(newState);
 }
 
+// Function to view last results
+function viewLastResults() {
+    if (quiz && quiz.hasPreviousResults()) {
+        // Hide welcome screen
+        document.getElementById('welcomeScreen').style.display = 'none';
+        
+        // Show results screen
+        document.getElementById('resultsScreen').style.display = 'block';
+        
+        // Display last results
+        quiz.displayLastResults();
+        
+        // Update premium UI
+        updatePremiumUI();
+    }
+}
+
+// Function to check and show last results button
+function checkAndShowLastResultsButton() {
+    const viewLastResultsBtn = document.getElementById('viewLastResultsBtn');
+    if (quiz && quiz.hasPreviousResults()) {
+        viewLastResultsBtn.style.display = 'inline-block';
+    } else {
+        viewLastResultsBtn.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize the quiz
+    quiz = new MBTIQuiz();
+    
     updatePremiumUI();
     updateStateBadge();
     updateDevToolsAll();
+    
+    // Check for previous results and show button if available
+    checkAndShowLastResultsButton();
+    
     // Log current state for debugging
     console.log(`Current app state: ${getCurrentAppState()}`);
 });
