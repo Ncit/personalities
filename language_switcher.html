@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Switcher - MBTI Quiz</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .language-option {
+            display: block;
+            margin: 15px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.2em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .language-option:hover {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .flag {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .description {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .current:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Выберите язык / Choose Language</h1>
+        
+        <a href="index.html" class="language-option">
+            <span class="flag">🇺🇸</span>
+            English Version
+            <div class="description">MBTI Personality Quiz in English</div>
+        </a>
+        
+        <a href="index.ru.html" class="language-option current">
+            <span class="flag">🇷🇺</span>
+            Русская версия
+            <div class="description">Тест личности MBTI на русском языке</div>
+        </a>
+        
+        <a href="index.html?locale=en" class="language-option">
+            <span class="flag">🔧</span>
+            English (URL Parameter)
+            <div class="description">Using localization system with ?locale=en</div>
+        </a>
+        
+        <a href="index.html?locale=ru" class="language-option">
+            <span class="flag">🔧</span>
+            Русский (URL параметр)
+            <div class="description">Используя систему локализации с ?locale=ru</div>
+        </a>
+    </div>
+</body>
+</html> 
