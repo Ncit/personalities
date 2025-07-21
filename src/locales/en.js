@@ -179,6 +179,74 @@ export const en = {
         save: 'Save',
         loading: 'Loading...',
         processing: 'Processing...'
+    },
+    
+    // Quiz Types
+    quizTypes: {
+        mbti: {
+            name: 'MBTI Personality Assessment',
+            description: 'Discover your Myers-Briggs Type Indicator personality type'
+        },
+        leadership: {
+            name: 'Leadership Style Assessment',
+            description: 'Discover your leadership approach and preferences'
+        },
+        communication: {
+            name: 'Communication Style Assessment',
+            description: 'Understand how you communicate and interact with others'
+        },
+        stress: {
+            name: 'Stress Response Assessment',
+            description: 'Learn how you handle stress and pressure'
+        },
+        learning: {
+            name: 'Learning Style Assessment',
+            description: 'Find your optimal learning method and preferences'
+        },
+        relationships: {
+            name: 'Relationship Dynamics Assessment',
+            description: 'Explore your relationship patterns and preferences'
+        },
+        creativity: {
+            name: 'Creativity & Innovation Assessment',
+            description: 'Unlock your creative potential and innovative thinking'
+        },
+        decision: {
+            name: 'Decision Making Assessment',
+            description: 'Understand your decision-making processes and preferences'
+        },
+        teamwork: {
+            name: 'Team Collaboration Assessment',
+            description: 'Discover your team role preferences and collaboration styles'
+        },
+        career: {
+            name: 'Career Preferences Assessment',
+            description: 'Find your ideal work environment and career motivations'
+        },
+        conflict: {
+            name: 'Conflict Resolution Assessment',
+            description: 'Learn your conflict handling style and resolution preferences'
+        },
+        motivation: {
+            name: 'Motivation & Drive Assessment',
+            description: 'Discover what drives you forward and keeps you motivated'
+        },
+        adaptability: {
+            name: 'Adaptability & Change Assessment',
+            description: 'Understand how you handle change and adapt to new situations'
+        },
+        emotional: {
+            name: 'Emotional Intelligence Assessment',
+            description: 'Assess your emotional awareness and interpersonal skills'
+        },
+        productivity: {
+            name: 'Productivity Style Assessment',
+            description: 'Optimize your work efficiency and task management'
+        },
+        social: {
+            name: 'Social Interaction Assessment',
+            description: 'Explore your social preferences and interaction styles'
+        }
     }
 };
 

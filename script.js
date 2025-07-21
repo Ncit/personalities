@@ -1,5 +1,6 @@
 // Import data from QuizData.js
-import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.js';
+import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
+import localizationManager from './src/locales/LocalizationManager.js';
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -1557,7 +1558,7 @@ function openTypesModal() {
     list.innerHTML = '';
     Object.values(MBTI_TYPES).forEach(type => {
         const card = document.createElement('div');
-        card.className = 'type-card';
+        card.classNamef = 'type-card';
         
         // Show limited description for free users, full for premium
         const isPremiumUser = isPremium();
@@ -1642,12 +1643,12 @@ function updatePremiumUI() {
     const btns = document.querySelectorAll('.btn-premium, .premium-teaser-btn');
     btns.forEach(btn => {
         if (isPremiumUser) {
-            btn.textContent = 'Premium Active';
+            btn.textContent = localizationManager.get('ui.premiumActive');
             btn.disabled = true;
             btn.style.opacity = '0.6';
         } else {
             if (btn.id === 'headerPremiumBtn') {
-                btn.innerHTML = '<i class="fas fa-star"></i> Upgrade to Premium';
+                btn.innerHTML = `<i class="fas fa-star"></i> ${localizationManager.get('ui.upgradeToPremium')}`;
             }
             btn.disabled = false;
             btn.style.opacity = '1';
@@ -2374,13 +2375,13 @@ function updateQuizDescription() {
     
     if (isPremium()) {
         questionCountSpan.textContent = '60';
-        quizDescription.innerHTML = 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of <span id="questionCount">60</span> questions that will evaluate your preferences across four dimensions:';
+        quizDescription.innerHTML = localizationManager.get('ui.mbtiDescription', { count: 60 });
         if (premiumQuizTypes) {
             premiumQuizTypes.style.display = 'block';
         }
     } else {
         questionCountSpan.textContent = '20';
-        quizDescription.innerHTML = 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of <span id="questionCount">20</span> questions that will evaluate your preferences across four dimensions: <span style="color: #ffd700; font-weight: 600;">(Upgrade to Premium for the full 60-question assessment)</span>';
+        quizDescription.innerHTML = `${localizationManager.get('ui.mbtiDescription', { count: 20 })} <span style="color: #ffd700; font-weight: 600;">${localizationManager.get('ui.premiumUpgradeNote')}</span>`;
         if (premiumQuizTypes) {
             premiumQuizTypes.style.display = 'none';
         }
@@ -2402,24 +2403,24 @@ function startQuizType(quizType) {
     const originalTitle = welcomeContent.textContent;
     
     const quizTypeTitles = {
-        'leadership': 'Leadership Style Assessment',
-        'communication': 'Communication Style Assessment',
-        'stress': 'Stress Response Assessment',
-        'learning': 'Learning Style Assessment',
-        'relationships': 'Relationship Dynamics Assessment',
-        'creativity': 'Creativity & Innovation Assessment',
-        'decision': 'Decision Making Assessment',
-        'teamwork': 'Team Collaboration Assessment',
-        'career': 'Career Preferences Assessment',
-        'conflict': 'Conflict Resolution Assessment',
-        'motivation': 'Motivation & Drive Assessment',
-        'adaptability': 'Adaptability & Change Assessment',
-        'emotional': 'Emotional Intelligence Assessment',
-        'productivity': 'Productivity Style Assessment',
-        'social': 'Social Interaction Assessment'
+        'leadership': localizationManager.get('quizTypes.leadership.name'),
+        'communication': localizationManager.get('quizTypes.communication.name'),
+        'stress': localizationManager.get('quizTypes.stress.name'),
+        'learning': localizationManager.get('quizTypes.learning.name'),
+        'relationships': localizationManager.get('quizTypes.relationships.name'),
+        'creativity': localizationManager.get('quizTypes.creativity.name'),
+        'decision': localizationManager.get('quizTypes.decision.name'),
+        'teamwork': localizationManager.get('quizTypes.teamwork.name'),
+        'career': localizationManager.get('quizTypes.career.name'),
+        'conflict': localizationManager.get('quizTypes.conflict.name'),
+        'motivation': localizationManager.get('quizTypes.motivation.name'),
+        'adaptability': localizationManager.get('quizTypes.adaptability.name'),
+        'emotional': localizationManager.get('quizTypes.emotional.name'),
+        'productivity': localizationManager.get('quizTypes.productivity.name'),
+        'social': localizationManager.get('quizTypes.social.name')
     };
     
-    welcomeContent.textContent = quizTypeTitles[quizType] || 'MBTI Personality Quiz';
+    welcomeContent.textContent = quizTypeTitles[quizType] || localizationManager.get('ui.mbtiQuiz');
     
     // Start the quiz
     quiz.startQuiz();

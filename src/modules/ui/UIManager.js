@@ -184,7 +184,7 @@ export class UIManager {
         const results = stateManager.getLastResults();
         if (!results) return;
 
-        const { MBTI_TYPES } = await import('../../data/QuizData.js');
+        const { MBTI_TYPES } = await import('../../data/QuizData.ru.js');
         const personalityData = MBTI_TYPES[results.personalityType];
 
         // Update personality type
