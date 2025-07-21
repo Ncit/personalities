@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Russian Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .option {
+            padding: 5px 0;
+            margin: 2px 0;
+        }
+        .dimension {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .weights {
+            color: #999;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест русских вопросов MBTI</h1>
+    <div id="questions"></div>
+
+    <script type="module">
+        import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
+        
+        const questionsContainer = document.getElementById('questions');
+        
+        // Display first 5 questions as a test
+        const testQuestions = MBTI_QUESTIONS_RU.slice(0, 5);
+        
+        testQuestions.forEach((question, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            
+            const optionsList = question.options.map((option, optIndex) => 
+                `<li class="option">${optIndex + 1}. ${option}</li>`
+            ).join('');
+            
+            questionDiv.innerHTML = `
+                <div class="question-text">Вопрос ${index + 1}: ${question.question}</div>
+                <ul class="options">${optionsList}</ul>
+                <div class="dimension">Измерение: ${question.dimension}</div>
+                <div class="weights">Веса: [${question.weights.join(', ')}]</div>
+            `;
+            
+            questionsContainer.appendChild(questionDiv);
+        });
+        
+        console.log('Total Russian questions loaded:', MBTI_QUESTIONS_RU.length);
+        console.log('Sample question:', MBTI_QUESTIONS_RU[0]);
+    </script>
+</body>
+</html> 

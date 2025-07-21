@@ -2,6 +2,7 @@
 import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
 import localizationManager from './src/locales/LocalizationManager.js';
 import { MBTI_QUESTIONS } from './src/data/MainQuiz.js';
+import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -28,8 +29,9 @@ class MBTIQuiz {
             return this.generateSpecializedQuestions();
         }
         
-        // Return the imported MBTI questions
-        return MBTI_QUESTIONS;
+        // Return the appropriate questions based on current locale
+        // const currentLocale = localizationManager.getCurrentLocale();
+        return MBTI_QUESTIONS_RU; //currentLocale === 'ru' ? MBTI_QUESTIONS_RU : MBTI_QUESTIONS;
     }
     
     generateSpecializedQuestions() {
@@ -638,8 +640,6 @@ class MBTIQuiz {
         }
     }
 }
-
-
 
 function openTypesModal() {
     const modal = document.getElementById('typesModal');

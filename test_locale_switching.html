@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Locale Switching</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .question {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .option {
+            padding: 5px 0;
+            margin: 2px 0;
+        }
+        .dimension {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .current-locale {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Locale Switching with Questions</h1>
+    
+    <div class="controls">
+        <h3>Controls</h3>
+        <p>Current Locale: <span id="currentLocale" class="current-locale">Loading...</span></p>
+        <button onclick="switchToEnglish()">Switch to English</button>
+        <button onclick="switchToRussian()">Switch to Russian</button>
+        <button onclick="loadQuestions()">Load Questions</button>
+    </div>
+    
+    <div id="questions"></div>
+
+    <script type="module">
+        import { MBTI_QUESTIONS } from './src/data/MainQuiz.js';
+        import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
+        import LocalizationManager from './src/locales/LocalizationManager.js';
+        
+        // Initialize localization manager
+        const localizationManager = new LocalizationManager();
+        localizationManager.initialize();
+        
+        // Make functions global for button clicks
+        window.switchToEnglish = () => {
+            localizationManager.setLocale('en');
+            updateCurrentLocale();
+        };
+        
+        window.switchToRussian = () => {
+            localizationManager.setLocale('ru');
+            updateCurrentLocale();
+        };
+        
+        window.loadQuestions = () => {
+            const currentLocale = localizationManager.getCurrentLocale();
+            const questions = currentLocale === 'ru' ? MBTI_QUESTIONS_RU : MBTI_QUESTIONS;
+            displayQuestions(questions, currentLocale);
+        };
+        
+        function updateCurrentLocale() {
+            const currentLocale = localizationManager.getCurrentLocale();
+            document.getElementById('currentLocale').textContent = currentLocale;
+        }
+        
+        function displayQuestions(questions, locale) {
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.innerHTML = `<h2>Questions (${locale.toUpperCase()})</h2>`;
+            
+            // Display first 3 questions as a test
+            const testQuestions = questions.slice(0, 3);
+            
+            testQuestions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                const optionsList = question.options.map((option, optIndex) => 
+                    `<li class="option">${optIndex + 1}. ${option}</li>`
+                ).join('');
+                
+                questionDiv.innerHTML = `
+                    <div class="question-text">Question ${index + 1}: ${question.question}</div>
+                    <ul class="options">${optionsList}</ul>
+                    <div class="dimension">Dimension: ${question.dimension}</div>
+                `;
+                
+                questionsContainer.appendChild(questionDiv);
+            });
+            
+            console.log(`Loaded ${questions.length} questions for locale: ${locale}`);
+        }
+        
+        // Initialize display
+        updateCurrentLocale();
+        loadQuestions();
+    </script>
+</body>
+</html> 
