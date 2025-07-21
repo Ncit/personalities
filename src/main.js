@@ -6,6 +6,7 @@ import { stateManager } from './modules/core/StateManager.js';
 import { quizEngine } from './modules/quiz/QuizEngine.js';
 import { uiManager } from './modules/ui/UIManager.js';
 import { analyticsEngine } from './modules/analytics/AnalyticsEngine.js';
+import localizationManager from './locales/LocalizationManager.js';
 
 class MBTIApplication {
     constructor() {
@@ -20,7 +21,10 @@ class MBTIApplication {
 
     async initialize() {
         try {
-            console.log('🚀 Initializing MBTI Personality Quiz Application...');
+            // Initialize localization first
+            localizationManager.initialize();
+            
+            console.log(localizationManager.get('console.initStart'));
             
             // Initialize state from URL
             this.initializeAppState();
@@ -35,11 +39,11 @@ class MBTIApplication {
             this.setupDevTools();
             
             this.initialized = true;
-            console.log('✅ Application initialized successfully');
+            console.log(localizationManager.get('console.initSuccess'));
             
         } catch (error) {
-            console.error('❌ Failed to initialize application:', error);
-            this.showError('Failed to initialize application. Please refresh the page.');
+            console.error(localizationManager.get('console.initFailed'), error);
+            this.showError(localizationManager.get('errors.initFailed'));
         }
     }
 
@@ -56,14 +60,14 @@ class MBTIApplication {
     setupGlobalHandlers() {
         // Global error handler
         window.addEventListener('error', (event) => {
-            console.error('Global error:', event.error);
-            this.showError('An unexpected error occurred. Please try again.');
+            console.error(localizationManager.get('console.globalError'), event.error);
+            this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
         // Global unhandled promise rejection handler
         window.addEventListener('unhandledrejection', (event) => {
-            console.error('Unhandled promise rejection:', event.reason);
-            this.showError('An unexpected error occurred. Please try again.');
+            console.error(localizationManager.get('console.unhandledRejection'), event.reason);
+            this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
         // Handle browser back/forward
@@ -102,8 +106,8 @@ class MBTIApplication {
                 uiManager.displayCurrentQuestion();
             }
         } catch (error) {
-            console.error('Error starting quiz:', error);
-            this.showError('Failed to start quiz. Please try again.');
+            console.error(localizationManager.get('console.errorStartingQuiz'), error);
+            this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }
 
@@ -122,8 +126,8 @@ class MBTIApplication {
                 uiManager.displayCurrentQuestion();
             }
         } catch (error) {
-            console.error('Error starting quiz type:', error);
-            this.showError('Failed to start quiz. Please try again.');
+            console.error(localizationManager.get('console.errorStartingQuizType'), error);
+            this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }
 
@@ -132,8 +136,8 @@ class MBTIApplication {
             quizEngine.selectOption(optionNumber);
             uiManager.selectOption(optionNumber);
         } catch (error) {
-            console.error('Error selecting option:', error);
-            this.showError('Failed to select option. Please try again.');
+            console.error(localizationManager.get('console.errorSelectingOption'), error);
+            this.showError(localizationManager.get('errors.selectOptionFailed'));
         }
     }
 
@@ -141,8 +145,8 @@ class MBTIApplication {
         try {
             uiManager.nextQuestion();
         } catch (error) {
-            console.error('Error in next question:', error);
-            this.showError('Failed to proceed to next question. Please try again.');
+            console.error(localizationManager.get('console.errorNextQuestion'), error);
+            this.showError(localizationManager.get('errors.nextQuestionFailed'));
         }
     }
 
@@ -150,8 +154,8 @@ class MBTIApplication {
         try {
             uiManager.previousQuestion();
         } catch (error) {
-            console.error('Error in previous question:', error);
-            this.showError('Failed to go to previous question. Please try again.');
+            console.error(localizationManager.get('console.errorPreviousQuestion'), error);
+            this.showError(localizationManager.get('errors.previousQuestionFailed'));
         }
     }
 
@@ -161,8 +165,8 @@ class MBTIApplication {
             stateManager.setState({ currentScreen: 'welcome' });
             uiManager.showScreen('welcome');
         } catch (error) {
-            console.error('Error restarting quiz:', error);
-            this.showError('Failed to restart quiz. Please try again.');
+            console.error(localizationManager.get('console.errorRestartingQuiz'), error);
+            this.showError(localizationManager.get('errors.restartQuizFailed'));
         }
     }
 
@@ -188,10 +192,10 @@ class MBTIApplication {
             stateManager.setPremium(true);
             uiManager.updatePremiumUI(true);
             uiManager.closeModal('premium');
-            uiManager.showSuccess('Premium features unlocked!');
+            uiManager.showSuccess(localizationManager.get('success.premiumUnlocked'));
         } catch (error) {
-            console.error('Error unlocking premium:', error);
-            this.showError('Failed to unlock premium. Please try again.');
+            console.error(localizationManager.get('console.errorUnlockingPremium'), error);
+            this.showError(localizationManager.get('errors.unlockPremiumFailed'));
         }
     }
 
@@ -204,11 +208,11 @@ class MBTIApplication {
                 uiManager.showScreen('results');
                 analyticsEngine.createAnalyticsCharts(lastResults);
             } else {
-                this.showError('No previous results found.');
+                this.showError(localizationManager.get('errors.noPreviousResults'));
             }
         } catch (error) {
-            console.error('Error viewing last results:', error);
-            this.showError('Failed to load last results. Please try again.');
+            console.error(localizationManager.get('console.errorViewingLastResults'), error);
+            this.showError(localizationManager.get('errors.loadLastResultsFailed'));
         }
     }
 
@@ -226,7 +230,7 @@ class MBTIApplication {
         try {
             const results = stateManager.getLastResults();
             if (!results) {
-                this.showError('No results to generate PDF.');
+                this.showError(localizationManager.get('errors.noResultsForPDF'));
                 return;
             }
 
@@ -237,15 +241,15 @@ class MBTIApplication {
                 const pdfGen = new PDFGenerator();
                 pdfGen.generateResultsPDF(results);
                 uiManager.hideLoading();
-                uiManager.showSuccess('PDF generated successfully!');
+                uiManager.showSuccess(localizationManager.get('success.pdfGenerated'));
             }).catch(error => {
-                console.error('Error generating PDF:', error);
+                console.error(localizationManager.get('console.errorGeneratingPDF'), error);
                 uiManager.hideLoading();
-                this.showError('Failed to generate PDF. Please try again.');
+                this.showError(localizationManager.get('errors.generatePDFFailed'));
             });
         } catch (error) {
-            console.error('Error in PDF generation:', error);
-            this.showError('Failed to generate PDF. Please try again.');
+            console.error(localizationManager.get('console.errorGeneratingPDF'), error);
+            this.showError(localizationManager.get('errors.generatePDFFailed'));
         }
     }
 
@@ -253,7 +257,7 @@ class MBTIApplication {
         try {
             const results = stateManager.getLastResults();
             if (!results) {
-                this.showError('No results to share.');
+                this.showError(localizationManager.get('errors.noResultsToShare'));
                 return;
             }
 
@@ -269,14 +273,14 @@ class MBTIApplication {
             } else {
                 // Fallback to clipboard
                 navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`).then(() => {
-                    uiManager.showSuccess('Results copied to clipboard!');
+                    uiManager.showSuccess(localizationManager.get('success.resultsCopied'));
                 }).catch(() => {
-                    this.showError('Failed to copy results to clipboard.');
+                    this.showError(localizationManager.get('errors.copyToClipboardFailed'));
                 });
             }
         } catch (error) {
-            console.error('Error sharing results:', error);
-            this.showError('Failed to share results. Please try again.');
+            console.error(localizationManager.get('console.errorSharingResults'), error);
+            this.showError(localizationManager.get('errors.shareResultsFailed'));
         }
     }
 
@@ -284,7 +288,7 @@ class MBTIApplication {
     fillRandomAnswers() {
         try {
             if (!stateManager.isDevelopment()) {
-                this.showError('Random answers only available in development mode.');
+                this.showError(localizationManager.get('errors.randomAnswersDevOnly'));
                 return;
             }
 
@@ -294,8 +298,8 @@ class MBTIApplication {
                 analyticsEngine.createAnalyticsCharts(results);
             }
         } catch (error) {
-            console.error('Error filling random answers:', error);
-            this.showError('Failed to fill random answers. Please try again.');
+            console.error(localizationManager.get('console.errorFillingRandomAnswers'), error);
+            this.showError(localizationManager.get('errors.fillRandomAnswersFailed'));
         }
     }
 
@@ -307,8 +311,8 @@ class MBTIApplication {
             uiManager.updateStateBadge();
             this.setupDevTools();
         } catch (error) {
-            console.error('Error toggling app state:', error);
-            this.showError('Failed to toggle app state. Please try again.');
+            console.error(localizationManager.get('console.errorTogglingAppState'), error);
+            this.showError(localizationManager.get('errors.toggleAppStateFailed'));
         }
     }
 
@@ -328,8 +332,8 @@ class MBTIApplication {
             uiManager.showScreen('welcome');
             uiManager.closeModal('exitQuiz');
         } catch (error) {
-            console.error('Error exiting quiz:', error);
-            this.showError('Failed to exit quiz. Please try again.');
+            console.error(localizationManager.get('console.errorExitingQuiz'), error);
+            this.showError(localizationManager.get('errors.exitQuizFailed'));
         }
     }
 
