@@ -2509,4 +2509,26 @@ function confirmExitQuiz() {
     
     // Close the modal
     closeExitQuizModal();
-} 
+}
+
+// Make all functions available globally for HTML onclick handlers
+window.startQuiz = startQuiz;
+window.selectOption = selectOption;
+window.nextQuestion = nextQuestion;
+window.previousQuestion = previousQuestion;
+window.restartQuiz = restartQuiz;
+window.shareResults = shareResults;
+window.exitQuiz = exitQuiz;
+window.closeExitQuizModal = closeExitQuizModal;
+window.confirmExitQuiz = confirmExitQuiz;
+window.openTypesModal = openTypesModal;
+window.closeTypesModal = closeTypesModal;
+window.openPremiumModal = openPremiumModal;
+window.closePremiumModal = closePremiumModal;
+window.unlockPremium = unlockPremium;
+window.toggleAppState = toggleAppState;
+window.viewLastResults = viewLastResults;
+window.startQuizType = startQuizType;
+window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
+window.generatePDF = generatePDF;
+window.copyShareLink = copyShareLink; 
