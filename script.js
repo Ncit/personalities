@@ -1488,141 +1488,348 @@ function createAnalyticsCharts() {
     const jPercentage = totalJ > 0 ? (scores.J / totalJ) * 100 : 50;
     
     // Radar chart
-    const radarCanvas = document.getElementById('radarChart');
-    if (radarCanvas) {
-        const ctx = radarCanvas.getContext('2d');
-        const centerX = 150;
-        const centerY = 150;
-        const radius = 100;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
-        
-        // Draw radar grid
-        ctx.strokeStyle = '#e9ecef';
-        ctx.lineWidth = 1;
-        
-        // Draw concentric circles
-        for (let r = 20; r <= radius; r += 20) {
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
-            ctx.stroke();
-        }
-        
-        // Draw radar lines
-        ctx.strokeStyle = '#667eea';
-        ctx.lineWidth = 2;
-        const labels = ['E/I', 'S/N', 'T/F', 'J/P'];
-        const values = [ePercentage, sPercentage, tPercentage, jPercentage];
-        
-        for (let i = 0; i < 4; i++) {
-            const angle = (i * Math.PI) / 2 - Math.PI / 2; // Start from top
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-            
-            // Draw line from center
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            
-            // Add label
-            ctx.fillStyle = '#333';
-            ctx.font = '12px Inter';
-            ctx.textAlign = 'center';
-            const labelX = centerX + (radius + 15) * Math.cos(angle);
-            const labelY = centerY + (radius + 15) * Math.sin(angle);
-            ctx.fillText(labels[i], labelX, labelY);
-        }
-        
-        // Draw data polygon
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
-        ctx.strokeStyle = '#667eea';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        
-        for (let i = 0; i < 4; i++) {
-            const angle = (i * Math.PI) / 2 - Math.PI / 2;
-            const value = values[i] / 100; // Convert percentage to 0-1
-            const x = centerX + (radius * value) * Math.cos(angle);
-            const y = centerY + (radius * value) * Math.sin(angle);
-            
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        
-        // Add data points
-        ctx.fillStyle = '#667eea';
-        for (let i = 0; i < 4; i++) {
-            const angle = (i * Math.PI) / 2 - Math.PI / 2;
-            const value = values[i] / 100;
-            const x = centerX + (radius * value) * Math.cos(angle);
-            const y = centerY + (radius * value) * Math.sin(angle);
-            
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-    }
+    createRadarChart(ePercentage, sPercentage, tPercentage, jPercentage);
     
     // Bar chart
-    const barCanvas = document.getElementById('barChart');
-    if (barCanvas) {
-        const ctx = barCanvas.getContext('2d');
-        const barWidth = 40;
-        const barSpacing = 20;
-        const startX = 50;
-        const startY = 150;
-        const maxHeight = 100;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, barCanvas.width, barCanvas.height);
-        
-        // Draw bars for each dimension
-        const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
-        const scores = [ePercentage, sPercentage, tPercentage, jPercentage];
-        const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
-        
-        dimensions.forEach((dim, i) => {
-            const x = startX + i * (barWidth + barSpacing);
-            const height = (scores[i] / 100) * maxHeight;
-            
-            // Draw bar
-            ctx.fillStyle = colors[i];
-            ctx.fillRect(x, startY - height, barWidth, height);
-            
-            // Draw border
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x, startY - height, barWidth, height);
-            
-            // Draw percentage text
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 12px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${Math.round(scores[i])}%`, x + barWidth/2, startY - height - 5);
-            
-            // Draw dimension label
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText(dim, x + barWidth/2, startY + 15);
-        });
-        
-        // Draw axis
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
+    createBarChart(ePercentage, sPercentage, tPercentage, jPercentage);
+    
+    // Balance chart
+    createBalanceChart(ePercentage, sPercentage, tPercentage, jPercentage);
+    
+    // Pie chart
+    createPieChart(ePercentage, sPercentage, tPercentage, jPercentage);
+    
+    // Timeline chart
+    createTimelineChart();
+    
+    // Strengths chart
+    createStrengthsChart(ePercentage, sPercentage, tPercentage, jPercentage);
+}
+
+// Radar Chart
+function createRadarChart(e, s, t, j) {
+    const canvas = document.getElementById('radarChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = 150;
+    const centerY = 150;
+    const radius = 100;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw radar grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 1;
+    
+    // Draw concentric circles
+    for (let r = 20; r <= radius; r += 20) {
         ctx.beginPath();
-        ctx.moveTo(startX - 10, startY);
-        ctx.lineTo(startX + 4 * (barWidth + barSpacing) - barSpacing + 10, startY);
+        ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
         ctx.stroke();
     }
+    
+    // Draw radar lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    const labels = ['E/I', 'S/N', 'T/F', 'J/P'];
+    const values = [e, s, t, j];
+    
+    for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI) / 2 - Math.PI / 2;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        // Add label
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'center';
+        const labelX = centerX + (radius + 15) * Math.cos(angle);
+        const labelY = centerY + (radius + 15) * Math.sin(angle);
+        ctx.fillText(labels[i], labelX, labelY);
+    }
+    
+    // Draw data polygon
+    ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    
+    for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI) / 2 - Math.PI / 2;
+        const value = values[i] / 100;
+        const x = centerX + (radius * value) * Math.cos(angle);
+        const y = centerY + (radius * value) * Math.sin(angle);
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    // Add data points
+    ctx.fillStyle = '#667eea';
+    for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI) / 2 - Math.PI / 2;
+        const value = values[i] / 100;
+        const x = centerX + (radius * value) * Math.cos(angle);
+        const y = centerY + (radius * value) * Math.sin(angle);
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+}
+
+// Bar Chart
+function createBarChart(e, s, t, j) {
+    const canvas = document.getElementById('barChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const barWidth = 40;
+    const barSpacing = 20;
+    const startX = 50;
+    const startY = 150;
+    const maxHeight = 100;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
+    const scores = [e, s, t, j];
+    const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
+    
+    dimensions.forEach((dim, i) => {
+        const x = startX + i * (barWidth + barSpacing);
+        const height = (scores[i] / 100) * maxHeight;
+        
+        // Draw bar
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x, startY - height, barWidth, height);
+        
+        // Draw border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, startY - height, barWidth, height);
+        
+        // Draw percentage text
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 12px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${Math.round(scores[i])}%`, x + barWidth/2, startY - height - 5);
+        
+        // Draw dimension label
+        ctx.fillStyle = '#666';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(dim, x + barWidth/2, startY + 15);
+    });
+    
+    // Draw axis
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startX - 10, startY);
+    ctx.lineTo(startX + 4 * (barWidth + barSpacing) - barSpacing + 10, startY);
+    ctx.stroke();
+}
+
+// Balance Chart (showing balance between preferences)
+function createBalanceChart(e, s, t, j) {
+    const canvas = document.getElementById('balanceChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = 150;
+    const centerY = 100;
+    const radius = 60;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const pairs = [
+        { name: 'E/I', value: e, color1: '#667eea', color2: '#764ba2' },
+        { name: 'S/N', value: s, color1: '#f093fb', color2: '#f5576c' },
+        { name: 'T/F', value: t, color1: '#4facfe', color2: '#00f2fe' },
+        { name: 'J/P', value: j, color1: '#43e97b', color2: '#38f9d7' }
+    ];
+    
+    pairs.forEach((pair, index) => {
+        const y = 30 + index * 35;
+        
+        // Draw balance bar
+        ctx.fillStyle = pair.color1;
+        ctx.fillRect(50, y, 100, 20);
+        ctx.fillStyle = pair.color2;
+        ctx.fillRect(50 + 100, y, 100, 20);
+        
+        // Draw indicator
+        const indicatorX = 50 + (pair.value / 100) * 200;
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(indicatorX, y + 10, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Draw label
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(pair.name, 20, y + 15);
+        
+        // Draw percentage
+        ctx.textAlign = 'center';
+        ctx.fillText(`${Math.round(pair.value)}%`, indicatorX, y + 15);
+    });
+}
+
+// Pie Chart (showing preference distribution)
+function createPieChart(e, s, t, j) {
+    const canvas = document.getElementById('pieChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = 150;
+    const centerY = 100;
+    const radius = 60;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const data = [
+        { label: 'E/I', value: e, color: '#667eea' },
+        { label: 'S/N', value: s, color: '#764ba2' },
+        { label: 'T/F', value: t, color: '#f093fb' },
+        { label: 'J/P', value: j, color: '#f5576c' }
+    ];
+    
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+    let currentAngle = -Math.PI / 2;
+    
+    data.forEach(item => {
+        const sliceAngle = (item.value / total) * 2 * Math.PI;
+        
+        // Draw slice
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        currentAngle += sliceAngle;
+    });
+    
+    // Draw labels
+    data.forEach((item, index) => {
+        const y = 180 + index * 20;
+        ctx.fillStyle = item.color;
+        ctx.fillRect(50, y - 8, 12, 12);
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${item.label}: ${Math.round(item.value)}%`, 70, y);
+    });
+}
+
+// Timeline Chart (showing personality development)
+function createTimelineChart() {
+    const canvas = document.getElementById('timelineChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw timeline
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, 75);
+    ctx.lineTo(270, 75);
+    ctx.stroke();
+    
+    // Draw timeline points
+    const points = [
+        { x: 50, label: 'Past', color: '#667eea' },
+        { x: 150, label: 'Present', color: '#f093fb' },
+        { x: 250, label: 'Future', color: '#43e97b' }
+    ];
+    
+    points.forEach(point => {
+        ctx.fillStyle = point.color;
+        ctx.beginPath();
+        ctx.arc(point.x, 75, 8, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = '#333';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(point.label, point.x, 95);
+    });
+    
+    // Draw personality type in center
+    const personalityType = document.getElementById('personalityType')?.textContent || 'MBTI';
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(personalityType, 150, 50);
+}
+
+// Strengths Chart (showing personality strengths)
+function createStrengthsChart(e, s, t, j) {
+    const canvas = document.getElementById('strengthsChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const strengths = [
+        { name: 'Analytical', value: Math.max(t, 100 - t), color: '#667eea' },
+        { name: 'Creative', value: Math.max(s, 100 - s), color: '#764ba2' },
+        { name: 'Social', value: Math.max(e, 100 - e), color: '#f093fb' },
+        { name: 'Organized', value: Math.max(j, 100 - j), color: '#f5576c' }
+    ];
+    
+    const barHeight = 25;
+    const spacing = 10;
+    const startY = 30;
+    
+    strengths.forEach((strength, index) => {
+        const y = startY + index * (barHeight + spacing);
+        const width = (strength.value / 100) * 200;
+        
+        // Draw bar
+        ctx.fillStyle = strength.color;
+        ctx.fillRect(50, y, width, barHeight);
+        
+        // Draw border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(50, y, width, barHeight);
+        
+        // Draw label
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(strength.name, 10, y + 17);
+        
+        // Draw percentage
+        ctx.textAlign = 'right';
+        ctx.fillText(`${Math.round(strength.value)}%`, 45, y + 17);
+    });
 }
 
 // Function to generate PDF (real PDF with jsPDF)
