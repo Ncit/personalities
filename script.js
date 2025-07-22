@@ -489,39 +489,39 @@ function closePremiumModal() {
 }
 
 function unlockPremium() {
-    setPremium(true);
-    document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
-    setTimeout(() => {
-        closePremiumModal();
+    // setPremium(true);
+    // document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+    // setTimeout(() => {
+    //     closePremiumModal();
         
-        // Check if we're on the results page and refresh premium content
-        const resultsScreen = document.getElementById('resultsScreen');
-        if (resultsScreen && resultsScreen.style.display !== 'none') {
-            // We're on results page, refresh premium content
-            const savedResults = localStorage.getItem('mbti_last_results');
-            if (savedResults) {
-                const results = JSON.parse(savedResults);
+    //     // Check if we're on the results page and refresh premium content
+    //     const resultsScreen = document.getElementById('resultsScreen');
+    //     if (resultsScreen && resultsScreen.style.display !== 'none') {
+    //         // We're on results page, refresh premium content
+    //         const savedResults = localStorage.getItem('mbti_last_results');
+    //         if (savedResults) {
+    //             const results = JSON.parse(savedResults);
                 
-                // Display premium features
-                displayAdvancedInsights(results.personalityType);
-                displayFamousPersonalities(results.personalityType);
-                createAnalyticsCharts();
+    //             // Display premium features
+    //             displayAdvancedInsights(results.personalityType);
+    //             displayFamousPersonalities(results.personalityType);
+    //             createAnalyticsCharts();
                 
-                // Update premium UI
-                updatePremiumUI();
+    //             // Update premium UI
+    //             updatePremiumUI();
                 
-                // Generate share link
-                const shareLink = document.getElementById('shareLink');
-                if (shareLink) {
-                    const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
-                    shareLink.value = link;
-                }
-            }
-        } else {
-            // Update premium UI for other pages
-            updatePremiumUI();
-        }
-    }, 1200);
+    //             // Generate share link
+    //             const shareLink = document.getElementById('shareLink');
+    //             if (shareLink) {
+    //                 const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
+    //                 shareLink.value = link;
+    //             }
+    //         }
+    //     } else {
+    //         // Update premium UI for other pages
+    //         updatePremiumUI();
+    //     }
+    // }, 1200);
 }
 
 
