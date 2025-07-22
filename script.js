@@ -647,7 +647,7 @@ function createAnalyticsCharts() {
     createStrengthsChart(ePercentage, sPercentage, tPercentage, jPercentage);
 }
 
-// Radar Chart
+// Enhanced Radar Chart
 function createRadarChart(e, s, t, j) {
     const canvas = document.getElementById('radarChart');
     if (!canvas) return;
@@ -657,46 +657,91 @@ function createRadarChart(e, s, t, j) {
     const centerY = 150;
     const radius = 100;
     
+    // Set canvas size for better resolution
+    canvas.width = 300;
+    canvas.height = 300;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw radar grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 1;
+    // // Create gradient background
+    // const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    // gradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
+    // gradient.addColorStop(1, 'rgba(102, 126, 234, 0.05)');
+    // ctx.fillStyle = gradient;
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw concentric circles
-    for (let r = 20; r <= radius; r += 20) {
+    // Draw enhanced radar grid with multiple levels
+    const gridLevels = 5;
+    for (let level = 1; level <= gridLevels; level++) {
+        const currentRadius = (radius * level) / gridLevels;
+        
+        // Draw concentric circles with gradient opacity
+        ctx.strokeStyle = `rgba(102, 126, 234, ${0.1 + (level * 0.05)})`;
+        ctx.lineWidth = level === gridLevels ? 2 : 1;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, currentRadius, 0, 2 * Math.PI);
         ctx.stroke();
     }
     
-    // Draw radar lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 2;
+    // Enhanced axis lines with better styling
     const labels = ['E/I', 'S/N', 'T/F', 'J/P'];
     const values = [e, s, t, j];
+    const descriptions = ['Extraversion/Introversion', 'Sensing/Intuition', 'Thinking/Feeling', 'Judging/Perceiving'];
     
     for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2 - Math.PI / 2;
         const x = centerX + radius * Math.cos(angle);
         const y = centerY + radius * Math.sin(angle);
         
+        // Draw axis line with gradient
+        const lineGradient = ctx.createLinearGradient(centerX, centerY, x, y);
+        lineGradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+        lineGradient.addColorStop(1, 'rgba(102, 126, 234, 0.3)');
+        ctx.strokeStyle = lineGradient;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(x, y);
         ctx.stroke();
         
-        // Add label
+        // Enhanced labels with better positioning and styling
         ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
+        ctx.font = 'bold 14px Inter';
         ctx.textAlign = 'center';
-        const labelX = centerX + (radius + 15) * Math.cos(angle);
-        const labelY = centerY + (radius + 15) * Math.sin(angle);
-        ctx.fillText(labels[i], labelX, labelY);
+        ctx.textBaseline = 'middle';
+        const labelX = centerX + (radius + 25) * Math.cos(angle);
+        const labelY = centerY + (radius + 25) * Math.sin(angle);
+        
+        // Add label background for better readability
+        const labelText = labels[i];
+        const labelMetrics = ctx.measureText(labelText);
+        const labelPadding = 4;
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(
+            labelX - labelMetrics.width/2 - labelPadding,
+            labelY - 8 - labelPadding,
+            labelMetrics.width + labelPadding * 2,
+            16 + labelPadding * 2
+        );
+        
+        ctx.fillStyle = '#333';
+        ctx.fillText(labelText, labelX, labelY);
+        
+        // Add percentage values
+        ctx.font = '12px Inter';
+        ctx.fillStyle = '#667eea';
+        // const valueX = centerX + (radius + 45) * Math.cos(angle);
+        // const valueY = centerY + (radius + 45) * Math.sin(angle);
+        // ctx.fillText(`${values[i]}%`, valueX, valueY);
     }
     
-    // Draw data polygon
-    ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+    // Draw enhanced data polygon with gradient fill
+    const polygonGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    polygonGradient.addColorStop(0, 'rgba(102, 126, 234, 0.6)');
+    polygonGradient.addColorStop(1, 'rgba(102, 126, 234, 0.2)');
+    
+    ctx.fillStyle = polygonGradient;
     ctx.strokeStyle = '#667eea';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -717,18 +762,56 @@ function createRadarChart(e, s, t, j) {
     ctx.fill();
     ctx.stroke();
     
-    // Add data points
-    ctx.fillStyle = '#667eea';
+    // Enhanced data points with glow effect
     for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2 - Math.PI / 2;
         const value = values[i] / 100;
         const x = centerX + (radius * value) * Math.cos(angle);
         const y = centerY + (radius * value) * Math.sin(angle);
         
+        // Draw glow effect
+        ctx.shadowColor = '#667eea';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#667eea';
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.arc(x, y, 6, 0, 2 * Math.PI);
         ctx.fill();
+        
+        // Draw inner point
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add hover tooltip functionality
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
+            
+            if (distance < 10) {
+                canvas.style.cursor = 'pointer';
+                // Tooltip would be implemented here
+            } else {
+                canvas.style.cursor = 'default';
+            }
+        });
     }
+    
+    // Add center point with personality type indicator
+    ctx.fillStyle = '#667eea';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px Inter';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('MBTI', centerX, centerY);
+    
 }
 
 // Bar Chart
@@ -903,9 +986,9 @@ function createTimelineChart() {
     
     // Draw timeline points
     const points = [
-        { x: 50, label: 'Past', color: '#667eea' },
-        { x: 150, label: 'Present', color: '#f093fb' },
-        { x: 250, label: 'Future', color: '#43e97b' }
+        { x: 50, label: 'Прошлое', color: '#667eea' },
+        { x: 150, label: 'Настоящее', color: '#f093fb' },
+        { x: 250, label: 'Будущее', color: '#43e97b' }
     ];
     
     points.forEach(point => {

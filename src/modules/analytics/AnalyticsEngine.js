@@ -63,7 +63,7 @@ export class AnalyticsEngine {
         this.createStrengthsChart(E, S, T, J);
     }
 
-    // Radar Chart
+    // Enhanced Radar Chart
     createRadarChart(E, S, T, J) {
         const canvas = document.getElementById('radarChart');
         if (!canvas) return;
@@ -71,54 +71,104 @@ export class AnalyticsEngine {
         const ctx = canvas.getContext('2d');
         const config = this.chartConfigs.radar;
         
-        // Set canvas size
+        // Set canvas size for better resolution
         canvas.width = config.width;
         canvas.height = config.height;
         
         const centerX = config.width / 2;
         const centerY = config.height / 2;
-        const radius = Math.min(centerX, centerY) - 40;
+        const radius = Math.min(centerX, centerY) - 50;
         
         // Clear canvas
         ctx.clearRect(0, 0, config.width, config.height);
         
-        // Draw background circles
-        for (let i = 1; i <= 4; i++) {
+        // Create gradient background
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
+        gradient.addColorStop(1, 'rgba(102, 126, 234, 0.05)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, config.width, config.height);
+        
+        // Draw enhanced radar grid with multiple levels
+        const gridLevels = 5;
+        for (let level = 1; level <= gridLevels; level++) {
+            const currentRadius = (radius * level) / gridLevels;
+            
+            // Draw concentric circles with gradient opacity
+            ctx.strokeStyle = `rgba(102, 126, 234, ${0.1 + (level * 0.05)})`;
+            ctx.lineWidth = level === gridLevels ? 2 : 1;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, (radius * i) / 4, 0, 2 * Math.PI);
-            ctx.strokeStyle = 'rgba(102, 126, 234, 0.2)';
-            ctx.lineWidth = 1;
+            ctx.arc(centerX, centerY, currentRadius, 0, 2 * Math.PI);
             ctx.stroke();
         }
         
-        // Draw axes
-        const dimensions = ['E', 'S', 'T', 'J'];
+        // Enhanced axis lines with better styling
+        const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
+        const descriptions = ['Extraversion/Introversion', 'Sensing/Intuition', 'Thinking/Feeling', 'Judging/Perceiving'];
+        const scores = [E, S, T, J];
+        
         dimensions.forEach((dim, index) => {
             const angle = (index * Math.PI) / 2;
             const x = centerX + Math.cos(angle) * radius;
             const y = centerY + Math.sin(angle) * radius;
             
+            // Draw axis line with gradient
+            const lineGradient = ctx.createLinearGradient(centerX, centerY, x, y);
+            lineGradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+            lineGradient.addColorStop(1, 'rgba(102, 126, 234, 0.3)');
+            ctx.strokeStyle = lineGradient;
+            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.lineTo(x, y);
-            ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
-            ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Draw dimension labels
+            // Enhanced labels with better positioning and styling
             ctx.fillStyle = '#333';
-            ctx.font = '14px Inter';
+            ctx.font = 'bold 14px Inter';
             ctx.textAlign = 'center';
-            ctx.fillText(dim, x + Math.cos(angle) * 20, y + Math.sin(angle) * 20);
+            ctx.textBaseline = 'middle';
+            const labelX = centerX + (radius + 25) * Math.cos(angle);
+            const labelY = centerY + (radius + 25) * Math.sin(angle);
+            
+            // Add label background for better readability
+            const labelText = dim;
+            const labelMetrics = ctx.measureText(labelText);
+            const labelPadding = 4;
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(
+                labelX - labelMetrics.width/2 - labelPadding,
+                labelY - 8 - labelPadding,
+                labelMetrics.width + labelPadding * 2,
+                16 + labelPadding * 2
+            );
+            
+            ctx.fillStyle = '#333';
+            ctx.fillText(labelText, labelX, labelY);
+            
+            // Add percentage values
+            ctx.font = '12px Inter';
+            ctx.fillStyle = '#667eea';
+            const valueX = centerX + (radius + 45) * Math.cos(angle);
+            const valueY = centerY + (radius + 45) * Math.sin(angle);
+            ctx.fillText(`${scores[index]}%`, valueX, valueY);
         });
         
-        // Calculate scores
-        const scores = [E, S, T, J];
-        const maxScore = Math.max(...scores.map(Math.abs));
+        // Calculate normalized scores for better visualization
+        const maxScore = Math.max(...scores);
         const normalizedScores = scores.map(score => (score / maxScore) * radius);
         
-        // Draw radar polygon
+        // Draw enhanced data polygon with gradient fill
+        const polygonGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        polygonGradient.addColorStop(0, 'rgba(102, 126, 234, 0.6)');
+        polygonGradient.addColorStop(1, 'rgba(102, 126, 234, 0.2)');
+        
+        ctx.fillStyle = polygonGradient;
+        ctx.strokeStyle = '#667eea';
+        ctx.lineWidth = 3;
         ctx.beginPath();
+        
         normalizedScores.forEach((score, index) => {
             const angle = (index * Math.PI) / 2;
             const x = centerX + Math.cos(angle) * score;
@@ -131,27 +181,53 @@ export class AnalyticsEngine {
             }
         });
         ctx.closePath();
-        
-        // Fill polygon
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
         ctx.fill();
-        
-        // Stroke polygon
-        ctx.strokeStyle = '#667eea';
-        ctx.lineWidth = 3;
         ctx.stroke();
         
-        // Draw data points
+        // Enhanced data points with glow effect
         normalizedScores.forEach((score, index) => {
             const angle = (index * Math.PI) / 2;
             const x = centerX + Math.cos(angle) * score;
             const y = centerY + Math.sin(angle) * score;
             
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            // Draw glow effect
+            ctx.shadowColor = '#667eea';
+            ctx.shadowBlur = 10;
             ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw inner point
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
             ctx.fill();
         });
+        
+        // Add center point with personality type indicator
+        ctx.fillStyle = '#667eea';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('MBTI', centerX, centerY);
+        
+        // Add chart title
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Personality Dimensions', centerX, 20);
+        
+        // Add legend
+        ctx.font = '12px Inter';
+        ctx.fillStyle = '#666';
+        ctx.fillText('Higher values indicate stronger preferences', centerX, config.height - 10);
     }
 
     // Bar Chart

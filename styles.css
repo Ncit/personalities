@@ -1577,6 +1577,31 @@ body {
     height: auto;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-container:hover canvas {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced radar chart specific styles */
+.chart-container[data-chart="radar"] {
+    padding: 20px;
+    border-radius: var(--radius-xl);
+}
+
+.chart-container[data-chart="radar"] h4 {
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.chart-container[data-chart="radar"] canvas {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
 /* Famous Personalities */
