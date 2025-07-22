@@ -6,6 +6,7 @@ import { MBTI_SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
+import { loggerManager } from './src/modules/core/LoggerManager.js';
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -57,21 +58,36 @@ class MBTIQuiz {
 
     displayQuestion() {
         const question = this.questions[this.currentQuestion];
-        document.getElementById('questionText').textContent = question.question;
-        document.getElementById('option1').textContent = question.options[0];
-        document.getElementById('option2').textContent = question.options[1];
-        document.getElementById('option3').textContent = question.options[2];
-        document.getElementById('option4').textContent = question.options[3];
         
-        document.getElementById('questionCounter').textContent = `${this.currentQuestion + 1} / ${this.questions.length}`;
+        // Get elements with null checks
+        const questionText = document.getElementById('questionText');
+        const option1 = document.getElementById('option1');
+        const option2 = document.getElementById('option2');
+        const option3 = document.getElementById('option3');
+        const option4 = document.getElementById('option4');
+        const questionCounter = document.getElementById('questionCounter');
+        const progressFill = document.getElementById('progressFill');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // Set text content with null checks
+        if (questionText) questionText.textContent = question.question;
+        if (option1) option1.textContent = question.options[0];
+        if (option2) option2.textContent = question.options[1];
+        if (option3) option3.textContent = question.options[2];
+        if (option4) option4.textContent = question.options[3];
+        
+        if (questionCounter) questionCounter.textContent = `${this.currentQuestion + 1} / ${this.questions.length}`;
         
         // Update progress bar
-        const progress = ((this.currentQuestion + 1) / this.questions.length) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
+        if (progressFill) {
+            const progress = ((this.currentQuestion + 1) / this.questions.length) * 100;
+            progressFill.style.width = `${progress}%`;
+        }
         
         // Update navigation buttons
-        document.getElementById('prevBtn').disabled = this.currentQuestion === 0;
-        document.getElementById('nextBtn').disabled = this.selectedOption === null;
+        if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
+        if (nextBtn) nextBtn.disabled = this.selectedOption === null;
         
         // Clear previous selection
         this.clearOptionSelection();
@@ -138,8 +154,12 @@ class MBTIQuiz {
     }
 
     showResults() {
-        document.getElementById('quizQuestions').style.display = 'none';
-        document.getElementById('resultsScreen').style.display = 'block';
+        // Get elements with null checks
+        const quizQuestions = document.getElementById('quizQuestions');
+        const resultsScreen = document.getElementById('resultsScreen');
+        
+        if (quizQuestions) quizQuestions.style.display = 'none';
+        if (resultsScreen) resultsScreen.style.display = 'block';
         
         const personalityType = this.calculatePersonalityType();
         
@@ -157,8 +177,10 @@ class MBTIQuiz {
             
             // Generate share link
             const shareLink = document.getElementById('shareLink');
-            const link = `${window.location.origin}${window.location.pathname}?type=${personalityType}&premium=1`;
-            shareLink.value = link;
+            if (shareLink) {
+                const link = `${window.location.origin}${window.location.pathname}?type=${personalityType}&premium=1`;
+                shareLink.value = link;
+            }
         }
     }
 
@@ -183,19 +205,28 @@ class MBTIQuiz {
     displayPersonalityResults(type) {
         const personality = MBTI_TYPES[type];
         
-        document.getElementById('personalityType').textContent = type;
-        document.getElementById('personalityTitle').textContent = personality.title;
-        document.getElementById('personalitySubtitle').textContent = personality.subtitle;
-        document.getElementById('personalityDescription').textContent = personality.description;
-        
+        // Get elements with null checks
+        const personalityType = document.getElementById('personalityType');
+        const personalityTitle = document.getElementById('personalityTitle');
+        const personalitySubtitle = document.getElementById('personalitySubtitle');
+        const personalityDescription = document.getElementById('personalityDescription');
         const traitsContainer = document.getElementById('personalityTraits');
-        traitsContainer.innerHTML = '';
-        personality.traits.forEach(trait => {
-            const traitElement = document.createElement('span');
-            traitElement.className = 'trait';
-            traitElement.textContent = trait;
-            traitsContainer.appendChild(traitElement);
-        });
+        
+        // Set text content with null checks
+        if (personalityType) personalityType.textContent = type;
+        if (personalityTitle) personalityTitle.textContent = personality.title;
+        if (personalitySubtitle) personalitySubtitle.textContent = personality.subtitle;
+        if (personalityDescription) personalityDescription.textContent = personality.description;
+        
+        if (traitsContainer) {
+            traitsContainer.innerHTML = '';
+            personality.traits.forEach(trait => {
+                const traitElement = document.createElement('span');
+                traitElement.className = 'trait';
+                traitElement.textContent = trait;
+                traitsContainer.appendChild(traitElement);
+            });
+        }
     }
 
     displayDimensionBreakdown() {
@@ -209,10 +240,17 @@ class MBTIQuiz {
         const tPercentage = totalT > 0 ? (this.scores.T / totalT) * 100 : 50;
         const jPercentage = totalJ > 0 ? (this.scores.J / totalJ) * 100 : 50;
         
-        document.getElementById('eBar').style.width = `${ePercentage}%`;
-        document.getElementById('sBar').style.width = `${sPercentage}%`;
-        document.getElementById('tBar').style.width = `${tPercentage}%`;
-        document.getElementById('jBar').style.width = `${jPercentage}%`;
+        // Get elements with null checks
+        const eBar = document.getElementById('eBar');
+        const sBar = document.getElementById('sBar');
+        const tBar = document.getElementById('tBar');
+        const jBar = document.getElementById('jBar');
+        
+        // Set width with null checks
+        if (eBar) eBar.style.width = `${ePercentage}%`;
+        if (sBar) sBar.style.width = `${sPercentage}%`;
+        if (tBar) tBar.style.width = `${tPercentage}%`;
+        if (jBar) jBar.style.width = `${jPercentage}%`;
     }
 
     restartQuiz() {
@@ -221,8 +259,12 @@ class MBTIQuiz {
         this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
         this.selectedOption = null;
         
-        document.getElementById('resultsScreen').style.display = 'none';
-        document.getElementById('welcomeScreen').style.display = 'block';
+        // Get elements with null checks
+        const resultsScreen = document.getElementById('resultsScreen');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        
+        if (resultsScreen) resultsScreen.style.display = 'none';
+        if (welcomeScreen) welcomeScreen.style.display = 'block';
         
         // Check and show last results button after restart
         checkAndShowLastResultsButton();
@@ -272,8 +314,10 @@ class MBTIQuiz {
             
             // Generate share link
             const shareLink = document.getElementById('shareLink');
-            const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
-            shareLink.value = link;
+            if (shareLink) {
+                const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
+                shareLink.value = link;
+            }
         }
         
         return true;
@@ -506,7 +550,7 @@ function unlockPremium() {
                 completePremiumUnlock();
             }
         }).catch((error) => {
-            console.error('Payment error:', error);
+            loggerManager.appError('Payment error:', error);
             // Fallback to development mode
             setPremium(true);
             document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
@@ -1209,14 +1253,16 @@ function copyShareLink() {
     if (!isPremium()) return;
     
     const shareLink = document.getElementById('shareLink');
-    const personalityType = document.getElementById('personalityType').textContent;
-    const link = `${window.location.origin}${window.location.pathname}?type=${personalityType}&premium=1`;
-    
-    shareLink.value = link;
-    
-    // Copy to clipboard
-    shareLink.select();
-    document.execCommand('copy');
+    if (shareLink) {
+        const personalityType = document.getElementById('personalityType').textContent;
+        const link = `${window.location.origin}${window.location.pathname}?type=${personalityType}&premium=1`;
+        
+        shareLink.value = link;
+        
+        // Copy to clipboard
+        shareLink.select();
+        document.execCommand('copy');
+    }
     
     // Show feedback
     const btn = document.querySelector('#shareContent .btn');
@@ -1572,10 +1618,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         vkBridgeManager = new VKBridgeManager();
         window.vkBridgeManager = vkBridgeManager;
-        console.log('✅ VK Bridge Manager initialized successfully');
-        console.log('VK Platform detected:', vkBridgeManager.isVKEnvironment());
+        loggerManager.appSuccess('VK Bridge Manager initialized successfully');
+        loggerManager.appDebug('VK Platform detected:', vkBridgeManager.isVKEnvironment());
     } catch (error) {
-        console.log('❌ VK Bridge Manager not available:', error);
+        loggerManager.appError('VK Bridge Manager not available:', error);
         window.vkBridgeManager = null;
     }
     
@@ -1595,7 +1641,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModalClickOutside();
     
     // Log current state for debugging
-    console.log(`Current app state: ${getCurrentAppState()}`);
+    loggerManager.appDebug(`Current app state: ${getCurrentAppState()}`);
 });
 
 // Initialize the quiz

@@ -77,6 +77,7 @@
     <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
     <script type="module">
         import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
+        import { loggerManager } from './src/modules/core/LoggerManager.js';
 
         // Override console.log to capture logs
         const originalLog = console.log;
@@ -92,14 +93,30 @@
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        console.log = function(...args) {
-            originalLog.apply(console, args);
-            addToLog(args.join(' '));
+        // Override loggerManager to also add to our log container
+        const originalLoggerLog = loggerManager.log;
+        const originalLoggerError = loggerManager.error;
+        const originalLoggerInfo = loggerManager.info;
+        const originalLoggerDebug = loggerManager.debug;
+
+        loggerManager.log = function(message, data) {
+            originalLoggerLog.call(this, message, data);
+            addToLog(message);
         };
 
-        console.error = function(...args) {
-            originalError.apply(console, args);
-            addToLog(args.join(' '), 'error');
+        loggerManager.error = function(message, data) {
+            originalLoggerError.call(this, message, data);
+            addToLog(message, 'error');
+        };
+
+        loggerManager.info = function(message, data) {
+            originalLoggerInfo.call(this, message, data);
+            addToLog(message);
+        };
+
+        loggerManager.debug = function(message, data) {
+            originalLoggerDebug.call(this, message, data);
+            addToLog(message);
         };
 
         // Initialize VK Bridge Manager
@@ -188,7 +205,7 @@
             logContainer.innerHTML = '';
         };
 
-        console.log('VK Bridge test page loaded');
+        loggerManager.appInfo('VK Bridge test page loaded');
     </script>
 </body>
 </html> 

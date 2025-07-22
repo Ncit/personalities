@@ -228,6 +228,33 @@
     .vk-platform .results-screen {
         padding: 16px 12px;
     }
+    
+    /* VK Mobile Quiz Types Grid */
+    .vk-platform .quiz-types-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        justify-items: center;
+        padding: 0 8px;
+    }
+    
+    .vk-platform .btn-premium-quiz {
+        width: 100%;
+        max-width: 260px;
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+    
+    .vk-platform .btn-premium-quiz i {
+        font-size: 1.1rem;
+    }
+    
+    .vk-platform .btn-premium-quiz span {
+        font-size: 0.85rem;
+    }
+    
+    .vk-platform .btn-premium-quiz small {
+        font-size: 0.65rem;
+    }
 }
 
 /* VK Dark Mode Support */

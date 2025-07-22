@@ -3,6 +3,8 @@
  * Handles VK Mini Apps integration and platform-specific functionality
  */
 
+import { loggerManager } from '../core/LoggerManager.js';
+
 export class VKBridgeManager {
     constructor() {
         this.bridge = null;
@@ -16,15 +18,15 @@ export class VKBridgeManager {
      */
     async init() {
         try {
-            console.log('🔧 Initializing VK Bridge Manager...');
-            console.log('VK Bridge available:', typeof window.vkBridge !== 'undefined');
+            loggerManager.vkInit('Initializing VK Bridge Manager...');
+            loggerManager.vkDebug('VK Bridge available:', typeof window.vkBridge !== 'undefined');
             
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
                 this.isVKPlatform = true;
                 
-                console.log('✅ VK Bridge detected - running in VK environment');
+                loggerManager.vkSuccess('VK Bridge detected - running in VK environment');
                 
                 // Apply VK-specific styles
                 this.applyVKStyles();
@@ -36,7 +38,7 @@ export class VKBridgeManager {
 
                 // Send ready event
                 await this.bridge.send('VKWebAppInit');
-                console.log('✅ VKWebAppInit sent');
+                loggerManager.vkSuccess('VKWebAppInit sent');
                 
                 // Get user info
                 await this.getUserInfo();
@@ -44,13 +46,13 @@ export class VKBridgeManager {
                 // Configure app appearance
                 await this.configureAppearance();
                 
-                console.log('✅ VK Bridge initialized successfully');
+                loggerManager.vkSuccess('VK Bridge initialized successfully');
             } else {
-                console.log('ℹ️ VK Bridge not available - running in standalone mode');
+                loggerManager.vkInfo('VK Bridge not available - running in standalone mode');
                 this.isVKPlatform = false;
             }
         } catch (error) {
-            console.error('❌ Error initializing VK Bridge:', error);
+            loggerManager.vkError('Error initializing VK Bridge:', error);
             this.isVKPlatform = false;
         }
     }
@@ -121,7 +123,7 @@ export class VKBridgeManager {
                 this.handleLaunchParams(data);
                 break;
             default:
-                console.log('Unhandled bridge event:', type, data);
+                loggerManager.vkDebug('Unhandled bridge event:', type, data);
         }
     }
 
@@ -136,7 +138,7 @@ export class VKBridgeManager {
             this.userInfo = result;
             return result;
         } catch (error) {
-            console.error('Error getting user info:', error);
+            loggerManager.vkError('Error getting user info:', error);
             return null;
         }
     }
@@ -154,7 +156,7 @@ export class VKBridgeManager {
                 navigation_bar_color: '#667eea'
             });
         } catch (error) {
-            console.error('Error configuring appearance:', error);
+            loggerManager.vkError('Error configuring appearance:', error);
         }
     }
 
@@ -162,7 +164,7 @@ export class VKBridgeManager {
      * Handle config update
      */
     handleConfigUpdate(data) {
-        console.log('App config updated:', data);
+        loggerManager.vkInfo('App config updated:', data);
         // Update app theme based on VK theme
         if (data.scheme) {
             document.documentElement.setAttribute('data-theme', data.scheme);
@@ -173,7 +175,7 @@ export class VKBridgeManager {
      * Handle view restrictions
      */
     handleViewRestrictions(data) {
-        console.log('View restrictions:', data);
+        loggerManager.vkInfo('View restrictions:', data);
         // Handle any view restrictions from VK
     }
 
@@ -182,14 +184,14 @@ export class VKBridgeManager {
      */
     handleUserInfo(data) {
         this.userInfo = data;
-        console.log('User info received:', data);
+        loggerManager.vkInfo('User info received:', data);
     }
 
     /**
      * Handle launch parameters
      */
     handleLaunchParams(data) {
-        console.log('Launch params:', data);
+        loggerManager.vkInfo('Launch params:', data);
         // Handle launch parameters from VK
     }
 
@@ -209,7 +211,7 @@ export class VKBridgeManager {
                 text: shareText
             });
         } catch (error) {
-            console.error('Error sharing via VK:', error);
+            loggerManager.vkError('Error sharing via VK:', error);
             return this.fallbackShare(shareText);
         }
     }
@@ -241,10 +243,10 @@ export class VKBridgeManager {
                 await this.bridge.send('VKWebAppShowSnackbar', {
                     text: message
                 });
-            } catch (error) {
-                console.error('Error showing snackbar:', error);
-                alert(message);
-            }
+                    } catch (error) {
+            loggerManager.vkError('Error showing snackbar:', error);
+            alert(message);
+        }
         } else {
             alert(message);
         }
@@ -263,7 +265,7 @@ export class VKBridgeManager {
                 code: 'return { title: "Join our community!", text: "Connect with others who share your personality type!" };'
             });
         } catch (error) {
-            console.error('Error showing community widget:', error);
+            loggerManager.vkError('Error showing community widget:', error);
         }
     }
 
@@ -279,7 +281,7 @@ export class VKBridgeManager {
                 item: 'premium_access'
             });
         } catch (error) {
-            console.error('Error showing order box:', error);
+            loggerManager.vkError('Error showing order box:', error);
         }
     }
 
@@ -300,7 +302,7 @@ export class VKBridgeManager {
                 }
             });
         } catch (error) {
-            console.error('Error showing story box:', error);
+            loggerManager.vkError('Error showing story box:', error);
         }
     }
 
@@ -314,7 +316,7 @@ export class VKBridgeManager {
             const result = await this.bridge.send('VKWebAppGetLaunchParams');
             return result;
         } catch (error) {
-            console.error('Error getting launch params:', error);
+            loggerManager.vkError('Error getting launch params:', error);
             return {};
         }
     }
@@ -344,7 +346,7 @@ export class VKBridgeManager {
                 status: 'success'
             });
         } catch (error) {
-            console.error('Error closing app:', error);
+            loggerManager.vkError('Error closing app:', error);
         }
     }
 
@@ -357,7 +359,7 @@ export class VKBridgeManager {
         try {
             await this.bridge.send('VKWebAppExpand');
         } catch (error) {
-            console.error('Error expanding app:', error);
+            loggerManager.vkError('Error expanding app:', error);
         }
     }
 
@@ -373,7 +375,7 @@ export class VKBridgeManager {
                 height: height
             });
         } catch (error) {
-            console.error('Error resizing app:', error);
+            loggerManager.vkError('Error resizing app:', error);
         }
     }
 
@@ -390,7 +392,7 @@ export class VKBridgeManager {
                 navigation_bar_color: color
             });
         } catch (error) {
-            console.error('Error setting app header:', error);
+            loggerManager.vkError('Error setting app header:', error);
         }
     }
 
@@ -410,7 +412,7 @@ export class VKBridgeManager {
             });
             return result;
         } catch (error) {
-            console.error('Error showing popup:', error);
+            loggerManager.vkError('Error showing popup:', error);
             return confirm(message);
         }
     }
