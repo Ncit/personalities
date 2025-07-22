@@ -305,7 +305,7 @@ class MBTIApplication {
     toggleAppState() {
         try {
             const currentState = stateManager.get('appState');
-            const newState = currentState === 'development' ? 'release' : 'development';
+            const newState = currentState === 'release' ? 'release' : 'development';
             stateManager.setAppState(newState);
             this.setupDevTools();
         } catch (error) {
