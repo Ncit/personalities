@@ -52,15 +52,17 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary" onclick="startQuiz()">
-                        <i class="fas fa-play"></i> Начать тест
-                    </button>
-                    <button class="btn btn-secondary" onclick="openTypesModal()" style="margin-left: 10px;">
-                        <i class="fas fa-book-open"></i> Просмотреть типы
-                    </button>
-                    <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="margin-left: 10px; display: none;">
-                        <i class="fas fa-history"></i> Посмотреть последние результаты
-                    </button>
+                    <div class="btn-container">
+                        <button class="btn btn-primary btn-center" onclick="startQuiz()">
+                            <i class="fas fa-play"></i> Начать тест
+                        </button>
+                        <button class="btn btn-secondary" onclick="openTypesModal()">
+                            <i class="fas fa-book-open"></i> Просмотреть типы
+                        </button>
+                        <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="display: none;">
+                            <i class="fas fa-history"></i> Посмотреть последние результаты
+                        </button>
+                    </div>
                     
                     <!-- Premium Quiz Types -->
                     <div id="premiumQuizTypes" style="display: none; margin-top: 20px;">
@@ -364,11 +366,11 @@
                         </div>
                     </div>
 
-                    <div class="action-buttons">
+                    <div class="action-buttons btn-container">
                         <button class="btn btn-secondary" onclick="restartQuiz()">
                             <i class="fas fa-redo"></i> Пройти тест снова
                         </button>
-                        <button class="btn btn-primary" onclick="shareResults()">
+                        <button class="btn btn-primary btn-center" onclick="shareResults()">
                             <i class="fas fa-share"></i> Поделиться результатами
                         </button>
                         <button class="btn btn-secondary" onclick="openTypesModal()">
@@ -452,7 +454,7 @@
                     <div class="tiers-grid">
                         <div class="tier-card free-tier">
                             <div class="tier-header">
-                                <h4><i class="fas fa-user"></i> Бесплатный</h4>
+                                <h4><i class="fas fa-user"></i>Бесплатный доступ</h4>
                                 <div class="tier-price">Бесплатно</div>
                             </div>
                             <ul class="tier-features">

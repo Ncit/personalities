@@ -372,6 +372,54 @@ body {
     transform: translateY(-2px);
 }
 
+/* Button centering and container utilities */
+.btn-center {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.btn-container .btn {
+    margin: 0;
+}
+
+/* Responsive button container */
+@media (max-width: 767px) {
+    .btn-container {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .btn-container .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .btn-center {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .btn-container {
+        gap: var(--spacing-sm);
+    }
+    
+    .btn-container .btn {
+        min-width: 200px;
+    }
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
