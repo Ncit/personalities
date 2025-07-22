@@ -74,6 +74,9 @@ class MBTIApplication {
         window.addEventListener('popstate', () => {
             this.handleNavigation();
         });
+
+        // Setup modal click-outside-to-close functionality
+        this.setupModalClickOutside();
     }
 
     initializeUI() {
@@ -517,6 +520,48 @@ class MBTIApplication {
 
     viewBillingHistory() {
         alert('Billing history will be available in future updates.');
+    }
+
+    setupModalClickOutside() {
+        try {
+            // Get all modals
+            const modals = document.querySelectorAll('.modal');
+            
+            modals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    // Check if the click was on the modal backdrop (not the content)
+                    if (e.target === modal) {
+                        // Find the close function based on modal type
+                        const modalContent = modal.querySelector('.modal-content');
+                        if (modalContent) {
+                            const modalId = modal.id;
+                            
+                            // Determine which close function to call based on modal ID
+                            switch (modalId) {
+                                case 'typesModal':
+                                    this.closeTypesModal();
+                                    break;
+                                case 'premiumModal':
+                                    this.closePremiumModal();
+                                    break;
+                                case 'exitQuizModal':
+                                    this.closeExitQuizModal();
+                                    break;
+                                case 'subscriptionModal':
+                                    this.closeSubscriptionModal();
+                                    break;
+                                default:
+                                    // Generic close for any other modals
+                                    modal.style.display = 'none';
+                                    break;
+                            }
+                        }
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Error setting up modal click-outside functionality:', error);
+        }
     }
 }
 

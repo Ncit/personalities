@@ -1254,6 +1254,45 @@ function startQuizType(quizType) {
     }
 }
 
+// Modal click-outside-to-close functionality
+function setupModalClickOutside() {
+    // Get all modals
+    const modals = document.querySelectorAll('.modal');
+    
+    modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            // Check if the click was on the modal backdrop (not the content)
+            if (e.target === modal) {
+                // Find the close function based on modal type
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    const modalId = modal.id;
+                    
+                    // Determine which close function to call based on modal ID
+                    switch (modalId) {
+                        case 'typesModal':
+                            closeTypesModal();
+                            break;
+                        case 'premiumModal':
+                            closePremiumModal();
+                            break;
+                        case 'exitQuizModal':
+                            closeExitQuizModal();
+                            break;
+                        case 'subscriptionModal':
+                            closeSubscriptionModal();
+                            break;
+                        default:
+                            // Generic close for any other modals
+                            modal.style.display = 'none';
+                            break;
+                    }
+                }
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the quiz
     quiz = new MBTIQuiz();
@@ -1266,6 +1305,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Check for previous results and show button if available
     checkAndShowLastResultsButton();
+    
+    // Setup modal click-outside-to-close functionality
+    setupModalClickOutside();
     
     // Log current state for debugging
     console.log(`Current app state: ${getCurrentAppState()}`);
