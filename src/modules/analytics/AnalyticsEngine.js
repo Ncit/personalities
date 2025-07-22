@@ -395,7 +395,7 @@ export class AnalyticsEngine {
         });
     }
 
-    // Timeline Chart
+    // Minimalistic Timeline Chart
     createTimelineChart() {
         const canvas = document.getElementById('timelineChart');
         if (!canvas) return;
@@ -403,40 +403,54 @@ export class AnalyticsEngine {
         const ctx = canvas.getContext('2d');
         const config = this.chartConfigs.timeline;
         
+        // Set canvas size for better resolution
         canvas.width = config.width;
         canvas.height = config.height;
         
         ctx.clearRect(0, 0, config.width, config.height);
         
-        // Draw timeline
+        // Draw minimal timeline line
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(20, config.height / 2);
-        ctx.lineTo(config.width - 20, config.height / 2);
-        ctx.strokeStyle = config.colors[0];
-        ctx.lineWidth = 3;
+        ctx.moveTo(40, config.height / 2);
+        ctx.lineTo(config.width - 40, config.height / 2);
         ctx.stroke();
         
-        // Draw milestones
-        const milestones = [
-            { x: 50, label: 'Start', color: config.colors[0] },
-            { x: 150, label: '25%', color: config.colors[1] },
-            { x: 250, label: '50%', color: config.colors[0] },
-            { x: 350, label: 'Complete', color: config.colors[1] }
+        // Draw timeline points with minimal design
+        const points = [
+            { x: 60, label: 'Past', color: '#9ca3af' },
+            { x: config.width / 2, label: 'Present', color: '#667eea' },
+            { x: config.width - 60, label: 'Future', color: '#9ca3af' }
         ];
         
-        milestones.forEach(milestone => {
-            // Draw point
+        points.forEach((point, index) => {
+            // Draw subtle background circle for present point
+            if (index === 1) {
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
+                ctx.beginPath();
+                ctx.arc(point.x, config.height / 2, 12, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Draw main point
+            ctx.fillStyle = point.color;
             ctx.beginPath();
-            ctx.arc(milestone.x, config.height / 2, 8, 0, 2 * Math.PI);
-            ctx.fillStyle = milestone.color;
+            ctx.arc(point.x, config.height / 2, 6, 0, 2 * Math.PI);
             ctx.fill();
             
-            // Draw label
-            ctx.fillStyle = '#333';
-            ctx.font = '12px Inter';
+            // Draw subtle label
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '11px Inter';
             ctx.textAlign = 'center';
-            ctx.fillText(milestone.label, milestone.x, config.height / 2 + 25);
+            ctx.fillText(point.label, point.x, config.height / 2 + 25);
         });
+        
+        // Draw minimal title
+        ctx.fillStyle = '#374151';
+        ctx.font = '13px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Personality Journey', config.width / 2, 30);
     }
 
     // Strengths Chart

@@ -1604,6 +1604,28 @@ body {
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
+/* Minimalistic timeline chart specific styles */
+.chart-container[data-chart="timeline"] {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #f3f4f6;
+    padding: 15px;
+    border-radius: var(--radius-lg);
+}
+
+.chart-container[data-chart="timeline"] h4 {
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.chart-container[data-chart="timeline"] canvas {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 /* Famous Personalities */
 .famous-grid {
     display: grid;

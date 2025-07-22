@@ -967,48 +967,60 @@ function createPieChart(e, s, t, j) {
     });
 }
 
-// Timeline Chart (showing personality development)
+// Minimalistic Timeline Chart
 function createTimelineChart() {
     const canvas = document.getElementById('timelineChart');
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     
+    // Set canvas size for better resolution
+    canvas.width = 300;
+    canvas.height = 150;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw timeline
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 3;
+    // Draw minimal timeline line
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(30, 75);
-    ctx.lineTo(270, 75);
+    ctx.moveTo(40, 75);
+    ctx.lineTo(260, 75);
     ctx.stroke();
     
-    // Draw timeline points
+    // Draw timeline points with minimal design
     const points = [
-        { x: 50, label: 'Прошлое', color: '#667eea' },
-        { x: 150, label: 'Настоящее', color: '#f093fb' },
-        { x: 250, label: 'Будущее', color: '#43e97b' }
+        { x: 60, label: 'Прошлое', color: '#9ca3af' },
+        { x: 150, label: 'Настоящее', color: '#667eea' },
+        { x: 240, label: 'Будущее', color: '#9ca3af' }
     ];
     
-    points.forEach(point => {
+    points.forEach((point, index) => {
+        // Draw subtle background circle for present point
+        if (index === 1) {
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
+            ctx.beginPath();
+            ctx.arc(point.x, 75, 12, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        
+        // Draw main point
         ctx.fillStyle = point.color;
         ctx.beginPath();
-        ctx.arc(point.x, 75, 8, 0, 2 * Math.PI);
+        ctx.arc(point.x, 75, 6, 0, 2 * Math.PI);
         ctx.fill();
         
-        ctx.fillStyle = '#333';
-        ctx.font = '10px Inter';
+        // Draw subtle label
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '11px Inter';
         ctx.textAlign = 'center';
-        ctx.fillText(point.label, point.x, 95);
+        ctx.fillText(point.label, point.x, 100);
     });
     
-    // Draw personality type in center
-    const personalityType = document.getElementById('personalityType')?.textContent || 'MBTI';
-    ctx.fillStyle = '#333';
-    ctx.font = 'bold 14px Inter';
+    // Draw minimal title
+    ctx.fillStyle = '#374151';
+    ctx.font = '13px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText(personalityType, 150, 50);
 }
 
 // Strengths Chart (showing personality strengths)
