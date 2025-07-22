@@ -374,6 +374,15 @@ function updatePremiumUI() {
         el.style.display = isPremiumUser ? 'block' : 'none';
     });
     
+    // Hide premium buttons if user is premium
+    document.querySelectorAll('.btn-premium').forEach(btn => {
+        if (isPremiumUser) {
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'inline-block';
+        }
+    });
+    
     // Update quiz description based on premium status
     updateQuizDescription();
 }
@@ -1073,25 +1082,21 @@ function updateQuizDescription() {
     const premiumQuizTypes = document.getElementById('premiumQuizTypes');
     
     // Add null checks to prevent errors
+
+    if (questionCountSpan) {
+        questionCountSpan.textContent = '61';
+    }
+    if (quizDescription) {
+        quizDescription.innerHTML = localizationManager.get('ui.mbtiDescription', { count: 61 });
+    }
     if (isPremium()) {
-        if (questionCountSpan) {
-            questionCountSpan.textContent = '60';
-        }
-        if (quizDescription) {
-            quizDescription.innerHTML = localizationManager.get('ui.mbtiDescription', { count: 60 });
-        }
         if (premiumQuizTypes) {
             premiumQuizTypes.style.display = 'block';
             // Enable all premium quiz buttons
             enablePremiumQuizButtons();
         }
     } else {
-        if (questionCountSpan) {
-            questionCountSpan.textContent = '20';
-        }
-        if (quizDescription) {
-            quizDescription.innerHTML = `${localizationManager.get('ui.mbtiDescription', { count: 20 })} <span style="color: #ffd700; font-weight: 600;">${localizationManager.get('ui.premiumUpgradeNote')}</span>`;
-        }
+        
         if (premiumQuizTypes) {
             premiumQuizTypes.style.display = 'block';
             // Disable all premium quiz buttons
@@ -1320,4 +1325,21 @@ window.viewLastResults = viewLastResults;
 window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.generatePDF = generatePDF;
-window.copyShareLink = copyShareLink; 
+window.copyShareLink = copyShareLink;
+
+// Development function to clear localStorage
+function clearLocalStorage() {
+    if (getCurrentAppState() === 'development') {
+        const confirmed = confirm('Are you sure you want to clear all localStorage data? This will reset the application state.');
+        if (confirmed) {
+            localStorage.clear();
+            alert('localStorage cleared successfully!');
+            // Refresh the page to reset all state
+            location.reload();
+        }
+    } else {
+        console.warn('clearLocalStorage called in non-development mode');
+    }
+}
+
+window.clearLocalStorage = clearLocalStorage; 

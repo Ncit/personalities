@@ -393,5 +393,6 @@ window.toggleAppState = () => app.toggleAppState();
 window.exitQuiz = () => app.exitQuiz();
 window.closeExitQuizModal = () => app.closeExitQuizModal();
 window.confirmExitQuiz = () => app.confirmExitQuiz();
+window.clearLocalStorage = () => uiManager.clearLocalStorage();
 
 export default app; 

@@ -264,6 +264,15 @@ export class UIManager {
             this.elements.headerPremiumBtn.style.display = isPremium ? 'none' : 'block';
         }
 
+        // Hide all premium buttons if user is premium
+        document.querySelectorAll('.btn-premium').forEach(btn => {
+            if (isPremium) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'inline-block';
+            }
+        });
+
         // Update premium quiz types
         if (this.elements.premiumQuizTypes) {
             this.elements.premiumQuizTypes.style.display = isPremium ? 'block' : 'none';
@@ -355,6 +364,23 @@ export class UIManager {
         devTools.forEach(tool => {
             tool.style.display = 'none';
         });
+    }
+
+    // Development function to clear localStorage
+    clearLocalStorage() {
+        if (stateManager.isDevelopment()) {
+            const confirmed = confirm('Are you sure you want to clear all localStorage data? This will reset the application state.');
+            if (confirmed) {
+                localStorage.clear();
+                this.showSuccess('localStorage cleared successfully!');
+                // Refresh the page to reset all state
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        } else {
+            console.warn('clearLocalStorage called in non-development mode');
+        }
     }
 }
 
