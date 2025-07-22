@@ -192,6 +192,17 @@ class MBTIApplication {
             uiManager.updatePremiumUI(true);
             uiManager.closeModal('premium');
             uiManager.showSuccess(localizationManager.get('success.premiumUnlocked'));
+            
+            // Check if we're on the results page and refresh premium content
+            const currentScreen = stateManager.get('currentScreen');
+            if (currentScreen === 'results') {
+                const lastResults = stateManager.getLastResults();
+                if (lastResults) {
+                    // Refresh premium content on results page
+                    analyticsEngine.createAnalyticsCharts(lastResults);
+                    uiManager.showPremiumContent(lastResults.personalityType);
+                }
+            }
         } catch (error) {
             console.error(localizationManager.get('console.errorUnlockingPremium'), error);
             this.showError(localizationManager.get('errors.unlockPremiumFailed'));

@@ -355,6 +355,34 @@ function unlockPremium() {
     document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
     setTimeout(() => {
         closePremiumModal();
+        
+        // Check if we're on the results page and refresh premium content
+        const resultsScreen = document.getElementById('resultsScreen');
+        if (resultsScreen && resultsScreen.style.display !== 'none') {
+            // We're on results page, refresh premium content
+            const savedResults = localStorage.getItem('mbti_last_results');
+            if (savedResults) {
+                const results = JSON.parse(savedResults);
+                
+                // Display premium features
+                displayAdvancedInsights(results.personalityType);
+                displayFamousPersonalities(results.personalityType);
+                createAnalyticsCharts();
+                
+                // Update premium UI
+                updatePremiumUI();
+                
+                // Generate share link
+                const shareLink = document.getElementById('shareLink');
+                if (shareLink) {
+                    const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
+                    shareLink.value = link;
+                }
+            }
+        } else {
+            // Update premium UI for other pages
+            updatePremiumUI();
+        }
     }, 1200);
 }
 
@@ -432,8 +460,22 @@ function displayFamousPersonalities(personalityType) {
 function createAnalyticsCharts() {
     if (!isPremium()) return;
     
-    // Get actual scores from the quiz
-    const scores = quiz.scores;
+    // Get scores from saved results or current quiz
+    let scores;
+    if (quiz && quiz.scores) {
+        scores = quiz.scores;
+    } else {
+        // Try to get scores from saved results
+        const savedResults = localStorage.getItem('mbti_last_results');
+        if (savedResults) {
+            const results = JSON.parse(savedResults);
+            scores = results.scores;
+        } else {
+            console.warn('No scores available for charts');
+            return;
+        }
+    }
+    
     const totalE = scores.E + scores.I;
     const totalS = scores.S + scores.N;
     const totalT = scores.T + scores.F;
