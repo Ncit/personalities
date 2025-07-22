@@ -1,0 +1,324 @@
+/**
+ * VK Mini Apps Specific Styles
+ * Optimized for VK platform integration
+ */
+
+/* VK Platform Detection */
+.vk-platform {
+    /* VK-specific adjustments */
+}
+
+/* VK Header Integration */
+.vk-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    background: var(--vk-header-bg, #667eea);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Adjust main container for VK header */
+.vk-platform .container {
+    padding-top: 44px;
+}
+
+/* VK-specific button styles */
+.vk-platform .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.vk-platform .btn-primary {
+    background: var(--vk-primary-color, #667eea);
+    border: none;
+    color: white;
+}
+
+.vk-platform .btn-primary:hover {
+    background: var(--vk-primary-hover, #5a67d8);
+    transform: translateY(-1px);
+}
+
+.vk-platform .btn-secondary {
+    background: var(--vk-secondary-bg, #f7fafc);
+    border: 1px solid var(--vk-secondary-border, #e2e8f0);
+    color: var(--vk-secondary-text, #4a5568);
+}
+
+.vk-platform .btn-secondary:hover {
+    background: var(--vk-secondary-hover, #edf2f7);
+}
+
+/* VK Modal Styles */
+.vk-platform .modal {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.vk-platform .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* VK Card Styles */
+.vk-platform .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--vk-card-border, #e2e8f0);
+}
+
+/* VK Quiz Container */
+.vk-platform .quiz-container {
+    padding: 16px;
+    max-width: 100%;
+}
+
+/* VK Welcome Screen */
+.vk-platform .welcome-screen {
+    padding: 20px 16px;
+}
+
+.vk-platform .welcome-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+/* VK Question Styles */
+.vk-platform .question-container {
+    padding: 20px 16px;
+}
+
+.vk-platform .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.vk-platform .options-container {
+    gap: 12px;
+}
+
+.vk-platform .option {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--vk-option-border, #e2e8f0);
+    transition: all 0.2s ease;
+}
+
+.vk-platform .option:hover {
+    border-color: var(--vk-primary-color, #667eea);
+    background: var(--vk-option-hover, #f7fafc);
+}
+
+.vk-platform .option.selected {
+    border-color: var(--vk-primary-color, #667eea);
+    background: var(--vk-primary-color, #667eea);
+    color: white;
+}
+
+/* VK Results Screen */
+.vk-platform .results-screen {
+    padding: 20px 16px;
+}
+
+.vk-platform .personality-result {
+    text-align: center;
+    padding: 24px 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--vk-primary-color, #667eea) 0%, var(--vk-secondary-color, #764ba2) 100%);
+    color: white;
+    margin-bottom: 24px;
+}
+
+/* VK Chart Styles */
+.vk-platform .chart-container {
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.vk-platform .chart-container canvas {
+    border-radius: 8px;
+}
+
+/* VK Premium Styles */
+.vk-platform .premium-locked {
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.vk-platform .premium-overlay {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+    border-radius: 12px;
+}
+
+/* VK Navigation */
+.vk-platform .navigation {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--vk-border, #e2e8f0);
+    padding: 8px 16px;
+    z-index: 1000;
+}
+
+/* VK Typography */
+.vk-platform h1, .vk-platform h2, .vk-platform h3 {
+    font-weight: 700;
+}
+
+.vk-platform p {
+    line-height: 1.6;
+}
+
+/* VK Spacing */
+.vk-platform .spacing-vk {
+    margin: 16px 0;
+}
+
+/* VK Loading States */
+.vk-platform .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.vk-platform .loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--vk-border, #e2e8f0);
+    border-top: 3px solid var(--vk-primary-color, #667eea);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* VK Responsive Design */
+@media (max-width: 375px) {
+    .vk-platform .quiz-container {
+        padding: 12px;
+    }
+    
+    .vk-platform .welcome-screen {
+        padding: 16px 12px;
+    }
+    
+    .vk-platform .question-container {
+        padding: 16px 12px;
+    }
+    
+    .vk-platform .results-screen {
+        padding: 16px 12px;
+    }
+}
+
+/* VK Dark Mode Support */
+.vk-platform[data-theme="dark"] {
+    --vk-header-bg: #1a202c;
+    --vk-primary-color: #667eea;
+    --vk-primary-hover: #5a67d8;
+    --vk-secondary-bg: #2d3748;
+    --vk-secondary-border: #4a5568;
+    --vk-secondary-text: #e2e8f0;
+    --vk-secondary-hover: #4a5568;
+    --vk-card-border: #4a5568;
+    --vk-option-border: #4a5568;
+    --vk-option-hover: #2d3748;
+    --vk-border: #4a5568;
+}
+
+/* VK Animation Classes */
+.vk-fade-in {
+    animation: vkFadeIn 0.3s ease-in-out;
+}
+
+.vk-slide-up {
+    animation: vkSlideUp 0.3s ease-out;
+}
+
+.vk-scale-in {
+    animation: vkScaleIn 0.2s ease-out;
+}
+
+@keyframes vkFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes vkSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes vkScaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* VK Utility Classes */
+.vk-text-center { text-align: center; }
+.vk-text-left { text-align: left; }
+.vk-text-right { text-align: right; }
+
+.vk-mt-1 { margin-top: 4px; }
+.vk-mt-2 { margin-top: 8px; }
+.vk-mt-3 { margin-top: 12px; }
+.vk-mt-4 { margin-top: 16px; }
+.vk-mt-5 { margin-top: 20px; }
+
+.vk-mb-1 { margin-bottom: 4px; }
+.vk-mb-2 { margin-bottom: 8px; }
+.vk-mb-3 { margin-bottom: 12px; }
+.vk-mb-4 { margin-bottom: 16px; }
+.vk-mb-5 { margin-bottom: 20px; }
+
+.vk-p-1 { padding: 4px; }
+.vk-p-2 { padding: 8px; }
+.vk-p-3 { padding: 12px; }
+.vk-p-4 { padding: 16px; }
+.vk-p-5 { padding: 20px; }
+
+/* VK Focus States */
+.vk-platform .btn:focus,
+.vk-platform .option:focus {
+    outline: 2px solid var(--vk-primary-color, #667eea);
+    outline-offset: 2px;
+}
+
+/* VK Touch Targets */
+.vk-platform .btn,
+.vk-platform .option {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* VK Accessibility */
+.vk-platform .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+} 

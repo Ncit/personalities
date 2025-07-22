@@ -282,7 +282,10 @@ class MBTIQuiz {
         const personalityType = this.calculatePersonalityType();
         const shareText = `I just discovered my MBTI personality type is ${personalityType}! Take the quiz yourself to find yours.`;
         
-        if (navigator.share) {
+        // Use VK Bridge if available, otherwise fallback to native sharing
+        if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+            window.vkBridgeManager.shareResults(personalityType, shareText);
+        } else if (navigator.share) {
             navigator.share({
                 title: 'MBTI Personality Quiz Results',
                 text: shareText,
@@ -291,7 +294,11 @@ class MBTIQuiz {
         } else {
             // Fallback: copy to clipboard
             navigator.clipboard.writeText(shareText).then(() => {
-                alert('Results copied to clipboard!');
+                if (window.vkBridgeManager) {
+                    window.vkBridgeManager.showNotification('Results copied to clipboard!');
+                } else {
+                    alert('Results copied to clipboard!');
+                }
             });
         }
     }
@@ -489,6 +496,23 @@ function closePremiumModal() {
 }
 
 function unlockPremium() {
+    // Use VK Bridge for payments if available
+    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+        window.vkBridgeManager.showOrderBox().then((result) => {
+            if (result && result.status === 'success') {
+                setPremium(true);
+                document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+                completePremiumUnlock();
+            }
+        }).catch((error) => {
+            console.error('Payment error:', error);
+            // Fallback to development mode
+            setPremium(true);
+            document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+            completePremiumUnlock();
+        });
+        return;
+    }
     
     if (getCurrentAppState() == 'development') {
         setPremium(true);
@@ -496,36 +520,45 @@ function unlockPremium() {
     }
 
     setTimeout(() => {
-        closePremiumModal();
-        
-        // Check if we're on the results page and refresh premium content
-        const resultsScreen = document.getElementById('resultsScreen');
-        if (resultsScreen && resultsScreen.style.display !== 'none') {
-            // We're on results page, refresh premium content
-            const savedResults = localStorage.getItem('mbti_last_results');
-            if (savedResults) {
-                const results = JSON.parse(savedResults);
-                
-                // Display premium features
-                displayAdvancedInsights(results.personalityType);
-                displayFamousPersonalities(results.personalityType);
-                createAnalyticsCharts();
-                
-                // Update premium UI
-                updatePremiumUI();
-                
-                // Generate share link
-                const shareLink = document.getElementById('shareLink');
-                if (shareLink) {
-                    const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
-                    shareLink.value = link;
-                }
-            }
-        } else {
-            // Update premium UI for other pages
-            updatePremiumUI();
-        }
+        completePremiumUnlock();
     }, 1200);
+}
+
+function completePremiumUnlock() {
+    closePremiumModal();
+    
+    // Check if we're on the results page and refresh premium content
+    const resultsScreen = document.getElementById('resultsScreen');
+    if (resultsScreen && resultsScreen.style.display !== 'none') {
+        // We're on results page, refresh premium content
+        const savedResults = localStorage.getItem('mbti_last_results');
+        if (savedResults) {
+            const results = JSON.parse(savedResults);
+            
+            // Display premium features
+            displayAdvancedInsights(results.personalityType);
+            displayFamousPersonalities(results.personalityType);
+            createAnalyticsCharts();
+            
+            // Update premium UI
+            updatePremiumUI();
+            
+            // Generate share link
+            const shareLink = document.getElementById('shareLink');
+            if (shareLink) {
+                const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
+                shareLink.value = link;
+            }
+        }
+    } else {
+        // Update premium UI for other pages
+        updatePremiumUI();
+    }
+    
+    // Show success notification
+    if (window.vkBridgeManager) {
+        window.vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+    }
 }
 
 
@@ -1531,6 +1564,11 @@ function setupModalClickOutside() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize VK Bridge if available
+    if (typeof window.vkBridgeManager !== 'undefined') {
+        console.log('VK Bridge Manager initialized');
+    }
+    
     // Initialize the quiz
     quiz = new MBTIQuiz();
     

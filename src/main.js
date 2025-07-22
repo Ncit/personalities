@@ -7,6 +7,7 @@ import { quizEngine } from './modules/quiz/QuizEngine.js';
 import { uiManager } from './modules/ui/UIManager.js';
 import { analyticsEngine } from './modules/analytics/AnalyticsEngine.js';
 import localizationManager from './locales/LocalizationManager.js';
+import { VKBridgeManager } from './modules/vk/VKBridgeManager.js';
 
 class MBTIApplication {
     constructor() {
@@ -17,6 +18,9 @@ class MBTIApplication {
             uiManager,
             analyticsEngine
         };
+        
+        // Initialize VK Bridge Manager
+        this.vkBridgeManager = new VKBridgeManager();
     }
 
     async initialize() {
@@ -191,10 +195,40 @@ class MBTIApplication {
 
     unlockPremium() {
         try {
+            // Use VK Bridge for payments if available
+            if (this.vkBridgeManager && this.vkBridgeManager.isVKEnvironment()) {
+                this.vkBridgeManager.showOrderBox().then((result) => {
+                    if (result && result.status === 'success') {
+                        this.completePremiumUnlock();
+                    }
+                }).catch((error) => {
+                    console.error('Payment error:', error);
+                    // Fallback to development mode
+                    this.completePremiumUnlock();
+                });
+                return;
+            }
+            
+            // Development mode or standalone
+            this.completePremiumUnlock();
+        } catch (error) {
+            console.error(localizationManager.get('console.errorUnlockingPremium'), error);
+            this.showError(localizationManager.get('errors.unlockPremiumFailed'));
+        }
+    }
+
+    completePremiumUnlock() {
+        try {
             stateManager.setPremium(true);
             uiManager.updatePremiumUI(true);
             uiManager.closeModal('premium');
-            uiManager.showSuccess(localizationManager.get('success.premiumUnlocked'));
+            
+            // Show success notification
+            if (this.vkBridgeManager) {
+                this.vkBridgeManager.showNotification(localizationManager.get('success.premiumUnlocked'));
+            } else {
+                uiManager.showSuccess(localizationManager.get('success.premiumUnlocked'));
+            }
             
             // Check if we're on the results page and refresh premium content
             const currentScreen = stateManager.get('currentScreen');
@@ -277,7 +311,10 @@ class MBTIApplication {
             const shareText = `I just discovered my MBTI personality type is ${results.personalityType}! Take the quiz yourself to find yours.`;
             const shareUrl = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
 
-            if (navigator.share) {
+            // Use VK Bridge if available, otherwise fallback to native sharing
+            if (this.vkBridgeManager && this.vkBridgeManager.isVKEnvironment()) {
+                this.vkBridgeManager.shareResults(results.personalityType, shareText);
+            } else if (navigator.share) {
                 navigator.share({
                     title: 'My MBTI Personality Type',
                     text: shareText,
@@ -286,7 +323,11 @@ class MBTIApplication {
             } else {
                 // Fallback to clipboard
                 navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`).then(() => {
-                    uiManager.showSuccess(localizationManager.get('success.resultsCopied'));
+                    if (this.vkBridgeManager) {
+                        this.vkBridgeManager.showNotification(localizationManager.get('success.resultsCopied'));
+                    } else {
+                        uiManager.showSuccess(localizationManager.get('success.resultsCopied'));
+                    }
                 }).catch(() => {
                     this.showError(localizationManager.get('errors.copyToClipboardFailed'));
                 });
