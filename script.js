@@ -814,10 +814,10 @@ function createBalanceChart(e, s, t, j) {
         
         // Draw indicator
         const indicatorX = 50 + (pair.value / 100) * 200;
-        ctx.fillStyle = '#333';
-        ctx.beginPath();
-        ctx.arc(indicatorX, y + 10, 6, 0, 2 * Math.PI);
-        ctx.fill();
+        // ctx.fillStyle = '#333';
+        // ctx.beginPath();
+        // ctx.arc(indicatorX, y + 10, 6, 0, 2 * Math.PI);
+        // ctx.fill();
         
         // Draw label
         ctx.fillStyle = '#333';
