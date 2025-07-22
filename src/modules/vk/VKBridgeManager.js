@@ -16,10 +16,15 @@ export class VKBridgeManager {
      */
     async init() {
         try {
+            console.log('🔧 Initializing VK Bridge Manager...');
+            console.log('VK Bridge available:', typeof window.vkBridge !== 'undefined');
+            
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
                 this.isVKPlatform = true;
+                
+                console.log('✅ VK Bridge detected - running in VK environment');
                 
                 // Apply VK-specific styles
                 this.applyVKStyles();
@@ -31,6 +36,7 @@ export class VKBridgeManager {
 
                 // Send ready event
                 await this.bridge.send('VKWebAppInit');
+                console.log('✅ VKWebAppInit sent');
                 
                 // Get user info
                 await this.getUserInfo();
@@ -38,12 +44,14 @@ export class VKBridgeManager {
                 // Configure app appearance
                 await this.configureAppearance();
                 
-                console.log('VK Bridge initialized successfully');
+                console.log('✅ VK Bridge initialized successfully');
             } else {
-                console.log('VK Bridge not available - running in standalone mode');
+                console.log('ℹ️ VK Bridge not available - running in standalone mode');
+                this.isVKPlatform = false;
             }
         } catch (error) {
-            console.error('Error initializing VK Bridge:', error);
+            console.error('❌ Error initializing VK Bridge:', error);
+            this.isVKPlatform = false;
         }
     }
 
