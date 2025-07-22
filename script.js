@@ -1033,15 +1033,15 @@ function createStrengthsChart(e, s, t, j) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const strengths = [
-        { name: 'Analytical', value: Math.max(t, 100 - t), color: '#667eea' },
-        { name: 'Creative', value: Math.max(s, 100 - s), color: '#764ba2' },
-        { name: 'Social', value: Math.max(e, 100 - e), color: '#f093fb' },
-        { name: 'Organized', value: Math.max(j, 100 - j), color: '#f5576c' }
+        { name: 'Аналитический', value: Math.max(t, 100 - t), color: '#667eea' },
+        { name: 'Креативный', value: Math.max(s, 100 - s), color: '#764ba2' },
+        { name: 'Социальный', value: Math.max(e, 100 - e), color: '#f093fb' },
+        { name: 'Организованный', value: Math.max(j, 100 - j), color: '#f5576c' }
     ];
     
     const barHeight = 25;
     const spacing = 10;
-    const startY = 30;
+    const startY = 0;
     
     strengths.forEach((strength, index) => {
         const y = startY + index * (barHeight + spacing);
@@ -1049,12 +1049,12 @@ function createStrengthsChart(e, s, t, j) {
         
         // Draw bar
         ctx.fillStyle = strength.color;
-        ctx.fillRect(50, y, width, barHeight);
+        ctx.fillRect(130, y, width, barHeight);
         
         // Draw border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(50, y, width, barHeight);
+        // ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        // ctx.lineWidth = 1;
+        // ctx.strokeRect(50, y, width, barHeight);
         
         // Draw label
         ctx.fillStyle = '#333';
@@ -1064,7 +1064,7 @@ function createStrengthsChart(e, s, t, j) {
         
         // Draw percentage
         ctx.textAlign = 'right';
-        ctx.fillText(`${Math.round(strength.value)}%`, 45, y + 17);
+        ctx.fillText(`${Math.round(strength.value)}%`, 165, y + 17);
     });
 }
 

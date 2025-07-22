@@ -135,7 +135,6 @@ export const en = {
         
         // Quiz descriptions
         mbtiDescription: 'This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of {count} questions that will evaluate your preferences across four dimensions:',
-        premiumUpgradeNote: '(Upgrade to Premium for the full 60-question assessment)',
         
         // Dimensions
         dimensionEI: 'Extraversion (E) vs Introversion (I)',
