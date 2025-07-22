@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MBTI 16 Personalities Quiz</title>
+    <title>Тест личности MBTI - 16 типов личности</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,11 +13,11 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <div class="state-badge" id="stateBadge" onclick="toggleAppState()">STATE</div>
-            <h1><i class="fas fa-brain"></i> MBTI Personality Quiz</h1>
-            <p>Discover your personality type with our comprehensive 16 personalities assessment</p>
+            <div class="state-badge" id="stateBadge" onclick="toggleAppState()">СОСТОЯНИЕ</div>
+            <h1><i class="fas fa-brain"></i> Тест личности MBTI</h1>
+            <p>Откройте свой тип личности с помощью комплексного тестирования 16 типов личности</p>
             <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
-                <i class="fas fa-star"></i> Upgrade to Premium
+                <i class="fas fa-star"></i> Перейти на Премиум
             </button>
         </header>
 
@@ -26,124 +26,124 @@
             <!-- Welcome Screen -->
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-content">
-                    <h2>Welcome to the MBTI Personality Quiz</h2>
-                    <p id="quizDescription">This quiz will help you discover your Myers-Briggs Type Indicator (MBTI) personality type. The assessment consists of <span id="questionCount">60</span> questions that will evaluate your preferences across four dimensions:</p>
+                    <h2>Добро пожаловать в тест личности MBTI</h2>
+                    <p id="quizDescription">Этот тест поможет вам определить ваш тип личности по индикатору Майерс-Бриггс (MBTI). Оценка состоит из <span id="questionCount">60</span> вопросов, которые оценивают ваши предпочтения по четырем измерениям:</p>
                     
                     <div class="dimensions">
                         <div class="dimension">
-                            <h3><i class="fas fa-users"></i> Extraversion (E) vs Introversion (I)</h3>
-                            <p>How you direct and receive energy</p>
+                            <h3><i class="fas fa-users"></i> Экстраверсия (E) против Интроверсия (I)</h3>
+                            <p>Как вы направляете и получаете энергию</p>
                         </div>
                         <div class="dimension">
-                            <h3><i class="fas fa-eye"></i> Sensing (S) vs Intuition (N)</h3>
-                            <p>How you take in information</p>
+                            <h3><i class="fas fa-eye"></i> Сенсорика (S) против Интуиция (N)</h3>
+                            <p>Как вы воспринимаете информацию</p>
                         </div>
                         <div class="dimension">
-                            <h3><i class="fas fa-balance-scale"></i> Thinking (T) vs Feeling (F)</h3>
-                            <p>How you make decisions</p>
+                            <h3><i class="fas fa-balance-scale"></i> Мышление (T) против Чувство (F)</h3>
+                            <p>Как вы принимаете решения</p>
                         </div>
                         <div class="dimension">
-                            <h3><i class="fas fa-clock"></i> Judging (J) vs Perceiving (P)</h3>
-                            <p>How you approach the outer world</p>
+                            <h3><i class="fas fa-clock"></i> Суждение (J) против Восприятие (P)</h3>
+                            <p>Как вы подходите к внешнему миру</p>
                         </div>
                     </div>
 
                     <button class="btn btn-primary" onclick="startQuiz()">
-                        <i class="fas fa-play"></i> Start Quiz
+                        <i class="fas fa-play"></i> Начать тест
                     </button>
                     <button class="btn btn-secondary" onclick="openTypesModal()" style="margin-left: 10px;">
-                        <i class="fas fa-book-open"></i> Browse Types
+                        <i class="fas fa-book-open"></i> Просмотреть типы
                     </button>
                     <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="margin-left: 10px; display: none;">
-                        <i class="fas fa-history"></i> View Last Results
+                        <i class="fas fa-history"></i> Посмотреть последние результаты
                     </button>
                     
-                                <!-- Premium Quiz Types -->
-            <div id="premiumQuizTypes" style="display: none; margin-top: 20px;">
-                <h3 style="color: #ffd700; margin-bottom: 15px;">
-                    <i class="fas fa-star"></i> Premium Quiz Types
-                </h3>
-                <div class="quiz-types-grid">
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('leadership')">
-                        <i class="fas fa-crown"></i>
-                        <span>Leadership Style</span>
-                        <small>Discover your leadership approach</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('communication')">
-                        <i class="fas fa-comments"></i>
-                        <span>Communication Style</span>
-                        <small>Understand how you communicate</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('stress')">
-                        <i class="fas fa-brain"></i>
-                        <span>Stress Response</span>
-                        <small>Learn how you handle stress</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('learning')">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Learning Style</span>
-                        <small>Find your optimal learning method</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('relationships')">
-                        <i class="fas fa-heart"></i>
-                        <span>Relationship Dynamics</span>
-                        <small>Explore your relationship patterns</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('creativity')">
-                        <i class="fas fa-palette"></i>
-                        <span>Creativity & Innovation</span>
-                        <small>Unlock your creative potential</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('decision')">
-                        <i class="fas fa-balance-scale"></i>
-                        <span>Decision Making</span>
-                        <small>Understand your decision process</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('teamwork')">
-                        <i class="fas fa-users"></i>
-                        <span>Team Collaboration</span>
-                        <small>Discover your team role preferences</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('career')">
-                        <i class="fas fa-briefcase"></i>
-                        <span>Career Preferences</span>
-                        <small>Find your ideal work environment</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('conflict')">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Conflict Resolution</span>
-                        <small>Learn your conflict handling style</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('motivation')">
-                        <i class="fas fa-rocket"></i>
-                        <span>Motivation & Drive</span>
-                        <small>Discover what drives you forward</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('adaptability')">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Adaptability & Change</span>
-                        <small>Understand how you handle change</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('emotional')">
-                        <i class="fas fa-smile"></i>
-                        <span>Emotional Intelligence</span>
-                        <small>Assess your emotional awareness</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('productivity')">
-                        <i class="fas fa-tasks"></i>
-                        <span>Productivity Style</span>
-                        <small>Optimize your work efficiency</small>
-                    </button>
-                    <button class="btn btn-premium-quiz" onclick="startQuizType('social')">
-                        <i class="fas fa-handshake"></i>
-                        <span>Social Interaction</span>
-                        <small>Explore your social preferences</small>
-                    </button>
-                </div>
-            </div>
+                    <!-- Premium Quiz Types -->
+                    <div id="premiumQuizTypes" style="display: none; margin-top: 20px;">
+                        <h3 style="color: #ffd700; margin-bottom: 15px;">
+                            <i class="fas fa-star"></i> Премиум типы тестов
+                        </h3>
+                        <div class="quiz-types-grid">
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('leadership')">
+                                <i class="fas fa-crown"></i>
+                                <span>Стиль лидерства</span>
+                                <small>Откройте свой подход к лидерству</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('communication')">
+                                <i class="fas fa-comments"></i>
+                                <span>Стиль общения</span>
+                                <small>Поймите, как вы общаетесь</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('stress')">
+                                <i class="fas fa-brain"></i>
+                                <span>Реакция на стресс</span>
+                                <small>Узнайте, как вы справляетесь со стрессом</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('learning')">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Стиль обучения</span>
+                                <small>Найдите свой оптимальный метод обучения</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('relationships')">
+                                <i class="fas fa-heart"></i>
+                                <span>Динамика отношений</span>
+                                <small>Изучите свои паттерны отношений</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('creativity')">
+                                <i class="fas fa-palette"></i>
+                                <span>Креативность и инновации</span>
+                                <small>Раскройте свой творческий потенциал</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('decision')">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Принятие решений</span>
+                                <small>Поймите свой процесс принятия решений</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('teamwork')">
+                                <i class="fas fa-users"></i>
+                                <span>Командное сотрудничество</span>
+                                <small>Откройте свои предпочтения ролей в команде</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('career')">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Карьерные предпочтения</span>
+                                <small>Найдите свою идеальную рабочую среду</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('conflict')">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Разрешение конфликтов</span>
+                                <small>Узнайте свой стиль разрешения конфликтов</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('motivation')">
+                                <i class="fas fa-rocket"></i>
+                                <span>Мотивация и стремление</span>
+                                <small>Откройте, что движет вас вперед</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('adaptability')">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Адаптивность и изменения</span>
+                                <small>Поймите, как вы справляетесь с изменениями</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('emotional')">
+                                <i class="fas fa-smile"></i>
+                                <span>Эмоциональный интеллект</span>
+                                <small>Оцените свою эмоциональную осведомленность</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('productivity')">
+                                <i class="fas fa-tasks"></i>
+                                <span>Стиль продуктивности</span>
+                                <small>Оптимизируйте свою рабочую эффективность</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" onclick="startQuizType('social')">
+                                <i class="fas fa-handshake"></i>
+                                <span>Социальное взаимодействие</span>
+                                <small>Изучите свои социальные предпочтения</small>
+                            </button>
+                        </div>
+                    </div>
                     <div class="dev-tools" id="devToolsWelcome" style="display: none; margin-top: 20px;">
                         <button class="btn btn-dev" onclick="fillAllRandomAnswersFromWelcome()">
-                            <i class="fas fa-dice"></i> Random Answers
+                            <i class="fas fa-dice"></i> Случайные ответы
                         </button>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
             <div class="quiz-questions" id="quizQuestions" style="display: none;">
                 <div class="quiz-header">
                     <button class="btn btn-back" onclick="exitQuiz()">
-                        <i class="fas fa-arrow-left"></i> Exit Quiz
+                        <i class="fas fa-arrow-left"></i> Выйти из теста
                     </button>
                 </div>
                 
@@ -182,11 +182,11 @@
 
                 <div class="navigation">
                     <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>
-                        <i class="fas fa-arrow-left"></i> Previous
+                        <i class="fas fa-arrow-left"></i> Предыдущий
                     </button>
                     <span class="question-counter" id="questionCounter">1 / 60</span>
                     <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>
-                        Next <i class="fas fa-arrow-right"></i>
+                        Следующий <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
                 
@@ -197,15 +197,15 @@
                 <div class="modal-content exit-confirmation">
                     <div class="exit-confirmation-header">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Exit Quiz?</h3>
+                        <h3>Выйти из теста?</h3>
                     </div>
-                    <p>Are you sure you want to exit the quiz? Your progress will be lost.</p>
+                    <p>Вы уверены, что хотите выйти из теста? Ваш прогресс будет потерян.</p>
                     <div class="exit-confirmation-buttons">
                         <button class="btn btn-secondary" onclick="closeExitQuizModal()">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> Отмена
                         </button>
                         <button class="btn btn-danger" onclick="confirmExitQuiz()">
-                            <i class="fas fa-sign-out-alt"></i> Exit Quiz
+                            <i class="fas fa-sign-out-alt"></i> Выйти из теста
                         </button>
                     </div>
                 </div>
@@ -214,7 +214,7 @@
             <!-- Results Screen -->
             <div class="results-screen" id="resultsScreen" style="display: none;">
                 <div class="results-content">
-                    <h2>Your Personality Type: <span id="personalityType"></span></h2>
+                    <h2>Ваш тип личности: <span id="personalityType"></span></h2>
                     <div class="personality-card" id="personalityCard">
                         <div class="personality-header">
                             <h3 id="personalityTitle"></h3>
@@ -225,35 +225,35 @@
                     </div>
 
                     <div class="dimension-breakdown">
-                        <h3>Your Preferences Breakdown</h3>
+                        <h3>Анализ ваших предпочтений</h3>
                         <div class="dimension-bars">
                             <div class="dimension-bar">
-                                <span>Extraversion (E)</span>
+                                <span>Экстраверсия (E)</span>
                                 <div class="bar">
                                     <div class="bar-fill" id="eBar"></div>
                                 </div>
-                                <span>Introversion (I)</span>
+                                <span>Интроверсия (I)</span>
                             </div>
                             <div class="dimension-bar">
-                                <span>Sensing (S)</span>
+                                <span>Сенсорика (S)</span>
                                 <div class="bar">
                                     <div class="bar-fill" id="sBar"></div>
                                 </div>
-                                <span>Intuition (N)</span>
+                                <span>Интуиция (N)</span>
                             </div>
                             <div class="dimension-bar">
-                                <span>Thinking (T)</span>
+                                <span>Мышление (T)</span>
                                 <div class="bar">
                                     <div class="bar-fill" id="tBar"></div>
                                 </div>
-                                <span>Feeling (F)</span>
+                                <span>Чувство (F)</span>
                             </div>
                             <div class="dimension-bar">
-                                <span>Judging (J)</span>
+                                <span>Суждение (J)</span>
                                 <div class="bar">
                                     <div class="bar-fill" id="jBar"></div>
                                 </div>
-                                <span>Perceiving (P)</span>
+                                <span>Восприятие (P)</span>
                             </div>
                         </div>
                     </div>
@@ -263,32 +263,32 @@
                         <!-- Advanced Insights -->
                         <div class="premium-section" id="advancedInsightsSection">
                             <div class="premium-locked" id="advancedInsightsLocked">
-                                <h3>Advanced Personality Insights</h3>
+                                <h3>Расширенные анализы личности</h3>
                                 <div class="premium-overlay">
                                     <i class="fas fa-lock lock-icon"></i>
                                 </div>
-                                <p>Get deeper analysis of your personality type including strengths, weaknesses, career recommendations, and growth opportunities.</p>
+                                <p>Получите глубокий анализ вашего типа личности, включая сильные стороны, области роста, карьерные рекомендации и возможности развития.</p>
                                 <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-star"></i> Unlock Advanced Insights
+                                    <i class="fas fa-star"></i> Разблокировать расширенные анализы
                                 </button>
                             </div>
                             <div class="premium-content" id="advancedInsightsContent" style="display: none;">
-                                <h3><i class="fas fa-chart-bar"></i> Advanced Personality Insights</h3>
+                                <h3><i class="fas fa-chart-bar"></i> Расширенные анализы личности</h3>
                                 <div class="insights-grid">
                                     <div class="insight-card">
-                                        <h4><i class="fas fa-star"></i> Key Strengths</h4>
+                                        <h4><i class="fas fa-star"></i> Ключевые сильные стороны</h4>
                                         <div id="strengthsList"></div>
                                     </div>
                                     <div class="insight-card">
-                                        <h4><i class="fas fa-exclamation-triangle"></i> Growth Areas</h4>
+                                        <h4><i class="fas fa-exclamation-triangle"></i> Области роста</h4>
                                         <div id="weaknessesList"></div>
                                     </div>
                                     <div class="insight-card">
-                                        <h4><i class="fas fa-briefcase"></i> Career Recommendations</h4>
+                                        <h4><i class="fas fa-briefcase"></i> Карьерные рекомендации</h4>
                                         <div id="careerList"></div>
                                     </div>
                                     <div class="insight-card">
-                                        <h4><i class="fas fa-lightbulb"></i> Personal Development</h4>
+                                        <h4><i class="fas fa-lightbulb"></i> Личностное развитие</h4>
                                         <div id="developmentList"></div>
                                     </div>
                                 </div>
@@ -298,40 +298,40 @@
                         <!-- Visual Analytics -->
                         <div class="premium-section" id="analyticsSection">
                             <div class="premium-locked" id="analyticsLocked">
-                                <h3>Visual Analytics</h3>
+                                <h3>Визуальная аналитика</h3>
                                 <div class="premium-overlay">
                                     <i class="fas fa-lock lock-icon"></i>
                                 </div>
-                                <p>Explore detailed charts and graphs showing your personality dimensions and preferences.</p>
+                                <p>Изучите детальные графики и диаграммы, показывающие ваши личностные измерения и предпочтения.</p>
                                 <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-chart-pie"></i> Unlock Analytics
+                                    <i class="fas fa-chart-pie"></i> Разблокировать аналитику
                                 </button>
                             </div>
                             <div class="premium-content" id="analyticsContent" style="display: none;">
-                                <h3><i class="fas fa-chart-pie"></i> Visual Analytics</h3>
+                                <h3><i class="fas fa-chart-pie"></i> Визуальная аналитика</h3>
                                 <div class="analytics-grid">
                                     <div class="chart-container">
-                                        <h4>Personality Radar Chart</h4>
+                                        <h4>Радарная диаграмма личности</h4>
                                         <canvas id="radarChart" width="300" height="300"></canvas>
                                     </div>
                                     <div class="chart-container">
-                                        <h4>Dimension Comparison</h4>
+                                        <h4>Сравнение измерений</h4>
                                         <canvas id="barChart" width="300" height="200"></canvas>
                                     </div>
                                     <div class="chart-container">
-                                        <h4>Personality Balance</h4>
+                                        <h4>Баланс личности</h4>
                                         <canvas id="balanceChart" width="300" height="200"></canvas>
                                     </div>
                                     <div class="chart-container">
-                                        <h4>Preference Distribution</h4>
+                                        <h4>Распределение предпочтений</h4>
                                         <canvas id="pieChart" width="300" height="200"></canvas>
                                     </div>
                                     <div class="chart-container">
-                                        <h4>Personality Timeline</h4>
+                                        <h4>Временная линия личности</h4>
                                         <canvas id="timelineChart" width="300" height="150"></canvas>
                                     </div>
                                     <div class="chart-container">
-                                        <h4>Strengths Analysis</h4>
+                                        <h4>Анализ сильных сторон</h4>
                                         <canvas id="strengthsChart" width="300" height="200"></canvas>
                                     </div>
                                 </div>
@@ -341,17 +341,17 @@
                         <!-- Famous Personalities -->
                         <div class="premium-section" id="famousSection">
                             <div class="premium-locked" id="famousLocked">
-                                <h3>Famous Personalities</h3>
+                                <h3>Известные личности</h3>
                                 <div class="premium-overlay">
                                     <i class="fas fa-lock lock-icon"></i>
                                 </div>
-                                <p>Discover famous people who share your personality type and learn from their achievements.</p>
+                                <p>Откройте известных людей, которые разделяют ваш тип личности, и учитесь на их достижениях.</p>
                                 <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-user-tie"></i> Unlock Famous People
+                                    <i class="fas fa-user-tie"></i> Разблокировать известных людей
                                 </button>
                             </div>
                             <div class="premium-content" id="famousContent" style="display: none;">
-                                <h3><i class="fas fa-user-tie"></i> Famous Personalities</h3>
+                                <h3><i class="fas fa-user-tie"></i> Известные личности</h3>
                                 <div class="famous-grid" id="famousGrid"></div>
                             </div>
                         </div>
@@ -359,20 +359,20 @@
                         <!-- PDF Download -->
                         <div class="premium-section" id="pdfSection">
                             <div class="premium-locked" id="pdfLocked">
-                                <h3>Download PDF Report</h3>
+                                <h3>Скачать PDF отчет</h3>
                                 <div class="premium-overlay">
                                     <i class="fas fa-lock lock-icon"></i>
                                 </div>
-                                <p>Get a comprehensive PDF report of your personality analysis to save and share.</p>
+                                <p>Получите комплексный PDF отчет о вашем анализе личности для сохранения и обмена.</p>
                                 <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-file-pdf"></i> Unlock PDF Download
+                                    <i class="fas fa-file-pdf"></i> Разблокировать скачивание PDF
                                 </button>
                             </div>
                             <div class="premium-content" id="pdfContent" style="display: none;">
-                                <h3><i class="fas fa-file-pdf"></i> Download PDF Report</h3>
-                                <p>Generate a comprehensive report including your personality type, insights, and recommendations.</p>
+                                <h3><i class="fas fa-file-pdf"></i> Скачать PDF отчет</h3>
+                                <p>Создайте комплексный отчет, включающий ваш тип личности, анализы и рекомендации.</p>
                                 <button class="btn btn-primary" onclick="generatePDF()">
-                                    <i class="fas fa-download"></i> Download PDF Report
+                                    <i class="fas fa-download"></i> Скачать PDF отчет
                                 </button>
                             </div>
                         </div>
@@ -380,37 +380,37 @@
                         <!-- Save/Share Results -->
                         <div class="premium-section" id="shareSection">
                             <div class="premium-locked" id="shareLocked">
-                                <h3>Save & Share Results</h3>
+                                <h3>Сохранить и поделиться результатами</h3>
                                 <div class="premium-overlay">
                                     <i class="fas fa-lock lock-icon"></i>
                                 </div>
-                                <p>Save your results and share them with friends using a custom link.</p>
+                                <p>Сохраните свои результаты и поделитесь ими с друзьями, используя уникальную ссылку.</p>
                                 <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-link"></i> Unlock Save & Share
+                                    <i class="fas fa-link"></i> Разблокировать сохранение и обмен
                                 </button>
                             </div>
                             <div class="premium-content" id="shareContent" style="display: none;">
-                                <h3><i class="fas fa-link"></i> Save & Share Results</h3>
+                                <h3><i class="fas fa-link"></i> Сохранить и поделиться результатами</h3>
                                 <div class="share-container">
-                                    <input type="text" id="shareLink" readonly placeholder="Your results link will appear here">
+                                    <input type="text" id="shareLink" readonly placeholder="Ваша ссылка на результаты появится здесь">
                                     <button class="btn btn-secondary" onclick="copyShareLink()">
-                                        <i class="fas fa-copy"></i> Copy Link
+                                        <i class="fas fa-copy"></i> Копировать ссылку
                                     </button>
                                 </div>
-                                <p class="share-note">Share this link with friends to show them your personality type!</p>
+                                <p class="share-note">Поделитесь этой ссылкой с друзьями, чтобы показать им ваш тип личности!</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="action-buttons">
                         <button class="btn btn-secondary" onclick="restartQuiz()">
-                            <i class="fas fa-redo"></i> Take Quiz Again
+                            <i class="fas fa-redo"></i> Пройти тест снова
                         </button>
                         <button class="btn btn-primary" onclick="shareResults()">
-                            <i class="fas fa-share"></i> Share Results
+                            <i class="fas fa-share"></i> Поделиться результатами
                         </button>
                         <button class="btn btn-secondary" onclick="openTypesModal()">
-                            <i class="fas fa-book-open"></i> Browse Types
+                            <i class="fas fa-book-open"></i> Просмотреть типы
                         </button>
                     </div>
                 </div>
@@ -419,18 +419,18 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 MBTI Personality Quiz. Based on the Myers-Briggs Type Indicator® framework.</p>
+            <p>&copy; 2024 Тест личности MBTI. Основано на рамках индикатора типов Майерс-Бриггс®.</p>
         </footer>
 
         <!-- MBTI Types Modal -->
         <div id="typesModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeTypesModal()">&times;</span>
-                <h2>MBTI Personality Types</h2>
+                <h2>Типы личности MBTI</h2>
                 <div class="types-header">
-                    <p>Explore all 16 personality types. <span class="premium-note">Full descriptions available with Premium.</span></p>
+                    <p>Изучите все 16 типов личности. <span class="premium-note">Полные описания доступны с Премиум.</span></p>
                     <button class="btn btn-premium" onclick="openPremiumModal()">
-                        <i class="fas fa-star"></i> Upgrade to Premium
+                        <i class="fas fa-star"></i> Перейти на Премиум
                     </button>
                 </div>
                 <div id="typesList" class="types-list"></div>
@@ -441,18 +441,18 @@
         <div id="premiumModal" class="modal" style="display:none;">
             <div class="modal-content premium-modal-content">
                 <span class="close" onclick="closePremiumModal()">&times;</span>
-                <h2>Unlock Premium Features</h2>
+                <h2>Разблокировать Премиум функции</h2>
                 <ul class="premium-benefits-list">
-                    <li><i class="fas fa-chart-bar"></i> Advanced personality insights</li>
-                    <li><i class="fas fa-file-pdf"></i> Downloadable PDF report</li>
-                    <li><i class="fas fa-user-tie"></i> Comparison to famous personalities</li>
-                    <li><i class="fas fa-link"></i> Save/share results with a custom link</li>
-                    <li><i class="fas fa-book-open"></i> Full type descriptions</li>
-                    <li><i class="fas fa-chart-pie"></i> Visual analytics (charts/graphs)</li>
-                    <li><i class="fas fa-ban"></i> Ad-free experience</li>
+                    <li><i class="fas fa-chart-bar"></i> Расширенные анализы личности</li>
+                    <li><i class="fas fa-file-pdf"></i> Скачиваемый PDF отчет</li>
+                    <li><i class="fas fa-user-tie"></i> Сравнение с известными личностями</li>
+                    <li><i class="fas fa-link"></i> Сохранить/поделиться результатами с уникальной ссылкой</li>
+                    <li><i class="fas fa-book-open"></i> Полные описания типов</li>
+                    <li><i class="fas fa-chart-pie"></i> Визуальная аналитика (графики/диаграммы)</li>
+                    <li><i class="fas fa-ban"></i> Без рекламы</li>
                 </ul>
                 <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
-                    <i class="fas fa-unlock"></i> Unlock Premium (Demo)
+                    <i class="fas fa-unlock"></i> Разблокировать Премиум (Демо)
                 </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
             </div>
