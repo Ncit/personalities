@@ -65,6 +65,10 @@
         <button onclick="testNotification()">Test Notification</button>
         <button onclick="testUserInfo()">Test User Info</button>
         <button onclick="testOrderBox()">Test Order Box</button>
+        <button onclick="testBannerAd()">Test Banner Ad</button>
+        <button onclick="testHideBannerAd()">Test Hide Banner Ad</button>
+        <button onclick="testInterstitialAd()">Test Interstitial Ad</button>
+        <button onclick="testRewardedAd()">Test Rewarded Ad</button>
     </div>
 
     <div class="test-section">
@@ -198,6 +202,58 @@
                 }
             } catch (error) {
                 console.error('Order box test failed:', error);
+            }
+        };
+
+        window.testBannerAd = async function() {
+            try {
+                if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+                    const result = await vkBridgeManager.showBannerAd();
+                    console.log('Banner ad test completed:', result);
+                } else {
+                    console.log('VK Bridge not available for banner ads');
+                }
+            } catch (error) {
+                console.error('Banner ad test failed:', error);
+            }
+        };
+
+        window.testHideBannerAd = async function() {
+            try {
+                if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+                    const result = await vkBridgeManager.hideBannerAd();
+                    console.log('Hide banner ad test completed:', result);
+                } else {
+                    console.log('VK Bridge not available for hiding banner ads');
+                }
+            } catch (error) {
+                console.error('Hide banner ad test failed:', error);
+            }
+        };
+
+        window.testInterstitialAd = async function() {
+            try {
+                if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+                    const result = await vkBridgeManager.showInterstitialAd();
+                    console.log('Interstitial ad test completed:', result);
+                } else {
+                    console.log('VK Bridge not available for interstitial ads');
+                }
+            } catch (error) {
+                console.error('Interstitial ad test failed:', error);
+            }
+        };
+
+        window.testRewardedAd = async function() {
+            try {
+                if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+                    const result = await vkBridgeManager.showRewardedAd();
+                    console.log('Rewarded ad test completed:', result);
+                } else {
+                    console.log('VK Bridge not available for rewarded ads');
+                }
+            } catch (error) {
+                console.error('Rewarded ad test failed:', error);
             }
         };
 

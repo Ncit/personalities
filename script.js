@@ -182,6 +182,13 @@ class MBTIQuiz {
                 shareLink.value = link;
             }
         }
+        
+        // Show interstitial ad for non-premium users in VK environment
+        if (!isPremium() && vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+            setTimeout(() => {
+                showInterstitialAd();
+            }, 2000); // Show after 2 seconds
+        }
     }
 
     calculatePersonalityType() {
@@ -1620,6 +1627,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.vkBridgeManager = vkBridgeManager;
         loggerManager.appSuccess('VK Bridge Manager initialized successfully');
         loggerManager.appDebug('VK Platform detected:', vkBridgeManager.isVKEnvironment());
+        
+        // Start banner ad timer for non-premium users in VK environment
+        if (vkBridgeManager.isVKEnvironment() && !isPremium()) {
+            startBannerAdTimer();
+        }
     } catch (error) {
         loggerManager.appError('VK Bridge Manager not available:', error);
         window.vkBridgeManager = null;
@@ -1647,10 +1659,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize the quiz
 let quiz;
 
+// Banner ad management
+let bannerAdShown = false;
+let bannerAdTimer = null;
+
 // Global functions for HTML onclick handlers
 function startQuiz() {
     quiz = new MBTIQuiz();
     quiz.startQuiz();
+    
+    // Hide banner ad when starting quiz
+    hideBannerAd();
+    stopBannerAdTimer();
 }
 
 function selectOption(optionNumber) {
@@ -1667,6 +1687,15 @@ function previousQuestion() {
 
 function restartQuiz() {
     if (quiz) quiz.restartQuiz();
+    
+    // Show banner ad when returning to welcome screen
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        setTimeout(() => {
+            if (!isPremium()) {
+                showBannerAd();
+            }
+        }, 2000); // Show after 2 seconds
+    }
 }
 
 function shareResults() {
@@ -1869,4 +1898,82 @@ window.closeSubscriptionModal = closeSubscriptionModal;
 window.cancelSubscription = cancelSubscription;
 window.restoreSubscription = restoreSubscription;
 window.contactSupport = contactSupport;
-window.viewBillingHistory = viewBillingHistory; 
+window.viewBillingHistory = viewBillingHistory;
+
+// Banner Ad Management Functions
+function showBannerAd() {
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        vkBridgeManager.showBannerAd().then(success => {
+            if (success) {
+                bannerAdShown = true;
+                loggerManager.appSuccess('Banner ad displayed successfully');
+            }
+        });
+    }
+}
+
+function hideBannerAd() {
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        vkBridgeManager.hideBannerAd().then(success => {
+            if (success) {
+                bannerAdShown = false;
+                loggerManager.appSuccess('Banner ad hidden successfully');
+            }
+        });
+    }
+}
+
+function showInterstitialAd() {
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        vkBridgeManager.showInterstitialAd().then(success => {
+            if (success) {
+                loggerManager.appSuccess('Interstitial ad displayed successfully');
+            }
+        });
+    }
+}
+
+function showRewardedAd() {
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        vkBridgeManager.showRewardedAd().then(result => {
+            if (result.result === 'success') {
+                loggerManager.appSuccess('Rewarded ad completed successfully');
+                // Give user reward (e.g., unlock premium for 1 hour)
+                setPremium(true);
+                setTimeout(() => setPremium(false), 3600000); // 1 hour
+                alert('Поздравляем! Премиум доступ активирован на 1 час!');
+            } else {
+                loggerManager.appInfo('Rewarded ad not completed');
+            }
+        });
+    }
+}
+
+// Auto-show banner ad after 30 seconds on welcome screen
+function startBannerAdTimer() {
+    if (bannerAdTimer) {
+        clearTimeout(bannerAdTimer);
+    }
+    
+    bannerAdTimer = setTimeout(() => {
+        if (!isPremium() && vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+            showBannerAd();
+        }
+    }, 30000); // 30 seconds
+}
+
+// Stop banner ad timer
+function stopBannerAdTimer() {
+    if (bannerAdTimer) {
+        clearTimeout(bannerAdTimer);
+        bannerAdTimer = null;
+    }
+}
+
+// Make banner ad functions available globally
+window.showBannerAd = showBannerAd;
+window.hideBannerAd = hideBannerAd;
+window.showInterstitialAd = showInterstitialAd;
+window.showRewardedAd = showRewardedAd;
+window.startBannerAdTimer = startBannerAdTimer;
+window.stopBannerAdTimer = stopBannerAdTimer; 

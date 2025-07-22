@@ -435,6 +435,84 @@ export class VKBridgeManager {
             { type: 'default', text: 'OK' }
         ]);
     }
+
+    /**
+     * Show banner ad
+     */
+    async showBannerAd() {
+        try {
+            if (this.bridge && this.isVKPlatform) {
+                await this.bridge.send('VKWebAppShowBannerAd', {
+                    banner_location: 'bottom'
+                });
+                loggerManager.vkSuccess('Banner ad shown');
+                return true;
+            } else {
+                loggerManager.vkInfo('Banner ad not available - not in VK environment');
+                return false;
+            }
+        } catch (error) {
+            loggerManager.vkError('Error showing banner ad:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Hide banner ad
+     */
+    async hideBannerAd() {
+        try {
+            if (this.bridge && this.isVKPlatform) {
+                await this.bridge.send('VKWebAppHideBannerAd');
+                loggerManager.vkSuccess('Banner ad hidden');
+                return true;
+            } else {
+                loggerManager.vkInfo('Banner ad hide not available - not in VK environment');
+                return false;
+            }
+        } catch (error) {
+            loggerManager.vkError('Error hiding banner ad:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Show interstitial ad
+     */
+    async showInterstitialAd() {
+        try {
+            if (this.bridge && this.isVKPlatform) {
+                await this.bridge.send('VKWebAppShowInterstitialAd');
+                loggerManager.vkSuccess('Interstitial ad shown');
+                return true;
+            } else {
+                loggerManager.vkInfo('Interstitial ad not available - not in VK environment');
+                return false;
+            }
+        } catch (error) {
+            loggerManager.vkError('Error showing interstitial ad:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Show rewarded ad
+     */
+    async showRewardedAd() {
+        try {
+            if (this.bridge && this.isVKPlatform) {
+                const result = await this.bridge.send('VKWebAppShowRewardedAd');
+                loggerManager.vkSuccess('Rewarded ad result:', result);
+                return result;
+            } else {
+                loggerManager.vkInfo('Rewarded ad not available - not in VK environment');
+                return { result: 'not_available' };
+            }
+        } catch (error) {
+            loggerManager.vkError('Error showing rewarded ad:', error);
+            return { result: 'error', error: error.message };
+        }
+    }
 }
 
 // Create global instance for backward compatibility
