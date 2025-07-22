@@ -335,89 +335,11 @@ export const ADVANCED_INSIGHTS = {
     }
 };
 
-// Данные известных личностей
-export const FAMOUS_PERSONALITIES = {
-    ISTJ: [
-        { name: 'Королева Елизавета II', profession: 'Монарх', image: '👑' },
-        { name: 'Джордж Вашингтон', profession: 'Президент', image: '🇺🇸' },
-        { name: 'Ангела Меркель', profession: 'Канцлер', image: '🇩🇪' }
-    ],
-    ISFJ: [
-        { name: 'Мать Тереза', profession: 'Гуманист', image: '✝️' },
-        { name: 'Роза Паркс', profession: 'Активистка гражданских прав', image: '🚌' },
-        { name: 'Кейт Миддлтон', profession: 'Член королевской семьи', image: '👑' }
-    ],
-    INFJ: [
-        { name: 'Нельсон Мандела', profession: 'Лидер', image: '🇿🇦' },
-        { name: 'Мартин Лютер Кинг мл.', profession: 'Лидер гражданских прав', image: '✊' },
-        { name: 'Мать Тереза', profession: 'Гуманист', image: '✝️' }
-    ],
-    INTJ: [
-        { name: 'Илон Маск', profession: 'Предприниматель', image: '🚀' },
-        { name: 'Стивен Хокинг', profession: 'Физик', image: '🌌' },
-        { name: 'Марк Цукерберг', profession: 'Технический CEO', image: '💻' }
-    ],
-    ISTP: [
-        { name: 'Майкл Джордан', profession: 'Спортсмен', image: '🏀' },
-        { name: 'Том Круз', profession: 'Актер', image: '🎬' },
-        { name: 'Брюс Ли', profession: 'Мастер боевых искусств', image: '🥋' }
-    ],
-    ISFP: [
-        { name: 'Мэрилин Монро', profession: 'Актриса', image: '💄' },
-        { name: 'Боб Дилан', profession: 'Музыкант', image: '🎸' },
-        { name: 'Фрида Кало', profession: 'Художница', image: '🎨' }
-    ],
-    INFP: [
-        { name: 'Уильям Шекспир', profession: 'Драматург', image: '📜' },
-        { name: 'Дж.Р.Р. Толкин', profession: 'Автор', image: '📚' },
-        { name: 'Винсент ван Гог', profession: 'Художник', image: '🌻' }
-    ],
-    INTP: [
-        { name: 'Альберт Эйнштейн', profession: 'Физик', image: '⚡' },
-        { name: 'Исаак Ньютон', profession: 'Ученый', image: '🍎' },
-        { name: 'Чарльз Дарвин', profession: 'Натуралист', image: '🐒' }
-    ],
-    ESTP: [
-        { name: 'Эрнест Хемингуэй', profession: 'Автор', image: '📖' },
-        { name: 'Мадонна', profession: 'Певица', image: '🎤' },
-        { name: 'Джек Николсон', profession: 'Актер', image: '🎭' }
-    ],
-    ESFP: [
-        { name: 'Элвис Пресли', profession: 'Певец', image: '🎸' },
-        { name: 'Мэрилин Монро', profession: 'Актриса', image: '💄' },
-        { name: 'Уилл Смит', profession: 'Актер', image: '🎬' }
-    ],
-    ENFP: [
-        { name: 'Уолт Дисней', profession: 'Предприниматель', image: '🏰' },
-        { name: 'Робин Уильямс', profession: 'Актер', image: '😄' },
-        { name: 'Оскар Уайльд', profession: 'Писатель', image: '✒️' }
-    ],
-    ENTP: [
-        { name: 'Томас Эдисон', profession: 'Изобретатель', image: '💡' },
-        { name: 'Бенджамин Франклин', profession: 'Отец-основатель', image: '⚡' },
-        { name: 'Стив Джобс', profession: 'Предприниматель', image: '🍎' }
-    ],
-    ESTJ: [
-        { name: 'Франклин Д. Рузвельт', profession: 'Президент', image: '🇺🇸' },
-        { name: 'Маргарет Тэтчер', profession: 'Премьер-министр', image: '🇬🇧' },
-        { name: 'Джон Д. Рокфеллер', profession: 'Бизнесмен', image: '💰' }
-    ],
-    ESFJ: [
-        { name: 'Билл Клинтон', profession: 'Президент', image: '🇺🇸' },
-        { name: 'Тейлор Свифт', profession: 'Певица', image: '🎤' },
-        { name: 'Сандра Буллок', profession: 'Актриса', image: '🎬' }
-    ],
-    ENFJ: [
-        { name: 'Барак Обама', profession: 'Президент', image: '🇺🇸' },
-        { name: 'Опра Уинфри', profession: 'Медиа-магнат', image: '📺' },
-        { name: 'Махатма Ганди', profession: 'Лидер', image: '🕉️' }
-    ],
-    ENTJ: [
-        { name: 'Наполеон Бонапарт', profession: 'Военный лидер', image: '⚔️' },
-        { name: 'Стив Джобс', profession: 'Предприниматель', image: '🍎' },
-        { name: 'Маргарет Тэтчер', profession: 'Премьер-министр', image: '🇬🇧' }
-    ]
-};
+// Импорт расширенной базы данных русских личностей
+import { RUSSIAN_PERSONALITIES } from './RussianPersonalities.js';
+
+// Данные известных личностей (расширенная версия с 200+ русскими фигурами)
+export const FAMOUS_PERSONALITIES = RUSSIAN_PERSONALITIES;
 
 // Экспорт всех данных
 export const QUIZ_DATA = {
