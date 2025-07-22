@@ -339,10 +339,9 @@ class MBTIApplication {
 
     confirmExitQuiz() {
         try {
-            quizEngine.resetQuiz();
-            stateManager.setState({ currentScreen: 'welcome' });
-            uiManager.showScreen('welcome');
             uiManager.closeModal('exitQuiz');
+            // Reload the website
+            location.reload();
         } catch (error) {
             console.error(localizationManager.get('console.errorExitingQuiz'), error);
             this.showError(localizationManager.get('errors.exitQuizFailed'));

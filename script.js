@@ -493,7 +493,6 @@ function unlockPremium() {
     if (getCurrentAppState() == 'development') {
         setPremium(true);
         document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
-        return;
     }
 
     setTimeout(() => {
@@ -1501,35 +1500,11 @@ function closeExitQuizModal() {
 }
 
 function confirmExitQuiz() {
-    // Reset quiz state
-    if (quiz) {
-        quiz.currentQuestion = 0;
-        quiz.answers = [];
-        quiz.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
-        quiz.selectedOption = null;
-    }
-    
-    // Return to welcome screen
-    const quizQuestions = document.getElementById('quizQuestions');
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    
-    if (quizQuestions) {
-        quizQuestions.style.display = 'none';
-    }
-    if (welcomeScreen) {
-        welcomeScreen.style.display = 'flex';
-    }
-    
-    // Reset quiz type to default
-    if (quiz) {
-        quiz.currentQuizType = 'mbti';
-    }
-    
-    // Update quiz description
-    updateQuizDescription();
-    
-    // Close the modal
+    // Close the modal first
     closeExitQuizModal();
+    
+    // Reload the website
+    location.reload();
 }
 
 // Make all functions available globally for HTML onclick handlers
