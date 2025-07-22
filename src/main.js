@@ -371,6 +371,153 @@ class MBTIApplication {
             initialized: this.initialized
         };
     }
+
+    // Subscription Management Methods
+    openSubscriptionModal() {
+        try {
+            uiManager.openModal('subscription');
+            this.updateSubscriptionModal();
+        } catch (error) {
+            console.error('Error opening subscription modal:', error);
+            this.showError('Failed to open subscription management');
+        }
+    }
+
+    closeSubscriptionModal() {
+        try {
+            uiManager.closeModal('subscription');
+        } catch (error) {
+            console.error('Error closing subscription modal:', error);
+        }
+    }
+
+    updateSubscriptionModal() {
+        try {
+            const isPremium = stateManager.isPremium();
+            const statusIndicator = document.getElementById('subscriptionStatus');
+            const cancelBtn = document.getElementById('cancelSubscriptionBtn');
+            const restoreBtn = document.getElementById('restoreSubscriptionBtn');
+            
+            if (statusIndicator) {
+                if (isPremium) {
+                    statusIndicator.className = 'status-indicator premium';
+                    statusIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Premium Active</span>';
+                } else {
+                    statusIndicator.className = 'status-indicator free';
+                    statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Free Version</span>';
+                }
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.style.display = isPremium ? 'inline-block' : 'none';
+            }
+            
+            if (restoreBtn) {
+                restoreBtn.style.display = isPremium ? 'none' : 'inline-block';
+            }
+            
+            this.updateSubscriptionTiers();
+            this.updateSubscriptionInfo();
+        } catch (error) {
+            console.error('Error updating subscription modal:', error);
+        }
+    }
+
+    updateSubscriptionTiers() {
+        try {
+            const isPremium = stateManager.isPremium();
+            
+            // Update current plan indicators
+            const freeTier = document.querySelector('.free-tier .tier-status');
+            const premiumTier = document.querySelector('.premium-tier .tier-status');
+            
+            if (freeTier) {
+                if (isPremium) {
+                    freeTier.innerHTML = '';
+                } else {
+                    freeTier.innerHTML = '<span class="current-plan">Current Plan</span>';
+                }
+            }
+            
+            if (premiumTier) {
+                if (isPremium) {
+                    premiumTier.innerHTML = '<span class="current-plan">Current Plan</span>';
+                } else {
+                    premiumTier.innerHTML = '';
+                }
+            }
+        } catch (error) {
+            console.error('Error updating subscription tiers:', error);
+        }
+    }
+
+    updateSubscriptionInfo() {
+        try {
+            const isPremium = stateManager.isPremium();
+            const startDate = document.getElementById('subscriptionStartDate');
+            const endDate = document.getElementById('subscriptionEndDate');
+            const nextPayment = document.getElementById('nextPaymentDate');
+            const price = document.getElementById('subscriptionPrice');
+            
+            if (isPremium) {
+                const subscriptionData = JSON.parse(localStorage.getItem('mbti_subscription_data') || '{}');
+                const startDateValue = subscriptionData.startDate || new Date().toLocaleDateString();
+                const endDateValue = subscriptionData.endDate || 'Lifetime';
+                const nextPaymentValue = subscriptionData.nextPayment || 'None';
+                const priceValue = subscriptionData.price || 'Free (Demo)';
+                
+                if (startDate) startDate.textContent = startDateValue;
+                if (endDate) endDate.textContent = endDateValue;
+                if (nextPayment) nextPayment.textContent = nextPaymentValue;
+                if (price) price.textContent = priceValue;
+            } else {
+                if (startDate) startDate.textContent = '-';
+                if (endDate) endDate.textContent = '-';
+                if (nextPayment) nextPayment.textContent = '-';
+                if (price) price.textContent = '-';
+            }
+        } catch (error) {
+            console.error('Error updating subscription info:', error);
+        }
+    }
+
+    cancelSubscription() {
+        try {
+            const confirmed = confirm('Are you sure you want to cancel your subscription?');
+            if (confirmed) {
+                stateManager.setPremium(false);
+                this.updateSubscriptionModal();
+                uiManager.updatePremiumUI(false);
+                this.showSuccess('Subscription cancelled. You are now on the free plan.');
+            }
+        } catch (error) {
+            console.error('Error cancelling subscription:', error);
+            this.showError('Failed to cancel subscription');
+        }
+    }
+
+    restoreSubscription() {
+        try {
+            const confirmed = confirm('Restore premium subscription?');
+            if (confirmed) {
+                stateManager.setPremium(true);
+                this.updateSubscriptionModal();
+                uiManager.updatePremiumUI(true);
+                this.showSuccess('Premium subscription restored!');
+            }
+        } catch (error) {
+            console.error('Error restoring subscription:', error);
+            this.showError('Failed to restore subscription');
+        }
+    }
+
+    contactSupport() {
+        alert('For support, please email: personalitiesresearch@mail.ru');
+    }
+
+    viewBillingHistory() {
+        alert('Billing history will be available in future updates.');
+    }
 }
 
 // Create and export global application instance
@@ -405,5 +552,13 @@ window.exitQuiz = () => app.exitQuiz();
 window.closeExitQuizModal = () => app.closeExitQuizModal();
 window.confirmExitQuiz = () => app.confirmExitQuiz();
 window.clearLocalStorage = () => uiManager.clearLocalStorage();
+
+// Subscription Management Functions
+window.openSubscriptionModal = () => app.openSubscriptionModal();
+window.closeSubscriptionModal = () => app.closeSubscriptionModal();
+window.cancelSubscription = () => app.cancelSubscription();
+window.restoreSubscription = () => app.restoreSubscription();
+window.contactSupport = () => app.contactSupport();
+window.viewBillingHistory = () => app.viewBillingHistory();
 
 export default app; 

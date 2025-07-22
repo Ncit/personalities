@@ -15,9 +15,14 @@
         <header class="header">
             <h1><i class="fas fa-brain"></i> MBTI Personality Quiz</h1>
             <p>Discover your personality type with our comprehensive 16 personalities assessment</p>
-            <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
-                <i class="fas fa-star"></i> Upgrade to Premium
-            </button>
+            <div class="header-buttons">
+                <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
+                    <i class="fas fa-star"></i> Upgrade to Premium
+                </button>
+                <button class="btn btn-secondary" id="subscriptionBtn" onclick="openSubscriptionModal()" style="margin-left: 10px;">
+                    <i class="fas fa-cog"></i> Subscription Management
+                </button>
+            </div>
         </header>
 
         <!-- Quiz Container -->
@@ -451,6 +456,135 @@
                     <i class="fas fa-unlock"></i> Unlock Premium (Demo)
                 </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+            </div>
+        </div>
+
+        <!-- Subscription Management Modal -->
+        <div id="subscriptionModal" class="modal" style="display:none;">
+            <div class="modal-content subscription-modal-content">
+                <span class="close" onclick="closeSubscriptionModal()">&times;</span>
+                <h2><i class="fas fa-cog"></i> Subscription Management</h2>
+                
+                <div class="subscription-status">
+                    <div class="status-card">
+                        <h3>Subscription Status</h3>
+                        <div class="status-indicator" id="subscriptionStatus">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Free Version</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-tiers">
+                    <h3>Available Subscription Plans</h3>
+                    <div class="tiers-grid">
+                        <div class="tier-card free-tier">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-user"></i> Free</h4>
+                                <div class="tier-price">Free</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Basic MBTI test (20 questions)</li>
+                                <li><i class="fas fa-check"></i> Basic results</li>
+                                <li><i class="fas fa-check"></i> Personality type description</li>
+                                <li><i class="fas fa-times"></i> Advanced analytics</li>
+                                <li><i class="fas fa-times"></i> Premium tests</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="current-plan">Current Plan</span>
+                            </div>
+                        </div>
+
+                        <div class="tier-card premium-tier">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-star"></i> Premium</h4>
+                                <div class="tier-price">$9.99/month</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Full MBTI test (60+ questions)</li>
+                                <li><i class="fas fa-check"></i> Advanced analytics</li>
+                                <li><i class="fas fa-check"></i> Premium tests (12 types)</li>
+                                <li><i class="fas fa-check"></i> Famous personalities comparison</li>
+                                <li><i class="fas fa-check"></i> Visual charts and graphs</li>
+                                <li><i class="fas fa-check"></i> Ad-free experience</li>
+                            </ul>
+                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
+                                <i class="fas fa-upgrade"></i> Upgrade to Premium
+                            </button>
+                        </div>
+
+                        <div class="tier-card study-tier coming-soon">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-graduation-cap"></i> Study</h4>
+                                <div class="tier-price">$19.99/month</div>
+                                <div class="coming-soon-badge">Coming Soon</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> All premium features</li>
+                                <li><i class="fas fa-check"></i> In-depth psychology courses</li>
+                                <li><i class="fas fa-check"></i> Interactive exercises</li>
+                                <li><i class="fas fa-check"></i> Personal coaching</li>
+                                <li><i class="fas fa-check"></i> Learning certificates</li>
+                                <li><i class="fas fa-check"></i> Community access</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="coming-soon-text">Available soon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-actions">
+                    <div class="action-card">
+                        <h3>Subscription Actions</h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
+                                <i class="fas fa-star"></i> Upgrade to Premium
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelSubscription()" id="cancelSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-times"></i> Cancel Subscription
+                            </button>
+                            <button class="btn btn-secondary" onclick="restoreSubscription()" id="restoreSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-undo"></i> Restore Subscription
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-info">
+                    <div class="info-card">
+                        <h3>Subscription Information</h3>
+                        <div class="info-item">
+                            <strong>Start Date:</strong>
+                            <span id="subscriptionStartDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>End Date:</strong>
+                            <span id="subscriptionEndDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Next Payment:</strong>
+                            <span id="nextPaymentDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Price:</strong>
+                            <span id="subscriptionPrice">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-help">
+                    <h3>Need Help?</h3>
+                    <p>If you have questions about your subscription, contact our support team:</p>
+                    <div class="help-actions">
+                        <button class="btn btn-secondary" onclick="contactSupport()">
+                            <i class="fas fa-envelope"></i> Contact Support
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewBillingHistory()">
+                            <i class="fas fa-file-invoice"></i> Billing History
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1384,4 +1384,140 @@ function clearLocalStorage() {
     }
 }
 
-window.clearLocalStorage = clearLocalStorage; 
+window.clearLocalStorage = clearLocalStorage;
+
+// Subscription Management Functions
+function openSubscriptionModal() {
+    const subscriptionModal = document.getElementById('subscriptionModal');
+    if (subscriptionModal) {
+        subscriptionModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        updateSubscriptionModal();
+    }
+}
+
+function closeSubscriptionModal() {
+    const subscriptionModal = document.getElementById('subscriptionModal');
+    if (subscriptionModal) {
+        subscriptionModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function updateSubscriptionModal() {
+    const isPremiumUser = isPremium();
+    const statusIndicator = document.getElementById('subscriptionStatus');
+    const cancelBtn = document.getElementById('cancelSubscriptionBtn');
+    const restoreBtn = document.getElementById('restoreSubscriptionBtn');
+    
+    if (statusIndicator) {
+        if (isPremiumUser) {
+            statusIndicator.className = 'status-indicator premium';
+            statusIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Премиум активен</span>';
+        } else {
+            statusIndicator.className = 'status-indicator free';
+            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Бесплатная версия</span>';
+        }
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.style.display = isPremiumUser ? 'inline-block' : 'none';
+    }
+    
+    if (restoreBtn) {
+        restoreBtn.style.display = isPremiumUser ? 'none' : 'inline-block';
+    }
+    
+    // Update subscription tiers
+    updateSubscriptionTiers();
+    
+    // Update subscription info
+    updateSubscriptionInfo();
+}
+
+function updateSubscriptionTiers() {
+    const isPremiumUser = isPremium();
+    
+    // Update current plan indicators
+    const freeTier = document.querySelector('.free-tier .tier-status');
+    const premiumTier = document.querySelector('.premium-tier .tier-status');
+    
+    if (freeTier) {
+        if (isPremiumUser) {
+            freeTier.innerHTML = '';
+        } else {
+            freeTier.innerHTML = '<span class="current-plan">Текущий план</span>';
+        }
+    }
+    
+    if (premiumTier) {
+        if (isPremiumUser) {
+            premiumTier.innerHTML = '<span class="current-plan">Текущий план</span>';
+        } else {
+            premiumTier.innerHTML = '';
+        }
+    }
+}
+
+function updateSubscriptionInfo() {
+    const isPremiumUser = isPremium();
+    const startDate = document.getElementById('subscriptionStartDate');
+    const endDate = document.getElementById('subscriptionEndDate');
+    const nextPayment = document.getElementById('nextPaymentDate');
+    const price = document.getElementById('subscriptionPrice');
+    
+    if (isPremiumUser) {
+        // Get subscription data from localStorage or use defaults
+        const subscriptionData = JSON.parse(localStorage.getItem('mbti_subscription_data') || '{}');
+        const startDateValue = subscriptionData.startDate || new Date().toLocaleDateString();
+        const endDateValue = subscriptionData.endDate || 'Бессрочно';
+        const nextPaymentValue = subscriptionData.nextPayment || 'Нет';
+        const priceValue = subscriptionData.price || 'Бесплатно (демо)';
+        
+        if (startDate) startDate.textContent = startDateValue;
+        if (endDate) endDate.textContent = endDateValue;
+        if (nextPayment) nextPayment.textContent = nextPaymentValue;
+        if (price) price.textContent = priceValue;
+    } else {
+        if (startDate) startDate.textContent = '-';
+        if (endDate) endDate.textContent = '-';
+        if (nextPayment) nextPayment.textContent = '-';
+        if (price) price.textContent = '-';
+    }
+}
+
+function cancelSubscription() {
+    const confirmed = confirm('Вы уверены, что хотите отменить подписку?');
+    if (confirmed) {
+        setPremium(false);
+        updateSubscriptionModal();
+        updatePremiumUI();
+        alert('Подписка отменена. Вы вернулись к бесплатной версии.');
+    }
+}
+
+function restoreSubscription() {
+    const confirmed = confirm('Восстановить премиум подписку?');
+    if (confirmed) {
+        setPremium(true);
+        updateSubscriptionModal();
+        updatePremiumUI();
+        alert('Премиум подписка восстановлена!');
+    }
+}
+
+function contactSupport() {
+    alert('Для связи с поддержкой отправьте email на: nikitafeshchun@yandex.ru');
+}
+
+function viewBillingHistory() {
+    alert('История платежей будет доступна в будущих обновлениях.');
+}
+
+// Make subscription functions available globally
+window.openSubscriptionModal = openSubscriptionModal;
+window.closeSubscriptionModal = closeSubscriptionModal;
+window.cancelSubscription = cancelSubscription;
+window.restoreSubscription = restoreSubscription;
+window.contactSupport = contactSupport;
+window.viewBillingHistory = viewBillingHistory; 

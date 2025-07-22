@@ -44,6 +44,7 @@ export class UIManager {
             typesModal: document.getElementById('typesModal'),
             premiumModal: document.getElementById('premiumModal'),
             exitQuizModal: document.getElementById('exitQuizModal'),
+            subscriptionModal: document.getElementById('subscriptionModal'),
             
             // Buttons
             startQuizBtn: document.querySelector('[onclick="startQuiz()"]'),

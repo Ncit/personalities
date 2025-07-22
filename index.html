@@ -15,9 +15,14 @@
         <header class="header">
             <h1><i class="fas fa-brain"></i> Тест личности MBTI</h1>
             <p>Откройте свой тип личности с помощью комплексного тестирования 16 типов личности</p>
-            <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
-                <i class="fas fa-star"></i> Открыть премиум доступ
-            </button>
+            <div class="header-buttons">
+                <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
+                    <i class="fas fa-star"></i> Открыть премиум доступ
+                </button>
+                <button class="btn btn-secondary" id="subscriptionBtn" onclick="openSubscriptionModal()" style="margin-left: 10px;">
+                    <i class="fas fa-cog"></i>Виды подписок
+                </button>
+            </div>
         </header>
 
         <!-- Quiz Container -->
@@ -375,9 +380,9 @@
         </div>
 
         <!-- Footer -->
-        <footer class="footer">
+        <!-- <footer class="footer">
             <p>&copy; 2024 Тест личности MBTI. Основано на рамках индикатора типов Майерс-Бриггс®.</p>
-        </footer>
+        </footer> -->
 
         <!-- MBTI Types Modal -->
         <div id="typesModal" class="modal" style="display:none;">
@@ -403,6 +408,135 @@
                     <i class="fas fa-unlock"></i> Разблокировать Премиум
                 </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+            </div>
+        </div>
+
+        <!-- Subscription Management Modal -->
+        <div id="subscriptionModal" class="modal" style="display:none;">
+            <div class="modal-content subscription-modal-content">
+                <span class="close" onclick="closeSubscriptionModal()">&times;</span>
+                <h2><i class="fas fa-cog"></i> Управление подпиской</h2>
+                
+                <div class="subscription-status">
+                    <div class="status-card">
+                        <h3>Статус подписки</h3>
+                        <div class="status-indicator" id="subscriptionStatus">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Бесплатная версия</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-tiers">
+                    <h3>Доступные планы подписки</h3>
+                    <div class="tiers-grid">
+                        <div class="tier-card free-tier">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-user"></i> Бесплатный</h4>
+                                <div class="tier-price">Бесплатно</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Основные результаты</li>
+                                <li><i class="fas fa-check"></i> Описание типа личности</li>
+                                <li><i class="fas fa-times"></i> Расширенная аналитика</li>
+                                <li><i class="fas fa-times"></i> Премиум тесты</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="current-plan">Текущий план</span>
+                            </div>
+                        </div>
+
+                        <div class="tier-card premium-tier">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-star"></i> Премиум</h4>
+                                <div class="tier-price">40 голосов</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Расширенная аналитика</li>
+                                <li><i class="fas fa-check"></i> Премиум тесты (12 типов)</li>
+                                <li><i class="fas fa-check"></i> Сравнение с известными личностями</li>
+                                <li><i class="fas fa-check"></i> Визуальные графики и диаграммы</li>
+                                <li><i class="fas fa-check"></i> Материалы для интерпретации результатов</li>
+                                <li><i class="fas fa-check"></i> Без рекламы</li>
+                            </ul>
+                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
+                                <i class="fas fa-upgrade"></i> Обновить до премиум
+                            </button>
+                        </div>
+
+                        <div class="tier-card study-tier coming-soon">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-graduation-cap"></i>Профессиональный</h4>
+                                <div class="tier-price">140 голосов/месяц</div>
+                                <div class="coming-soon-badge">Скоро</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Все функции премиум</li>
+                                <li><i class="fas fa-check"></i> Интерактивные упражнения</li>
+                                <li><i class="fas fa-check"></i> Доступ к сообществу</li>
+                                <li><i class="fas fa-check"></i> Материалы к обучению</li>
+                                <li><i class="fas fa-check"></i> Платформа для проведения тестов</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="coming-soon-text">Доступно в ближайшее время</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="subscription-actions">
+                    <div class="action-card">
+                        <h3>Действия с подпиской</h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
+                                <i class="fas fa-star"></i> Обновить до премиум
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelSubscription()" id="cancelSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-times"></i> Отменить подписку
+                            </button>
+                            <button class="btn btn-secondary" onclick="restoreSubscription()" id="restoreSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-undo"></i> Восстановить подписку
+                            </button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- <div class="subscription-info">
+                    <div class="info-card">
+                        <h3>Информация о подписке</h3>
+                        <div class="info-item">
+                            <strong>Дата начала:</strong>
+                            <span id="subscriptionStartDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Дата окончания:</strong>
+                            <span id="subscriptionEndDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Следующий платеж:</strong>
+                            <span id="nextPaymentDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Стоимость:</strong>
+                            <span id="subscriptionPrice">-</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="subscription-help">
+                    <h3>Нужна помощь?</h3>
+                    <p>Если у вас есть вопросы по подписке, свяжитесь с нашей службой поддержки:</p>
+                    <div class="help-actions">
+                        <button class="btn btn-secondary" onclick="contactSupport()">
+                            <i class="fas fa-envelope"></i> Связаться с поддержкой
+                        </button>
+                        <!-- <button class="btn btn-secondary" onclick="viewBillingHistory()">
+                            <i class="fas fa-file-invoice"></i> История платежей
+                        </button> -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
