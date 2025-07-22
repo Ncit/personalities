@@ -1004,6 +1004,32 @@ body {
     font-weight: 400;
 }
 
+/* Disabled premium quiz buttons */
+.btn-premium-quiz:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    position: relative;
+}
+
+.btn-premium-quiz:disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+/* Premium lock overlay */
+.premium-lock-overlay {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #ffd700;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Responsive adjustments for premium features */
 @media (max-width: 768px) {
     .insights-grid {

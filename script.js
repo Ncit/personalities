@@ -1082,6 +1082,8 @@ function updateQuizDescription() {
         }
         if (premiumQuizTypes) {
             premiumQuizTypes.style.display = 'block';
+            // Enable all premium quiz buttons
+            enablePremiumQuizButtons();
         }
     } else {
         if (questionCountSpan) {
@@ -1091,9 +1093,68 @@ function updateQuizDescription() {
             quizDescription.innerHTML = `${localizationManager.get('ui.mbtiDescription', { count: 20 })} <span style="color: #ffd700; font-weight: 600;">${localizationManager.get('ui.premiumUpgradeNote')}</span>`;
         }
         if (premiumQuizTypes) {
-            premiumQuizTypes.style.display = 'none';
+            premiumQuizTypes.style.display = 'block';
+            // Disable all premium quiz buttons
+            disablePremiumQuizButtons();
         }
     }
+}
+
+// Function to disable premium quiz buttons for non-premium users
+function disablePremiumQuizButtons() {
+    const premiumButtons = document.querySelectorAll('.btn-premium-quiz');
+    premiumButtons.forEach(button => {
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        button.style.cursor = 'not-allowed';
+        button.style.position = 'relative';
+        
+        // Add lock icon overlay
+        if (!button.querySelector('.premium-lock-overlay')) {
+            const lockOverlay = document.createElement('div');
+            lockOverlay.className = 'premium-lock-overlay';
+            lockOverlay.innerHTML = '<i class="fas fa-lock"></i>';
+            lockOverlay.style.cssText = `
+                position: absolute;
+                top: 50%;
+                right: 15px;
+                transform: translateY(-50%);
+                color: #ffd700;
+                font-size: 16px;
+                pointer-events: none;
+            `;
+            button.appendChild(lockOverlay);
+        }
+        
+        // Update onclick to show premium modal
+        button.onclick = function() {
+            openPremiumModal();
+        };
+    });
+}
+
+// Function to enable premium quiz buttons for premium users
+function enablePremiumQuizButtons() {
+    const premiumButtons = document.querySelectorAll('.btn-premium-quiz');
+    premiumButtons.forEach(button => {
+        button.disabled = false;
+        button.style.opacity = '1';
+        button.style.cursor = 'pointer';
+        
+        // Remove lock icon overlay
+        const lockOverlay = button.querySelector('.premium-lock-overlay');
+        if (lockOverlay) {
+            lockOverlay.remove();
+        }
+        
+        // Restore original onclick functionality
+        const quizType = button.getAttribute('data-quiz-type') || button.onclick.toString().match(/startQuizType\('([^']+)'\)/)?.[1];
+        if (quizType) {
+            button.onclick = function() {
+                startQuizType(quizType);
+            };
+        }
+    });
 }
 
 // Function to start different quiz types
