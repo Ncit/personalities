@@ -115,8 +115,7 @@ export const ru = {
         resultsCopiedAlert: 'Результаты скопированы в буфер обмена!',
         
         // Premium-related
-        upgradeToPremium: 'Перейти на Премиум',
-        premiumActive: 'Премиум активен',
+        upgradeToPremium: 'Открыть доступ',
         premiumUnlocked: '🎉 Премиум разблокирован! Наслаждайтесь всеми функциями.',
         unlockPremium: 'Разблокировать Премиум (Демо)',
         

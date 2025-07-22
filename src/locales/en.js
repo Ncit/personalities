@@ -116,7 +116,6 @@ export const en = {
         
         // Premium-related
         upgradeToPremium: 'Upgrade to Premium',
-        premiumActive: 'Premium Active',
         premiumUnlocked: '🎉 Premium unlocked! Enjoy all features.',
         unlockPremium: 'Unlock Premium (Demo)',
         

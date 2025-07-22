@@ -306,23 +306,13 @@ function openTypesModal() {
         card.classNamef = 'type-card';
         
         // Show limited description for free users, full for premium
-        const isPremiumUser = isPremium();
-        const description = isPremiumUser ? 
-            type.description : 
-            type.description.substring(0, 100) + '...';
+        const description = type.description;
         
         card.innerHTML = `
             <div class="type-code">${type.code}</div>
             <div class="type-title">${type.title}</div>
             <div class="type-subtitle">${type.subtitle}</div>
             <div class="type-description">${description}</div>
-            ${!isPremiumUser ? `
-                <div class="premium-teaser">
-                    <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                        <i class="fas fa-star"></i> Unlock Full Description
-                    </button>
-                </div>
-            ` : ''}
         `;
         list.appendChild(card);
     });
@@ -382,22 +372,6 @@ function updatePremiumUI() {
     // Update premium content elements
     document.querySelectorAll('.premium-content').forEach(el => {
         el.style.display = isPremiumUser ? 'block' : 'none';
-    });
-    
-    // Update premium buttons
-    const btns = document.querySelectorAll('.btn-premium, .premium-teaser-btn');
-    btns.forEach(btn => {
-        if (isPremiumUser) {
-            btn.textContent = localizationManager.get('ui.premiumActive');
-            btn.disabled = true;
-            btn.style.opacity = '0.6';
-        } else {
-            if (btn.id === 'headerPremiumBtn') {
-                btn.innerHTML = `<i class="fas fa-star"></i> ${localizationManager.get('ui.upgradeToPremium')}`;
-            }
-            btn.disabled = false;
-            btn.style.opacity = '1';
-        }
     });
     
     // Update quiz description based on premium status
