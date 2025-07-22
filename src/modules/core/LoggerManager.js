@@ -21,8 +21,7 @@ export class LoggerManager {
             window.location.hostname === '127.0.0.1' ||
             window.location.port === '3000' ||
             window.location.search.includes('dev=true') ||
-            localStorage.getItem('appState') === 'development' ||
-            process.env.NODE_ENV === 'development';
+            localStorage.getItem('appState') === 'development';
         
         return isDev;
     }
