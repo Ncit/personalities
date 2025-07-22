@@ -238,6 +238,11 @@ export class UIManager {
         if (modal) {
             modal.style.display = 'flex';
             stateManager.openModal(modalName);
+            
+            // Special handling for types modal
+            if (modalName === 'types') {
+                this.populateTypesModal();
+            }
         }
     }
 
@@ -382,6 +387,250 @@ export class UIManager {
         } else {
             console.warn('clearLocalStorage called in non-development mode');
         }
+    }
+
+    // Enhanced Types Modal Methods
+    populateTypesModal() {
+        const typesList = document.getElementById('typesList');
+        if (!typesList) return;
+
+        // Clear existing content
+        typesList.innerHTML = '';
+
+        // Get MBTI types data
+        const mbtiTypes = this.getMBTITypes();
+        
+        // Add each personality type with enhanced structure
+        Object.entries(mbtiTypes).forEach(([type, data]) => {
+            const typeCard = document.createElement('div');
+            typeCard.className = `type-card ${this.getTypeCategory(type)}`;
+            typeCard.innerHTML = `
+                <div class="type-header">
+                    <div class="type-icon ${this.getTypeCategory(type)}">
+                        ${this.getTypeIcon(type)}
+                    </div>
+                    <div class="type-info">
+                        <div class="type-code">${type}</div>
+                        <div class="type-title">${data.title}</div>
+                        <div class="type-subtitle">${data.subtitle}</div>
+                    </div>
+                </div>
+                <div class="type-description">${data.description}</div>
+                <div class="type-traits">
+                    ${this.getTypeTraits(type).map(trait => `<span class="type-trait">${trait}</span>`).join('')}
+                </div>
+                <div class="type-stats">
+                    <div class="type-stat">
+                        <span class="type-stat-value">${this.getTypePercentage(type)}%</span>
+                        <span class="type-stat-label">Население</span>
+                    </div>
+                    <div class="type-stat">
+                        <span class="type-stat-value">${this.getTypeCompatibility(type)}</span>
+                        <span class="type-stat-label">Совместимость</span>
+                    </div>
+                </div>
+            `;
+            typesList.appendChild(typeCard);
+        });
+
+        // Setup filter functionality
+        this.setupTypeFilters();
+    }
+
+    getMBTITypes() {
+        return {
+            'INTJ': {
+                title: 'Архитектор',
+                subtitle: 'Стратегический мыслитель',
+                description: 'Инновационные мыслители с неутолимой жаждой знаний. Они видят возможности для улучшения во всем и стремятся к постоянному развитию.'
+            },
+            'INTP': {
+                title: 'Логик',
+                subtitle: 'Инновационный изобретатель',
+                description: 'Философские изобретатели, одержимые логическим анализом, системами и дизайном. Они стремятся понять, как устроен мир.'
+            },
+            'ENTJ': {
+                title: 'Командир',
+                subtitle: 'Смелый, воображаемый лидер',
+                description: 'Смелые, харизматичные и волевые лидеры, способные найти или создать решения практически для любой проблемы.'
+            },
+            'ENTP': {
+                title: 'Новатор',
+                subtitle: 'Умный и любопытный мыслитель',
+                description: 'Умные и любопытные мыслители, которые не могут устоять перед интеллектуальным вызовом.'
+            },
+            'INFJ': {
+                title: 'Адвокат',
+                subtitle: 'Тихий и мистический, но очень вдохновляющий и неутомимый идеалист',
+                description: 'Тихие и мистические, но очень вдохновляющие и неутомимые идеалисты. Хотя и очень сдержанные, они обладают сильным влиянием.'
+            },
+            'INFP': {
+                title: 'Посредник',
+                subtitle: 'Поэтический, добрый и альтруистичный дух',
+                description: 'Поэтические, добрые и альтруистичные люди, всегда стремящиеся помочь хорошему делу.'
+            },
+            'ENFJ': {
+                title: 'Протагонист',
+                subtitle: 'Харизматичный и вдохновляющий лидер',
+                description: 'Харизматичные и вдохновляющие лидеры, способные загипнотизировать свою аудиторию.'
+            },
+            'ENFP': {
+                title: 'Активист',
+                subtitle: 'Энтузиаст, креативный и общительный',
+                description: 'Энтузиасты, креативные и общительные свободные духи, которые всегда могут найти повод для улыбки.'
+            },
+            'ISTJ': {
+                title: 'Логист',
+                subtitle: 'Практичный и фактологический',
+                description: 'Практичные и фактологические люди, надежность которых не может быть поставлена под сомнение.'
+            },
+            'ISFJ': {
+                title: 'Защитник',
+                subtitle: 'Очень преданный и теплый',
+                description: 'Очень преданные и теплые защитники, всегда готовые защитить своих близких.'
+            },
+            'ESTJ': {
+                title: 'Исполнитель',
+                subtitle: 'Отличные управляющие, невероятно надежные',
+                description: 'Отличные управляющие, невероятно надежные и практичные люди, которые гордятся тем, что доводят дела до конца.'
+            },
+            'ESFJ': {
+                title: 'Консул',
+                subtitle: 'Необычайно заботливые, общительные и популярные',
+                description: 'Необычайно заботливые, общительные и популярные люди, всегда готовые помочь.'
+            },
+            'ISTP': {
+                title: 'Виртуоз',
+                subtitle: 'Смелые и практичные экспериментаторы',
+                description: 'Смелые и практичные экспериментаторы, мастера всех видов инструментов.'
+            },
+            'ISFP': {
+                title: 'Авантюрист',
+                subtitle: 'Гибкие и очаровательные художники',
+                description: 'Гибкие и очаровательные художники, всегда готовые исследовать и испытывать что-то новое.'
+            },
+            'ESTP': {
+                title: 'Предприниматель',
+                subtitle: 'Умные, энергичные и очень восприимчивые',
+                description: 'Умные, энергичные и очень восприимчивые люди, которые действительно наслаждаются жизнью.'
+            },
+            'ESFP': {
+                title: 'Развлекатель',
+                subtitle: 'Спонтанные, энергичные и энтузиасты',
+                description: 'Спонтанные, энергичные и энтузиасты - развлекатели, которые не могут устоять перед тем, чтобы быть в центре событий.'
+            }
+        };
+    }
+
+    getTypeCategory(type) {
+        const categories = {
+            'INTJ': 'analysts', 'INTP': 'analysts', 'ENTJ': 'analysts', 'ENTP': 'analysts',
+            'INFJ': 'diplomats', 'INFP': 'diplomats', 'ENFJ': 'diplomats', 'ENFP': 'diplomats',
+            'ISTJ': 'sentinels', 'ISFJ': 'sentinels', 'ESTJ': 'sentinels', 'ESFJ': 'sentinels',
+            'ISTP': 'explorers', 'ISFP': 'explorers', 'ESTP': 'explorers', 'ESFP': 'explorers'
+        };
+        return categories[type] || 'analysts';
+    }
+
+    getTypeIcon(type) {
+        const icons = {
+            'INTJ': '<i class="fas fa-chess-king"></i>',
+            'INTP': '<i class="fas fa-microscope"></i>',
+            'ENTJ': '<i class="fas fa-crown"></i>',
+            'ENTP': '<i class="fas fa-lightbulb"></i>',
+            'INFJ': '<i class="fas fa-moon"></i>',
+            'INFP': '<i class="fas fa-heart"></i>',
+            'ENFJ': '<i class="fas fa-star"></i>',
+            'ENFP': '<i class="fas fa-sun"></i>',
+            'ISTJ': '<i class="fas fa-shield-alt"></i>',
+            'ISFJ': '<i class="fas fa-hands-helping"></i>',
+            'ESTJ': '<i class="fas fa-gavel"></i>',
+            'ESFJ': '<i class="fas fa-users"></i>',
+            'ISTP': '<i class="fas fa-tools"></i>',
+            'ISFP': '<i class="fas fa-palette"></i>',
+            'ESTP': '<i class="fas fa-fire"></i>',
+            'ESFP': '<i class="fas fa-music"></i>'
+        };
+        return icons[type] || '<i class="fas fa-user"></i>';
+    }
+
+    getTypeTraits(type) {
+        const traits = {
+            'INTJ': ['Стратегический', 'Аналитический', 'Независимый'],
+            'INTP': ['Логичный', 'Инновационный', 'Любознательный'],
+            'ENTJ': ['Решительный', 'Лидерский', 'Эффективный'],
+            'ENTP': ['Изобретательный', 'Энергичный', 'Адаптивный'],
+            'INFJ': ['Идеалистичный', 'Эмпатичный', 'Творческий'],
+            'INFP': ['Мечтательный', 'Добрый', 'Вдохновляющий'],
+            'ENFJ': ['Харизматичный', 'Заботливый', 'Мотивирующий'],
+            'ENFP': ['Энтузиаст', 'Креативный', 'Общительный'],
+            'ISTJ': ['Практичный', 'Надежный', 'Организованный'],
+            'ISFJ': ['Заботливый', 'Терпеливый', 'Преданный'],
+            'ESTJ': ['Ответственный', 'Прямолинейный', 'Организованный'],
+            'ESFJ': ['Дружелюбный', 'Ответственный', 'Сочувствующий'],
+            'ISTP': ['Гибкий', 'Практичный', 'Спокойный'],
+            'ISFP': ['Художественный', 'Миролюбивый', 'Спонтанный'],
+            'ESTP': ['Энергичный', 'Практичный', 'Спонтанный'],
+            'ESFP': ['Веселый', 'Дружелюбный', 'Спонтанный']
+        };
+        return traits[type] || ['Уникальный', 'Интересный', 'Особенный'];
+    }
+
+    getTypePercentage(type) {
+        const percentages = {
+            'INTJ': 2, 'INTP': 3, 'ENTJ': 2, 'ENTP': 3,
+            'INFJ': 1, 'INFP': 4, 'ENFJ': 2, 'ENFP': 8,
+            'ISTJ': 12, 'ISFJ': 14, 'ESTJ': 9, 'ESFJ': 12,
+            'ISTP': 5, 'ISFP': 9, 'ESTP': 4, 'ESFP': 8
+        };
+        return percentages[type] || 6;
+    }
+
+    getTypeCompatibility(type) {
+        const compatibility = {
+            'INTJ': 'INTJ, INTP, ENTJ',
+            'INTP': 'INTJ, INTP, ENTP',
+            'ENTJ': 'INTJ, ENTJ, ENTP',
+            'ENTP': 'INTP, ENTJ, ENTP',
+            'INFJ': 'INFJ, INFP, ENFJ',
+            'INFP': 'INFJ, INFP, ENFP',
+            'ENFJ': 'INFJ, ENFJ, ENFP',
+            'ENFP': 'INFP, ENFJ, ENFP',
+            'ISTJ': 'ISTJ, ISFJ, ESTJ',
+            'ISFJ': 'ISTJ, ISFJ, ESFJ',
+            'ESTJ': 'ISTJ, ESTJ, ESFJ',
+            'ESFJ': 'ISFJ, ESTJ, ESFJ',
+            'ISTP': 'ISTP, ISFP, ESTP',
+            'ISFP': 'ISTP, ISFP, ESFP',
+            'ESTP': 'ISTP, ESTP, ESFP',
+            'ESFP': 'ISFP, ESTP, ESFP'
+        };
+        return compatibility[type] || 'Все типы';
+    }
+
+    setupTypeFilters() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const typeCards = document.querySelectorAll('.type-card');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                
+                typeCards.forEach(card => {
+                    if (filter === 'all' || card.classList.contains(filter)) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.3s ease-in';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
     }
 }
 

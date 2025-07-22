@@ -386,10 +386,30 @@
 
         <!-- MBTI Types Modal -->
         <div id="typesModal" class="modal" style="display:none;">
-            <div class="modal-content">
+            <div class="modal-content types-modal-content">
                 <span class="close" onclick="closeTypesModal()">&times;</span>
-                <h2>Типы личности MBTI</h2>
-                <div id="typesList" class="types-list"></div>
+                <div class="types-header">
+                    <h2><i class="fas fa-brain"></i> 16 типов личности MBTI</h2>
+                    <p>Изучите различные типы личности и их характеристики</p>
+                </div>
+                <div class="types-filter">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th"></i> Все типы
+                    </button>
+                    <button class="filter-btn" data-filter="analysts">
+                        <i class="fas fa-lightbulb"></i> Аналитики
+                    </button>
+                    <button class="filter-btn" data-filter="diplomats">
+                        <i class="fas fa-heart"></i> Дипломаты
+                    </button>
+                    <button class="filter-btn" data-filter="sentinels">
+                        <i class="fas fa-shield-alt"></i> Стражи
+                    </button>
+                    <button class="filter-btn" data-filter="explorers">
+                        <i class="fas fa-compass"></i> Исследователи
+                    </button>
+                </div>
+                <div id="typesList" class="types-grid"></div>
             </div>
         </div>
 

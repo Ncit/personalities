@@ -431,10 +431,30 @@
 
         <!-- MBTI Types Modal -->
         <div id="typesModal" class="modal" style="display:none;">
-            <div class="modal-content">
+            <div class="modal-content types-modal-content">
                 <span class="close" onclick="closeTypesModal()">&times;</span>
-                <h2>MBTI Personality Types</h2>
-                <div id="typesList" class="types-list"></div>
+                <div class="types-header">
+                    <h2><i class="fas fa-brain"></i> 16 MBTI Personality Types</h2>
+                    <p>Explore different personality types and their characteristics</p>
+                </div>
+                <div class="types-filter">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th"></i> All Types
+                    </button>
+                    <button class="filter-btn" data-filter="analysts">
+                        <i class="fas fa-lightbulb"></i> Analysts
+                    </button>
+                    <button class="filter-btn" data-filter="diplomats">
+                        <i class="fas fa-heart"></i> Diplomats
+                    </button>
+                    <button class="filter-btn" data-filter="sentinels">
+                        <i class="fas fa-shield-alt"></i> Sentinels
+                    </button>
+                    <button class="filter-btn" data-filter="explorers">
+                        <i class="fas fa-compass"></i> Explorers
+                    </button>
+                </div>
+                <div id="typesList" class="types-grid"></div>
             </div>
         </div>
 
