@@ -51,7 +51,6 @@ export class UIManager {
             premiumQuizTypes: document.getElementById('premiumQuizTypes'),
             
             // State elements
-            stateBadge: document.getElementById('stateBadge'),
             headerPremiumBtn: document.getElementById('headerPremiumBtn')
         };
     }
@@ -81,7 +80,6 @@ export class UIManager {
 
     initializeUI() {
         this.updatePremiumUI(stateManager.isPremium());
-        this.updateStateBadge();
         this.showScreen(stateManager.get('currentScreen'));
     }
 
@@ -281,15 +279,6 @@ export class UIManager {
         } else {
             premiumContent.forEach(content => content.style.display = 'none');
             premiumOverlays.forEach(overlay => overlay.style.display = 'flex');
-        }
-    }
-
-    // State badge management
-    updateStateBadge() {
-        const appState = stateManager.get('appState');
-        if (this.elements.stateBadge) {
-            this.elements.stateBadge.textContent = appState.toUpperCase();
-            this.elements.stateBadge.className = `state-badge ${appState}`;
         }
     }
 

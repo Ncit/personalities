@@ -79,7 +79,6 @@ class MBTIApplication {
     initializeUI() {
         // Update UI based on current state
         uiManager.updatePremiumUI(stateManager.isPremium());
-        uiManager.updateStateBadge();
         uiManager.updateQuizDescription();
         
         // Show appropriate screen
@@ -308,7 +307,6 @@ class MBTIApplication {
             const currentState = stateManager.get('appState');
             const newState = currentState === 'development' ? 'release' : 'development';
             stateManager.setAppState(newState);
-            uiManager.updateStateBadge();
             this.setupDevTools();
         } catch (error) {
             console.error(localizationManager.get('console.errorTogglingAppState'), error);
@@ -341,7 +339,6 @@ class MBTIApplication {
     handleNavigation() {
         const urlState = stateManager.getStateFromURL();
         stateManager.setAppState(urlState);
-        uiManager.updateStateBadge();
         this.setupDevTools();
     }
 

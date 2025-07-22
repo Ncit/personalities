@@ -932,7 +932,7 @@ function copyShareLink() {
 }
 
 // App state: 'development' or 'release'
-const APP_STATE = 'development'; // Change to 'release' for production
+const APP_STATE = 'release'; // Change to 'development' for development
 
 // Get state from URL parameter or use default
 function getAppStateFromURL() {
@@ -956,25 +956,6 @@ function getCurrentAppState() {
     return getAppStateFromURL();
 }
 
-function updateStateBadge() {
-    const badge = document.getElementById('stateBadge');
-    if (!badge) return;
-    
-    const currentState = getCurrentAppState();
-    
-    if (currentState === 'development') {
-        badge.textContent = 'DEVELOPMENT';
-        badge.classList.add('dev');
-        badge.classList.remove('release');
-    } else {
-        badge.textContent = 'RELEASE';
-        badge.classList.add('release');
-        badge.classList.remove('dev');
-    }
-    
-    // Show/hide development tools based on state
-    updateDevToolsVisibility();
-}
 
 // Function to show/hide development tools
 function updateDevToolsVisibility() {
@@ -1073,7 +1054,6 @@ function fillRandomAnswers() {
 function changeAppState(newState) {
     if (newState === 'development' || newState === 'release') {
         updateURLWithState(newState);
-        updateStateBadge();
         console.log(`App state changed to: ${newState}`);
     }
 }
@@ -1197,7 +1177,6 @@ document.addEventListener('DOMContentLoaded', () => {
     quiz = new MBTIQuiz();
     
     updatePremiumUI();
-    updateStateBadge();
     updateDevToolsAll();
     
     // Update quiz description based on premium status
