@@ -352,7 +352,7 @@ function closePremiumModal() {
 
 function unlockPremium() {
     setPremium(true);
-    document.getElementById('premiumUnlockMsg').textContent = '🎉 Premium unlocked! Enjoy all features.';
+    document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
     setTimeout(() => {
         closePremiumModal();
     }, 1200);
