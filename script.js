@@ -1567,6 +1567,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize VK Bridge if available
     if (typeof window.vkBridgeManager !== 'undefined') {
         console.log('VK Bridge Manager initialized');
+    } else {
+        console.log('not found');
+        console.log(window.vkBridgeManager);
     }
     
     // Initialize the quiz
