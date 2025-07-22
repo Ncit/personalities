@@ -1,6 +1,5 @@
 export const MBTI_SPECIALIZED_QUESTIONS = {
     'leadership': [
-        // 20 Leadership questions
         { question: "When leading a team, you prefer to:", options: ["Set clear goals and delegate tasks", "Collaborate and build consensus", "Lead by example and inspire", "Adapt your style to the situation"], dimension: "EI", weights: [2, -1, -2, 1] },
         { question: "In a crisis, you typically:", options: ["Take charge and make quick decisions", "Gather input from the team", "Analyze the situation thoroughly", "Stay calm and provide reassurance"], dimension: "TF", weights: [2, -1, 1, -2] },
         { question: "You motivate others by:", options: ["Setting challenging goals", "Building personal relationships", "Providing clear direction", "Encouraging creativity and innovation"], dimension: "SN", weights: [1, -2, 2, -1] },
@@ -23,7 +22,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You measure success by:", options: ["Achieving results", "Team satisfaction", "Personal growth", "Innovation and change"], dimension: "JP", weights: [2, -1, 1, -2] }
     ],
     'communication': [
-        // 20 Communication questions
         { question: "When explaining something, you prefer to:", options: ["Use concrete examples and facts", "Share stories and analogies", "Provide step-by-step instructions", "Focus on the big picture"], dimension: "SN", weights: [3, -1, 1, -2] },
         { question: "In conversations, you tend to:", options: ["Listen more than speak", "Ask questions to understand", "Share your thoughts openly", "Guide the conversation"], dimension: "EI", weights: [2, 0, -2, -1] },
         { question: "When giving feedback, you:", options: ["Focus on facts and improvement", "Consider the person's feelings", "Be direct and honest", "Be encouraging and supportive"], dimension: "TF", weights: [2, -2, 1, -1] },
@@ -46,7 +44,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer to end conversations:", options: ["With a clear conclusion", "When everyone is satisfied", "When the topic is done", "When you feel ready"], dimension: "JP", weights: [2, -1, 1, -2] }
     ],
     'stress': [
-        // 20 Stress questions
         { question: "When stressed, you typically:", options: ["Withdraw and need alone time", "Seek support from others", "Become more focused and productive", "Feel overwhelmed and scattered"], dimension: "EI", weights: [3, -2, -1, 1] },
         { question: "Under pressure, you prefer to:", options: ["Analyze the situation logically", "Trust your instincts", "Seek advice from others", "Take action immediately"], dimension: "TF", weights: [2, -1, -2, 1] },
         { question: "Stress affects your thinking by making you:", options: ["More focused on details", "More creative and innovative", "More systematic and organized", "More flexible and adaptable"], dimension: "SN", weights: [2, -2, 1, -1] },
@@ -69,7 +66,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You handle stress best when:", options: ["You have support", "You have time alone", "You can take action", "You can talk it out"], dimension: "EI", weights: [2, -2, 1, -1] }
     ],
     'learning': [
-        // 20 Learning questions
         { question: "You learn best when:", options: ["Following structured lessons", "Exploring concepts independently", "Working with others in groups", "Applying knowledge to real situations"], dimension: "EI", weights: [1, 2, -2, -1] },
         { question: "When studying, you prefer:", options: ["Reading and taking notes", "Discussing with others", "Hands-on practice", "Visual aids and diagrams"], dimension: "SN", weights: [1, -1, 2, -2] },
         { question: "You understand new concepts by:", options: ["Breaking them down into parts", "Seeing the overall pattern", "Relating them to experience", "Exploring different perspectives"], dimension: "SN", weights: [2, -2, 1, -1] },
@@ -92,7 +88,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer to learn in:", options: ["A structured environment", "A flexible environment", "A collaborative environment", "A creative environment"], dimension: "JP", weights: [2, -2, 1, -1] }
     ],
     'relationships': [
-        // 20 Relationship questions
         { question: "In relationships, you value:", options: ["Deep emotional connection", "Intellectual compatibility", "Shared activities and experiences", "Mutual respect and understanding"], dimension: "TF", weights: [-2, 2, 0, 1] },
         { question: "You show affection by:", options: ["Spending quality time together", "Giving thoughtful gifts", "Physical touch and closeness", "Acts of service and support"], dimension: "EI", weights: [-1, 1, -2, 2] },
         { question: "When resolving conflicts, you:", options: ["Address issues directly", "Consider feelings and emotions", "Seek compromise and understanding", "Give space and time to process"], dimension: "TF", weights: [2, -2, 1, -1] },
@@ -115,7 +110,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer to resolve misunderstandings by:", options: ["Talking immediately", "Waiting until calm", "Writing a message", "Letting it go"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'creativity': [
-        // 20 Creativity questions
         { question: "When solving problems, you prefer to:", options: ["Think outside the box", "Use proven methods", "Collaborate with others", "Analyze systematically"], dimension: "SN", weights: [2, -2, 1, -1] },
         { question: "You generate ideas by:", options: ["Brainstorming freely", "Researching thoroughly", "Discussing with others", "Reflecting quietly"], dimension: "EI", weights: [2, -1, -2, 1] },
         { question: "You prefer creative projects that are:", options: ["Open-ended and flexible", "Structured with clear goals", "Collaborative", "Solo endeavors"], dimension: "JP", weights: [2, -2, 1, -1] },
@@ -138,7 +132,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You measure creative success by:", options: ["Personal satisfaction", "External recognition", "Problem-solving", "Innovation"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'decision': [
-        // 20 Decision Making questions
         { question: "When making important decisions, you:", options: ["Analyze all the facts", "Trust your gut feeling", "Seek others' opinions", "Consider the impact on people"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You prefer decisions that are:", options: ["Logical and rational", "Based on values", "Quick and decisive", "Well-considered"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You gather information by:", options: ["Researching thoroughly", "Asking people", "Observing", "Intuition"], dimension: "SN", weights: [2, -2, 1, -1] },
@@ -161,7 +154,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You handle decision regret by:", options: ["Learning from it", "Moving on", "Analyzing what went wrong", "Seeking support"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'teamwork': [
-        // 20 Teamwork questions
         { question: "In team projects, you prefer to:", options: ["Take the lead", "Support others", "Work independently", "Collaborate equally"], dimension: "EI", weights: [2, -2, 1, -1] },
         { question: "You contribute to teams by:", options: ["Providing ideas", "Organizing tasks", "Supporting others", "Ensuring quality"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You prefer team roles that are:", options: ["Clearly defined", "Flexible", "Leadership", "Support"], dimension: "JP", weights: [2, -2, 1, -1] },
@@ -184,7 +176,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You handle team failures by:", options: ["Analyzing what went wrong", "Supporting the team", "Moving forward", "Learning lessons"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'career': [
-        // 20 Career questions
         { question: "You prefer work environments that are:", options: ["Structured and organized", "Flexible and creative", "Social and collaborative", "Quiet and focused"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You are motivated by:", options: ["Achievement and results", "Helping others", "Learning and growth", "Recognition and praise"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You prefer work tasks that are:", options: ["Analytical and logical", "Creative and innovative", "People-oriented", "Technical and precise"], dimension: "SN", weights: [2, -2, 1, -1] },
@@ -207,7 +198,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You are most fulfilled by work that:", options: ["Solves problems", "Helps people", "Creates something new", "Provides security"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'conflict': [
-        // 20 Conflict Resolution questions
         { question: "When conflicts arise, you typically:", options: ["Address them directly", "Avoid them", "Seek mediation", "Find compromise"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You prefer to resolve conflicts by:", options: ["Finding a solution", "Understanding feelings", "Compromising", "Letting time heal"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You handle disagreements by:", options: ["Presenting facts", "Considering emotions", "Seeking consensus", "Taking a break"], dimension: "TF", weights: [2, -2, 1, -1] },
@@ -230,7 +220,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You measure conflict resolution success by:", options: ["Problem solved", "Relationships maintained", "Process followed", "Outcome achieved"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'motivation': [
-        // 20 Motivation questions
         { question: "You are most motivated by:", options: ["Achievement and success", "Helping others", "Learning and growth", "Recognition and praise"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You prefer goals that are:", options: ["Specific and measurable", "Flexible and adaptable", "Challenging", "Realistic"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You stay motivated by:", options: ["Seeing progress", "Support from others", "Intrinsic drive", "External rewards"], dimension: "TF", weights: [2, -2, 1, -1] },
@@ -253,7 +242,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer motivation that lasts through:", options: ["Consistent effort", "Adaptation and change", "Support from others", "Personal drive"], dimension: "JP", weights: [2, -2, 1, -1] }
     ],
     'adaptability': [
-        // 20 Adaptability questions
         { question: "When plans change, you typically:", options: ["Adapt quickly", "Get frustrated", "Plan alternatives", "Take time to adjust"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You handle unexpected situations by:", options: ["Thinking on your feet", "Following procedures", "Seeking help", "Taking time to process"], dimension: "SN", weights: [2, -2, 1, -1] },
         { question: "You prefer environments that are:", options: ["Dynamic and changing", "Stable and predictable", "Flexible", "Structured"], dimension: "JP", weights: [2, -2, 1, -1] },
@@ -276,7 +264,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer change management that is:", options: ["Flexible", "Structured", "Gradual", "Immediate"], dimension: "JP", weights: [2, -2, 1, -1] }
     ],
     'emotional': [
-        // 20 Emotional Intelligence questions
         { question: "You recognize emotions in others by:", options: ["Observing behavior", "Listening to words", "Intuition", "Asking directly"], dimension: "SN", weights: [2, -2, 1, -1] },
         { question: "You handle your own emotions by:", options: ["Analyzing them", "Expressing them", "Controlling them", "Processing them"], dimension: "TF", weights: [2, -2, 1, -1] },
         { question: "You prefer emotional situations that are:", options: ["Resolved quickly", "Processed thoroughly", "Avoided", "Discussed openly"], dimension: "JP", weights: [2, -2, 1, -1] },
@@ -299,7 +286,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer emotional intelligence that focuses on:", options: ["Understanding", "Expression", "Control", "Growth"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'productivity': [
-        // 20 Productivity questions
         { question: "You work most efficiently when:", options: ["Following a schedule", "Working flexibly", "Collaborating", "Working alone"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You prefer task management that is:", options: ["Structured and organized", "Flexible and adaptive", "Collaborative", "Individual"], dimension: "JP", weights: [2, -2, 1, -1] },
         { question: "You handle deadlines by:", options: ["Planning ahead", "Working under pressure", "Breaking them down", "Adapting as needed"], dimension: "JP", weights: [2, -2, 1, -1] },
@@ -322,7 +308,6 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
         { question: "You prefer productivity that focuses on:", options: ["Efficiency", "Quality", "Collaboration", "Innovation"], dimension: "TF", weights: [2, -2, 1, -1] }
     ],
     'social': [
-        // 20 Social Interaction questions
         { question: "You prefer social situations that are:", options: ["Large and diverse", "Small and intimate", "Structured", "Flexible"], dimension: "EI", weights: [2, -2, 1, -1] },
         { question: "You interact with others by:", options: ["Initiating conversations", "Responding to others", "Observing", "Following"], dimension: "EI", weights: [2, -2, 1, -1] },
         { question: "You prefer social activities that are:", options: ["Active and engaging", "Quiet and relaxed", "Structured", "Spontaneous"], dimension: "EI", weights: [2, -2, 1, -1] },
@@ -346,5 +331,4 @@ export const MBTI_SPECIALIZED_QUESTIONS = {
     ]
 };
 
-// Export the questions array as default
 export default MBTI_SPECIALIZED_QUESTIONS; 
