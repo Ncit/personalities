@@ -5,6 +5,7 @@ import { MBTI_QUESTIONS } from './src/data/MainQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
+import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -283,8 +284,8 @@ class MBTIQuiz {
         const shareText = `I just discovered my MBTI personality type is ${personalityType}! Take the quiz yourself to find yours.`;
         
         // Use VK Bridge if available, otherwise fallback to native sharing
-        if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-            window.vkBridgeManager.shareResults(personalityType, shareText);
+        if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+            vkBridgeManager.shareResults(personalityType, shareText);
         } else if (navigator.share) {
             navigator.share({
                 title: 'MBTI Personality Quiz Results',
@@ -294,8 +295,8 @@ class MBTIQuiz {
         } else {
             // Fallback: copy to clipboard
             navigator.clipboard.writeText(shareText).then(() => {
-                if (window.vkBridgeManager) {
-                    window.vkBridgeManager.showNotification('Results copied to clipboard!');
+                if (vkBridgeManager) {
+                    vkBridgeManager.showNotification('Results copied to clipboard!');
                 } else {
                     alert('Results copied to clipboard!');
                 }
@@ -497,8 +498,8 @@ function closePremiumModal() {
 
 function unlockPremium() {
     // Use VK Bridge for payments if available
-    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-        window.vkBridgeManager.showOrderBox().then((result) => {
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        vkBridgeManager.showOrderBox().then((result) => {
             if (result && result.status === 'success') {
                 setPremium(true);
                 document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
@@ -556,8 +557,8 @@ function completePremiumUnlock() {
     }
     
     // Show success notification
-    if (window.vkBridgeManager) {
-        window.vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+    if (vkBridgeManager) {
+        vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
     }
 }
 
@@ -1563,13 +1564,19 @@ function setupModalClickOutside() {
     });
 }
 
+// Initialize VK Bridge Manager
+let vkBridgeManager;
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize VK Bridge if available
-    if (typeof window.vkBridgeManager !== 'undefined') {
-        console.log('VK Bridge Manager initialized');
-    } else {
-        console.log('not found');
-        console.log(window.vkBridgeManager);
+    // Initialize VK Bridge Manager
+    try {
+        vkBridgeManager = new VKBridgeManager();
+        window.vkBridgeManager = vkBridgeManager;
+        console.log('✅ VK Bridge Manager initialized successfully');
+        console.log('VK Platform detected:', vkBridgeManager.isVKEnvironment());
+    } catch (error) {
+        console.log('❌ VK Bridge Manager not available:', error);
+        window.vkBridgeManager = null;
     }
     
     // Initialize the quiz

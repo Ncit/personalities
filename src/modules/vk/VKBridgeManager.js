@@ -427,5 +427,7 @@ export class VKBridgeManager {
     }
 }
 
-// Create global instance
-window.vkBridgeManager = new VKBridgeManager(); 
+// Create global instance for backward compatibility
+if (typeof window !== 'undefined') {
+    window.vkBridgeManager = new VKBridgeManager();
+} 
