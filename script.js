@@ -6,7 +6,7 @@ import { MBTI_SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
-import { loggerManager } from './src/modules/core/LoggerManager.js';
+
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -548,29 +548,28 @@ function closePremiumModal() {
 }
 
 function unlockPremium() {
-    // Use VK Bridge for payments if available
-    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-        vkBridgeManager.showOrderBox().then((result) => {
-            if (result && result.status === 'success') {
-                setPremium(true);
-                document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
-                completePremiumUnlock();
-            }
-        }).catch((error) => {
-            loggerManager.appError('Payment error:', error);
-            // Fallback to development mode
-            setPremium(true);
-            document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
-            completePremiumUnlock();
-        });
-        return;
-    }
-    
     if (getCurrentAppState() == 'development') {
         setPremium(true);
         document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+    } else {
+        // Use VK Bridge for payments if available
+        if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+            vkBridgeManager.showOrderBox().then((result) => {
+                if (result && result.status === 'success') {
+                    setPremium(true);
+                    document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+                    completePremiumUnlock();
+                }
+            }).catch((error) => {
+                console.error('Payment error:', error);
+                // Fallback to development mode
+                setPremium(true);
+                document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+                completePremiumUnlock();
+            });
+            return;
+        }
     }
-
     setTimeout(() => {
         completePremiumUnlock();
     }, 1200);
@@ -673,8 +672,11 @@ function displayFamousPersonalities(personalityType) {
     const famous = FAMOUS_PERSONALITIES[personalityType];
     if (!famous) return;
     
+    // Limit to maximum 8 items
+    const limitedFamous = famous.slice(0, 8);
+    
     const famousGrid = document.getElementById('famousGrid');
-    famousGrid.innerHTML = famous.map(person => `
+    famousGrid.innerHTML = limitedFamous.map(person => `
         <div class="famous-person">
             <div style="font-size: 3rem; margin-bottom: 10px;">${person.image}</div>
             <h4>${person.name}</h4>
@@ -1625,15 +1627,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         vkBridgeManager = new VKBridgeManager();
         window.vkBridgeManager = vkBridgeManager;
-        loggerManager.appSuccess('VK Bridge Manager initialized successfully');
-        loggerManager.appDebug('VK Platform detected:', vkBridgeManager.isVKEnvironment());
+        console.log('VK Bridge Manager initialized successfully');
+        console.log('VK Platform detected:', vkBridgeManager.isVKEnvironment());
         
         // Start banner ad timer for non-premium users in VK environment
         if (vkBridgeManager.isVKEnvironment() && !isPremium()) {
             startBannerAdTimer();
         }
     } catch (error) {
-        loggerManager.appError('VK Bridge Manager not available:', error);
+        console.error('VK Bridge Manager not available:', error);
         window.vkBridgeManager = null;
     }
     
@@ -1653,7 +1655,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModalClickOutside();
     
     // Log current state for debugging
-    loggerManager.appDebug(`Current app state: ${getCurrentAppState()}`);
+    console.log(`Current app state: ${getCurrentAppState()}`);
 });
 
 // Initialize the quiz
@@ -1906,7 +1908,7 @@ function showBannerAd() {
         vkBridgeManager.showBannerAd().then(success => {
             if (success) {
                 bannerAdShown = true;
-                loggerManager.appSuccess('Banner ad displayed successfully');
+                console.log('Banner ad displayed successfully');
             }
         });
     }
@@ -1917,7 +1919,7 @@ function hideBannerAd() {
         vkBridgeManager.hideBannerAd().then(success => {
             if (success) {
                 bannerAdShown = false;
-                loggerManager.appSuccess('Banner ad hidden successfully');
+                console.log('Banner ad hidden successfully');
             }
         });
     }
@@ -1927,7 +1929,7 @@ function showInterstitialAd() {
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         vkBridgeManager.showInterstitialAd().then(success => {
             if (success) {
-                loggerManager.appSuccess('Interstitial ad displayed successfully');
+                console.log('Interstitial ad displayed successfully');
             }
         });
     }
@@ -1937,13 +1939,13 @@ function showRewardedAd() {
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         vkBridgeManager.showRewardedAd().then(result => {
             if (result.result === 'success') {
-                loggerManager.appSuccess('Rewarded ad completed successfully');
+                console.log('Rewarded ad completed successfully');
                 // Give user reward (e.g., unlock premium for 1 hour)
                 setPremium(true);
                 setTimeout(() => setPremium(false), 3600000); // 1 hour
                 alert('Поздравляем! Премиум доступ активирован на 1 час!');
             } else {
-                loggerManager.appInfo('Rewarded ad not completed');
+                console.log('Rewarded ad not completed');
             }
         });
     }

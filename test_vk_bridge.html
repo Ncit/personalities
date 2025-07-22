@@ -81,7 +81,7 @@
     <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
     <script type="module">
         import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
-        import { loggerManager } from './src/modules/core/LoggerManager.js';
+        
 
         // Override console.log to capture logs
         const originalLog = console.log;
@@ -97,29 +97,29 @@
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        // Override loggerManager to also add to our log container
-        const originalLoggerLog = loggerManager.log;
-        const originalLoggerError = loggerManager.error;
-        const originalLoggerInfo = loggerManager.info;
-        const originalLoggerDebug = loggerManager.debug;
+        // Override console.log to also add to our log container
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleInfo = console.info;
+        const originalConsoleDebug = console.debug;
 
-        loggerManager.log = function(message, data) {
-            originalLoggerLog.call(this, message, data);
+        console.log = function(message, data) {
+            originalConsoleLog.call(this, message, data);
             addToLog(message);
         };
 
-        loggerManager.error = function(message, data) {
-            originalLoggerError.call(this, message, data);
+        console.error = function(message, data) {
+            originalConsoleError.call(this, message, data);
             addToLog(message, 'error');
         };
 
-        loggerManager.info = function(message, data) {
-            originalLoggerInfo.call(this, message, data);
+        console.info = function(message, data) {
+            originalConsoleInfo.call(this, message, data);
             addToLog(message);
         };
 
-        loggerManager.debug = function(message, data) {
-            originalLoggerDebug.call(this, message, data);
+        console.debug = function(message, data) {
+            originalConsoleDebug.call(this, message, data);
             addToLog(message);
         };
 
@@ -261,7 +261,7 @@
             logContainer.innerHTML = '';
         };
 
-        loggerManager.appInfo('VK Bridge test page loaded');
+        console.log('VK Bridge test page loaded');
     </script>
 </body>
 </html> 

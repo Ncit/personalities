@@ -8,7 +8,7 @@ import { uiManager } from './modules/ui/UIManager.js';
 import { analyticsEngine } from './modules/analytics/AnalyticsEngine.js';
 import localizationManager from './locales/LocalizationManager.js';
 import { VKBridgeManager } from './modules/vk/VKBridgeManager.js';
-import { loggerManager } from './modules/core/LoggerManager.js';
+
 
 class MBTIApplication {
     constructor() {
@@ -29,7 +29,7 @@ class MBTIApplication {
             // Initialize localization first
             localizationManager.initialize();
             
-            loggerManager.appInit(localizationManager.get('console.initStart'));
+            console.log(localizationManager.get('console.initStart'));
             
             // Initialize state from URL
             this.initializeAppState();
@@ -44,10 +44,10 @@ class MBTIApplication {
             this.setupDevTools();
             
             this.initialized = true;
-            loggerManager.appSuccess(localizationManager.get('console.initSuccess'));
+            console.log(localizationManager.get('console.initSuccess'));
             
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.initFailed'), error);
+            console.error(localizationManager.get('console.initFailed'), error);
             this.showError(localizationManager.get('errors.initFailed'));
         }
     }
@@ -65,13 +65,13 @@ class MBTIApplication {
     setupGlobalHandlers() {
         // Global error handler
         window.addEventListener('error', (event) => {
-            loggerManager.appError(localizationManager.get('console.globalError'), event.error);
+            console.error(localizationManager.get('console.globalError'), event.error);
             this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
         // Global unhandled promise rejection handler
         window.addEventListener('unhandledrejection', (event) => {
-            loggerManager.appError(localizationManager.get('console.unhandledRejection'), event.reason);
+            console.error(localizationManager.get('console.unhandledRejection'), event.reason);
             this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
@@ -113,7 +113,7 @@ class MBTIApplication {
                 uiManager.displayCurrentQuestion();
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorStartingQuiz'), error);
+            console.error(localizationManager.get('console.errorStartingQuiz'), error);
             this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }
@@ -133,7 +133,7 @@ class MBTIApplication {
                 uiManager.displayCurrentQuestion();
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorStartingQuizType'), error);
+            console.error(localizationManager.get('console.errorStartingQuizType'), error);
             this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }
@@ -143,7 +143,7 @@ class MBTIApplication {
             quizEngine.selectOption(optionNumber);
             uiManager.selectOption(optionNumber);
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorSelectingOption'), error);
+            console.error(localizationManager.get('console.errorSelectingOption'), error);
             this.showError(localizationManager.get('errors.selectOptionFailed'));
         }
     }
@@ -152,7 +152,7 @@ class MBTIApplication {
         try {
             uiManager.nextQuestion();
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorNextQuestion'), error);
+            console.error(localizationManager.get('console.errorNextQuestion'), error);
             this.showError(localizationManager.get('errors.nextQuestionFailed'));
         }
     }
@@ -161,7 +161,7 @@ class MBTIApplication {
         try {
             uiManager.previousQuestion();
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorPreviousQuestion'), error);
+            console.error(localizationManager.get('console.errorPreviousQuestion'), error);
             this.showError(localizationManager.get('errors.previousQuestionFailed'));
         }
     }
@@ -172,7 +172,7 @@ class MBTIApplication {
             stateManager.setState({ currentScreen: 'welcome' });
             uiManager.showScreen('welcome');
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorRestartingQuiz'), error);
+            console.error(localizationManager.get('console.errorRestartingQuiz'), error);
             this.showError(localizationManager.get('errors.restartQuizFailed'));
         }
     }
@@ -203,7 +203,7 @@ class MBTIApplication {
                         this.completePremiumUnlock();
                     }
                 }).catch((error) => {
-                    loggerManager.appError('Payment error:', error);
+                    console.error('Payment error:', error);
                     // Fallback to development mode
                     this.completePremiumUnlock();
                 });
@@ -213,7 +213,7 @@ class MBTIApplication {
             // Development mode or standalone
             this.completePremiumUnlock();
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorUnlockingPremium'), error);
+            console.error(localizationManager.get('console.errorUnlockingPremium'), error);
             this.showError(localizationManager.get('errors.unlockPremiumFailed'));
         }
     }
@@ -242,7 +242,7 @@ class MBTIApplication {
                 }
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorUnlockingPremium'), error);
+            console.error(localizationManager.get('console.errorUnlockingPremium'), error);
             this.showError(localizationManager.get('errors.unlockPremiumFailed'));
         }
     }
@@ -259,7 +259,7 @@ class MBTIApplication {
                 this.showError(localizationManager.get('errors.noPreviousResults'));
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorViewingLastResults'), error);
+            console.error(localizationManager.get('console.errorViewingLastResults'), error);
             this.showError(localizationManager.get('errors.loadLastResultsFailed'));
         }
     }
@@ -291,12 +291,12 @@ class MBTIApplication {
                 uiManager.hideLoading();
                 uiManager.showSuccess(localizationManager.get('success.pdfGenerated'));
             }).catch(error => {
-                loggerManager.appError(localizationManager.get('console.errorGeneratingPDF'), error);
+                console.error(localizationManager.get('console.errorGeneratingPDF'), error);
                 uiManager.hideLoading();
                 this.showError(localizationManager.get('errors.generatePDFFailed'));
             });
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorGeneratingPDF'), error);
+            console.error(localizationManager.get('console.errorGeneratingPDF'), error);
             this.showError(localizationManager.get('errors.generatePDFFailed'));
         }
     }
@@ -334,7 +334,7 @@ class MBTIApplication {
                 });
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorSharingResults'), error);
+            console.error(localizationManager.get('console.errorSharingResults'), error);
             this.showError(localizationManager.get('errors.shareResultsFailed'));
         }
     }
@@ -353,7 +353,7 @@ class MBTIApplication {
                 analyticsEngine.createAnalyticsCharts(results);
             }
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorFillingRandomAnswers'), error);
+            console.error(localizationManager.get('console.errorFillingRandomAnswers'), error);
             this.showError(localizationManager.get('errors.fillRandomAnswersFailed'));
         }
     }
@@ -365,7 +365,7 @@ class MBTIApplication {
             stateManager.setAppState(newState);
             this.setupDevTools();
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorTogglingAppState'), error);
+            console.error(localizationManager.get('console.errorTogglingAppState'), error);
             this.showError(localizationManager.get('errors.toggleAppStateFailed'));
         }
     }
@@ -385,7 +385,7 @@ class MBTIApplication {
             // Reload the website
             location.reload();
         } catch (error) {
-            loggerManager.appError(localizationManager.get('console.errorExitingQuiz'), error);
+            console.error(localizationManager.get('console.errorExitingQuiz'), error);
             this.showError(localizationManager.get('errors.exitQuizFailed'));
         }
     }
@@ -422,7 +422,7 @@ class MBTIApplication {
             uiManager.openModal('subscription');
             this.updateSubscriptionModal();
         } catch (error) {
-            loggerManager.appError('Error opening subscription modal:', error);
+            console.error('Error opening subscription modal:', error);
             this.showError('Failed to open subscription management');
         }
     }
@@ -431,7 +431,7 @@ class MBTIApplication {
         try {
             uiManager.closeModal('subscription');
         } catch (error) {
-            loggerManager.appError('Error closing subscription modal:', error);
+            console.error('Error closing subscription modal:', error);
         }
     }
 
@@ -463,7 +463,7 @@ class MBTIApplication {
             this.updateSubscriptionTiers();
             this.updateSubscriptionInfo();
         } catch (error) {
-            loggerManager.appError('Error updating subscription modal:', error);
+            console.error('Error updating subscription modal:', error);
         }
     }
 
@@ -491,7 +491,7 @@ class MBTIApplication {
                 }
             }
         } catch (error) {
-            loggerManager.appError('Error updating subscription tiers:', error);
+            console.error('Error updating subscription tiers:', error);
         }
     }
 
@@ -521,7 +521,7 @@ class MBTIApplication {
                 if (price) price.textContent = '-';
             }
         } catch (error) {
-            loggerManager.appError('Error updating subscription info:', error);
+            console.error('Error updating subscription info:', error);
         }
     }
 
@@ -535,7 +535,7 @@ class MBTIApplication {
                 this.showSuccess('Subscription cancelled. You are now on the free plan.');
             }
         } catch (error) {
-            loggerManager.appError('Error cancelling subscription:', error);
+            console.error('Error cancelling subscription:', error);
             this.showError('Failed to cancel subscription');
         }
     }
@@ -550,7 +550,7 @@ class MBTIApplication {
                 this.showSuccess('Premium subscription restored!');
             }
         } catch (error) {
-            loggerManager.appError('Error restoring subscription:', error);
+            console.error('Error restoring subscription:', error);
             this.showError('Failed to restore subscription');
         }
     }
@@ -601,7 +601,7 @@ class MBTIApplication {
                 });
             });
         } catch (error) {
-            loggerManager.appError('Error setting up modal click-outside functionality:', error);
+            console.error('Error setting up modal click-outside functionality:', error);
         }
     }
 }
