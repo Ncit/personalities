@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Russian Specialized Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .quiz-type {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .quiz-type h3 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .option {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            border-left: 3px solid #6c757d;
+        }
+        .dimension {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .weights {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .stats {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест русских специализированных вопросов</h1>
+        
+        <div class="stats">
+            <h3>Статистика</h3>
+            <p>Всего типов тестов: <span id="totalTypes">Загрузка...</span></p>
+            <p>Общее количество вопросов: <span id="totalQuestions">Загрузка...</span></p>
+        </div>
+
+        <div class="controls">
+            <h3>Управление</h3>
+            <label for="quizTypeSelect">Выберите тип теста:</label>
+            <select id="quizTypeSelect">
+                <option value="">Выберите тип...</option>
+            </select>
+            <button onclick="loadQuizType()">Загрузить вопросы</button>
+            <button onclick="loadAllTypes()">Показать все типы</button>
+        </div>
+
+        <div id="questions"></div>
+    </div>
+
+    <script type="module">
+        import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
+
+        // Store the questions globally for access by functions
+        window.MBTI_SPECIALIZED_QUESTIONS_RU = MBTI_SPECIALIZED_QUESTIONS_RU;
+
+        // Initialize the page
+        function initializePage() {
+            const quizTypes = Object.keys(MBTI_SPECIALIZED_QUESTIONS_RU);
+            const select = document.getElementById('quizTypeSelect');
+            
+            // Populate select dropdown
+            quizTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = getQuizTypeDisplayName(type);
+                select.appendChild(option);
+            });
+
+            // Update stats
+            let totalQuestions = 0;
+            quizTypes.forEach(type => {
+                totalQuestions += MBTI_SPECIALIZED_QUESTIONS_RU[type].length;
+            });
+
+            document.getElementById('totalTypes').textContent = quizTypes.length;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+
+            console.log('Russian specialized questions loaded:', MBTI_SPECIALIZED_QUESTIONS_RU);
+            console.log('Available quiz types:', quizTypes);
+        }
+
+        function getQuizTypeDisplayName(type) {
+            const displayNames = {
+                'leadership': 'Лидерство',
+                'communication': 'Коммуникация',
+                'stress': 'Стресс',
+                'learning': 'Обучение',
+                'relationships': 'Отношения',
+                'creativity': 'Творчество',
+                'decision': 'Принятие решений',
+                'teamwork': 'Командная работа',
+                'career': 'Карьера',
+                'conflict': 'Разрешение конфликтов',
+                'motivation': 'Мотивация',
+                'adaptability': 'Адаптивность',
+                'emotional': 'Эмоциональный интеллект',
+                'productivity': 'Продуктивность',
+                'social': 'Социальное взаимодействие'
+            };
+            return displayNames[type] || type;
+        }
+
+        window.loadQuizType = function() {
+            const selectedType = document.getElementById('quizTypeSelect').value;
+            if (!selectedType) {
+                alert('Пожалуйста, выберите тип теста');
+                return;
+            }
+
+            const questions = MBTI_SPECIALIZED_QUESTIONS_RU[selectedType];
+            displayQuestions(questions, selectedType);
+        };
+
+        window.loadAllTypes = function() {
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.innerHTML = '<h2>Все типы тестов</h2>';
+
+            Object.keys(MBTI_SPECIALIZED_QUESTIONS_RU).forEach(type => {
+                const questions = MBTI_SPECIALIZED_QUESTIONS_RU[type];
+                const typeDiv = document.createElement('div');
+                typeDiv.className = 'quiz-type';
+                
+                const typeTitle = document.createElement('h3');
+                typeTitle.textContent = getQuizTypeDisplayName(type) + ` (${questions.length} вопросов)`;
+                typeDiv.appendChild(typeTitle);
+
+                // Show first 3 questions as sample
+                const sampleQuestions = questions.slice(0, 3);
+                sampleQuestions.forEach((question, index) => {
+                    const questionDiv = createQuestionElement(question, index + 1);
+                    typeDiv.appendChild(questionDiv);
+                });
+
+                if (questions.length > 3) {
+                    const moreDiv = document.createElement('div');
+                    moreDiv.innerHTML = `<em>... и еще ${questions.length - 3} вопросов</em>`;
+                    moreDiv.style.color = '#666';
+                    moreDiv.style.fontStyle = 'italic';
+                    typeDiv.appendChild(moreDiv);
+                }
+
+                questionsContainer.appendChild(typeDiv);
+            });
+        };
+
+        function displayQuestions(questions, type) {
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.innerHTML = `<h2>${getQuizTypeDisplayName(type)} - ${questions.length} вопросов</h2>`;
+
+            questions.forEach((question, index) => {
+                const questionDiv = createQuestionElement(question, index + 1);
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        function createQuestionElement(question, number) {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = `Вопрос ${number}: ${question.question}`;
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'options';
+            question.options.forEach((option, optIndex) => {
+                const optionLi = document.createElement('li');
+                optionLi.className = 'option';
+                optionLi.textContent = `${optIndex + 1}. ${option}`;
+                optionsList.appendChild(optionLi);
+            });
+
+            const dimension = document.createElement('div');
+            dimension.className = 'dimension';
+            dimension.textContent = `Измерение: ${question.dimension}`;
+
+            const weights = document.createElement('div');
+            weights.className = 'weights';
+            weights.textContent = `Веса: [${question.weights.join(', ')}]`;
+
+            questionDiv.appendChild(questionText);
+            questionDiv.appendChild(optionsList);
+            questionDiv.appendChild(dimension);
+            questionDiv.appendChild(weights);
+
+            return questionDiv;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html> 

@@ -3,6 +3,7 @@ import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/
 import localizationManager from './src/locales/LocalizationManager.js';
 import { MBTI_QUESTIONS } from './src/data/MainQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
+import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 
 // MBTI Quiz Application
@@ -37,7 +38,9 @@ class MBTIQuiz {
     
     generateSpecializedQuestions() {
         // Each specialized quiz now has 20+ questions
-        return MBTI_SPECIALIZED_QUESTIONS[this.currentQuizType] || MBTI_SPECIALIZED_QUESTIONS['leadership'];
+        const currentLocale = localizationManager.getCurrentLocale();
+        const questions = currentLocale === 'ru' ? MBTI_SPECIALIZED_QUESTIONS_RU : MBTI_SPECIALIZED_QUESTIONS;
+        return questions[this.currentQuizType] || questions['leadership'];
     }
 
     startQuiz() {
