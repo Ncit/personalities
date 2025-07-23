@@ -2143,4 +2143,18 @@ function closeHelpModal() {
 
 // Make help functions available globally
 window.showHelp = showHelp;
-window.closeHelpModal = closeHelpModal; 
+window.closeHelpModal = closeHelpModal;
+
+// Premium Coming Soon Functions
+function notifyWhenAvailable() {
+    // Store user's interest in premium
+    localStorage.setItem('premiumNotificationRequested', 'true');
+    localStorage.setItem('premiumNotificationDate', new Date().toISOString());
+    
+    // Show confirmation message
+    alert('Спасибо! Мы уведомим вас, когда премиум функции станут доступны.');
+    closePremiumModal();
+}
+
+// Make premium functions available globally
+window.notifyWhenAvailable = notifyWhenAvailable; 

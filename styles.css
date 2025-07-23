@@ -1611,6 +1611,65 @@ body {
     text-align: center;
 }
 
+/* Coming Soon Notice */
+.coming-soon-notice {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.coming-soon-notice::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.coming-soon-notice i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+    color: #ffd700;
+}
+
+.coming-soon-notice h3 {
+    margin: 10px 0;
+    font-size: 1.3rem;
+    color: white;
+}
+
+.coming-soon-notice p {
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.premium-coming-soon-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.premium-coming-soon-actions .btn {
+    min-width: 180px;
+}
+
 /* Premium Feature Lock/Blur */
 .premium-locked {
     position: relative;

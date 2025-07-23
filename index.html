@@ -461,17 +461,26 @@
         <div id="premiumModal" class="modal" style="display:none;">
             <div class="modal-content premium-modal-content">
                 <span class="close" onclick="closePremiumModal()">&times;</span>
-                <h2>Разблокировать Премиум функции</h2>
+                <h2><i class="fas fa-clock"></i> Премиум функции - Скоро!</h2>
+                <div class="coming-soon-notice">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Мы работаем над премиум функциями</h3>
+                    <p>Премиум подписка будет доступна в ближайшее время. Вы получите доступ к расширенной аналитике, специализированным тестам и многим другим возможностям.</p>
+                </div>
                 <ul class="premium-benefits-list">
                     <li><i class="fas fa-chart-bar"></i> Расширенные анализы личности</li>
                     <li><i class="fas fa-user-tie"></i> Сравнение с известными личностями</li>
                     <li><i class="fas fa-chart-pie"></i> Визуальная аналитика (графики/диаграммы)</li>
                     <li><i class="fas fa-ban"></i> Без рекламы</li>
                 </ul>
-                <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
-                    <i class="fas fa-unlock"></i> Разблокировать Премиум
-                </button>
-                <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+                <div class="premium-coming-soon-actions">
+                    <button class="btn btn-secondary" onclick="closePremiumModal()">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                    <button class="btn btn-premium" onclick="notifyWhenAvailable()">
+                        <i class="fas fa-bell"></i> Уведомить когда будет доступно
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -511,10 +520,11 @@
                             </div>
                         </div>
 
-                        <div class="tier-card premium-tier">
+                        <div class="tier-card premium-tier coming-soon">
                             <div class="tier-header">
                                 <h4><i class="fas fa-star"></i> Премиум</h4>
                                 <div class="tier-price">40 голосов</div>
+                                <div class="coming-soon-badge">Скоро</div>
                             </div>
                             <ul class="tier-features">
                                 <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
@@ -525,9 +535,9 @@
                                 <li><i class="fas fa-check"></i> Материалы для интерпретации результатов</li>
                                 <li><i class="fas fa-check"></i> Без рекламы</li>
                             </ul>
-                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
-                                <i class="fas fa-upgrade"></i> Обновить до премиум
-                            </button>
+                            <div class="tier-status">
+                                <span class="coming-soon-text">Доступно в ближайшее время</span>
+                            </div>
                         </div>
 
                         <div class="tier-card study-tier coming-soon">
