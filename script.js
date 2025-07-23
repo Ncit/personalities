@@ -2186,13 +2186,16 @@ function showHelp(topic) {
     // Create modal content
     const modalContent = `
         <div class="help-modal-content">
+            <span class="close" onclick="closeHelpModal()">&times;</span>
             <h2>${help.title}</h2>
             <div class="help-content">
                 ${help.content}
             </div>
-            <button class="btn btn-primary" onclick="closeHelpModal()">
-                <i class="fas fa-times"></i> Закрыть
-            </button>
+            <div class="help-modal-actions">
+                <button class="btn btn-primary" onclick="closeHelpModal()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
         </div>
     `;
 
@@ -2209,10 +2212,17 @@ function showHelpModal(content) {
         helpModal.className = 'modal';
         helpModal.style.display = 'none';
         document.body.appendChild(helpModal);
+        
+        // Add click outside to close functionality
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                closeHelpModal();
+            }
+        });
     }
 
     helpModal.innerHTML = content;
-    helpModal.style.display = 'block';
+    helpModal.style.display = 'flex';
     
     // Prevent background scrolling
     document.body.style.overflow = 'hidden';
