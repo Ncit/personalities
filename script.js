@@ -207,6 +207,16 @@ class MBTIQuiz {
                 is_premium: isPremium()
             });
         }
+        
+        // Track VK-specific quiz completion
+        if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+            window.vkBridgeManager.trackVKQuizEvent('completed', {
+                personality_type: personalityType,
+                quiz_type: this.currentQuizType,
+                question_count: this.questions.length,
+                is_premium: isPremium()
+            });
+        }
     }
 
     calculatePersonalityType() {
@@ -2227,6 +2237,60 @@ function notifyWhenAvailable() {
     // Store user's interest in premium
     localStorage.setItem('premiumNotificationRequested', 'true');
     localStorage.setItem('premiumNotificationDate', new Date().toISOString());
+    
+    // Get VK user information if available
+    let vkUserInfo = null;
+    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+        vkUserInfo = window.vkBridgeManager.getUserData();
+    }
+    
+    // Track notification request to Firebase Analytics
+    if (window.firebaseAnalytics) {
+        const eventParameters = {
+            notification_type: 'premium_coming_soon',
+            timestamp: new Date().toISOString()
+        };
+        
+        // Add VK user information if available
+        if (vkUserInfo && vkUserInfo.id) {
+            eventParameters.vk_user_id = vkUserInfo.id.toString();
+            eventParameters.vk_username = vkUserInfo.screen_name || `user_${vkUserInfo.id}`;
+            eventParameters.vk_platform = true;
+            
+            // Set user properties for VK users
+            window.firebaseAnalytics.setUserProperties({
+                vk_user_id: vkUserInfo.id.toString(),
+                vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
+                vk_first_name: vkUserInfo.first_name || '',
+                vk_last_name: vkUserInfo.last_name || '',
+                vk_has_photo: !!vkUserInfo.photo_100,
+                vk_platform: true,
+                user_type: 'vk_user',
+                premium_notification_requested: true
+            });
+            
+            // Set user ID for VK users
+            window.firebaseAnalytics.setUserId(vkUserInfo.id.toString());
+            
+            console.log('VK User ID saved to Firebase Analytics:', vkUserInfo.id);
+        } else {
+            eventParameters.vk_platform = false;
+            eventParameters.user_type = 'standalone_user';
+        }
+        
+        // Log the notification request event
+        window.firebaseAnalytics.logEvent('premium_notification_requested', eventParameters);
+        
+        console.log('Premium notification request tracked:', eventParameters);
+    }
+    
+    // Track VK-specific event if in VK environment
+    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+        window.vkBridgeManager.trackVKEvent('premium_notification_requested', {
+            user_id: vkUserInfo?.id || null,
+            notification_type: 'premium_coming_soon'
+        });
+    }
     
     // Show confirmation message
     alert('Спасибо! Мы уведомим вас, когда премиум функции станут доступны.');

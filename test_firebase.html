@@ -12,6 +12,7 @@
     <button onclick="testAnalytics()">Test Analytics Event</button>
     <button onclick="testError()">Test Error Logging</button>
     <button onclick="testPageView()">Test Page View</button>
+    <button onclick="testVKUserID()">Test VK User ID</button>
     
     <div id="status"></div>
 
@@ -148,6 +149,48 @@
                 alert('Page view event logged successfully!');
             } else {
                 alert('Failed to log page view event.');
+            }
+        }
+
+        function testVKUserID() {
+            // Simulate VK user data
+            const mockVKUser = {
+                id: 123456789,
+                screen_name: 'test_vk_user',
+                first_name: 'Test',
+                last_name: 'User',
+                photo_100: 'https://vk.com/test.jpg'
+            };
+            
+            // Test setting user properties
+            if (window.firebaseAnalytics) {
+                const userProperties = {
+                    vk_user_id: mockVKUser.id.toString(),
+                    vk_username: mockVKUser.screen_name,
+                    vk_first_name: mockVKUser.first_name,
+                    vk_last_name: mockVKUser.last_name,
+                    vk_has_photo: !!mockVKUser.photo_100,
+                    vk_platform: true,
+                    user_type: 'vk_user'
+                };
+                
+                // Set user properties
+                window.firebaseAnalytics.setUserProperties(userProperties);
+                
+                // Set user ID
+                window.firebaseAnalytics.setUserId(mockVKUser.id.toString());
+                
+                // Log test event
+                window.firebaseAnalytics.logEvent('vk_user_test', {
+                    user_id: mockVKUser.id.toString(),
+                    test_type: 'user_id_setting'
+                });
+                
+                document.getElementById('status').innerHTML += '<p style="color: green;">✅ VK User ID test completed</p>';
+                alert('VK User ID test completed! Check Firebase Console for user properties.');
+            } else {
+                document.getElementById('status').innerHTML += '<p style="color: red;">❌ Firebase Analytics not available</p>';
+                alert('Firebase Analytics not available for VK User ID test.');
             }
         }
     </script>

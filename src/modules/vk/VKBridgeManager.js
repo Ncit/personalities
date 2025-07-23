@@ -1,15 +1,15 @@
 /**
  * VK Bridge Manager
  * Handles VK Mini Apps integration and platform-specific functionality
+ * Enhanced with Firebase Analytics tracking
  */
-
-
 
 export class VKBridgeManager {
     constructor() {
         this.bridge = null;
         this.isVKPlatform = false;
         this.userInfo = null;
+        this.vkEvents = [];
         this.init();
     }
 
@@ -21,12 +21,20 @@ export class VKBridgeManager {
             console.log('Initializing VK Bridge Manager...');
             console.log('VK Bridge available:', typeof window.vkBridge !== 'undefined');
             
+            // Track VK initialization attempt
+            this.trackVKEvent('vk_bridge_init_attempted', {
+                bridge_available: typeof window.vkBridge !== 'undefined'
+            });
+            
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
                 this.isVKPlatform = true;
                 
                 console.log('VK Bridge detected - running in VK environment');
+                
+                // Track successful VK detection
+                this.trackVKEvent('vk_environment_detected');
                 
                 // Apply VK-specific styles
                 this.applyVKStyles();
@@ -40,6 +48,9 @@ export class VKBridgeManager {
                 await this.bridge.send('VKWebAppInit');
                 console.log('VKWebAppInit sent');
                 
+                // Track VK app initialization
+                this.trackVKEvent('vk_app_initialized');
+                
                 // Get user info
                 await this.getUserInfo();
                 
@@ -47,13 +58,25 @@ export class VKBridgeManager {
                 await this.configureAppearance();
                 
                 console.log('VK Bridge initialized successfully');
+                
+                // Track successful initialization
+                this.trackVKEvent('vk_bridge_init_success');
             } else {
                 console.log('VK Bridge not available - running in standalone mode');
                 this.isVKPlatform = false;
+                
+                // Track standalone mode
+                this.trackVKEvent('vk_standalone_mode');
             }
         } catch (error) {
             console.error('Error initializing VK Bridge:', error);
             this.isVKPlatform = false;
+            
+            // Track initialization error
+            this.trackVKEvent('vk_bridge_init_error', {
+                error_message: error.message,
+                error_stack: error.stack
+            });
         }
     }
 
@@ -106,9 +129,89 @@ export class VKBridgeManager {
     }
 
     /**
+     * Track VK events to Firebase Analytics
+     */
+    trackVKEvent(eventName, parameters = {}) {
+        try {
+            // Add VK-specific context
+            const enhancedParameters = {
+                ...parameters,
+                vk_platform: this.isVKPlatform,
+                vk_user_id: this.userInfo?.id || null,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Log to Firebase Analytics if available
+            if (window.firebaseAnalytics) {
+                window.firebaseAnalytics.logEvent(eventName, enhancedParameters);
+            }
+            
+            // Store event locally for debugging
+            this.vkEvents.push({
+                event: eventName,
+                parameters: enhancedParameters,
+                timestamp: new Date().toISOString()
+            });
+            
+            console.log('VK Event tracked:', eventName, enhancedParameters);
+        } catch (error) {
+            console.warn('Failed to track VK event:', error);
+        }
+    }
+
+    /**
+     * Set VK user properties in Firebase Analytics
+     */
+    setVKUserProperties(userInfo) {
+        try {
+            if (window.firebaseAnalytics && userInfo) {
+                const userProperties = {
+                    vk_user_id: userInfo.id?.toString(),
+                    vk_username: userInfo.screen_name || `user_${userInfo.id}`,
+                    vk_first_name: userInfo.first_name || '',
+                    vk_last_name: userInfo.last_name || '',
+                    vk_has_photo: !!userInfo.photo_100,
+                    vk_platform: this.isVKPlatform,
+                    user_type: 'vk_user'
+                };
+                
+                // Set user properties
+                window.firebaseAnalytics.setUserProperties(userProperties);
+                
+                // Set user ID
+                window.firebaseAnalytics.setUserId(userInfo.id?.toString());
+                
+                // Track user ID setting event
+                this.trackVKEvent('vk_user_id_set', {
+                    user_id: userInfo.id?.toString(),
+                    username: userInfo.screen_name || `user_${userInfo.id}`,
+                    has_photo: !!userInfo.photo_100
+                });
+                
+                console.log('VK User properties set:', userProperties);
+                console.log('VK User ID saved to Firebase Analytics:', userInfo.id);
+            }
+        } catch (error) {
+            console.warn('Failed to set VK user properties:', error);
+            
+            // Track the error
+            this.trackVKEvent('vk_user_properties_error', {
+                error_message: error.message,
+                user_id: userInfo?.id?.toString()
+            });
+        }
+    }
+
+    /**
      * Handle bridge events
      */
     handleBridgeEvent(type, data) {
+        // Track all bridge events
+        this.trackVKEvent('vk_bridge_event', {
+            event_type: type,
+            event_data: JSON.stringify(data)
+        });
+        
         switch (type) {
             case 'VKWebAppUpdateConfig':
                 this.handleConfigUpdate(data);
@@ -124,6 +227,10 @@ export class VKBridgeManager {
                 break;
             default:
                 console.log('Unhandled bridge event:', type, data);
+                this.trackVKEvent('vk_unhandled_bridge_event', {
+                    event_type: type,
+                    event_data: JSON.stringify(data)
+                });
         }
     }
 
@@ -131,14 +238,38 @@ export class VKBridgeManager {
      * Get user information
      */
     async getUserInfo() {
-        if (!this.bridge) return null;
+        if (!this.bridge) {
+            this.trackVKEvent('vk_get_user_info_failed', {
+                reason: 'bridge_not_available'
+            });
+            return null;
+        }
         
         try {
+            this.trackVKEvent('vk_get_user_info_attempted');
+            
             const result = await this.bridge.send('VKWebAppGetUserInfo');
             this.userInfo = result;
+            
+            // Track successful user info retrieval
+            this.trackVKEvent('vk_user_info_retrieved', {
+                user_id: result.id,
+                has_username: !!result.screen_name,
+                has_photo: !!result.photo_100
+            });
+            
+            // Set user properties in Firebase Analytics
+            this.setVKUserProperties(result);
+            
             return result;
         } catch (error) {
             console.error('Error getting user info:', error);
+            
+            this.trackVKEvent('vk_get_user_info_error', {
+                error_message: error.message,
+                error_type: error.error_type || 'unknown'
+            });
+            
             return null;
         }
     }
@@ -185,6 +316,16 @@ export class VKBridgeManager {
     handleUserInfo(data) {
         this.userInfo = data;
         console.log('User info received:', data);
+        
+        // Track user info received via bridge event
+        this.trackVKEvent('vk_user_info_received', {
+            user_id: data.id,
+            has_username: !!data.screen_name,
+            has_photo: !!data.photo_100
+        });
+        
+        // Set user properties in Firebase Analytics
+        this.setVKUserProperties(data);
     }
 
     /**
@@ -199,8 +340,14 @@ export class VKBridgeManager {
      * Share results using VK sharing
      */
     async shareResults(personalityType, shareText) {
+        this.trackVKEvent('vk_share_attempted', {
+            personality_type: personalityType,
+            bridge_available: !!this.bridge
+        });
+        
         if (!this.bridge) {
             // Fallback to native sharing
+            this.trackVKEvent('vk_share_fallback_native');
             return this.fallbackShare(shareText);
         }
 
@@ -210,8 +357,18 @@ export class VKBridgeManager {
                 title: 'MBTI Personality Quiz Results',
                 text: shareText
             });
+            
+            this.trackVKEvent('vk_share_success', {
+                personality_type: personalityType
+            });
         } catch (error) {
             console.error('Error sharing via VK:', error);
+            
+            this.trackVKEvent('vk_share_error', {
+                error_message: error.message,
+                personality_type: personalityType
+            });
+            
             return this.fallbackShare(shareText);
         }
     }
@@ -273,10 +430,20 @@ export class VKBridgeManager {
      * Show order box for premium features
      */
     async showOrderBox() {
+        this.trackVKEvent('vk_payment_attempted', {
+            bridge_available: !!this.bridge,
+            vk_platform: this.isVKPlatform
+        });
+        
         // Development mode - simulate payment if not in VK environment
         if (!this.bridge || !this.isVKPlatform) {
             console.log('Development mode: Simulating payment success');
             await this.showNotification('Режим разработки: Премиум активирован!');
+            
+            this.trackVKEvent('vk_payment_development_mode', {
+                success: true
+            });
+            
             return { success: true, status: 'success', developmentMode: true };
         }
         
@@ -292,10 +459,18 @@ export class VKBridgeManager {
                     if (premiumData.success && premiumData.data.isPremium) {
                         // User is already premium
                         await this.showNotification('У вас уже есть премиум доступ!');
+                        
+                        this.trackVKEvent('vk_payment_already_premium', {
+                            user_id: userInfo.id
+                        });
+                        
                         return { success: true, alreadyPremium: true };
                     }
                 } catch (error) {
                     console.warn('Could not check premium status:', error);
+                    this.trackVKEvent('vk_premium_status_check_error', {
+                        error_message: error.message
+                    });
                 }
             }
 
@@ -306,9 +481,24 @@ export class VKBridgeManager {
             });
             
             console.log('Order box result:', result);
+            
+            // Track payment result
+            this.trackVKEvent('vk_payment_result', {
+                success: result.status === 'success',
+                status: result.status,
+                user_id: userInfo?.id
+            });
+            
             return result;
         } catch (error) {
             console.error('Error showing order box:', error);
+            
+            // Track payment error
+            this.trackVKEvent('vk_payment_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_message: error.message
+            });
             
             // Handle specific VK errors
             if (error.error_type === 'client_error') {
@@ -317,20 +507,31 @@ export class VKBridgeManager {
                         console.error('Order configuration error. Please check VK App settings.');
                         await this.showNotification('Ошибка настройки платежей. Обратитесь к администратору.');
                         
+                        this.trackVKEvent('vk_payment_config_error');
+                        
                         // In development, simulate success after error
                         if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
                             console.log('Development mode: Simulating payment success after error');
                             await this.showNotification('Режим разработки: Премиум активирован!');
+                            
+                            this.trackVKEvent('vk_payment_development_fallback');
+                            
                             return { success: true, status: 'success', developmentMode: true };
                         }
                         break;
                     case 14:
                         console.error('User denied payment');
                         await this.showNotification('Платеж был отменен.');
+                        
+                        this.trackVKEvent('vk_payment_user_denied');
                         break;
                     default:
                         console.error('VK payment error:', error.error_data);
                         await this.showNotification('Ошибка платежа. Попробуйте позже.');
+                        
+                        this.trackVKEvent('vk_payment_unknown_error', {
+                            error_code: error.error_data?.error_code
+                        });
                 }
             }
             
@@ -493,6 +694,32 @@ export class VKBridgeManager {
     }
 
     /**
+     * Get VK analytics data
+     */
+    getVKAnalyticsData() {
+        return {
+            isVKPlatform: this.isVKPlatform,
+            userInfo: this.userInfo,
+            events: this.vkEvents,
+            totalEvents: this.vkEvents.length,
+            lastEvent: this.vkEvents[this.vkEvents.length - 1]
+        };
+    }
+
+    /**
+     * Track VK-specific quiz events
+     */
+    trackVKQuizEvent(eventName, parameters = {}) {
+        const enhancedParameters = {
+            ...parameters,
+            platform: 'vk',
+            user_id: this.userInfo?.id || null
+        };
+        
+        this.trackVKEvent(`vk_quiz_${eventName}`, enhancedParameters);
+    }
+
+    /**
      * Close VK app
      */
     async closeApp() {
@@ -597,19 +824,34 @@ export class VKBridgeManager {
      * Show banner ad
      */
     async showBannerAd() {
+        this.trackVKEvent('vk_banner_ad_attempted', {
+            bridge_available: !!this.bridge,
+            vk_platform: this.isVKPlatform
+        });
+        
         try {
             if (this.bridge && this.isVKPlatform) {
                 await this.bridge.send('VKWebAppShowBannerAd', {
                     banner_location: 'bottom'
                 });
                 console.log('Banner ad shown');
+                
+                this.trackVKEvent('vk_banner_ad_shown');
                 return true;
             } else {
                 console.log('Banner ad not available - not in VK environment');
+                
+                this.trackVKEvent('vk_banner_ad_not_available', {
+                    reason: 'not_vk_environment'
+                });
                 return false;
             }
         } catch (error) {
             console.error('Error showing banner ad:', error);
+            
+            this.trackVKEvent('vk_banner_ad_error', {
+                error_message: error.message
+            });
             return false;
         }
     }
@@ -637,17 +879,32 @@ export class VKBridgeManager {
      * Show interstitial ad
      */
     async showInterstitialAd() {
+        this.trackVKEvent('vk_interstitial_ad_attempted', {
+            bridge_available: !!this.bridge,
+            vk_platform: this.isVKPlatform
+        });
+        
         try {
             if (this.bridge && this.isVKPlatform) {
                 await this.bridge.send('VKWebAppShowInterstitialAd');
                 console.log('Interstitial ad shown');
+                
+                this.trackVKEvent('vk_interstitial_ad_shown');
                 return true;
             } else {
                 console.log('Interstitial ad not available - not in VK environment');
+                
+                this.trackVKEvent('vk_interstitial_ad_not_available', {
+                    reason: 'not_vk_environment'
+                });
                 return false;
             }
         } catch (error) {
             console.error('Error showing interstitial ad:', error);
+            
+            this.trackVKEvent('vk_interstitial_ad_error', {
+                error_message: error.message
+            });
             return false;
         }
     }
@@ -656,17 +913,39 @@ export class VKBridgeManager {
      * Show rewarded ad
      */
     async showRewardedAd() {
+        this.trackVKEvent('vk_rewarded_ad_attempted', {
+            bridge_available: !!this.bridge,
+            vk_platform: this.isVKPlatform
+        });
+        
         try {
             if (this.bridge && this.isVKPlatform) {
                 const result = await this.bridge.send('VKWebAppShowRewardedAd');
                 console.log('Rewarded ad result:', result);
+                
+                this.trackVKEvent('vk_rewarded_ad_result', {
+                    result: result.result,
+                    reward_type: result.reward_type,
+                    reward_amount: result.reward_amount
+                });
+                
                 return result;
             } else {
                 console.log('Rewarded ad not available - not in VK environment');
+                
+                this.trackVKEvent('vk_rewarded_ad_not_available', {
+                    reason: 'not_vk_environment'
+                });
+                
                 return { result: 'not_available' };
             }
         } catch (error) {
             console.error('Error showing rewarded ad:', error);
+            
+            this.trackVKEvent('vk_rewarded_ad_error', {
+                error_message: error.message
+            });
+            
             return { result: 'error', error: error.message };
         }
     }

@@ -135,6 +135,13 @@ class MBTIApplication {
             // Log to Firebase Analytics
             firebaseAnalytics.logQuizEvent('started', stateManager.getCurrentQuizType());
             
+            // Track VK-specific quiz events
+            if (this.vkBridgeManager && this.vkBridgeManager.isVKEnvironment()) {
+                this.vkBridgeManager.trackVKQuizEvent('started', {
+                    quiz_type: stateManager.getCurrentQuizType()
+                });
+            }
+            
         } catch (error) {
             console.error(localizationManager.get('console.errorStartingQuiz'), error);
             firebaseAnalytics.logError(error, { context: 'start_quiz' });
@@ -159,6 +166,13 @@ class MBTIApplication {
             
             // Log to Firebase Analytics
             firebaseAnalytics.logQuizEvent('started', quizType);
+            
+            // Track VK-specific quiz events
+            if (this.vkBridgeManager && this.vkBridgeManager.isVKEnvironment()) {
+                this.vkBridgeManager.trackVKQuizEvent('premium_started', {
+                    quiz_type: quizType
+                });
+            }
             
         } catch (error) {
             console.error(localizationManager.get('console.errorStartingQuizType'), error);
