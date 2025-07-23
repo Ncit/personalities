@@ -1982,6 +1982,9 @@ window.stopBannerAdTimer = stopBannerAdTimer;
 
 // Help Functions
 function showHelp(topic) {
+    // Prevent scrolling of the main page
+    event.preventDefault();
+    
     const helpContent = {
         'how-to-test': {
             title: 'Как пройти тест',
@@ -2123,6 +2126,9 @@ function showHelpModal(content) {
 
     helpModal.innerHTML = content;
     helpModal.style.display = 'block';
+    
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
 }
 
 function closeHelpModal() {
@@ -2130,6 +2136,9 @@ function closeHelpModal() {
     if (helpModal) {
         helpModal.style.display = 'none';
     }
+    
+    // Restore background scrolling
+    document.body.style.overflow = 'auto';
 }
 
 // Make help functions available globally
