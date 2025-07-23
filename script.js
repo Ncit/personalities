@@ -1887,7 +1887,7 @@ function restoreSubscription() {
 }
 
 function contactSupport() {
-    alert('Для связи с поддержкой отправьте email на: nikitafeshchun@yandex.ru');
+    alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
 }
 
 function viewBillingHistory() {
