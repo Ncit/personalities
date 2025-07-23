@@ -214,20 +214,20 @@ export class QuizEngine {
 
     async generateMBTIQuestions(isPremium) {
         // Import questions from separate data file
-        const { MBTI_QUESTIONS } = await import('../../data/MBTIQuestions.js');
+        const { MBTI_QUESTIONS } = await import('../../data/MainQuiz.js');
         
         if (isPremium) {
-            return MBTI_QUESTIONS.full; // 60 questions
+            return MBTI_QUESTIONS; // Full questions
         } else {
-            return MBTI_QUESTIONS.free; // 20 questions
+            return MBTI_QUESTIONS.slice(0, 20); // First 20 questions for free users
         }
     }
 
     async generateSpecializedQuestions(quizType) {
         // Import specialized questions from separate data file
-        const { SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuestions.js');
+        const { MBTI_SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuiz.js');
         
-        return SPECIALIZED_QUESTIONS[quizType] || [];
+        return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
     }
 
     // Utility methods

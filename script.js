@@ -54,6 +54,14 @@ class MBTIQuiz {
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'flex';
         this.displayQuestion();
+        
+        // Log to Firebase Analytics
+        if (window.firebaseAnalytics) {
+            window.firebaseAnalytics.logEvent('quiz_started', {
+                quiz_type: this.currentQuizType,
+                question_count: this.questions.length
+            });
+        }
     }
 
     displayQuestion() {
@@ -188,6 +196,16 @@ class MBTIQuiz {
             setTimeout(() => {
                 showInterstitialAd();
             }, 2000); // Show after 2 seconds
+        }
+        
+        // Log to Firebase Analytics
+        if (window.firebaseAnalytics) {
+            window.firebaseAnalytics.logEvent('quiz_completed', {
+                personality_type: personalityType,
+                quiz_type: this.currentQuizType,
+                question_count: this.questions.length,
+                is_premium: isPremium()
+            });
         }
     }
 
@@ -537,34 +555,77 @@ function setPremium(val) {
 }
 
 function openPremiumModal() {
-    document.getElementById('premiumModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    document.getElementById('premiumUnlockMsg').textContent = '';
+    const premiumModal = document.getElementById('premiumModal');
+    if (premiumModal) {
+        premiumModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Clear any previous unlock message
+    const unlockMsg = document.getElementById('premiumUnlockMsg');
+    if (unlockMsg) {
+        unlockMsg.textContent = '';
+        unlockMsg.style.display = 'none';
+    }
+    
+    // Log to Firebase Analytics
+    if (window.firebaseAnalytics) {
+        window.firebaseAnalytics.logEvent('premium_modal_opened', {
+            app_state: getCurrentAppState()
+        });
+    }
 }
 
 function closePremiumModal() {
-    document.getElementById('premiumModal').style.display = 'none';
-    document.body.style.overflow = '';
+    const premiumModal = document.getElementById('premiumModal');
+    if (premiumModal) {
+        premiumModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    // Log to Firebase Analytics
+    if (window.firebaseAnalytics) {
+        window.firebaseAnalytics.logEvent('premium_modal_closed', {
+            app_state: getCurrentAppState()
+        });
+    }
 }
 
 function unlockPremium() {
+    const unlockMsg = document.getElementById('premiumUnlockMsg');
+    
     if (getCurrentAppState() == 'development') {
         setPremium(true);
-        document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+        if (unlockMsg) {
+            unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+            unlockMsg.style.display = 'block';
+        } else {
+            console.log('🎉 Премиум доступ открыт!');
+        }
     } else {
         // Use VK Bridge for payments if available
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
             vkBridgeManager.showOrderBox().then((result) => {
                 if (result && result.status === 'success') {
                     setPremium(true);
-                    document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+                    if (unlockMsg) {
+                        unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                        unlockMsg.style.display = 'block';
+                    } else {
+                        console.log('🎉 Премиум доступ открыт!');
+                    }
                     completePremiumUnlock();
                 }
             }).catch((error) => {
                 console.error('Payment error:', error);
                 // Fallback to development mode
                 setPremium(true);
-                document.getElementById('premiumUnlockMsg').textContent = '🎉 Премиум доступ открыт!';
+                if (unlockMsg) {
+                    unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                    unlockMsg.style.display = 'block';
+                } else {
+                    console.log('🎉 Премиум доступ открыт!');
+                }
                 completePremiumUnlock();
             });
             return;
@@ -573,6 +634,14 @@ function unlockPremium() {
     setTimeout(() => {
         completePremiumUnlock();
     }, 1200);
+    
+    // Log to Firebase Analytics
+    if (window.firebaseAnalytics) {
+        window.firebaseAnalytics.logEvent('premium_unlock_attempted', {
+            app_state: getCurrentAppState(),
+            vk_environment: vkBridgeManager && vkBridgeManager.isVKEnvironment()
+        });
+    }
 }
 
 function completePremiumUnlock() {
@@ -1577,6 +1646,14 @@ function startQuizType(quizType) {
     } else {
         // If welcome content not found, just start the quiz
         quiz.startQuiz();
+    }
+    
+    // Log to Firebase Analytics
+    if (window.firebaseAnalytics) {
+        window.firebaseAnalytics.logEvent('premium_quiz_started', {
+            quiz_type: quizType,
+            is_premium: isPremium()
+        });
     }
 }
 

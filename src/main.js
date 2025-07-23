@@ -8,6 +8,7 @@ import { uiManager } from './modules/ui/UIManager.js';
 import { analyticsEngine } from './modules/analytics/AnalyticsEngine.js';
 import localizationManager from './locales/LocalizationManager.js';
 import { VKBridgeManager } from './modules/vk/VKBridgeManager.js';
+import { firebaseAnalytics, initializeCrashlytics } from './config/firebase.js';
 
 
 class MBTIApplication {
@@ -31,6 +32,9 @@ class MBTIApplication {
             
             console.log(localizationManager.get('console.initStart'));
             
+            // Initialize Firebase Crashlytics
+            initializeCrashlytics();
+            
             // Initialize state from URL
             this.initializeAppState();
             
@@ -43,11 +47,18 @@ class MBTIApplication {
             // Set up development tools
             this.setupDevTools();
             
+            // Log app initialization to Firebase Analytics
+            firebaseAnalytics.logEvent('app_initialized', {
+                app_version: '2.0.0',
+                quiz_type: stateManager.getCurrentQuizType()
+            });
+            
             this.initialized = true;
             console.log(localizationManager.get('console.initSuccess'));
             
         } catch (error) {
             console.error(localizationManager.get('console.initFailed'), error);
+            firebaseAnalytics.logError(error, { context: 'app_initialization' });
             this.showError(localizationManager.get('errors.initFailed'));
         }
     }
@@ -63,15 +74,23 @@ class MBTIApplication {
     }
 
     setupGlobalHandlers() {
-        // Global error handler
+        // Global error handler (Firebase Crashlytics handles this now)
         window.addEventListener('error', (event) => {
             console.error(localizationManager.get('console.globalError'), event.error);
+            firebaseAnalytics.logError(event.error, { 
+                context: 'global_error_handler',
+                error_filename: event.filename,
+                error_lineno: event.lineno
+            });
             this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
-        // Global unhandled promise rejection handler
+        // Global unhandled promise rejection handler (Firebase Crashlytics handles this now)
         window.addEventListener('unhandledrejection', (event) => {
             console.error(localizationManager.get('console.unhandledRejection'), event.reason);
+            firebaseAnalytics.logError(event.reason, { 
+                context: 'unhandled_promise_rejection'
+            });
             this.showError(localizationManager.get('errors.unexpectedError'));
         });
 
@@ -112,8 +131,13 @@ class MBTIApplication {
             if (question) {
                 uiManager.displayCurrentQuestion();
             }
+            
+            // Log to Firebase Analytics
+            firebaseAnalytics.logQuizEvent('started', stateManager.getCurrentQuizType());
+            
         } catch (error) {
             console.error(localizationManager.get('console.errorStartingQuiz'), error);
+            firebaseAnalytics.logError(error, { context: 'start_quiz' });
             this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }
@@ -132,8 +156,13 @@ class MBTIApplication {
             if (question) {
                 uiManager.displayCurrentQuestion();
             }
+            
+            // Log to Firebase Analytics
+            firebaseAnalytics.logQuizEvent('started', quizType);
+            
         } catch (error) {
             console.error(localizationManager.get('console.errorStartingQuizType'), error);
+            firebaseAnalytics.logError(error, { context: 'start_quiz_type', quiz_type: quizType });
             this.showError(localizationManager.get('errors.startQuizFailed'));
         }
     }

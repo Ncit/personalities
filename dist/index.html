@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тест личности MBTI - 16 типов личности</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-Bq2wergW.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script type="module" crossorigin src="/assets/index-DZaU5D9k.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-5z9vRnxt.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
 <body>
     <div class="container">
@@ -620,68 +623,10 @@
     <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
     
     <!-- Firebase Analytics -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAnalytics, logEvent } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
-        import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A",
-            authDomain: "nikitaproject-b0a52.firebaseapp.com",
-            projectId: "nikitaproject-b0a52",
-            storageBucket: "nikitaproject-b0a52.firebasestorage.app",
-            messagingSenderId: "188919966813",
-            appId: "1:188919966813:web:748cc6a6354d672173f1b4",
-            measurementId: "G-TZ5LN0BB9L"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        
-        // Initialize Analytics
-        let analytics = null;
-        try {
-            analytics = getAnalytics(app);
-            console.log('Firebase Analytics initialized in HTML');
-        } catch (error) {
-            console.warn('Firebase Analytics initialization failed in HTML:', error);
-        }
-
-        // Initialize Performance Monitoring
-        let performance = null;
-        try {
-            performance = getPerformance(app);
-            console.log('Firebase Performance initialized in HTML');
-        } catch (error) {
-            console.warn('Firebase Performance initialization failed in HTML:', error);
-        }
-
-        // Make Firebase available globally for fallback
-        window.firebaseAnalytics = {
-            logEvent: (eventName, parameters = {}) => {
-                if (analytics) {
-                    try {
-                        logEvent(analytics, eventName, parameters);
-                        console.log('Analytics event logged from HTML:', eventName, parameters);
-                    } catch (error) {
-                        console.warn('Failed to log analytics event from HTML:', error);
-                    }
-                }
-            }
-        };
-
-        // Log page view
-        if (analytics) {
-            logEvent(analytics, 'page_view', {
-                page_title: document.title,
-                page_location: window.location.href
-            });
-        }
-    </script>
     
-    <script type="module" src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="/assets/polyfills-legacy-CZYE9J3X.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="/assets/index-legacy-Gvl4wD2n.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 </html> 

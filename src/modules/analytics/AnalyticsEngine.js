@@ -3,6 +3,7 @@
  * Manages chart generation, data analysis, and visual reporting
  */
 import { stateManager } from '../core/StateManager.js';
+import { firebaseAnalytics } from '../../config/firebase.js';
 
 export class AnalyticsEngine {
     constructor() {
@@ -61,6 +62,12 @@ export class AnalyticsEngine {
         this.createPieChart(E, I, S, N, T, F, J, P);
         this.createTimelineChart();
         this.createStrengthsChart(E, S, T, J);
+        
+        // Log analytics generation to Firebase
+        firebaseAnalytics.logEvent('analytics_charts_created', {
+            personality_type: results.personalityType,
+            quiz_type: stateManager.getCurrentQuizType()
+        });
     }
 
     // Enhanced Radar Chart
@@ -575,6 +582,42 @@ export class AnalyticsEngine {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
+        });
+    }
+
+    // Track events with Firebase Analytics
+    trackEvent(eventName, parameters = {}) {
+        try {
+            // Add default parameters
+            const enhancedParameters = {
+                ...parameters,
+                quiz_type: stateManager.getCurrentQuizType(),
+                timestamp: new Date().toISOString()
+            };
+            
+            // Log to Firebase Analytics
+            firebaseAnalytics.logEvent(eventName, enhancedParameters);
+            
+            console.log('Event tracked:', eventName, enhancedParameters);
+        } catch (error) {
+            console.warn('Failed to track event:', error);
+        }
+    }
+
+    // Track quiz completion
+    trackQuizCompletion(results) {
+        this.trackEvent('quiz_completed', {
+            personality_type: results.personalityType,
+            total_questions: results.totalQuestions || 0,
+            completion_time: results.completionTime || 0
+        });
+    }
+
+    // Track user interaction
+    trackUserInteraction(action, details = {}) {
+        this.trackEvent('user_interaction', {
+            action,
+            ...details
         });
     }
 }
