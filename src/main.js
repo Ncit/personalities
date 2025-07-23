@@ -565,10 +565,6 @@ class MBTIApplication {
         }
     }
 
-    contactSupport() {
-        alert('For support, please email: personalitiesresearch@mail.ru');
-    }
-
     viewBillingHistory() {
         alert('Billing history will be available in future updates.');
     }

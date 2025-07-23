@@ -1,1 +1,5 @@
 {"code":"ECONNREFUSED","fatal":true,"level":"error","message":"Database connection failed:","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at afterConnectMultiple (node:net:1714:7)","timestamp":"2025-07-23T16:11:49.250Z"}
+{"code":"ECONNREFUSED","fatal":true,"level":"error","message":"Database connection failed:","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at afterConnectMultiple (node:net:1714:7)","timestamp":"2025-07-23T20:08:45.034Z"}
+{"code":"ECONNREFUSED","fatal":true,"level":"error","message":"Database connection failed:","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at afterConnectMultiple (node:net:1714:7)","timestamp":"2025-07-23T20:08:51.177Z"}
+{"level":"info","message":"Database connection successful","timestamp":"2025-07-23T20:10:19.112Z"}
+{"level":"info","message":"Database tables initialized successfully","timestamp":"2025-07-23T20:10:19.149Z"}

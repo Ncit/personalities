@@ -1978,4 +1978,160 @@ window.hideBannerAd = hideBannerAd;
 window.showInterstitialAd = showInterstitialAd;
 window.showRewardedAd = showRewardedAd;
 window.startBannerAdTimer = startBannerAdTimer;
-window.stopBannerAdTimer = stopBannerAdTimer; 
+window.stopBannerAdTimer = stopBannerAdTimer;
+
+// Help Functions
+function showHelp(topic) {
+    const helpContent = {
+        'how-to-test': {
+            title: 'Как пройти тест',
+            content: `
+                <h3>📝 Пошаговая инструкция</h3>
+                <ol>
+                    <li><strong>Выберите тип теста:</strong> MBTI (61 вопрос) или специализированный тест</li>
+                    <li><strong>Отвечайте честно:</strong> Выбирайте тот вариант, который больше соответствует вашему поведению</li>
+                    <li><strong>Не задумывайтесь долго:</strong> Первая реакция обычно самая точная</li>
+                    <li><strong>Завершите тест:</strong> Пройдите все вопросы до конца</li>
+                    <li><strong>Изучите результаты:</strong> Прочитайте описание вашего типа личности</li>
+                </ol>
+                <p><strong>💡 Совет:</strong> Тест можно проходить несколько раз, но рекомендуется делать перерыв между попытками.</p>
+            `
+        },
+        'understanding-results': {
+            title: 'Понимание результатов',
+            content: `
+                <h3>🧠 Что означают результаты</h3>
+                <p>MBTI определяет 4 основные дихотомии:</p>
+                <ul>
+                    <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Откуда вы черпаете энергию</li>
+                    <li><strong>S/N (Сенсорика/Интуиция):</strong> Как вы воспринимаете информацию</li>
+                    <li><strong>T/F (Мышление/Чувство):</strong> Как вы принимаете решения</li>
+                    <li><strong>J/P (Суждение/Восприятие):</strong> Как вы относитесь к внешнему миру</li>
+                </ul>
+                <p><strong>📊 Проценты показывают:</strong> Насколько сильно выражена каждая характеристика в вашей личности.</p>
+            `
+        },
+        'premium-features': {
+            title: 'Премиум функции',
+            content: `
+                <h3>⭐ Что включено в премиум</h3>
+                <ul>
+                    <li><strong>Расширенная аналитика:</strong> Подробные графики и диаграммы</li>
+                    <li><strong>Сравнение с известными личностями:</strong> Узнайте, кто из знаменитостей имеет ваш тип</li>
+                    <li><strong>Специализированные тесты:</strong> 12 дополнительных тестов для разных аспектов личности</li>
+                    <li><strong>Экспорт результатов:</strong> Сохраните результаты в PDF</li>
+                    <li><strong>Без рекламы:</strong> Чистый интерфейс без отвлекающих элементов</li>
+                </ul>
+                <p><strong>💎 Стоимость:</strong> 40 голосов ВКонтакте (≈50 рублей)</p>
+            `
+        },
+        'faq': {
+            title: 'Часто задаваемые вопросы',
+            content: `
+                <h3>❓ FAQ</h3>
+                <div class="faq-item">
+                    <h4>Может ли мой тип измениться со временем?</h4>
+                    <p>Да, тип личности может эволюционировать, особенно в молодом возрасте. Рекомендуется проходить тест раз в 1-2 года.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Почему результаты могут отличаться?</h4>
+                    <p>На результаты влияют настроение, самочувствие и жизненные обстоятельства. Для точности проходите тест в спокойном состоянии.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Какой тест выбрать?</h4>
+                    <p>Начните с основного MBTI теста. Специализированные тесты помогут глубже понять отдельные аспекты личности.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Можно ли отменить премиум подписку?</h4>
+                    <p>Да, подписку можно отменить в любое время через настройки ВКонтакте.</p>
+                </div>
+            `
+        },
+        'about-mbti': {
+            title: 'О MBTI',
+            content: `
+                <h3>📚 Что такое MBTI</h3>
+                <p>MBTI (Myers-Briggs Type Indicator) — это психологический инструмент, основанный на теории типов личности Карла Юнга.</p>
+                <p><strong>История:</strong> Разработан Изабель Бриггс Майерс и Кэтрин Бриггс в 1940-х годах.</p>
+                <p><strong>Научная основа:</strong> Основан на теории психологических типов Юнга и адаптирован для практического применения.</p>
+                <p><strong>Применение:</strong> Используется в образовании, бизнесе, карьерном консультировании и личностном развитии.</p>
+            `
+        },
+        'privacy': {
+            title: 'Конфиденциальность',
+            content: `
+                <h3>🔒 Ваша конфиденциальность</h3>
+                <p>Мы серьезно относимся к защите ваших персональных данных:</p>
+                <ul>
+                    <li>Результаты тестов хранятся только на вашем устройстве</li>
+                    <li>Мы не передаем ваши данные третьим лицам</li>
+                    <li>Используем безопасные методы обработки данных</li>
+                    <li>Вы можете удалить свои данные в любое время</li>
+                </ul>
+                <p><strong>Вопросы по конфиденциальности:</strong> personalitiesresearch@mail.ru</p>
+            `
+        },
+        'terms': {
+            title: 'Условия использования',
+            content: `
+                <h3>📋 Условия использования</h3>
+                <p>Используя наш сервис, вы соглашаетесь с:</p>
+                <ul>
+                    <li>Результаты тестов предназначены только для личного использования</li>
+                    <li>Не используйте результаты для дискриминации</li>
+                    <li>Сервис предоставляется "как есть"</li>
+                    <li>Мы не несем ответственности за решения, принятые на основе результатов</li>
+                </ul>
+                <p><strong>📅 Последнее обновление:</strong> 23 июля 2025</p>
+            `
+        }
+    };
+
+    const help = helpContent[topic];
+    if (!help) {
+        alert('Информация по этому разделу будет добавлена в ближайшее время.');
+        return;
+    }
+
+    // Create modal content
+    const modalContent = `
+        <div class="help-modal-content">
+            <h2>${help.title}</h2>
+            <div class="help-content">
+                ${help.content}
+            </div>
+            <button class="btn btn-primary" onclick="closeHelpModal()">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+        </div>
+    `;
+
+    // Show modal
+    showHelpModal(modalContent);
+}
+
+function showHelpModal(content) {
+    // Create modal if it doesn't exist
+    let helpModal = document.getElementById('helpModal');
+    if (!helpModal) {
+        helpModal = document.createElement('div');
+        helpModal.id = 'helpModal';
+        helpModal.className = 'modal';
+        helpModal.style.display = 'none';
+        document.body.appendChild(helpModal);
+    }
+
+    helpModal.innerHTML = content;
+    helpModal.style.display = 'block';
+}
+
+function closeHelpModal() {
+    const helpModal = document.getElementById('helpModal');
+    if (helpModal) {
+        helpModal.style.display = 'none';
+    }
+}
+
+// Make help functions available globally
+window.showHelp = showHelp;
+window.closeHelpModal = closeHelpModal; 
