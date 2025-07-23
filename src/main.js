@@ -194,19 +194,29 @@ class MBTIApplication {
         uiManager.closeModal('premium');
     }
 
-    unlockPremium() {
+    async unlockPremium() {
         try {
             // Use VK Bridge for payments if available
             if (this.vkBridgeManager && this.vkBridgeManager.isVKEnvironment()) {
-                this.vkBridgeManager.showOrderBox().then((result) => {
-                    if (result && result.status === 'success') {
+                const result = await this.vkBridgeManager.showOrderBox();
+                
+                if (result && result.success) {
+                    if (result.alreadyPremium) {
+                        // User is already premium
                         this.completePremiumUnlock();
+                        return;
                     }
-                }).catch((error) => {
-                    console.error('Payment error:', error);
-                    // Fallback to development mode
-                    this.completePremiumUnlock();
-                });
+                    
+                    // Handle payment result
+                    const paymentResult = await this.vkBridgeManager.handlePaymentResult(result);
+                    if (paymentResult && paymentResult.success) {
+                        this.completePremiumUnlock();
+                        return;
+                    }
+                }
+                
+                // If payment failed or was cancelled, don't unlock premium
+                console.log('Payment was not completed or failed');
                 return;
             }
             

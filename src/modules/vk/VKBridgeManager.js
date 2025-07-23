@@ -273,15 +273,172 @@ export class VKBridgeManager {
      * Show order box for premium features
      */
     async showOrderBox() {
-        if (!this.bridge) return;
+        // Development mode - simulate payment if not in VK environment
+        if (!this.bridge || !this.isVKPlatform) {
+            console.log('Development mode: Simulating payment success');
+            await this.showNotification('Режим разработки: Премиум активирован!');
+            return { success: true, status: 'success', developmentMode: true };
+        }
         
         try {
-            await this.bridge.send('VKWebAppShowOrderBox', {
+            // First, check if the user is already premium
+            const userInfo = await this.getUserInfo();
+            if (userInfo && userInfo.id) {
+                // Check premium status from backend
+                try {
+                    const response = await fetch(`https://javelin-hopeful-goshawk.ngrok-free.app/api/vk/premium-status/${userInfo.id}`);
+                    const premiumData = await response.json();
+                    
+                    if (premiumData.success && premiumData.data.isPremium) {
+                        // User is already premium
+                        await this.showNotification('У вас уже есть премиум доступ!');
+                        return { success: true, alreadyPremium: true };
+                    }
+                } catch (error) {
+                    console.warn('Could not check premium status:', error);
+                }
+            }
+
+            // Show order box with proper configuration
+            const result = await this.bridge.send('VKWebAppShowOrderBox', {
                 type: 'item',
                 item: 'premium_access'
             });
+            
+            console.log('Order box result:', result);
+            return result;
         } catch (error) {
             console.error('Error showing order box:', error);
+            
+            // Handle specific VK errors
+            if (error.error_type === 'client_error') {
+                switch (error.error_data?.error_code) {
+                    case 13:
+                        console.error('Order configuration error. Please check VK App settings.');
+                        await this.showNotification('Ошибка настройки платежей. Обратитесь к администратору.');
+                        
+                        // In development, simulate success after error
+                        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+                            console.log('Development mode: Simulating payment success after error');
+                            await this.showNotification('Режим разработки: Премиум активирован!');
+                            return { success: true, status: 'success', developmentMode: true };
+                        }
+                        break;
+                    case 14:
+                        console.error('User denied payment');
+                        await this.showNotification('Платеж был отменен.');
+                        break;
+                    default:
+                        console.error('VK payment error:', error.error_data);
+                        await this.showNotification('Ошибка платежа. Попробуйте позже.');
+                }
+            }
+            
+            return { success: false, error };
+        }
+    }
+
+    /**
+     * Handle payment result and update user status
+     */
+    async handlePaymentResult(result) {
+        try {
+            if (result && result.status === 'success') {
+                // Payment successful, update user status
+                const userInfo = await this.getUserInfo();
+                if (userInfo && userInfo.id) {
+                    // Update user in backend
+                    await this.updateUserInBackend(userInfo);
+                    
+                    // Check premium status again
+                    const response = await fetch(`https://javelin-hopeful-goshawk.ngrok-free.app/api/vk/premium-status/${userInfo.id}`);
+                    const premiumData = await response.json();
+                    
+                    if (premiumData.success && premiumData.data.isPremium) {
+                        await this.showNotification('Премиум доступ активирован!');
+                        return { success: true, premiumActivated: true };
+                    }
+                }
+            }
+            return { success: false };
+        } catch (error) {
+            console.error('Error handling payment result:', error);
+            return { success: false, error };
+        }
+    }
+
+    /**
+     * Update user information in backend
+     */
+    async updateUserInBackend(userInfo) {
+        try {
+            const response = await fetch('https://javelin-hopeful-goshawk.ngrok-free.app/api/vk/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    vk_user_id: userInfo.id,
+                    username: userInfo.screen_name || `user_${userInfo.id}`,
+                    first_name: userInfo.first_name || '',
+                    last_name: userInfo.last_name || '',
+                    photo_url: userInfo.photo_100 || ''
+                })
+            });
+            
+            const result = await response.json();
+            console.log('User updated in backend:', result);
+            return result;
+        } catch (error) {
+            console.error('Error updating user in backend:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Test payment flow without VK (for development)
+     */
+    async testPaymentFlow() {
+        try {
+            console.log('Testing payment flow in development mode...');
+            
+            // Simulate user info
+            const testUserInfo = {
+                id: 123456,
+                screen_name: 'test_user',
+                first_name: 'Test',
+                last_name: 'User',
+                photo_100: 'https://vk.com/test.jpg'
+            };
+            
+            // Update user in backend
+            await this.updateUserInBackend(testUserInfo);
+            
+            // Simulate premium activation
+            await this.showNotification('Тест: Премиум доступ активирован!');
+            
+            return { success: true, premiumActivated: true, testMode: true };
+        } catch (error) {
+            console.error('Error in test payment flow:', error);
+            return { success: false, error };
+        }
+    }
+
+    /**
+     * Force premium activation (for testing)
+     */
+    async forcePremiumActivation() {
+        try {
+            const userInfo = await this.getUserInfo();
+            if (userInfo && userInfo.id) {
+                await this.updateUserInBackend(userInfo);
+                await this.showNotification('Премиум доступ принудительно активирован!');
+                return { success: true, premiumActivated: true };
+            }
+            return { success: false, error: 'No user info' };
+        } catch (error) {
+            console.error('Error forcing premium activation:', error);
+            return { success: false, error };
         }
     }
 
