@@ -32,6 +32,10 @@ export default defineConfig({
     port: 3001,
     open: true,
     host: true,
+    allowedHosts: [
+      'localhost', // Typically allowed by default
+      '758e0904d7c6.ngrok-free.app' // Add your ngrok host here
+    ]
   },
   preview: {
     port: 4173,
