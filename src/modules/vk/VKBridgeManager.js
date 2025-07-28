@@ -61,12 +61,28 @@ export class VKBridgeManager {
                 
                 // Track successful initialization
                 this.trackVKEvent('vk_bridge_init_success');
+                
+                // Debug VK environment
+                this.debugVKEnvironment();
+                
+                // Test VK error handling (for debugging)
+                setTimeout(() => {
+                    this.testVKErrorHandling();
+                }, 2000);
             } else {
                 console.log('VK Bridge not available - running in standalone mode');
                 this.isVKPlatform = false;
                 
                 // Track standalone mode
                 this.trackVKEvent('vk_standalone_mode');
+                
+                // Debug VK environment
+                this.debugVKEnvironment();
+                
+                // Test VK error handling (for debugging)
+                setTimeout(() => {
+                    this.testVKErrorHandling();
+                }, 2000);
             }
         } catch (error) {
             console.error('Error initializing VK Bridge:', error);
@@ -297,7 +313,21 @@ export class VKBridgeManager {
      * Configure app appearance
      */
     async configureAppearance() {
-        if (!this.bridge) return;
+        // Track appearance configuration attempt
+        this.trackVKEvent('vk_appearance_config_attempted', {
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        if (!this.isVKFeatureSupported('appearance')) {
+            console.log('VK appearance configuration not supported in current environment');
+            
+            // Track fallback usage
+            this.trackVKEvent('vk_appearance_config_fallback', {
+                reason: 'feature_not_supported'
+            });
+            return;
+        }
         
         try {
             await this.bridge.send('VKWebAppSetViewSettings', {
@@ -305,8 +335,21 @@ export class VKBridgeManager {
                 action_bar_color: '#667eea',
                 navigation_bar_color: '#667eea'
             });
+            
+            // Track successful configuration
+            this.trackVKEvent('vk_appearance_config_success');
+            
         } catch (error) {
-            console.error('Error configuring appearance:', error);
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'configureAppearance');
+            
+            // Track configuration error
+            this.trackVKEvent('vk_appearance_config_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                fallback_used: errorResult.fallback
+            });
         }
     }
 
@@ -381,11 +424,16 @@ export class VKBridgeManager {
                 personality_type: personalityType
             });
         } catch (error) {
-            console.error('Error sharing via VK:', error);
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'shareResults');
             
             this.trackVKEvent('vk_share_error', {
                 error_message: error.message,
-                personality_type: personalityType
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                personality_type: personalityType,
+                fallback_used: errorResult.fallback
             });
             
             return this.fallbackShare(shareText);
@@ -421,7 +469,10 @@ export class VKBridgeManager {
             bridge_available: !!this.bridge
         });
         
-        if (this.isVKFeatureSupported('snackbar')) {
+        // Additional safety check: ensure we're actually in VK environment
+        const isActuallyVK = this.isVKPlatform && this.bridge && this.isVKEnvironment();
+        
+        if (this.isVKFeatureSupported('snackbar') && isActuallyVK) {
             try {
                 await this.bridge.send('VKWebAppShowSnackbar', {
                     text: message
@@ -449,12 +500,19 @@ export class VKBridgeManager {
             }
         } else {
             // Not in VK environment or bridge not available, use fallback
-            console.log('VK environment not available, using fallback notification');
+            const fallbackReason = !this.isVKPlatform ? 'not_vk_platform' : 
+                                  !this.bridge ? 'bridge_not_available' : 
+                                  !this.isVKEnvironment() ? 'environment_check_failed' : 'feature_not_supported';
+            
+            console.log(`VK notification not available (${fallbackReason}), using fallback notification`);
             alert(message);
             
             // Track fallback usage
             this.trackVKEvent('vk_notification_fallback', {
-                reason: this.bridge ? 'not_vk_platform' : 'bridge_not_available',
+                reason: fallbackReason,
+                is_vk_platform: this.isVKPlatform,
+                bridge_available: !!this.bridge,
+                is_vk_environment: this.isVKEnvironment(),
                 message_length: message.length
             });
         }
@@ -464,7 +522,21 @@ export class VKBridgeManager {
      * Show community widget
      */
     async showCommunityWidget() {
-        if (!this.bridge) return;
+        // Track community widget attempt
+        this.trackVKEvent('vk_community_widget_attempted', {
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        if (!this.isVKFeatureSupported('community')) {
+            console.log('VK community widget not supported in current environment');
+            
+            // Track fallback usage
+            this.trackVKEvent('vk_community_widget_fallback', {
+                reason: 'feature_not_supported'
+            });
+            return;
+        }
         
         try {
             await this.bridge.send('VKWebAppShowCommunityWidgetPreviewBox', {
@@ -472,8 +544,21 @@ export class VKBridgeManager {
                 type: 'text',
                 code: 'return { title: "Join our community!", text: "Connect with others who share your personality type!" };'
             });
+            
+            // Track successful widget display
+            this.trackVKEvent('vk_community_widget_success');
+            
         } catch (error) {
-            console.error('Error showing community widget:', error);
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'showCommunityWidget');
+            
+            // Track widget error
+            this.trackVKEvent('vk_community_widget_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                fallback_used: errorResult.fallback
+            });
         }
     }
 
@@ -698,7 +783,21 @@ export class VKBridgeManager {
      * Show story box
      */
     async showStoryBox() {
-        if (!this.bridge) return;
+        // Track story box attempt
+        this.trackVKEvent('vk_story_box_attempted', {
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        if (!this.isVKFeatureSupported('story')) {
+            console.log('VK story box not supported in current environment');
+            
+            // Track fallback usage
+            this.trackVKEvent('vk_story_box_fallback', {
+                reason: 'feature_not_supported'
+            });
+            return;
+        }
         
         try {
             await this.bridge.send('VKWebAppShowStoryBox', {
@@ -710,8 +809,21 @@ export class VKBridgeManager {
                     id: 0 // Replace with photo ID
                 }
             });
+            
+            // Track successful story box display
+            this.trackVKEvent('vk_story_box_success');
+            
         } catch (error) {
-            console.error('Error showing story box:', error);
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'showStoryBox');
+            
+            // Track story box error
+            this.trackVKEvent('vk_story_box_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                fallback_used: errorResult.fallback
+            });
         }
     }
 
@@ -719,13 +831,41 @@ export class VKBridgeManager {
      * Get launch parameters
      */
     async getLaunchParams() {
-        if (!this.bridge) return {};
+        // Track launch params attempt
+        this.trackVKEvent('vk_launch_params_attempted', {
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        if (!this.isVKFeatureSupported('launch_params')) {
+            console.log('VK launch params not supported in current environment');
+            
+            // Track fallback usage
+            this.trackVKEvent('vk_launch_params_fallback', {
+                reason: 'feature_not_supported'
+            });
+            return {};
+        }
         
         try {
             const result = await this.bridge.send('VKWebAppGetLaunchParams');
+            
+            // Track successful launch params retrieval
+            this.trackVKEvent('vk_launch_params_success');
+            
             return result;
         } catch (error) {
-            console.error('Error getting launch params:', error);
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'getLaunchParams');
+            
+            // Track launch params error
+            this.trackVKEvent('vk_launch_params_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                fallback_used: errorResult.fallback
+            });
+            
             return {};
         }
     }
@@ -734,29 +874,39 @@ export class VKBridgeManager {
      * Check if running in VK platform
      */
     isVKEnvironment() {
-        // Check multiple indicators of VK environment
-        const vkIndicators = [
-            this.isVKPlatform,
-            typeof window.vkBridge !== 'undefined',
+        // More strict VK environment detection
+        // Primary indicator: isVKPlatform flag (set during initialization)
+        if (this.isVKPlatform) {
+            this.trackVKEvent('vk_environment_check', {
+                method: 'isVKPlatform_flag',
+                result: true
+            });
+            return true;
+        }
+        
+        // Secondary indicators: URL-based detection
+        const urlIndicators = [
             window.location.hostname.includes('vk.com'),
             window.location.hostname.includes('m.vk.com'),
             window.location.search.includes('vk_'),
             document.referrer.includes('vk.com')
         ];
         
-        const isVK = vkIndicators.some(indicator => indicator);
+        const hasVKUrlIndicators = urlIndicators.some(indicator => indicator);
         
         // Track environment check
         this.trackVKEvent('vk_environment_check', {
+            method: 'url_indicators',
             is_vk_platform: this.isVKPlatform,
             bridge_available: typeof window.vkBridge !== 'undefined',
             hostname_contains_vk: window.location.hostname.includes('vk.com'),
             url_has_vk_params: window.location.search.includes('vk_'),
             referrer_contains_vk: document.referrer.includes('vk.com'),
-            final_result: isVK
+            has_vk_url_indicators: hasVKUrlIndicators,
+            final_result: hasVKUrlIndicators
         });
         
-        return isVK;
+        return hasVKUrlIndicators;
     }
 
     /**
@@ -789,10 +939,70 @@ export class VKBridgeManager {
             sharing: this.isVKEnvironment() && !!this.bridge,
             ads: this.isVKEnvironment() && !!this.bridge,
             story: this.isVKEnvironment() && !!this.bridge,
-            community: this.isVKEnvironment() && !!this.bridge
+            community: this.isVKEnvironment() && !!this.bridge,
+            appearance: this.isVKEnvironment() && !!this.bridge,
+            launch_params: this.isVKEnvironment() && !!this.bridge
         };
         
         return supportedFeatures[feature] || false;
+    }
+
+    /**
+     * Test VK error handling
+     */
+    async testVKErrorHandling() {
+        console.log('🧪 Testing VK Error Handling...');
+        
+        // Test notification
+        console.log('Testing showNotification...');
+        await this.showNotification('Test notification - should use fallback in non-VK environment');
+        
+        // Test appearance configuration
+        console.log('Testing configureAppearance...');
+        await this.configureAppearance();
+        
+        // Test community widget
+        console.log('Testing showCommunityWidget...');
+        await this.showCommunityWidget();
+        
+        // Test story box
+        console.log('Testing showStoryBox...');
+        await this.showStoryBox();
+        
+        console.log('✅ VK Error Handling Test Complete');
+        
+        // Track test completion
+        this.trackVKEvent('vk_error_handling_test_completed', {
+            environment: this.isVKEnvironment() ? 'vk' : 'non_vk',
+            platform: this.isVKPlatform ? 'vk_platform' : 'standalone'
+        });
+    }
+
+    /**
+     * Debug VK environment status
+     */
+    debugVKEnvironment() {
+        const debugInfo = {
+            isVKPlatform: this.isVKPlatform,
+            bridgeAvailable: typeof window.vkBridge !== 'undefined',
+            hostname: window.location.hostname,
+            searchParams: window.location.search,
+            referrer: document.referrer,
+            isVKEnvironment: this.isVKEnvironment(),
+            featureSupport: {
+                snackbar: this.isVKFeatureSupported('snackbar'),
+                payment: this.isVKFeatureSupported('payment'),
+                sharing: this.isVKFeatureSupported('sharing'),
+                appearance: this.isVKFeatureSupported('appearance')
+            }
+        };
+        
+        console.log('🔍 VK Environment Debug Info:', debugInfo);
+        
+        // Track debug info
+        this.trackVKEvent('vk_environment_debug', debugInfo);
+        
+        return debugInfo;
     }
 
     /**
