@@ -414,17 +414,49 @@ export class VKBridgeManager {
      * Show notification
      */
     async showNotification(message) {
-        if (this.bridge) {
+        // Track notification attempt
+        this.trackVKEvent('vk_notification_attempted', {
+            message_length: message.length,
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        if (this.isVKFeatureSupported('snackbar')) {
             try {
                 await this.bridge.send('VKWebAppShowSnackbar', {
                     text: message
                 });
-                    } catch (error) {
-            console.error('Error showing snackbar:', error);
-            alert(message);
-        }
+                
+                // Track successful notification
+                this.trackVKEvent('vk_notification_success', {
+                    message_length: message.length
+                });
+            } catch (error) {
+                // Handle VK error gracefully
+                const errorResult = this.handleVKError(error, 'showNotification');
+                
+                // Track notification error
+                this.trackVKEvent('vk_notification_error', {
+                    error_type: error.error_type,
+                    error_code: error.error_data?.error_code,
+                    error_reason: error.error_data?.error_reason,
+                    message_length: message.length,
+                    fallback_used: errorResult.fallback
+                });
+                
+                // Fallback to alert
+                alert(message);
+            }
         } else {
+            // Not in VK environment or bridge not available, use fallback
+            console.log('VK environment not available, using fallback notification');
             alert(message);
+            
+            // Track fallback usage
+            this.trackVKEvent('vk_notification_fallback', {
+                reason: this.bridge ? 'not_vk_platform' : 'bridge_not_available',
+                message_length: message.length
+            });
         }
     }
 
@@ -702,7 +734,29 @@ export class VKBridgeManager {
      * Check if running in VK platform
      */
     isVKEnvironment() {
-        return this.isVKPlatform;
+        // Check multiple indicators of VK environment
+        const vkIndicators = [
+            this.isVKPlatform,
+            typeof window.vkBridge !== 'undefined',
+            window.location.hostname.includes('vk.com'),
+            window.location.hostname.includes('m.vk.com'),
+            window.location.search.includes('vk_'),
+            document.referrer.includes('vk.com')
+        ];
+        
+        const isVK = vkIndicators.some(indicator => indicator);
+        
+        // Track environment check
+        this.trackVKEvent('vk_environment_check', {
+            is_vk_platform: this.isVKPlatform,
+            bridge_available: typeof window.vkBridge !== 'undefined',
+            hostname_contains_vk: window.location.hostname.includes('vk.com'),
+            url_has_vk_params: window.location.search.includes('vk_'),
+            referrer_contains_vk: document.referrer.includes('vk.com'),
+            final_result: isVK
+        });
+        
+        return isVK;
     }
 
     /**
@@ -722,6 +776,58 @@ export class VKBridgeManager {
             events: this.vkEvents,
             totalEvents: this.vkEvents.length,
             lastEvent: this.vkEvents[this.vkEvents.length - 1]
+        };
+    }
+
+    /**
+     * Check if a VK feature is supported
+     */
+    isVKFeatureSupported(feature) {
+        const supportedFeatures = {
+            snackbar: this.isVKEnvironment() && !!this.bridge,
+            payment: this.isVKEnvironment() && !!this.bridge,
+            sharing: this.isVKEnvironment() && !!this.bridge,
+            ads: this.isVKEnvironment() && !!this.bridge,
+            story: this.isVKEnvironment() && !!this.bridge,
+            community: this.isVKEnvironment() && !!this.bridge
+        };
+        
+        return supportedFeatures[feature] || false;
+    }
+
+    /**
+     * Handle VK-specific errors gracefully
+     */
+    handleVKError(error, context = '') {
+        console.error(`VK Error in ${context}:`, error);
+        
+        // Track the error
+        this.trackVKEvent('vk_error', {
+            context: context,
+            error_type: error.error_type,
+            error_code: error.error_data?.error_code,
+            error_reason: error.error_data?.error_reason,
+            error_message: error.message || error.toString(),
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge
+        });
+        
+        // Return appropriate fallback based on error type
+        if (error.error_data?.error_code === 6) {
+            // Unsupported platform error
+            return {
+                success: false,
+                error: 'unsupported_platform',
+                message: 'This feature is only available in VK environment',
+                fallback: true
+            };
+        }
+        
+        return {
+            success: false,
+            error: 'vk_error',
+            message: error.error_data?.error_reason || error.message || 'VK operation failed',
+            fallback: true
         };
     }
 
