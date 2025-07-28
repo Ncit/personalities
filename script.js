@@ -604,15 +604,15 @@ function closePremiumModal() {
 function unlockPremium() {
     const unlockMsg = document.getElementById('premiumUnlockMsg');
     
-    if (getCurrentAppState() == 'development') {
-        setPremium(true);
-        if (unlockMsg) {
-            unlockMsg.textContent = '🎉 Премиум доступ открыт!';
-            unlockMsg.style.display = 'block';
-        } else {
-            console.log('🎉 Премиум доступ открыт!');
-        }
-    } else {
+    // if (getCurrentAppState() == 'development') {
+    //     setPremium(true);
+    //     if (unlockMsg) {
+    //         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+    //         unlockMsg.style.display = 'block';
+    //     } else {
+    //         console.log('🎉 Премиум доступ открыт!');
+    //     }
+    // } else {
         // Use VK Bridge for payments if available
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
             vkBridgeManager.showOrderBox().then((result) => {
@@ -640,7 +640,7 @@ function unlockPremium() {
             });
             return;
         }
-    }
+    // }
     setTimeout(() => {
         completePremiumUnlock();
     }, 1200);
