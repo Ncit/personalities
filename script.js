@@ -2268,19 +2268,42 @@ function notifyWhenAvailable() {
             eventParameters.vk_platform = true;
             
             // Set user properties for VK users
-            window.firebaseAnalytics.setUserProperties({
-                vk_user_id: vkUserInfo.id.toString(),
-                vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
-                vk_first_name: vkUserInfo.first_name || '',
-                vk_last_name: vkUserInfo.last_name || '',
-                vk_has_photo: !!vkUserInfo.photo_100,
-                vk_platform: true,
-                user_type: 'vk_user',
-                premium_notification_requested: true
-            });
+            try {
+                window.firebaseAnalytics.setUserProperties({
+                    vk_user_id: vkUserInfo.id.toString(),
+                    vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
+                    vk_first_name: vkUserInfo.first_name || '',
+                    vk_last_name: vkUserInfo.last_name || '',
+                    vk_has_photo: !!vkUserInfo.photo_100,
+                    vk_platform: true,
+                    user_type: 'vk_user',
+                    premium_notification_requested: true
+                });
+            } catch (error) {
+                console.warn('Failed to set user properties, logging as events instead:', error);
+                // Fallback: log user properties as individual events
+                window.firebaseAnalytics.logEvent('vk_user_properties', {
+                    vk_user_id: vkUserInfo.id.toString(),
+                    vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
+                    vk_first_name: vkUserInfo.first_name || '',
+                    vk_last_name: vkUserInfo.last_name || '',
+                    vk_has_photo: !!vkUserInfo.photo_100,
+                    vk_platform: true,
+                    user_type: 'vk_user',
+                    premium_notification_requested: true
+                });
+            }
             
             // Set user ID for VK users
-            window.firebaseAnalytics.setUserId(vkUserInfo.id.toString());
+            try {
+                window.firebaseAnalytics.setUserId(vkUserInfo.id.toString());
+            } catch (error) {
+                console.warn('Failed to set user ID, logging as event instead:', error);
+                // Fallback: log user ID as an event
+                window.firebaseAnalytics.logEvent('vk_user_id_set', {
+                    vk_user_id: vkUserInfo.id.toString()
+                });
+            }
             
             console.log('VK User ID saved to Firebase Analytics:', vkUserInfo.id);
         } else {

@@ -72,7 +72,7 @@ class VKPaymentService {
         title: item.title,
         price: item.price,
         description: item.description,
-        photo_url: `${process.env.CORS_ORIGIN || 'https://your-domain.com'}/assets/premium-icon.png`,
+        photo_url: 'https://cdn-icons-png.flaticon.com/512/2933/2933116.png',
         item_id: itemId
       };
     } catch (error) {

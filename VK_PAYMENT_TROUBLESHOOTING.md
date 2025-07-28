@@ -55,10 +55,10 @@ npm start
 
 ```bash
 # Test health endpoint
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 
 # Test VK payment endpoint
-curl -X POST http://localhost:3001/api/vk/payment \
+curl -X POST http://localhost:3000/api/vk/payment \
   -H "Content-Type: application/json" \
   -d '{
     "notification_type": "get_item",
@@ -183,13 +183,13 @@ curl "https://api.vk.com/method/apps.get?app_id=oLd3CLhJvflwT0iUYxda&v=5.131"
 ### 2. Test Backend Endpoints
 ```bash
 # Health check
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 
 # Premium features
-curl http://localhost:3001/api/vk/premium-features
+curl http://localhost:3000/api/vk/premium-features
 
 # Premium status
-curl http://localhost:3001/api/vk/premium-status/123456
+curl http://localhost:3000/api/vk/premium-status/123456
 ```
 
 ### 3. Monitor Logs

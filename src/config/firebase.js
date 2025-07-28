@@ -65,10 +65,29 @@ export const firebaseAnalytics = {
   setUserProperties: (properties) => {
     if (analytics) {
       try {
-        setUserProperties(analytics, properties);
-        console.log('Analytics user properties set:', properties);
+        // Check if setUserProperties is available
+        if (typeof setUserProperties === 'function') {
+          setUserProperties(analytics, properties);
+          console.log('Analytics user properties set:', properties);
+        } else {
+          // Fallback: log user properties as custom events
+          Object.entries(properties).forEach(([key, value]) => {
+            this.logEvent('user_property_set', {
+              property_name: key,
+              property_value: value
+            });
+          });
+          console.log('Analytics user properties logged as events:', properties);
+        }
       } catch (error) {
         console.warn('Failed to set analytics user properties:', error);
+        // Fallback: log user properties as custom events
+        Object.entries(properties).forEach(([key, value]) => {
+          this.logEvent('user_property_set', {
+            property_name: key,
+            property_value: value
+          });
+        });
       }
     }
   },

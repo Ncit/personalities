@@ -176,10 +176,29 @@ export class VKBridgeManager {
                 };
                 
                 // Set user properties
-                window.firebaseAnalytics.setUserProperties(userProperties);
+                try {
+                    window.firebaseAnalytics.setUserProperties(userProperties);
+                } catch (error) {
+                    console.warn('Failed to set user properties, logging as events instead:', error);
+                    // Fallback: log user properties as individual events
+                    Object.entries(userProperties).forEach(([key, value]) => {
+                        window.firebaseAnalytics.logEvent('vk_user_property_set', {
+                            property_name: key,
+                            property_value: value
+                        });
+                    });
+                }
                 
                 // Set user ID
-                window.firebaseAnalytics.setUserId(userInfo.id?.toString());
+                try {
+                    window.firebaseAnalytics.setUserId(userInfo.id?.toString());
+                } catch (error) {
+                    console.warn('Failed to set user ID, logging as event instead:', error);
+                    // Fallback: log user ID as an event
+                    window.firebaseAnalytics.logEvent('vk_user_id_set', {
+                        vk_user_id: userInfo.id?.toString()
+                    });
+                }
                 
                 // Track user ID setting event
                 this.trackVKEvent('vk_user_id_set', {
