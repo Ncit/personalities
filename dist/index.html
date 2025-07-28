@@ -476,15 +476,20 @@
                     <li><i class="fas fa-chart-pie"></i> Визуальная аналитика (графики/диаграммы)</li>
                     <li><i class="fas fa-ban"></i> Без рекламы</li>
                 </ul>
-                <div id="premiumUnlockMsg" class="premium-unlock-msg" style="display: none;"></div>
-                <div class="premium-coming-soon-actions">
+                <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
+                    <i class="fas fa-unlock"></i> Разблокировать Премиум
+                </button>
+                <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+
+                <!-- <div id="premiumUnlockMsg" class="premium-unlock-msg" style="display: none;"></div> -->
+                <!-- <div class="premium-coming-soon-actions">
                     <button class="btn btn-secondary" onclick="closePremiumModal()">
                         <i class="fas fa-times"></i> Закрыть
                     </button>
                     <button class="btn btn-premium" onclick="notifyWhenAvailable()">
                         <i class="fas fa-bell"></i> Уведомить когда будет доступно
                     </button>
-                </div>
+                </div> -->
             </div>
         </div>
 
