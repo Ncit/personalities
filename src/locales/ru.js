@@ -17,8 +17,12 @@ export const ru = {
         previousQuestionFailed: 'Не удалось перейти к предыдущему вопросу. Пожалуйста, попробуйте снова.',
         restartQuizFailed: 'Не удалось перезапустить тест. Пожалуйста, попробуйте снова.',
         
-        // Premium-related errors
-        unlockPremiumFailed: 'Не удалось разблокировать премиум. Пожалуйста, попробуйте снова.',
+            // Premium-related errors
+    unlockPremiumFailed: 'Не удалось разблокировать премиум. Пожалуйста, попробуйте снова.',
+    premiumPurchaseFailed: 'Покупка премиума не удалась. Пожалуйста, попробуйте снова.',
+    premiumPurchaseCancelled: 'Покупка премиума была отменена.',
+    premiumRestoreFailed: 'Не удалось восстановить премиум подписку.',
+    premiumNotAvailable: 'Покупка премиума доступна только в среде VK.',
         
         // Results-related errors
         noPreviousResults: 'Предыдущие результаты не найдены.',
@@ -46,6 +50,8 @@ export const ru = {
     // Success Messages
     success: {
         premiumUnlocked: 'Премиум функции разблокированы!',
+        premiumPurchaseSuccess: 'Премиум подписка активирована!',
+        premiumRestored: 'Премиум подписка восстановлена!',
         pdfGenerated: 'PDF успешно создан!',
         resultsCopied: 'Результаты скопированы в буфер обмена!',
         quizCompleted: 'Тест успешно завершен!',

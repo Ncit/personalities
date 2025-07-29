@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK Premium Integration Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        .test-error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+        }
+        .test-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>VK Premium Integration Test</h1>
+        
+        <div class="test-section">
+            <h2>Environment Detection</h2>
+            <button class="test-button" onclick="testEnvironmentDetection()">Test Environment Detection</button>
+            <div id="environmentResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>VK Bridge Manager</h2>
+            <button class="test-button" onclick="testVKBridgeManager()">Test VK Bridge Manager</button>
+            <div id="bridgeResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Premium Purchase</h2>
+            <button class="test-button" onclick="testPremiumPurchase()">Test Premium Purchase</button>
+            <div id="purchaseResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Premium Status Check</h2>
+            <button class="test-button" onclick="testPremiumStatus()">Test Premium Status</button>
+            <div id="statusResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Premium Restore</h2>
+            <button class="test-button" onclick="testPremiumRestore()">Test Premium Restore</button>
+            <div id="restoreResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Premium Modal UI</h2>
+            <button class="test-button" onclick="testPremiumModal()">Test Premium Modal</button>
+            <div id="modalResult"></div>
+        </div>
+    </div>
+
+    <!-- Include VK Bridge SDK for testing -->
+    <script src="https://vk.com/js/api/openapi.js?169"></script>
+    <script>
+        // Mock VK Bridge for testing
+        if (typeof window.vkBridge === 'undefined') {
+            console.log('Mocking VK Bridge for testing...');
+            window.vkBridge = {
+                subscribe: (callback) => {
+                    console.log('VK Bridge subscribe called');
+                },
+                send: async (method, params = {}) => {
+                    console.log('VK Bridge send called:', method, params);
+                    
+                    // Mock responses for different methods
+                    switch (method) {
+                        case 'VKWebAppInit':
+                            return { success: true };
+                        case 'VKWebAppGetUserInfo':
+                            return {
+                                id: 123456789,
+                                first_name: 'Test',
+                                last_name: 'User',
+                                screen_name: 'testuser',
+                                photo_100: 'https://vk.com/images/camera_100.png'
+                            };
+                        case 'VKWebAppOpenPayForm':
+                            // Simulate payment success/failure
+                            const shouldSucceed = Math.random() > 0.3; // 70% success rate
+                            if (shouldSucceed) {
+                                return {
+                                    status: 'success',
+                                    transaction_id: 'txn_' + Date.now(),
+                                    amount: 40,
+                                    currency: 'votes'
+                                };
+                            } else {
+                                return {
+                                    status: 'failed',
+                                    error: 'Insufficient funds'
+                                };
+                            }
+                        default:
+                            return { success: true };
+                    }
+                }
+            };
+        }
+
+        // Test functions
+        async function testEnvironmentDetection() {
+            const resultDiv = document.getElementById('environmentResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing environment detection...</div>';
+            
+            try {
+                const isVK = typeof window.vkBridge !== 'undefined';
+                const hostname = window.location.hostname;
+                const hasVKParams = window.location.search.includes('vk_');
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Environment Detection Results:</strong><br>
+                        VK Bridge Available: ${isVK}<br>
+                        Hostname: ${hostname}<br>
+                        Has VK Params: ${hasVKParams}<br>
+                        User Agent: ${navigator.userAgent.substring(0, 100)}...
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testVKBridgeManager() {
+            const resultDiv = document.getElementById('bridgeResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing VK Bridge Manager...</div>';
+            
+            try {
+                // Import and test VK Bridge Manager
+                const { VKBridgeManager } = await import('./src/modules/vk/VKBridgeManager.js');
+                const vkManager = new VKBridgeManager();
+                
+                // Wait for initialization
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const analyticsData = vkManager.getVKAnalyticsData();
+                const debugInfo = vkManager.debugVKEnvironment();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>VK Bridge Manager Results:</strong><br>
+                        Is VK Platform: ${analyticsData.isVKPlatform}<br>
+                        User Info: ${analyticsData.userInfo ? 'Available' : 'Not available'}<br>
+                        Total Events: ${analyticsData.totalEvents}<br>
+                        Environment Check: ${debugInfo.isVKEnvironment}<br>
+                        Payment Supported: ${vkManager.isVKFeatureSupported('payment')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testPremiumPurchase() {
+            const resultDiv = document.getElementById('purchaseResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing Premium Purchase...</div>';
+            
+            try {
+                const { VKBridgeManager } = await import('./src/modules/vk/VKBridgeManager.js');
+                const vkManager = new VKBridgeManager();
+                
+                // Wait for initialization
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const purchaseResult = await vkManager.purchasePremium();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Premium Purchase Results:</strong><br>
+                        Success: ${purchaseResult.success}<br>
+                        Error: ${purchaseResult.error || 'None'}<br>
+                        Message: ${purchaseResult.message}<br>
+                        Transaction ID: ${purchaseResult.transaction_id || 'None'}<br>
+                        Amount: ${purchaseResult.amount || 'None'}<br>
+                        Currency: ${purchaseResult.currency || 'None'}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testPremiumStatus() {
+            const resultDiv = document.getElementById('statusResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing Premium Status Check...</div>';
+            
+            try {
+                const { VKBridgeManager } = await import('./src/modules/vk/VKBridgeManager.js');
+                const vkManager = new VKBridgeManager();
+                
+                // Wait for initialization
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const statusResult = await vkManager.checkPremiumStatus();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Premium Status Results:</strong><br>
+                        Success: ${statusResult.success}<br>
+                        Is Premium: ${statusResult.isPremium}<br>
+                        Expiry Date: ${statusResult.expiryDate || 'None'}<br>
+                        Message: ${statusResult.message}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testPremiumRestore() {
+            const resultDiv = document.getElementById('restoreResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing Premium Restore...</div>';
+            
+            try {
+                const { VKBridgeManager } = await import('./src/modules/vk/VKBridgeManager.js');
+                const vkManager = new VKBridgeManager();
+                
+                // Wait for initialization
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const restoreResult = await vkManager.restorePremiumPurchase();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Premium Restore Results:</strong><br>
+                        Success: ${restoreResult.success}<br>
+                        Error: ${restoreResult.error || 'None'}<br>
+                        Message: ${restoreResult.message}<br>
+                        Expiry Date: ${restoreResult.expiryDate || 'None'}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testPremiumModal() {
+            const resultDiv = document.getElementById('modalResult');
+            resultDiv.innerHTML = '<div class="test-info">Testing Premium Modal UI...</div>';
+            
+            try {
+                // Create a mock modal for testing
+                const modalHTML = `
+                    <div id="testPremiumModal" class="modal" style="display:block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                        <div class="modal-content premium-modal-content" style="position: relative; background: white; margin: 10% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 10px;">
+                            <span class="close" onclick="document.getElementById('testPremiumModal').style.display='none'">&times;</span>
+                            <h2>Test Premium Modal</h2>
+                            
+                            <ul class="premium-benefits-list">
+                                <li><i class="fas fa-chart-bar"></i> Advanced personality insights</li>
+                                <li><i class="fas fa-user-tie"></i> Comparison to famous personalities</li>
+                                <li><i class="fas fa-chart-pie"></i> Visual analytics (charts/graphs)</li>
+                                <li><i class="fas fa-ban"></i> Ad-free experience</li>
+                            </ul>
+                            
+                            <div id="vkPremiumSection" class="vk-premium-section" style="display: none;">
+                                <div class="vk-premium-info">
+                                    <div class="premium-price">
+                                        <i class="fas fa-coins"></i>
+                                        <span id="premiumPrice">40 votes</span>
+                                    </div>
+                                    <div class="premium-duration">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>1 month</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-premium" id="unlockPremiumBtn">
+                                    <i class="fas fa-unlock"></i> Buy Premium
+                                </button>
+                            </div>
+                            
+                            <div id="standalonePremiumSection" class="standalone-premium-section">
+                                <button class="btn btn-premium" id="unlockPremiumBtnStandalone">
+                                    <i class="fas fa-unlock"></i> Unlock Premium (Demo)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                
+                // Test the UI update logic
+                const vkPremiumSection = document.getElementById('vkPremiumSection');
+                const standalonePremiumSection = document.getElementById('standalonePremiumSection');
+                
+                // Simulate VK environment
+                const isVKEnvironment = typeof window.vkBridge !== 'undefined';
+                
+                if (isVKEnvironment) {
+                    vkPremiumSection.style.display = 'block';
+                    standalonePremiumSection.style.display = 'none';
+                } else {
+                    vkPremiumSection.style.display = 'none';
+                    standalonePremiumSection.style.display = 'block';
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Premium Modal UI Test Results:</strong><br>
+                        VK Environment: ${isVKEnvironment}<br>
+                        VK Section Visible: ${vkPremiumSection.style.display === 'block'}<br>
+                        Standalone Section Visible: ${standalonePremiumSection.style.display === 'block'}<br>
+                        <br>
+                        <em>Modal opened for visual testing. Close it using the X button.</em>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-run environment detection on page load
+        window.addEventListener('load', () => {
+            testEnvironmentDetection();
+        });
+    </script>
+</body>
+</html> 
