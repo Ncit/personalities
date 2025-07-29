@@ -41,8 +41,6 @@
     "vite-bundle-analyzer": "^0.7.0"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
     "firebase": "^12.0.0",
     "jspdf": "^3.0.1"
   },

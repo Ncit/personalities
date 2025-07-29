@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест личности MBTI - 16 типов личности</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-Bq2wergW.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script type="module" crossorigin src="/assets/index-D9XJRv-U.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-O16ZePL_.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-brain"></i> Тест личности MBTI</h1>
+            <p>Откройте свой тип личности с помощью комплексного тестирования 16 типов личности</p>
+            <div class="header-buttons">
+            <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
+                <i class="fas fa-star"></i> Открыть премиум доступ
+            </button>
+                <button class="btn btn-secondary" id="subscriptionBtn" onclick="openSubscriptionModal()" style="margin-left: 10px;">
+                    <i class="fas fa-cog"></i>Виды подписок
+                </button>
+            </div>
+        </header>
+
+        <!-- Quiz Container -->
+        <div class="quiz-container" id="quizContainer">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <h2>Добро пожаловать в тест личности MBTI</h2>
+                    <p id="quizDescription">Этот тест поможет вам определить ваш тип личности по индикатору Майерс-Бриггс (MBTI). Оценка состоит из <span id="questionCount">61</span> вопроса, которые оценивают ваши предпочтения по четырем измерениям:</p>
+                    
+                    <div class="dimensions">
+                        <div class="dimension">
+                            <h3><i class="fas fa-users"></i> Экстраверсия (E) или Интроверсия (I)</h3>
+                            <p>Как вы направляете и получаете энергию</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-eye"></i> Сенсорика (S) или Интуиция (N)</h3>
+                            <p>Как вы воспринимаете информацию</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-balance-scale"></i> Мышление (T) или Чувство (F)</h3>
+                            <p>Как вы принимаете решения</p>
+                        </div>
+                        <div class="dimension">
+                            <h3><i class="fas fa-clock"></i> Суждение (J) или Восприятие (P)</h3>
+                            <p>Как вы подходите к внешнему миру</p>
+                        </div>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-primary btn-center" onclick="startQuiz()">
+                        <i class="fas fa-play"></i> Начать тест
+                    </button>
+                        <button class="btn btn-secondary" onclick="openTypesModal()">
+                        <i class="fas fa-book-open"></i> Просмотреть типы
+                    </button>
+                        <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="display: none;">
+                        <i class="fas fa-history"></i> Посмотреть последние результаты
+                    </button>
+                    </div>
+                    
+                    <!-- Premium Quiz Types -->
+                    <div id="premiumQuizTypes" style="display: none; margin-top: 20px;">
+                        <h3 style="color: #ffd700; margin-bottom: 15px;">
+                            <i class="fas fa-star"></i> Премиум тесты
+                        </h3>
+                        <div class="quiz-types-grid">
+                            <button class="btn btn-premium-quiz" data-quiz-type="leadership" onclick="startQuizType('leadership')">
+                                <i class="fas fa-crown"></i>
+                                <span>Стиль лидерства</span>
+                                <small>Откройте свой подход к лидерству</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="communication" onclick="startQuizType('communication')">
+                                <i class="fas fa-comments"></i>
+                                <span>Стиль общения</span>
+                                <small>Поймите, как вы общаетесь</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="stress" onclick="startQuizType('stress')">
+                                <i class="fas fa-brain"></i>
+                                <span>Реакция на стресс</span>
+                                <small>Узнайте, как вы справляетесь со стрессом</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="learning" onclick="startQuizType('learning')">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Стиль обучения</span>
+                                <small>Найдите свой оптимальный метод обучения</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="relationships" onclick="startQuizType('relationships')">
+                                <i class="fas fa-heart"></i>
+                                <span>Динамика отношений</span>
+                                <small>Изучите свои паттерны отношений</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="creativity" onclick="startQuizType('creativity')">
+                                <i class="fas fa-palette"></i>
+                                <span>Креативность и инновации</span>
+                                <small>Раскройте свой творческий потенциал</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="decision" onclick="startQuizType('decision')">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Принятие решений</span>
+                                <small>Поймите свой процесс принятия решений</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="teamwork" onclick="startQuizType('teamwork')">
+                                <i class="fas fa-users"></i>
+                                <span>Командное сотрудничество</span>
+                                <small>Откройте свои предпочтения ролей в команде</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="career" onclick="startQuizType('career')">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Карьерные предпочтения</span>
+                                <small>Найдите свою идеальную рабочую среду</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="conflict" onclick="startQuizType('conflict')">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Разрешение конфликтов</span>
+                                <small>Узнайте свой стиль разрешения конфликтов</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="motivation" onclick="startQuizType('motivation')">
+                                <i class="fas fa-rocket"></i>
+                                <span>Мотивация и стремление</span>
+                                <small>Откройте, что движет вас вперед</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="adaptability" onclick="startQuizType('adaptability')">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Адаптивность и изменения</span>
+                                <small>Поймите, как вы справляетесь с изменениями</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="emotional" onclick="startQuizType('emotional')">
+                                <i class="fas fa-smile"></i>
+                                <span>Эмоциональный интеллект</span>
+                                <small>Оцените свою эмоциональную осведомленность</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="productivity" onclick="startQuizType('productivity')">
+                                <i class="fas fa-tasks"></i>
+                                <span>Стиль продуктивности</span>
+                                <small>Оптимизируйте свою рабочую эффективность</small>
+                            </button>
+                            <button class="btn btn-premium-quiz" data-quiz-type="social" onclick="startQuizType('social')">
+                                <i class="fas fa-handshake"></i>
+                                <span>Социальное взаимодействие</span>
+                                <small>Изучите свои социальные предпочтения</small>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dev-tools" id="devToolsWelcome" style="display: none; margin-top: 20px;">
+                        <button class="btn btn-dev" onclick="fillAllRandomAnswersFromWelcome()">
+                            <i class="fas fa-dice"></i> Случайные ответы
+                        </button>
+                        <button class="btn btn-dev" onclick="clearLocalStorage()">
+                            <i class="fas fa-trash"></i> Очистить localStorage
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Questions -->
+            <div class="quiz-questions" id="quizQuestions" style="display: none;">
+                <div class="quiz-header">
+                    <button class="btn btn-back" onclick="exitQuiz()">
+                        <i class="fas fa-arrow-left"></i> Выйти из теста
+                    </button>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div class="question-container">
+                    <h3 class="question-text" id="questionText"></h3>
+                    
+                    <div class="options">
+                        <button class="option-btn" onclick="selectOption(1)">
+                            <span class="option-text" id="option1"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(2)">
+                            <span class="option-text" id="option2"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(3)">
+                            <span class="option-text" id="option3"></span>
+                        </button>
+                        <button class="option-btn" onclick="selectOption(4)">
+                            <span class="option-text" id="option4"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left"></i> Предыдущий
+                    </button>
+                    <span class="question-counter" id="questionCounter">1 / 60</span>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>
+                        Следующий <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+            </div>
+
+            <!-- Exit Quiz Confirmation Modal -->
+            <div class="modal" id="exitQuizModal" style="display: none;">
+                <div class="modal-content exit-confirmation">
+                    <div class="exit-confirmation-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Выйти из теста?</h3>
+                    </div>
+                    <p>Вы уверены, что хотите выйти из теста? Ваш прогресс будет потерян.</p>
+                    <div class="exit-confirmation-buttons">
+                        <button class="btn btn-secondary" onclick="closeExitQuizModal()">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmExitQuiz()">
+                            <i class="fas fa-sign-out-alt"></i> Выйти из теста
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="results-screen" id="resultsScreen" style="display: none;">
+                <div class="results-content">
+                    <h2>Ваш тип личности: <span id="personalityType"></span></h2>
+                    <div class="personality-card" id="personalityCard">
+                        <div class="personality-header">
+                            <h3 id="personalityTitle"></h3>
+                            <p id="personalitySubtitle"></p>
+                        </div>
+                        <div class="personality-description" id="personalityDescription"></div>
+                        <div class="personality-traits" id="personalityTraits"></div>
+                    </div>
+
+                    <div class="dimension-breakdown">
+                        <h3>Анализ ваших предпочтений</h3>
+                        <div class="dimension-bars">
+                            <div class="dimension-bar">
+                                <span>Экстраверсия (E)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="eBar"></div>
+                                </div>
+                                <span>Интроверсия (I)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Сенсорика (S)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="sBar"></div>
+                                </div>
+                                <span>Интуиция (N)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Мышление (T)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="tBar"></div>
+                                </div>
+                                <span>Чувство (F)</span>
+                            </div>
+                            <div class="dimension-bar">
+                                <span>Суждение (J)</span>
+                                <div class="bar">
+                                    <div class="bar-fill" id="jBar"></div>
+                                </div>
+                                <span>Восприятие (P)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Premium Features -->
+                    <div class="premium-features">
+                        <!-- Advanced Insights -->
+                        <div class="premium-section" id="advancedInsightsSection">
+                            <div class="premium-locked" id="advancedInsightsLocked">
+                                <h3>Расширенные анализы личности</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Получите глубокий анализ вашего типа личности, включая сильные стороны, области роста, карьерные рекомендации и возможности развития.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-star"></i> Разблокировать расширенные анализы
+                                </button>
+                            </div>
+                            <div class="premium-content" id="advancedInsightsContent" style="display: none;">
+                                <h3><i class="fas fa-chart-bar"></i> Расширенные анализы личности</h3>
+                                <div class="insights-grid">
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-star"></i> Ключевые сильные стороны</h4>
+                                        <div id="strengthsList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-exclamation-triangle"></i> Области роста</h4>
+                                        <div id="weaknessesList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-briefcase"></i> Карьерные рекомендации</h4>
+                                        <div id="careerList"></div>
+                                    </div>
+                                    <div class="insight-card">
+                                        <h4><i class="fas fa-lightbulb"></i> Личностное развитие</h4>
+                                        <div id="developmentList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Analytics -->
+                        <div class="premium-section" id="analyticsSection">
+                            <div class="premium-locked" id="analyticsLocked">
+                                <h3>Визуальная аналитика</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Изучите детальные графики и диаграммы, показывающие ваши личностные измерения и предпочтения.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-chart-pie"></i> Разблокировать аналитику
+                                </button>
+                            </div>
+                            <div class="premium-content" id="analyticsContent" style="display: none;">
+                                <h3><i class="fas fa-chart-pie"></i> Визуальная аналитика</h3>
+                                <div class="analytics-grid">
+                                    <div class="chart-container" data-chart="radar">
+                                        <h4>Радарная диаграмма личности</h4>
+                                        <canvas id="radarChart" width="300" height="300"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h4>Сравнение измерений</h4>
+                                        <canvas id="barChart" width="300" height="200"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h4>Баланс личности</h4>
+                                        <canvas id="balanceChart" width="300" height="200"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h4>Распределение предпочтений</h4>
+                                        <canvas id="pieChart" width="300" height="200"></canvas>
+                                    </div>
+                                    <div class="chart-container" data-chart="timeline">
+                                        <h4>Временная линия личности</h4>
+                                        <canvas id="timelineChart" width="300" height="150"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h4>Анализ сильных сторон</h4>
+                                        <canvas id="strengthsChart" width="300" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Famous Personalities -->
+                        <div class="premium-section" id="famousSection">
+                            <div class="premium-locked" id="famousLocked">
+                                <h3>Известные личности</h3>
+                                <div class="premium-overlay">
+                                    <i class="fas fa-lock lock-icon"></i>
+                                </div>
+                                <p>Откройте известных людей, которые разделяют ваш тип личности, и учитесь на их достижениях.</p>
+                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
+                                    <i class="fas fa-user-tie"></i> Разблокировать известных людей
+                                </button>
+                            </div>
+                            <div class="premium-content" id="famousContent" style="display: none;">
+                                <h3><i class="fas fa-user-tie"></i> Известные личности</h3>
+                                <div class="famous-grid" id="famousGrid"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons btn-container">
+                        <button class="btn btn-secondary" onclick="restartQuiz()">
+                            <i class="fas fa-redo"></i> Пройти тест снова
+                        </button>
+                        <button class="btn btn-primary btn-center" onclick="shareResults()">
+                            <i class="fas fa-share"></i> Поделиться результатами
+                        </button>
+                        <button class="btn btn-secondary" onclick="openTypesModal()">
+                            <i class="fas fa-book-open"></i> Просмотреть типы
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section help-section">
+                    <h3><i class="fas fa-question-circle"></i> Помощь и поддержка</h3>
+                    <div class="help-links">
+                        <a href="#" onclick="showHelp('how-to-test')" class="help-link">
+                            <i class="fas fa-play-circle"></i> Как пройти тест
+                        </a>
+                        <a href="#" onclick="showHelp('understanding-results')" class="help-link">
+                            <i class="fas fa-chart-line"></i> Понимание результатов
+                        </a>
+                        <a href="#" onclick="showHelp('premium-features')" class="help-link">
+                            <i class="fas fa-star"></i> Премиум функции
+                        </a>
+                        <a href="#" onclick="showHelp('faq')" class="help-link">
+                            <i class="fas fa-question"></i> Часто задаваемые вопросы
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section info-section">
+                    <h3><i class="fas fa-info-circle"></i> О проекте</h3>
+                    <p>Тест личности MBTI основан на научно обоснованной типологии Майерс-Бриггс® и помогает лучше понять себя и окружающих.</p>
+                    <div class="footer-links">
+                        <a href="#" onclick="showHelp('about-mbti')">О MBTI</a>
+                        <a href="#" onclick="showHelp('privacy')">Конфиденциальность</a>
+                        <a href="#" onclick="showHelp('terms')">Условия использования</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section contact-section">
+                    <h3><i class="fas fa-address-card"></i> Контакты</h3>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i>personalitiesresearch@mail.ru</p>
+                    </div>
+                    <!-- <div class="social-links">
+                        <a href="https://vk.com/personalitiesquiz" class="social-link"><i class="fab fa-vk"></i></a>
+                        <a href="https://t.me/personalitiesmbti" class="social-link"><i class="fab fa-telegram"></i></a>
+                    </div> -->
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Тест личности MBTI. Основано на рамках индикатора типов Майерс-Бриггс®.</p>
+            </div>
+        </footer>
+
+        <!-- MBTI Types Modal -->
+        <div id="typesModal" class="modal" style="display:none;">
+            <div class="modal-content types-modal-content">
+                <span class="close" onclick="closeTypesModal()">&times;</span>
+                <div class="types-header">
+                    <h2><i class="fas fa-brain"></i> 16 типов личности MBTI</h2>
+                    <p>Изучите различные типы личности и их характеристики</p>
+                </div>
+                <div class="types-filter">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th"></i> Все типы
+                    </button>
+                    <button class="filter-btn" data-filter="analysts">
+                        <i class="fas fa-lightbulb"></i> Аналитики
+                    </button>
+                    <button class="filter-btn" data-filter="diplomats">
+                        <i class="fas fa-heart"></i> Дипломаты
+                    </button>
+                    <button class="filter-btn" data-filter="sentinels">
+                        <i class="fas fa-shield-alt"></i> Стражи
+                    </button>
+                    <button class="filter-btn" data-filter="explorers">
+                        <i class="fas fa-compass"></i> Исследователи
+                    </button>
+                </div>
+                <div id="typesList" class="types-grid"></div>
+            </div>
+        </div>
+
+        <!-- Premium Modal -->
+        <div id="premiumModal" class="modal" style="display:none;">
+            <div class="modal-content premium-modal-content">
+                <span class="close" onclick="closePremiumModal()">&times;</span>
+                <h2><i class="fas fa-clock"></i> Премиум функции - Скоро!</h2>
+                <div class="coming-soon-notice">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Мы работаем над премиум функциями</h3>
+                    <p>Премиум подписка будет доступна в ближайшее время. Вы получите доступ к расширенной аналитике, специализированным тестам и многим другим возможностям.</p>
+                </div>
+                <ul class="premium-benefits-list">
+                    <li><i class="fas fa-chart-bar"></i> Расширенные анализы личности</li>
+                    <li><i class="fas fa-user-tie"></i> Сравнение с известными личностями</li>
+                    <li><i class="fas fa-chart-pie"></i> Визуальная аналитика (графики/диаграммы)</li>
+                    <li><i class="fas fa-ban"></i> Без рекламы</li>
+                </ul>
+                <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
+                    <i class="fas fa-unlock"></i> Разблокировать Премиум
+                </button>
+                <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+
+                <!-- <div id="premiumUnlockMsg" class="premium-unlock-msg" style="display: none;"></div> -->
+                <!-- <div class="premium-coming-soon-actions">
+                    <button class="btn btn-secondary" onclick="closePremiumModal()">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                    <button class="btn btn-premium" onclick="notifyWhenAvailable()">
+                        <i class="fas fa-bell"></i> Уведомить когда будет доступно
+                    </button>
+                </div> -->
+            </div>
+        </div>
+
+        <!-- Subscription Management Modal -->
+        <div id="subscriptionModal" class="modal" style="display:none;">
+            <div class="modal-content subscription-modal-content">
+                <span class="close" onclick="closeSubscriptionModal()">&times;</span>
+                <h2><i class="fas fa-cog"></i> Управление подпиской</h2>
+                
+                <div class="subscription-status">
+                    <div class="status-card">
+                        <h3>Статус подписки</h3>
+                        <div class="status-indicator" id="subscriptionStatus">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Бесплатная версия</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-tiers">
+                    <h3>Доступные планы подписки</h3>
+                    <div class="tiers-grid">
+                        <div class="tier-card free-tier">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-user"></i>Бесплатный доступ</h4>
+                                <div class="tier-price">Бесплатно</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Основные результаты</li>
+                                <li><i class="fas fa-check"></i> Описание типа личности</li>
+                                <li><i class="fas fa-times"></i> Расширенная аналитика</li>
+                                <li><i class="fas fa-times"></i> Премиум тесты</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="current-plan">Текущий план</span>
+                            </div>
+                        </div>
+
+                        <div class="tier-card premium-tier coming-soon">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-star"></i> Премиум</h4>
+                                <div class="tier-price">40 голосов</div>
+                                <div class="coming-soon-badge">Скоро</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Расширенная аналитика</li>
+                                <li><i class="fas fa-check"></i> Премиум тесты (12 типов)</li>
+                                <li><i class="fas fa-check"></i> Сравнение с известными личностями</li>
+                                <li><i class="fas fa-check"></i> Визуальные графики и диаграммы</li>
+                                <li><i class="fas fa-check"></i> Материалы для интерпретации результатов</li>
+                                <li><i class="fas fa-check"></i> Без рекламы</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="coming-soon-text">Доступно в ближайшее время</span>
+                            </div>
+                        </div>
+
+                        <div class="tier-card study-tier coming-soon">
+                            <div class="tier-header">
+                                <h4><i class="fas fa-graduation-cap"></i>Профессиональный</h4>
+                                <div class="tier-price">140 голосов/месяц</div>
+                                <div class="coming-soon-badge">Скоро</div>
+                            </div>
+                            <ul class="tier-features">
+                                <li><i class="fas fa-check"></i> Все функции премиум</li>
+                                <li><i class="fas fa-check"></i> Интерактивные упражнения</li>
+                                <li><i class="fas fa-check"></i> Доступ к сообществу</li>
+                                <li><i class="fas fa-check"></i> Материалы к обучению</li>
+                                <li><i class="fas fa-check"></i> Платформа для проведения тестов</li>
+                            </ul>
+                            <div class="tier-status">
+                                <span class="coming-soon-text">Доступно в ближайшее время</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="subscription-actions">
+                    <div class="action-card">
+                        <h3>Действия с подпиской</h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-premium" onclick="openPremiumModal(); closeSubscriptionModal();">
+                                <i class="fas fa-star"></i> Обновить до премиум
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelSubscription()" id="cancelSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-times"></i> Отменить подписку
+                            </button>
+                            <button class="btn btn-secondary" onclick="restoreSubscription()" id="restoreSubscriptionBtn" style="display: none;">
+                                <i class="fas fa-undo"></i> Восстановить подписку
+                            </button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- <div class="subscription-info">
+                    <div class="info-card">
+                        <h3>Информация о подписке</h3>
+                        <div class="info-item">
+                            <strong>Дата начала:</strong>
+                            <span id="subscriptionStartDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Дата окончания:</strong>
+                            <span id="subscriptionEndDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Следующий платеж:</strong>
+                            <span id="nextPaymentDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Стоимость:</strong>
+                            <span id="subscriptionPrice">-</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="subscription-help">
+                    <h3>Нужна помощь?</h3>
+                    <p>Если у вас есть вопросы по подписке, свяжитесь с нашей службой поддержки:</p>
+                    <div class="help-actions">
+                        <button class="btn btn-secondary" onclick="contactSupport()">
+                            <i class="fas fa-envelope"></i> Связаться с поддержкой
+                        </button>
+                        <!-- <button class="btn btn-secondary" onclick="viewBillingHistory()">
+                            <i class="fas fa-file-invoice"></i> История платежей
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VK Bridge Integration -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
+    
+    <!-- Firebase Analytics -->
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="/assets/polyfills-legacy-CZYE9J3X.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="/assets/index-legacy-C9Dq0h-U.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+</body>
+</html> 
