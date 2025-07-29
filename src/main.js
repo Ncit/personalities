@@ -38,9 +38,6 @@ class MBTIApplication {
             // Initialize state from URL
             this.initializeAppState();
             
-            // Check premium status if in VK environment
-            await this.checkPremiumStatusOnInit();
-            
             // Set up global event handlers
             this.setupGlobalHandlers();
             
@@ -124,121 +121,6 @@ class MBTIApplication {
             uiManager.showDevTools();
         } else {
             uiManager.hideDevTools();
-        }
-    }
-
-    /**
-     * Update premium modal UI based on VK environment
-     */
-    updatePremiumModalUI() {
-        try {
-            const vkPremiumSection = document.getElementById('vkPremiumSection');
-            const standalonePremiumSection = document.getElementById('standalonePremiumSection');
-            
-            if (this.vkBridgeManager && this.vkBridgeManager.isVKFeatureSupported('payment')) {
-                // Show VK premium section
-                if (vkPremiumSection) vkPremiumSection.style.display = 'block';
-                if (standalonePremiumSection) standalonePremiumSection.style.display = 'none';
-                
-                // Update premium product info
-                const premiumProduct = this.vkBridgeManager.getPremiumProductInfo();
-                const priceElement = document.getElementById('premiumPrice');
-                if (priceElement) {
-                    priceElement.textContent = `${premiumProduct.price} ${premiumProduct.currency}`;
-                }
-                
-                console.log('Premium modal updated for VK environment');
-                
-            } else {
-                // Show standalone premium section
-                if (vkPremiumSection) vkPremiumSection.style.display = 'none';
-                if (standalonePremiumSection) standalonePremiumSection.style.display = 'block';
-                
-                console.log('Premium modal updated for standalone environment');
-            }
-            
-        } catch (error) {
-            console.error('Error updating premium modal UI:', error);
-        }
-    }
-
-    /**
-     * Check premium status on app initialization
-     */
-    async checkPremiumStatusOnInit() {
-        try {
-            // Check if we're in VK environment and can check premium status
-            if (this.vkBridgeManager && this.vkBridgeManager.isVKFeatureSupported('payment')) {
-                console.log('Checking premium status in VK environment...');
-                
-                const premiumStatus = await this.vkBridgeManager.checkPremiumStatus();
-                
-                if (premiumStatus.success && premiumStatus.isPremium) {
-                    // User has active premium subscription
-                    console.log('Active premium subscription found:', premiumStatus.expiryDate);
-                    
-                    // Set premium status in state manager
-                    stateManager.setPremium(true);
-                    
-                    // Store premium data
-                    localStorage.setItem('mbti_premium_status', 'true');
-                    if (premiumStatus.expiryDate) {
-                        localStorage.setItem('mbti_premium_expiry', premiumStatus.expiryDate);
-                    }
-                    
-                    // Track premium status check
-                    this.vkBridgeManager.trackVKEvent('premium_status_check_success', {
-                        is_premium: true,
-                        expiry_date: premiumStatus.expiryDate
-                    });
-                    
-                } else {
-                    // No active premium subscription
-                    console.log('No active premium subscription found');
-                    
-                    // Clear premium status
-                    stateManager.setPremium(false);
-                    localStorage.removeItem('mbti_premium_status');
-                    localStorage.removeItem('mbti_premium_expiry');
-                    
-                    // Track premium status check
-                    this.vkBridgeManager.trackVKEvent('premium_status_check_success', {
-                        is_premium: false
-                    });
-                }
-                
-            } else {
-                // Not in VK environment - check local storage for development mode
-                console.log('Not in VK environment, checking local storage for premium status');
-                
-                const localPremiumStatus = localStorage.getItem('mbti_premium_status');
-                const premiumExpiry = localStorage.getItem('mbti_premium_expiry');
-                
-                const isPremium = localPremiumStatus === 'true' && 
-                                (!premiumExpiry || new Date(premiumExpiry) > new Date());
-                
-                stateManager.setPremium(isPremium);
-                
-                if (!isPremium) {
-                    // Clear expired premium status
-                    localStorage.removeItem('mbti_premium_status');
-                    localStorage.removeItem('mbti_premium_expiry');
-                }
-            }
-            
-        } catch (error) {
-            console.error('Error checking premium status on init:', error);
-            
-            // Track error if in VK environment
-            if (this.vkBridgeManager) {
-                this.vkBridgeManager.trackVKEvent('premium_status_check_error', {
-                    error_message: error.message
-                });
-            }
-            
-            // Fallback to local storage check
-            const localPremiumStatus = localStorage.getItem('mbti_premium_status');
-            stateManager.setPremium(localPremiumStatus === 'true');
         }
     }
 
@@ -349,7 +231,6 @@ class MBTIApplication {
 
     openPremiumModal() {
         uiManager.openModal('premium');
-        this.updatePremiumModalUI();
     }
 
     closePremiumModal() {
@@ -358,76 +239,8 @@ class MBTIApplication {
 
     async unlockPremium() {
         try {
-            // Check if we're in VK environment and payment is available
-            if (this.vkBridgeManager && this.vkBridgeManager.isVKFeatureSupported('payment')) {
-                // Show loading state
-                const unlockBtn = document.getElementById('unlockPremiumBtn');
-                const originalText = unlockBtn.innerHTML;
-                unlockBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обработка...';
-                unlockBtn.disabled = true;
-                
-                try {
-                    // Attempt VK premium purchase
-                    const purchaseResult = await this.vkBridgeManager.purchasePremium();
-                    
-                    if (purchaseResult.success) {
-                        // Payment successful - unlock premium
-                        this.completePremiumUnlock();
-                        
-                        // Store premium purchase data
-                        const expiryDate = new Date();
-                        expiryDate.setMonth(expiryDate.getMonth() + 1); // 1 month subscription
-                        
-                        localStorage.setItem('mbti_premium_status', 'true');
-                        localStorage.setItem('mbti_premium_expiry', expiryDate.toISOString());
-                        localStorage.setItem('mbti_premium_transaction', purchaseResult.transaction_id);
-                        
-                        // Show success notification
-                        this.vkBridgeManager.showNotification('Премиум подписка активирована!');
-                        
-                        // Track successful purchase
-                        this.vkBridgeManager.trackVKEvent('premium_purchase_completed', {
-                            transaction_id: purchaseResult.transaction_id,
-                            amount: purchaseResult.amount,
-                            currency: purchaseResult.currency
-                        });
-                        
-                    } else {
-                        // Payment failed or cancelled
-                        if (purchaseResult.error === 'cancelled') {
-                            this.showError('Покупка была отменена');
-                        } else {
-                            this.showError(purchaseResult.message || 'Ошибка при покупке премиума');
-                        }
-                        
-                        // Track failed purchase
-                        this.vkBridgeManager.trackVKEvent('premium_purchase_failed', {
-                            error: purchaseResult.error,
-                            message: purchaseResult.message
-                        });
-                    }
-                    
-                } catch (error) {
-                    console.error('Error during VK premium purchase:', error);
-                    this.showError('Ошибка при обработке платежа');
-                    
-                    // Track error
-                    this.vkBridgeManager.trackVKEvent('premium_purchase_error', {
-                        error_message: error.message
-                    });
-                    
-                } finally {
-                    // Restore button state
-                    unlockBtn.innerHTML = originalText;
-                    unlockBtn.disabled = false;
-                }
-                
-            } else {
-                // Not in VK environment or payment not available - use development/standalone mode
-                console.log('VK payment not available, using development mode');
-                this.completePremiumUnlock();
-            }
-            
+            // Development mode or standalone - directly unlock premium
+            this.completePremiumUnlock();
         } catch (error) {
             console.error(localizationManager.get('console.errorUnlockingPremium'), error);
             this.showError(localizationManager.get('errors.unlockPremiumFailed'));
@@ -756,70 +569,14 @@ class MBTIApplication {
         }
     }
 
-    async restoreSubscription() {
+    restoreSubscription() {
         try {
             const confirmed = confirm('Restore premium subscription?');
             if (confirmed) {
-                // Check if we're in VK environment and can restore purchases
-                if (this.vkBridgeManager && this.vkBridgeManager.isVKFeatureSupported('payment')) {
-                    // Show loading state
-                    const restoreBtn = document.querySelector('[onclick="restoreSubscription()"]');
-                    if (restoreBtn) {
-                        const originalText = restoreBtn.innerHTML;
-                        restoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Восстановление...';
-                        restoreBtn.disabled = true;
-                        
-                        try {
-                            // Attempt to restore premium purchase
-                            const restoreResult = await this.vkBridgeManager.restorePremiumPurchase();
-                            
-                            if (restoreResult.success) {
-                                // Restoration successful
-                                stateManager.setPremium(true);
-                                this.updateSubscriptionModal();
-                                uiManager.updatePremiumUI(true);
-                                
-                                // Show success notification
-                                this.vkBridgeManager.showNotification('Премиум подписка восстановлена!');
-                                
-                                // Track successful restoration
-                                this.vkBridgeManager.trackVKEvent('premium_restore_success', {
-                                    expiry_date: restoreResult.expiryDate
-                                });
-                                
-                            } else {
-                                // No active subscription found
-                                this.showError('Активная премиум подписка не найдена');
-                                
-                                // Track failed restoration
-                                this.vkBridgeManager.trackVKEvent('premium_restore_no_subscription', {
-                                    error: restoreResult.error
-                                });
-                            }
-                            
-                        } catch (error) {
-                            console.error('Error restoring premium subscription:', error);
-                            this.showError('Ошибка при восстановлении подписки');
-                            
-                            // Track error
-                            this.vkBridgeManager.trackVKEvent('premium_restore_error', {
-                                error_message: error.message
-                            });
-                            
-                        } finally {
-                            // Restore button state
-                            restoreBtn.innerHTML = originalText;
-                            restoreBtn.disabled = false;
-                        }
-                    }
-                } else {
-                    // Not in VK environment - use development mode
-                    console.log('VK restore not available, using development mode');
-                    stateManager.setPremium(true);
-                    this.updateSubscriptionModal();
-                    uiManager.updatePremiumUI(true);
-                    this.showSuccess('Premium subscription restored!');
-                }
+                stateManager.setPremium(true);
+                this.updateSubscriptionModal();
+                uiManager.updatePremiumUI(true);
+                this.showSuccess('Premium subscription restored!');
             }
         } catch (error) {
             console.error('Error restoring subscription:', error);

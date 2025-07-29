@@ -17,12 +17,8 @@ export const en = {
         previousQuestionFailed: 'Failed to go to previous question. Please try again.',
         restartQuizFailed: 'Failed to restart quiz. Please try again.',
         
-            // Premium-related errors
-    unlockPremiumFailed: 'Failed to unlock premium. Please try again.',
-    premiumPurchaseFailed: 'Premium purchase failed. Please try again.',
-    premiumPurchaseCancelled: 'Premium purchase was cancelled.',
-    premiumRestoreFailed: 'Failed to restore premium subscription.',
-    premiumNotAvailable: 'Premium purchase is only available in VK environment.',
+        // Premium-related errors
+        unlockPremiumFailed: 'Failed to unlock premium. Please try again.',
         
         // Results-related errors
         noPreviousResults: 'No previous results found.',
@@ -50,8 +46,6 @@ export const en = {
     // Success Messages
     success: {
         premiumUnlocked: 'Premium features unlocked!',
-        premiumPurchaseSuccess: 'Premium subscription activated!',
-        premiumRestored: 'Premium subscription restored!',
         pdfGenerated: 'PDF generated successfully!',
         resultsCopied: 'Results copied to clipboard!',
         quizCompleted: 'Quiz completed successfully!',
