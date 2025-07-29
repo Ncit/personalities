@@ -2005,21 +2005,6 @@ function showInterstitialAd() {
     }
 }
 
-function showRewardedAd() {
-    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-        vkBridgeManager.showRewardedAd().then(result => {
-            if (result.result === 'success') {
-                console.log('Rewarded ad completed successfully');
-                // Give user reward (e.g., unlock premium for 1 hour)
-                setPremium(true);
-                setTimeout(() => setPremium(false), 3600000); // 1 hour
-                alert('Поздравляем! Премиум доступ активирован на 1 час!');
-            } else {
-                console.log('Rewarded ad not completed');
-            }
-        });
-    }
-}
 
 // Auto-show banner ad after 30 seconds on welcome screen
 function startBannerAdTimer() {
@@ -2046,7 +2031,6 @@ function stopBannerAdTimer() {
 window.showBannerAd = showBannerAd;
 window.hideBannerAd = hideBannerAd;
 window.showInterstitialAd = showInterstitialAd;
-window.showRewardedAd = showRewardedAd;
 window.startBannerAdTimer = startBannerAdTimer;
 window.stopBannerAdTimer = stopBannerAdTimer;
 
@@ -2224,94 +2208,3 @@ function closeHelpModal() {
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
-
-// Premium Coming Soon Functions
-function notifyWhenAvailable() {
-    // Store user's interest in premium
-    localStorage.setItem('premiumNotificationRequested', 'true');
-    localStorage.setItem('premiumNotificationDate', new Date().toISOString());
-    
-    // Get VK user information if available
-    let vkUserInfo = null;
-    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-        vkUserInfo = window.vkBridgeManager.getUserData();
-    }
-    
-    // Track notification request to Firebase Analytics
-    if (window.firebaseAnalytics) {
-        const eventParameters = {
-            notification_type: 'premium_coming_soon',
-            timestamp: new Date().toISOString()
-        };
-        
-        // Add VK user information if available
-        if (vkUserInfo && vkUserInfo.id) {
-            eventParameters.vk_user_id = vkUserInfo.id.toString();
-            eventParameters.vk_username = vkUserInfo.screen_name || `user_${vkUserInfo.id}`;
-            eventParameters.vk_platform = true;
-            
-            // Set user properties for VK users
-            try {
-                window.firebaseAnalytics.setUserProperties({
-                    vk_user_id: vkUserInfo.id.toString(),
-                    vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
-                    vk_first_name: vkUserInfo.first_name || '',
-                    vk_last_name: vkUserInfo.last_name || '',
-                    vk_has_photo: !!vkUserInfo.photo_100,
-                    vk_platform: true,
-                    user_type: 'vk_user',
-                    premium_notification_requested: true
-                });
-            } catch (error) {
-                console.warn('Failed to set user properties, logging as events instead:', error);
-                // Fallback: log user properties as individual events
-                window.firebaseAnalytics.logEvent('vk_user_properties', {
-                    vk_user_id: vkUserInfo.id.toString(),
-                    vk_username: vkUserInfo.screen_name || `user_${vkUserInfo.id}`,
-                    vk_first_name: vkUserInfo.first_name || '',
-                    vk_last_name: vkUserInfo.last_name || '',
-                    vk_has_photo: !!vkUserInfo.photo_100,
-                    vk_platform: true,
-                    user_type: 'vk_user',
-                    premium_notification_requested: true
-                });
-            }
-            
-            // Set user ID for VK users
-            try {
-                window.firebaseAnalytics.setUserId(vkUserInfo.id.toString());
-            } catch (error) {
-                console.warn('Failed to set user ID, logging as event instead:', error);
-                // Fallback: log user ID as an event
-                window.firebaseAnalytics.logEvent('vk_user_id_set', {
-                    vk_user_id: vkUserInfo.id.toString()
-                });
-            }
-            
-            console.log('VK User ID saved to Firebase Analytics:', vkUserInfo.id);
-        } else {
-            eventParameters.vk_platform = false;
-            eventParameters.user_type = 'standalone_user';
-        }
-        
-        // Log the notification request event
-        window.firebaseAnalytics.logEvent('premium_notification_requested', eventParameters);
-        
-        console.log('Premium notification request tracked:', eventParameters);
-    }
-    
-    // Track VK-specific event if in VK environment
-    if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-        window.vkBridgeManager.trackVKEvent('premium_notification_requested', {
-            user_id: vkUserInfo?.id || null,
-            notification_type: 'premium_coming_soon'
-        });
-    }
-    
-    // Show confirmation message
-    alert('Спасибо! Мы уведомим вас, когда премиум функции станут доступны.');
-    closePremiumModal();
-}
-
-// Make premium functions available globally
-window.notifyWhenAvailable = notifyWhenAvailable; 

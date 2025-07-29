@@ -991,47 +991,6 @@ export class VKBridgeManager {
             return false;
         }
     }
-
-    /**
-     * Show rewarded ad
-     */
-    async showRewardedAd() {
-        this.trackVKEvent('vk_rewarded_ad_attempted', {
-            bridge_available: !!this.bridge,
-            vk_platform: this.isVKPlatform
-        });
-        
-        try {
-            if (this.bridge && this.isVKPlatform) {
-                const result = await this.bridge.send('VKWebAppShowRewardedAd');
-                console.log('Rewarded ad result:', result);
-                
-                this.trackVKEvent('vk_rewarded_ad_result', {
-                    result: result.result,
-                    reward_type: result.reward_type,
-                    reward_amount: result.reward_amount
-                });
-                
-                return result;
-            } else {
-                console.log('Rewarded ad not available - not in VK environment');
-                
-                this.trackVKEvent('vk_rewarded_ad_not_available', {
-                    reason: 'not_vk_environment'
-                });
-                
-                return { result: 'not_available' };
-            }
-        } catch (error) {
-            console.error('Error showing rewarded ad:', error);
-            
-            this.trackVKEvent('vk_rewarded_ad_error', {
-                error_message: error.message
-            });
-            
-            return { result: 'error', error: error.message };
-        }
-    }
 }
 
 // Create global instance for backward compatibility
