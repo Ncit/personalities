@@ -613,8 +613,36 @@ function unlockPremium() {
     //         console.log('🎉 Премиум доступ открыт!');
     //     }
     // } else {
+        // Use VK Bridge for payments if available
+        if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+            vkBridgeManager.showOrderBox().then((result) => {
+                if (result && result.status === 'success') {
+                    setPremium(true);
+                    if (unlockMsg) {
+                        unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                        unlockMsg.style.display = 'block';
+                    } else {
+                        console.log('🎉 Премиум доступ открыт!');
+                    }
+                    completePremiumUnlock();
+                }
+            }).catch((error) => {
+                console.error('Payment error:', error);
+                // Fallback to development mode
+                // setPremium(true);
+                // if (unlockMsg) {
+                //     unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                //     unlockMsg.style.display = 'block';
+                // } else {
+                //     console.log('🎉 Премиум доступ открыт!');
+                // }
+                // completePremiumUnlock();
+            });
+            return;
+        }
+        
         // Development mode - directly unlock premium
-        setPremium(true);
+        // setPremium(true);
         if (unlockMsg) {
             unlockMsg.textContent = '🎉 Премиум доступ открыт!';
             unlockMsg.style.display = 'block';
