@@ -461,12 +461,14 @@
         <div id="premiumModal" class="modal" style="display:none;">
             <div class="modal-content premium-modal-content">
                 <span class="close" onclick="closePremiumModal()">&times;</span>
-                <h2><i class="fas fa-clock"></i> Премиум функции - Скоро!</h2>
+                <h2>Разблокировать Премиум функции</h2>
+
+                <!-- <h2><i class="fas fa-clock"></i> Премиум функции - Скоро!</h2>
                 <div class="coming-soon-notice">
                     <i class="fas fa-rocket"></i>
                     <h3>Мы работаем над премиум функциями</h3>
                     <p>Премиум подписка будет доступна в ближайшее время. Вы получите доступ к расширенной аналитике, специализированным тестам и многим другим возможностям.</p>
-                </div>
+                </div> -->
                 <ul class="premium-benefits-list">
                     <li><i class="fas fa-chart-bar"></i> Расширенные анализы личности</li>
                     <li><i class="fas fa-user-tie"></i> Сравнение с известными личностями</li>
@@ -524,7 +526,12 @@
                                 <span class="current-plan">Текущий план</span>
                             </div>
                         </div>
-
+                        <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
+                            <i class="fas fa-unlock"></i> Разблокировать Премиум
+                        </button>
+                        <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
+        
+<!-- 
                         <div class="tier-card premium-tier coming-soon">
                             <div class="tier-header">
                                 <h4><i class="fas fa-star"></i> Премиум</h4>
@@ -543,7 +550,7 @@
                             <div class="tier-status">
                                 <span class="coming-soon-text">Доступно в ближайшее время</span>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="tier-card study-tier coming-soon">
                             <div class="tier-header">
