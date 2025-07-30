@@ -22,18 +22,10 @@ export class VKBridgeManager {
      */
     async init() {
         try {
-            // Track VK initialization attempt
-            this.trackVKEvent('vk_bridge_init_attempted', {
-                bridge_available: typeof window.vkBridge !== 'undefined'
-            });
-            
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
                 this.isVKPlatform = true;
-                
-                // Track successful VK detection
-                this.trackVKEvent('vk_environment_detected');
                 
                 // Apply VK-specific styles
                 this.applyVKStyles();
@@ -50,24 +42,6 @@ export class VKBridgeManager {
                 
                 // Get user info
                 await this.getUserInfo();
-                
-                // Check premium status (non-blocking)
-                this.checkPremiumStatus().catch(error => {
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 Premium status check failed (non-blocking):', error);
-                    }
-                });
-                
-                // Configure app appearance (non-blocking)
-                this.configureAppearance().catch(error => {
-                    // Appearance configuration failed, but don't block initialization
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 VK Appearance configuration failed (non-blocking):', error);
-                    }
-                });
-                
-                // Track successful initialization
-                this.trackVKEvent('vk_bridge_init_success');
                 
                 // Debug VK environment
                 this.debugVKEnvironment();
@@ -255,10 +229,10 @@ export class VKBridgeManager {
      */
     handleBridgeEvent(type, data) {
         // Track all bridge events
-        this.trackVKEvent('vk_bridge_event', {
-            event_type: type,
-            event_data: JSON.stringify(data)
-        });
+        // this.trackVKEvent('vk_bridge_event', {
+        //     event_type: type,
+        //     event_data: JSON.stringify(data)
+        // });
         
         switch (type) {
             case 'VKWebAppUpdateConfig':
@@ -275,17 +249,17 @@ export class VKBridgeManager {
                 break;
             case 'VKWebAppShowOrderBoxResult':
                 // Handle order box result - this is the payment result from VK
-                this.trackVKEvent('vk_order_box_result_received', {
-                    success: data.success,
-                    order_id: data.order_id,
-                    request_id: data.request_id
-                });
+                // this.trackVKEvent('vk_order_box_result_received', {
+                //     success: data.success,
+                //     order_id: data.order_id,
+                //     request_id: data.request_id
+                // });
                 break;
             default:
-                this.trackVKEvent('vk_unhandled_bridge_event', {
-                    event_type: type,
-                    event_data: JSON.stringify(data)
-                });
+                // this.trackVKEvent('vk_unhandled_bridge_event', {
+                //     event_type: type,
+                //     event_data: JSON.stringify(data)
+                // });
         }
     }
 
@@ -301,8 +275,6 @@ export class VKBridgeManager {
         }
         
         try {
-            this.trackVKEvent('vk_get_user_info_attempted');
-            
             const result = await this.bridge.send('VKWebAppGetUserInfo');
             this.userInfo = result;
             
@@ -409,19 +381,7 @@ export class VKBridgeManager {
             const premiumTimestamp = localStorage.getItem('mbti_premium_timestamp');
             const subscriptionData = localStorage.getItem('mbti_subscription_data');
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Checking local premium status:', {
-                    mbti_premium_override: premiumOverride,
-                    mbti_premium: premiumFlag,
-                    mbti_premium_timestamp: premiumTimestamp,
-                    mbti_subscription_data: subscriptionData
-                });
-            }
-            
             if (premiumFlag === 'true') {
-                if (window.firebaseAnalyticsDebug) {
-                    console.log('🔥 Premium flag found in localStorage: true');
-                }
                 return true;
             }
             
@@ -429,19 +389,12 @@ export class VKBridgeManager {
             if (subscriptionData) {
                 const subscription = JSON.parse(subscriptionData);
                 if (subscription && subscription.isActive) {
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 Active subscription found in localStorage:', subscription);
-                    }
                     return true;
                 }
             }
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 No premium data found in localStorage');
-            }
             return null; // No local data found
         } catch (error) {
-            console.error('Error reading premium status from localStorage:', error);
             return null;
         }
     }
@@ -451,9 +404,6 @@ export class VKBridgeManager {
      */
     async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 No user ID available for backend premium check');
-            }
             return null;
         }
 
@@ -465,14 +415,6 @@ export class VKBridgeManager {
                 app_id: '53942833',
                 item_id: 'mbti_premium'
             };
-            
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Checking backend premium status:', {
-                    url: url,
-                    method: 'POST',
-                    body: requestBody
-                });
-            }
             
             // Create AbortController for timeout
             const controller = new AbortController();
@@ -490,10 +432,6 @@ export class VKBridgeManager {
             
             clearTimeout(timeoutId);
 
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Backend response status:', response.status, response.statusText);
-            }
-
             if (!response.ok) {
                 // Try to get error details from response
                 let errorDetails = '';
@@ -509,10 +447,6 @@ export class VKBridgeManager {
 
             const data = await response.json();
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Backend premium status response:', data);
-            }
-
             if (data.success && typeof data.has_purchase === 'boolean') {
                 return data.has_purchase;
             } else {
@@ -885,15 +819,6 @@ export class VKBridgeManager {
                     second_error: secondError.error_type
                 });
                 
-                // Log the error details for debugging
-                if (window.firebaseAnalyticsDebug) {
-                    console.log('🔥 VK Appearance Configuration Error Details:', {
-                        first_attempt_error: error,
-                        second_attempt_error: secondError,
-                        bridge_available: !!this.bridge,
-                        is_vk_platform: this.isVKPlatform
-                    });
-                }
             }
         }
     }
@@ -1271,10 +1196,6 @@ export class VKBridgeManager {
         // More strict VK environment detection
         // Primary indicator: isVKPlatform flag (set during initialization)
         if (this.isVKPlatform) {
-            this.trackVKEvent('vk_environment_check', {
-                method: 'isVKPlatform_flag',
-                result: true
-            });
             return true;
         }
         
@@ -1287,18 +1208,6 @@ export class VKBridgeManager {
         ];
         
         const hasVKUrlIndicators = urlIndicators.some(indicator => indicator);
-        
-        // Track environment check
-        this.trackVKEvent('vk_environment_check', {
-            method: 'url_indicators',
-            is_vk_platform: this.isVKPlatform,
-            bridge_available: typeof window.vkBridge !== 'undefined',
-            hostname_contains_vk: window.location.hostname.includes('vk.com'),
-            url_has_vk_params: window.location.search.includes('vk_'),
-            referrer_contains_vk: document.referrer.includes('vk.com'),
-            has_vk_url_indicators: hasVKUrlIndicators,
-            final_result: hasVKUrlIndicators
-        });
         
         return hasVKUrlIndicators;
     }
@@ -1383,15 +1292,6 @@ export class VKBridgeManager {
      * Handle VK-specific errors gracefully
      */
     handleVKError(error, context = '') {
-        // Only log errors in debug mode or for critical contexts
-        const shouldLogError = window.firebaseAnalyticsDebug || 
-                              context === 'init' || 
-                              context === 'getUserInfo' ||
-                              error.error_data?.error_code !== 6; // Don't log unsupported platform errors
-        
-        if (shouldLogError) {
-            console.error(`VK Error in ${context}:`, error);
-        }
         
         // Track the error
         this.trackVKEvent('vk_error', {
@@ -1670,14 +1570,6 @@ export class VKBridgeManager {
         
         try {
             // Log the request for debugging
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Request:', {
-                    product_id: productId,
-                    product_name: productName,
-                    bridge_available: !!this.bridge
-                });
-            }
-            
             const result = await this.bridge.send('VKWebAppShowOrderBox', {
                 type: 'item',
                 item: productId,
@@ -1688,11 +1580,6 @@ export class VKBridgeManager {
                 discount: 0, // Discount percentage
                 currency: 'Голоса'
             });
-            
-            // Log the result for debugging
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Response:', result);
-            }
             
             // Track successful order box display
             this.trackVKEvent('vk_order_box_success', {
@@ -1719,20 +1606,7 @@ export class VKBridgeManager {
                 product_id: productId,
                 fallback_used: errorResult.fallback
             });
-            
-            // Log detailed error information in debug mode
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Error Details:', {
-                    error: error,
-                    error_code: error.error_data?.error_code,
-                    error_reason: error.error_data?.error_reason,
-                    product_id: productId,
-                    product_name: productName,
-                    bridge_available: !!this.bridge,
-                    is_vk_platform: this.isVKPlatform
-                });
-            }
-            
+         
             return errorResult;
         }
     }
@@ -1742,9 +1616,6 @@ export class VKBridgeManager {
      */
     async handleOrderBoxResult(result) {
         // Log the result for debugging
-        if (window.firebaseAnalyticsDebug) {
-            console.log('🔥 VK Order Box Result:', result);
-        }
         
         if (result.success) {
             // Payment successful - VK returns success: true when payment is successful
