@@ -1816,43 +1816,10 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAndShowLastResultsButton();
     
     // Setup modal click-outside-to-close functionality
-setupModalClickOutside();
-
-// Update Firebase debug button appearance
-updateFirebaseDebugButton();
-
-// Premium status check is now handled automatically in VKBridgeManager.init()
-// No need for duplicate check here
-
-// Add global function to manually check premium status
-window.checkPremiumStatus = async () => {
-    if (window.vkBridgeManager) {
-        try {
-            const premiumStatus = await window.vkBridgeManager.checkPremiumStatus();
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Manual premium status check result:', premiumStatus);
-            }
-            
-            // Update UI based on premium status
-            if (premiumStatus.isPremium) {
-                updatePremiumUI();
-                if (window.vkBridgeManager) {
-                    window.vkBridgeManager.showNotification('Премиум статус обновлен!');
-                }
-            } else {
-                if (window.vkBridgeManager) {
-                    window.vkBridgeManager.showNotification('Премиум статус не найден');
-                }
-            }
-            
-            return premiumStatus;
-        } catch (error) {
-            console.error('Error in manual premium status check:', error);
-            return { isPremium: false, source: 'manual_check_error', error: error.message };
-        }
-    }
-    return { isPremium: false, source: 'no_vk_bridge' };
-};
+    setupModalClickOutside();
+    
+    // Update Firebase debug button appearance
+    updateFirebaseDebugButton();
 });
 
 // Initialize the quiz
