@@ -343,9 +343,12 @@ export class VKBridgeManager {
             const localPremiumStatus = this.checkLocalPremiumStatus();
             
             if (localPremiumStatus !== null) {
-                // Local storage has premium status, use it
+                // Local storage has premium status, use it and skip backend request
+                console.log('🔥 Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+                
                 this.trackVKEvent('premium_status_from_local_storage', {
-                    is_premium: localPremiumStatus
+                    is_premium: localPremiumStatus,
+                    backend_request_skipped: true
                 });
                 
                 // Update global premium status
@@ -353,7 +356,7 @@ export class VKBridgeManager {
                 return localPremiumStatus;
             }
 
-            // If no local storage data, check backend
+            // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
                 const backendPremiumStatus = await this.checkBackendPremiumStatus();
                 
