@@ -6,7 +6,7 @@
 
 export class VKBridgeManager {
     // Backend API configuration
-    static BACKEND_BASE_URL = 'https://user6582162-kq5e7yaj.tunnel.vk-apps.com';
+    static BACKEND_BASE_URL = 'https://user6582162-br6365eb.tunnel.vk-apps.com';
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     
     constructor() {
