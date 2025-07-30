@@ -551,12 +551,13 @@ function setupTypeFilters() {
 
 // Premium status logic
 function isPremium() {
-    return localStorage.getItem('mbti_premium') === '1';
+    const premiumValue = localStorage.getItem('mbti_premium');
+    return premiumValue === '1' || premiumValue === 'true';
 }
 
 function setPremium(val) {
     if (val) {
-        localStorage.setItem('mbti_premium', '1');
+        localStorage.setItem('mbti_premium', 'true');
     } else {
         localStorage.removeItem('mbti_premium');
     }
@@ -779,6 +780,13 @@ function completePremiumUnlock() {
 // Update premium UI function to show/hide premium content
 function updatePremiumUI() {
     const isPremiumUser = isPremium();
+    const localStorageValue = localStorage.getItem('mbti_premium');
+    
+    console.log('🔥 updatePremiumUI() called:', {
+        isPremiumUser: isPremiumUser,
+        localStorageValue: localStorageValue,
+        premiumElements: document.querySelectorAll('.premium-locked, .premium-content, .btn-premium').length
+    });
     
     // Update premium-locked elements
     document.querySelectorAll('.premium-locked').forEach(el => {
@@ -801,6 +809,8 @@ function updatePremiumUI() {
     
     // Update quiz description based on premium status
     updateQuizDescription();
+    
+    console.log('🔥 updatePremiumUI() completed. Premium status:', isPremiumUser);
 }
 
 // Function to display advanced insights
