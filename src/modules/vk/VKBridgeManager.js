@@ -555,31 +555,65 @@ export class VKBridgeManager {
     }
 
     /**
+     * Wait for global functions to be available
+     */
+    waitForGlobalFunctions(callback, maxAttempts = 10) {
+        let attempts = 0;
+        
+        const checkFunctions = () => {
+            attempts++;
+            console.log(`🔥 Checking for global functions (attempt ${attempts}/${maxAttempts})`);
+            
+            if (window.setPremium && window.updatePremiumUI) {
+                console.log('🔥 Global functions found, executing callback');
+                callback();
+            } else if (attempts < maxAttempts) {
+                console.log('🔥 Global functions not ready, retrying in 200ms...');
+                setTimeout(checkFunctions, 200);
+            } else {
+                console.warn('🔥 Global functions not available after maximum attempts');
+            }
+        };
+        
+        checkFunctions();
+    }
+
+    /**
      * Update global premium status
      */
     updateGlobalPremiumStatus(isPremium) {
         console.log('🔥 updateGlobalPremiumStatus() called with:', isPremium);
         
-        try {
-            // Update global premium state
-            if (window.setPremium) {
-                console.log('🔥 Calling window.setPremium with:', isPremium);
-                window.setPremium(isPremium);
-            } else {
-                console.warn('🔥 window.setPremium not found');
+        const updateFunctions = () => {
+            try {
+                // Update global premium state
+                if (window.setPremium) {
+                    console.log('🔥 Calling window.setPremium with:', isPremium);
+                    window.setPremium(isPremium);
+                } else {
+                    console.warn('🔥 window.setPremium still not found');
+                }
+                
+                // Update UI if available
+                if (window.updatePremiumUI) {
+                    console.log('🔥 Calling window.updatePremiumUI()');
+                    window.updatePremiumUI();
+                } else {
+                    console.warn('🔥 window.updatePremiumUI still not found');
+                }
+                
+                console.log('🔥 Global premium status updated:', isPremium);
+            } catch (error) {
+                console.error('Error updating global premium status:', error);
             }
-            
-            // Update UI if available
-            if (window.updatePremiumUI) {
-                console.log('🔥 Calling window.updatePremiumUI()');
-                window.updatePremiumUI();
-            } else {
-                console.warn('🔥 window.updatePremiumUI not found');
-            }
-            
-            console.log('🔥 Global premium status updated:', isPremium);
-        } catch (error) {
-            console.error('Error updating global premium status:', error);
+        };
+        
+        // Try immediately first
+        if (window.setPremium && window.updatePremiumUI) {
+            updateFunctions();
+        } else {
+            // Wait for functions to be available
+            this.waitForGlobalFunctions(updateFunctions);
         }
     }
 

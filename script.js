@@ -2107,6 +2107,29 @@ function testUpdatePremiumUI() {
 
 window.testUpdatePremiumUI = testUpdatePremiumUI;
 
+// Function to notify VKBridgeManager that global functions are ready
+function notifyGlobalFunctionsReady() {
+    console.log('🔥 Global functions are ready, notifying VKBridgeManager');
+    
+    // Check if VKBridgeManager exists and has a method to handle this
+    if (window.vkBridgeManager && window.vkBridgeManager.updateGlobalPremiumStatus) {
+        // Get current premium status and update UI
+        const currentPremium = isPremium();
+        console.log('🔥 Current premium status:', currentPremium);
+        
+        // Update global premium status to trigger UI update
+        window.vkBridgeManager.updateGlobalPremiumStatus(currentPremium);
+    }
+}
+
+// Call this when the page is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔥 DOM loaded, checking if global functions are ready');
+    setTimeout(notifyGlobalFunctionsReady, 100);
+});
+
+window.notifyGlobalFunctionsReady = notifyGlobalFunctionsReady;
+
 // Development function to temporarily override premium status for testing
 function overridePremiumStatus(isPremium) {
     if (getCurrentAppState() === 'development') {
