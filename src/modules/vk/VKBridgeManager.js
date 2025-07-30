@@ -817,6 +817,18 @@ export class VKBridgeManager {
             };
         }
         
+        // For order errors (error code 13), provide specific handling
+        if (error.error_data?.error_code === 13 && context === 'showOrderBox') {
+            return {
+                success: false,
+                error: 'order_configuration_error',
+                message: 'Payment configuration error. Please contact support.',
+                fallback: true,
+                order_error: true,
+                error_code: 13
+            };
+        }
+        
         return {
             success: false,
             error: 'vk_error',
@@ -1084,6 +1096,19 @@ export class VKBridgeManager {
                 product_id: productId,
                 fallback_used: errorResult.fallback
             });
+            
+            // Log detailed error information in debug mode
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 VK Order Box Error Details:', {
+                    error: error,
+                    error_code: error.error_data?.error_code,
+                    error_reason: error.error_data?.error_reason,
+                    product_id: productId,
+                    product_name: productName,
+                    bridge_available: !!this.bridge,
+                    is_vk_platform: this.isVKPlatform
+                });
+            }
             
             return errorResult;
         }
