@@ -7,7 +7,6 @@ import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js'
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 
-
 // MBTI Quiz Application
 class MBTIQuiz {
     constructor() {
@@ -610,17 +609,15 @@ function unlockPremium() {
     //         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
     //         unlockMsg.style.display = 'block';
     //     } else {
-    //         console.log('🎉 Премиум доступ открыт!');
-    //     }
+    //         //     }
     // } else {
         // Development mode - directly unlock premium
-        setPremium(true);
+        // setPremium(true);
         if (unlockMsg) {
             unlockMsg.textContent = '🎉 Премиум доступ открыт!';
             unlockMsg.style.display = 'block';
         } else {
-            console.log('🎉 Премиум доступ открыт!');
-        }
+            }
         completePremiumUnlock();
         return;
     // }
@@ -673,8 +670,6 @@ function completePremiumUnlock() {
         vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
     }
 }
-
-
 
 // Update premium UI function to show/hide premium content
 function updatePremiumUI() {
@@ -1369,7 +1364,6 @@ function getCurrentAppState() {
     return getAppStateFromURL();
 }
 
-
 // Function to show/hide development tools
 function updateDevToolsVisibility() {
     const devTools = document.getElementById('devTools');
@@ -1418,8 +1412,7 @@ function fillAllRandomAnswersFromWelcome() {
     quiz.showResults();
     updateDevToolsVisibility();
     updateDevToolsWelcomeVisibility();
-    console.log('Random answers filled from welcome screen!');
-}
+    }
 
 // Update dev tools visibility on mode change
 function updateDevToolsAll() {
@@ -1460,15 +1453,13 @@ function fillRandomAnswers() {
     this.selectedOption = this.answers[this.currentQuestion];
     this.showResults();
     
-    console.log('Random answers filled for testing!');
-}
+    }
 
 // Function to change app state programmatically
 function changeAppState(newState) {
     if (newState === 'development' || newState === 'release') {
         updateURLWithState(newState);
-        console.log(`App state changed to: ${newState}`);
-    }
+        }
 }
 
 // Function to toggle between development and release states
@@ -1697,8 +1688,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         vkBridgeManager = new VKBridgeManager();
         window.vkBridgeManager = vkBridgeManager;
-        console.log('VK Bridge Manager initialized successfully');
-        console.log('VK Platform detected:', vkBridgeManager.isVKEnvironment());
         
         // Start banner ad timer for non-premium users in VK environment
         if (vkBridgeManager.isVKEnvironment() && !isPremium()) {
@@ -1723,9 +1712,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup modal click-outside-to-close functionality
     setupModalClickOutside();
-    
-    // Log current state for debugging
-    console.log(`Current app state: ${getCurrentAppState()}`);
 });
 
 // Initialize the quiz
@@ -1978,8 +1964,7 @@ function showBannerAd() {
         vkBridgeManager.showBannerAd().then(success => {
             if (success) {
                 bannerAdShown = true;
-                console.log('Banner ad displayed successfully');
-            }
+                }
         });
     }
 }
@@ -1989,8 +1974,7 @@ function hideBannerAd() {
         vkBridgeManager.hideBannerAd().then(success => {
             if (success) {
                 bannerAdShown = false;
-                console.log('Banner ad hidden successfully');
-            }
+                }
         });
     }
 }
@@ -1999,12 +1983,10 @@ function showInterstitialAd() {
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         vkBridgeManager.showInterstitialAd().then(success => {
             if (success) {
-                console.log('Interstitial ad displayed successfully');
-            }
+                }
         });
     }
 }
-
 
 // Auto-show banner ad after 30 seconds on welcome screen
 function startBannerAdTimer() {

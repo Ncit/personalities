@@ -21,8 +21,7 @@ const app = initializeApp(firebaseConfig);
 let analytics = null;
 try {
   analytics = getAnalytics(app);
-  console.log('Firebase Analytics initialized successfully');
-} catch (error) {
+  } catch (error) {
   console.warn('Firebase Analytics initialization failed:', error);
 }
 
@@ -30,8 +29,7 @@ try {
 let performance = null;
 try {
   performance = getPerformance(app);
-  console.log('Firebase Performance initialized successfully');
-} catch (error) {
+  } catch (error) {
   console.warn('Firebase Performance initialization failed:', error);
 }
 
@@ -42,8 +40,7 @@ export const firebaseAnalytics = {
     if (analytics) {
       try {
         logEvent(analytics, eventName, parameters);
-        console.log('Analytics event logged:', eventName, parameters);
-      } catch (error) {
+        } catch (error) {
         console.warn('Failed to log analytics event:', error);
       }
     }
@@ -54,8 +51,7 @@ export const firebaseAnalytics = {
     if (analytics) {
       try {
         setUserId(analytics, userId);
-        console.log('Analytics user ID set:', userId);
-      } catch (error) {
+        } catch (error) {
         console.warn('Failed to set analytics user ID:', error);
       }
     }
@@ -68,8 +64,7 @@ export const firebaseAnalytics = {
         // Check if setUserProperties is available
         if (typeof setUserProperties === 'function') {
           setUserProperties(analytics, properties);
-          console.log('Analytics user properties set:', properties);
-        } else {
+          } else {
           // Fallback: log user properties as custom events
           Object.entries(properties).forEach(([key, value]) => {
             this.logEvent('user_property_set', {
@@ -77,8 +72,7 @@ export const firebaseAnalytics = {
               property_value: value
             });
           });
-          console.log('Analytics user properties logged as events:', properties);
-        }
+          }
       } catch (error) {
         console.warn('Failed to set analytics user properties:', error);
         // Fallback: log user properties as custom events
@@ -126,8 +120,7 @@ export const firebasePerformance = {
     if (performance) {
       try {
         // Note: Custom performance events require additional setup
-        console.log('Performance event:', eventName, parameters);
-      } catch (error) {
+        } catch (error) {
         console.warn('Failed to log performance event:', error);
       }
     }
@@ -156,5 +149,4 @@ export const initializeCrashlytics = () => {
     });
   });
 
-  console.log('Firebase error logging initialized');
-}; 
+  }; 

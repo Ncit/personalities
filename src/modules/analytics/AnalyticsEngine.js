@@ -598,8 +598,7 @@ export class AnalyticsEngine {
             // Log to Firebase Analytics
             firebaseAnalytics.logEvent(eventName, enhancedParameters);
             
-            console.log('Event tracked:', eventName, enhancedParameters);
-        } catch (error) {
+            } catch (error) {
             console.warn('Failed to track event:', error);
         }
     }

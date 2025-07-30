@@ -18,9 +18,6 @@ export class VKBridgeManager {
      */
     async init() {
         try {
-            console.log('Initializing VK Bridge Manager...');
-            console.log('VK Bridge available:', typeof window.vkBridge !== 'undefined');
-            
             // Track VK initialization attempt
             this.trackVKEvent('vk_bridge_init_attempted', {
                 bridge_available: typeof window.vkBridge !== 'undefined'
@@ -30,8 +27,6 @@ export class VKBridgeManager {
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
                 this.isVKPlatform = true;
-                
-                console.log('VK Bridge detected - running in VK environment');
                 
                 // Track successful VK detection
                 this.trackVKEvent('vk_environment_detected');
@@ -46,8 +41,6 @@ export class VKBridgeManager {
 
                 // Send ready event
                 await this.bridge.send('VKWebAppInit');
-                console.log('VKWebAppInit sent');
-                
                 // Track VK app initialization
                 this.trackVKEvent('vk_app_initialized');
                 
@@ -57,15 +50,12 @@ export class VKBridgeManager {
                 // Configure app appearance
                 await this.configureAppearance();
                 
-                console.log('VK Bridge initialized successfully');
-                
                 // Track successful initialization
                 this.trackVKEvent('vk_bridge_init_success');
                 
                 // Debug VK environment
                 this.debugVKEnvironment();
             } else {
-                console.log('VK Bridge not available - running in standalone mode');
                 this.isVKPlatform = false;
                 
                 // Track standalone mode
@@ -159,8 +149,7 @@ export class VKBridgeManager {
                 timestamp: new Date().toISOString()
             });
             
-            console.log('VK Event tracked:', eventName, enhancedParameters);
-        } catch (error) {
+            } catch (error) {
             console.warn('Failed to track VK event:', error);
         }
     }
@@ -213,9 +202,7 @@ export class VKBridgeManager {
                     has_photo: !!userInfo.photo_100
                 });
                 
-                console.log('VK User properties set:', userProperties);
-                console.log('VK User ID saved to Firebase Analytics:', userInfo.id);
-            }
+                }
         } catch (error) {
             console.warn('Failed to set VK user properties:', error);
             
@@ -251,7 +238,6 @@ export class VKBridgeManager {
                 this.handleLaunchParams(data);
                 break;
             default:
-                console.log('Unhandled bridge event:', type, data);
                 this.trackVKEvent('vk_unhandled_bridge_event', {
                     event_type: type,
                     event_data: JSON.stringify(data)
@@ -310,8 +296,6 @@ export class VKBridgeManager {
         });
         
         if (!this.isVKFeatureSupported('appearance')) {
-            console.log('VK appearance configuration not supported in current environment');
-            
             // Track fallback usage
             this.trackVKEvent('vk_appearance_config_fallback', {
                 reason: 'feature_not_supported'
@@ -347,7 +331,6 @@ export class VKBridgeManager {
      * Handle config update
      */
     handleConfigUpdate(data) {
-        console.log('App config updated:', data);
         // Update app theme based on VK theme
         if (data.scheme) {
             document.documentElement.setAttribute('data-theme', data.scheme);
@@ -358,7 +341,6 @@ export class VKBridgeManager {
      * Handle view restrictions
      */
     handleViewRestrictions(data) {
-        console.log('View restrictions:', data);
         // Handle any view restrictions from VK
     }
 
@@ -367,8 +349,6 @@ export class VKBridgeManager {
      */
     handleUserInfo(data) {
         this.userInfo = data;
-        console.log('User info received:', data);
-        
         // Track user info received via bridge event
         this.trackVKEvent('vk_user_info_received', {
             user_id: data.id,
@@ -384,7 +364,6 @@ export class VKBridgeManager {
      * Handle launch parameters
      */
     handleLaunchParams(data) {
-        console.log('Launch params:', data);
         // Handle launch parameters from VK
     }
 
@@ -494,7 +473,6 @@ export class VKBridgeManager {
                                   !this.bridge ? 'bridge_not_available' : 
                                   !this.isVKEnvironment() ? 'environment_check_failed' : 'feature_not_supported';
             
-            console.log(`VK notification not available (${fallbackReason}), using fallback notification`);
             alert(message);
             
             // Track fallback usage
@@ -519,8 +497,6 @@ export class VKBridgeManager {
         });
         
         if (!this.isVKFeatureSupported('community')) {
-            console.log('VK community widget not supported in current environment');
-            
             // Track fallback usage
             this.trackVKEvent('vk_community_widget_fallback', {
                 reason: 'feature_not_supported'
@@ -552,10 +528,6 @@ export class VKBridgeManager {
         }
     }
 
-
-
-
-
     /**
      * Show story box
      */
@@ -567,8 +539,6 @@ export class VKBridgeManager {
         });
         
         if (!this.isVKFeatureSupported('story')) {
-            console.log('VK story box not supported in current environment');
-            
             // Track fallback usage
             this.trackVKEvent('vk_story_box_fallback', {
                 reason: 'feature_not_supported'
@@ -615,8 +585,6 @@ export class VKBridgeManager {
         });
         
         if (!this.isVKFeatureSupported('launch_params')) {
-            console.log('VK launch params not supported in current environment');
-            
             // Track fallback usage
             this.trackVKEvent('vk_launch_params_fallback', {
                 reason: 'feature_not_supported'
@@ -724,8 +692,6 @@ export class VKBridgeManager {
         return supportedFeatures[feature] || false;
     }
 
-
-
     /**
      * Debug VK environment status
      */
@@ -744,8 +710,6 @@ export class VKBridgeManager {
                 appearance: this.isVKFeatureSupported('appearance')
             }
         };
-        
-        console.log('🔍 VK Environment Debug Info:', debugInfo);
         
         // Track debug info
         this.trackVKEvent('vk_environment_debug', debugInfo);
@@ -917,13 +881,9 @@ export class VKBridgeManager {
                 await this.bridge.send('VKWebAppShowBannerAd', {
                     banner_location: 'bottom'
                 });
-                console.log('Banner ad shown');
-                
                 this.trackVKEvent('vk_banner_ad_shown');
                 return true;
             } else {
-                console.log('Banner ad not available - not in VK environment');
-                
                 this.trackVKEvent('vk_banner_ad_not_available', {
                     reason: 'not_vk_environment'
                 });
@@ -946,10 +906,8 @@ export class VKBridgeManager {
         try {
             if (this.bridge && this.isVKPlatform) {
                 await this.bridge.send('VKWebAppHideBannerAd');
-                console.log('Banner ad hidden');
                 return true;
             } else {
-                console.log('Banner ad hide not available - not in VK environment');
                 return false;
             }
         } catch (error) {
@@ -970,13 +928,9 @@ export class VKBridgeManager {
         try {
             if (this.bridge && this.isVKPlatform) {
                 await this.bridge.send('VKWebAppShowInterstitialAd');
-                console.log('Interstitial ad shown');
-                
                 this.trackVKEvent('vk_interstitial_ad_shown');
                 return true;
             } else {
-                console.log('Interstitial ad not available - not in VK environment');
-                
                 this.trackVKEvent('vk_interstitial_ad_not_available', {
                     reason: 'not_vk_environment'
                 });
