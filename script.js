@@ -1983,11 +1983,21 @@ function clearPremiumStorage() {
             localStorage.removeItem('mbti_premium_timestamp');
             localStorage.removeItem('mbti_subscription_data');
             
-            console.log('🔥 After clearing - localStorage state:', {
+            // Verify clearing worked
+            const afterClearing = {
                 mbti_premium: localStorage.getItem('mbti_premium'),
                 mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
                 mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-            });
+            };
+            
+            console.log('🔥 After clearing - localStorage state:', afterClearing);
+            
+            // Check if clearing was successful
+            if (afterClearing.mbti_premium === null) {
+                console.log('🔥 SUCCESS: mbti_premium cleared successfully');
+            } else {
+                console.error('🔥 ERROR: mbti_premium was not cleared! Value:', afterClearing.mbti_premium);
+            }
             
             alert('Premium localStorage cleared successfully! Premium status will be rechecked on next interaction.');
             
@@ -1996,6 +2006,14 @@ function clearPremiumStorage() {
                 console.log('🔥 vkBridgeManager found, calling refreshPremiumStatus...');
                 window.vkBridgeManager.refreshPremiumStatus().then(() => {
                     console.log('🔥 Premium status refreshed after clearing localStorage');
+                    
+                    // Check localStorage again after refresh
+                    const afterRefresh = {
+                        mbti_premium: localStorage.getItem('mbti_premium'),
+                        mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+                        mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+                    };
+                    console.log('🔥 After refresh - localStorage state:', afterRefresh);
                 }).catch(error => {
                     console.error('🔥 Error refreshing premium status:', error);
                 });
@@ -2014,6 +2032,31 @@ window.clearLocalStorage = clearLocalStorage;
 window.clearPremiumStorage = clearPremiumStorage;
 window.overridePremiumStatus = overridePremiumStatus;
 window.clearPremiumOverride = clearPremiumOverride;
+
+// Simple test function to manually clear premium localStorage
+function testClearPremium() {
+    console.log('🔥 testClearPremium() called');
+    console.log('🔥 Current localStorage before test:', {
+        mbti_premium: localStorage.getItem('mbti_premium'),
+        mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+        mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+    });
+    
+    // Clear manually
+    localStorage.removeItem('mbti_premium');
+    localStorage.removeItem('mbti_premium_timestamp');
+    localStorage.removeItem('mbti_subscription_data');
+    
+    console.log('🔥 localStorage after manual clearing:', {
+        mbti_premium: localStorage.getItem('mbti_premium'),
+        mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+        mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+    });
+    
+    alert('Manual premium clearing test completed. Check console for results.');
+}
+
+window.testClearPremium = testClearPremium;
 
 // Development function to temporarily override premium status for testing
 function overridePremiumStatus(isPremium) {
@@ -2539,3 +2582,16 @@ function closeHelpModal() {
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
+
+// Test if function exists
+typeof clearPremiumStorage
+
+// Test manual clearing
+testClearPremium()
+
+// Check current localStorage
+localStorage.getItem('mbti_premium')
+
+// Manually clear
+localStorage.removeItem('mbti_premium')
+localStorage.getItem('mbti_premium')
