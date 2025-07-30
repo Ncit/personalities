@@ -397,6 +397,13 @@ export class VKBridgeManager {
      */
     checkLocalPremiumStatus() {
         try {
+            // Check for premium override first (development mode only)
+            const premiumOverride = localStorage.getItem('mbti_premium_override');
+            if (premiumOverride !== null) {
+                console.log('🔥 Premium override found in localStorage:', premiumOverride);
+                return premiumOverride === 'true';
+            }
+            
             // Check for premium flag in localStorage
             const premiumFlag = localStorage.getItem('mbti_premium');
             const premiumTimestamp = localStorage.getItem('mbti_premium_timestamp');
@@ -404,6 +411,7 @@ export class VKBridgeManager {
             
             if (window.firebaseAnalyticsDebug) {
                 console.log('🔥 Checking local premium status:', {
+                    mbti_premium_override: premiumOverride,
                     mbti_premium: premiumFlag,
                     mbti_premium_timestamp: premiumTimestamp,
                     mbti_subscription_data: subscriptionData
@@ -529,15 +537,18 @@ export class VKBridgeManager {
      * Store premium status in local storage
      */
     storePremiumStatus(isPremium) {
+        console.log('🔥 storePremiumStatus() called with:', isPremium);
         try {
             localStorage.setItem('mbti_premium', isPremium.toString());
             
             // Also store timestamp for cache invalidation
             localStorage.setItem('mbti_premium_timestamp', Date.now().toString());
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Premium status stored in localStorage:', isPremium);
-            }
+            console.log('🔥 Premium status stored in localStorage:', isPremium);
+            console.log('🔥 Current localStorage after storing:', {
+                mbti_premium: localStorage.getItem('mbti_premium'),
+                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp')
+            });
         } catch (error) {
             console.error('Error storing premium status:', error);
         }
@@ -570,20 +581,52 @@ export class VKBridgeManager {
      * Manually refresh premium status from backend
      */
     async refreshPremiumStatus() {
+        console.log('🔥 refreshPremiumStatus() called');
+        
         this.trackVKEvent('premium_status_refresh_attempted', {
             user_id: this.userInfo?.id
         });
 
         try {
             // Clear local storage cache
+            console.log('🔥 Clearing localStorage cache in refreshPremiumStatus...');
             localStorage.removeItem('mbti_premium');
             localStorage.removeItem('mbti_premium_timestamp');
             
+            console.log('🔥 After clearing in refreshPremiumStatus:', {
+                mbti_premium: localStorage.getItem('mbti_premium'),
+                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp')
+            });
+            
+            // Check for premium override first
+            const premiumOverride = localStorage.getItem('mbti_premium_override');
+            if (premiumOverride !== null) {
+                console.log('🔥 Premium override found, using override value:', premiumOverride);
+                const overrideValue = premiumOverride === 'true';
+                
+                // Store the override result
+                this.storePremiumStatus(overrideValue);
+                
+                // Update global premium status
+                this.updateGlobalPremiumStatus(overrideValue);
+                
+                this.trackVKEvent('premium_status_refresh_success', {
+                    is_premium: overrideValue,
+                    user_id: this.userInfo?.id,
+                    override_used: true
+                });
+                
+                return overrideValue;
+            }
+            
             // Check backend again
+            console.log('🔥 Checking backend premium status...');
             const backendPremiumStatus = await this.checkBackendPremiumStatus();
+            console.log('🔥 Backend premium status result:', backendPremiumStatus);
             
             if (backendPremiumStatus !== null) {
                 // Store the fresh result
+                console.log('🔥 Storing backend result to localStorage:', backendPremiumStatus);
                 this.storePremiumStatus(backendPremiumStatus);
                 
                 // Update global premium status
@@ -591,7 +634,8 @@ export class VKBridgeManager {
                 
                 this.trackVKEvent('premium_status_refresh_success', {
                     is_premium: backendPremiumStatus,
-                    user_id: this.userInfo?.id
+                    user_id: this.userInfo?.id,
+                    override_used: false
                 });
                 
                 return backendPremiumStatus;
@@ -615,9 +659,14 @@ export class VKBridgeManager {
      * Clear premium-related localStorage and refresh status
      */
     clearPremiumStorage() {
-        if (window.firebaseAnalyticsDebug) {
-            console.log('🔥 Clearing premium localStorage...');
-        }
+        console.log('🔥 VKBridgeManager.clearPremiumStorage() called');
+        
+        // Log current state before clearing
+        console.log('🔥 Before clearing - localStorage state:', {
+            mbti_premium: localStorage.getItem('mbti_premium'),
+            mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+            mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+        });
         
         // Clear specific premium-related keys
         localStorage.removeItem('mbti_premium');
@@ -628,15 +677,19 @@ export class VKBridgeManager {
         this.premiumStatus = null;
         this.premiumStatusTimestamp = null;
         
-        if (window.firebaseAnalyticsDebug) {
-            console.log('🔥 Premium localStorage cleared. Current localStorage:', {
-                mbti_premium: localStorage.getItem('mbti_premium'),
-                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
-                mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-            });
-        }
+        console.log('🔥 After clearing - localStorage state:', {
+            mbti_premium: localStorage.getItem('mbti_premium'),
+            mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+            mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+        });
+        
+        console.log('🔥 Internal state reset:', {
+            premiumStatus: this.premiumStatus,
+            premiumStatusTimestamp: this.premiumStatusTimestamp
+        });
         
         // Force refresh premium status
+        console.log('🔥 Calling refreshPremiumStatus...');
         return this.refreshPremiumStatus();
     }
 
