@@ -609,17 +609,17 @@ async function unlockPremium() {
         unlockMsg.style.display = 'block';
     }
     
-    // Check if we're in development mode
-    if (getCurrentAppState() === 'development') {
-        // Development mode - directly unlock premium
-        setPremium(true);
-        if (unlockMsg) {
-            unlockMsg.textContent = '🎉 Премиум доступ открыт!';
-            unlockMsg.style.display = 'block';
-        }
-        completePremiumUnlock();
-        return;
-    }
+    // // Check if we're in development mode
+    // if (getCurrentAppState() === 'development') {
+    //     // Development mode - directly unlock premium
+    //     setPremium(true);
+    //     if (unlockMsg) {
+    //         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+    //         unlockMsg.style.display = 'block';
+    //     }
+    //     completePremiumUnlock();
+    //     return;
+    // }
     
     // Check if we're in VK environment and VK Bridge is available
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {

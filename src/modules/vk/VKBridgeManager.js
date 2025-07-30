@@ -47,8 +47,13 @@ export class VKBridgeManager {
                 // Get user info
                 await this.getUserInfo();
                 
-                // Configure app appearance
-                await this.configureAppearance();
+                // Configure app appearance (non-blocking)
+                this.configureAppearance().catch(error => {
+                    // Appearance configuration failed, but don't block initialization
+                    if (window.firebaseAnalyticsDebug) {
+                        console.log('🔥 VK Appearance configuration failed (non-blocking):', error);
+                    }
+                });
                 
                 // Track successful initialization
                 this.trackVKEvent('vk_bridge_init_success');
@@ -321,26 +326,43 @@ export class VKBridgeManager {
         }
         
         try {
+            // Try to configure appearance with minimal settings first
             await this.bridge.send('VKWebAppSetViewSettings', {
-                status_bar_style: 'light',
-                action_bar_color: '#667eea',
-                navigation_bar_color: '#667eea'
+                status_bar_style: 'light'
             });
             
             // Track successful configuration
             this.trackVKEvent('vk_appearance_config_success');
             
         } catch (error) {
-            // Handle VK error gracefully
-            const errorResult = this.handleVKError(error, 'configureAppearance');
-            
-            // Track configuration error
-            this.trackVKEvent('vk_appearance_config_error', {
-                error_type: error.error_type,
-                error_code: error.error_data?.error_code,
-                error_reason: error.error_data?.error_reason,
-                fallback_used: errorResult.fallback
-            });
+            // If the first attempt fails, try with even more minimal settings
+            try {
+                await this.bridge.send('VKWebAppSetViewSettings', {});
+                this.trackVKEvent('vk_appearance_config_success_minimal');
+            } catch (secondError) {
+                // Handle VK error gracefully
+                const errorResult = this.handleVKError(secondError, 'configureAppearance');
+                
+                // Track configuration error
+                this.trackVKEvent('vk_appearance_config_error', {
+                    error_type: secondError.error_type,
+                    error_code: secondError.error_data?.error_code,
+                    error_reason: secondError.error_data?.error_reason,
+                    fallback_used: errorResult.fallback,
+                    first_error: error.error_type,
+                    second_error: secondError.error_type
+                });
+                
+                // Log the error details for debugging
+                if (window.firebaseAnalyticsDebug) {
+                    console.log('🔥 VK Appearance Configuration Error Details:', {
+                        first_attempt_error: error,
+                        second_attempt_error: secondError,
+                        bridge_available: !!this.bridge,
+                        is_vk_platform: this.isVKPlatform
+                    });
+                }
+            }
         }
     }
 
@@ -702,11 +724,24 @@ export class VKBridgeManager {
             ads: this.isVKEnvironment() && !!this.bridge,
             story: this.isVKEnvironment() && !!this.bridge,
             community: this.isVKEnvironment() && !!this.bridge,
-            appearance: this.isVKEnvironment() && !!this.bridge,
+            appearance: this.isVKEnvironment() && !!this.bridge && this.isVKMethodSupported('VKWebAppSetViewSettings'),
             launch_params: this.isVKEnvironment() && !!this.bridge
         };
         
         return supportedFeatures[feature] || false;
+    }
+
+    /**
+     * Check if a specific VK method is supported
+     */
+    isVKMethodSupported(methodName) {
+        if (!this.bridge || !this.bridge.send) {
+            return false;
+        }
+        
+        // For now, we'll assume methods are supported if bridge is available
+        // In the future, this could be enhanced with a method availability check
+        return true;
     }
 
     /**
@@ -738,7 +773,15 @@ export class VKBridgeManager {
      * Handle VK-specific errors gracefully
      */
     handleVKError(error, context = '') {
-        console.error(`VK Error in ${context}:`, error);
+        // Only log errors in debug mode or for critical contexts
+        const shouldLogError = window.firebaseAnalyticsDebug || 
+                              context === 'init' || 
+                              context === 'getUserInfo' ||
+                              error.error_data?.error_code !== 6; // Don't log unsupported platform errors
+        
+        if (shouldLogError) {
+            console.error(`VK Error in ${context}:`, error);
+        }
         
         // Track the error
         this.trackVKEvent('vk_error', {
@@ -753,12 +796,24 @@ export class VKBridgeManager {
         
         // Return appropriate fallback based on error type
         if (error.error_data?.error_code === 6) {
-            // Unsupported platform error
+            // Unsupported platform error - this is expected in non-VK environments
             return {
                 success: false,
                 error: 'unsupported_platform',
                 message: 'This feature is only available in VK environment',
-                fallback: true
+                fallback: true,
+                expected: true
+            };
+        }
+        
+        // For client errors in appearance configuration, treat as non-critical
+        if (error.error_type === 'client_error' && context === 'configureAppearance') {
+            return {
+                success: false,
+                error: 'appearance_config_failed',
+                message: 'Appearance configuration not supported in this VK environment',
+                fallback: true,
+                non_critical: true
             };
         }
         
