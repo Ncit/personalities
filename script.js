@@ -2039,9 +2039,6 @@ function clearPremiumStorage() {
 }
 
 window.clearLocalStorage = clearLocalStorage;
-window.clearPremiumStorage = clearPremiumStorage;
-window.overridePremiumStatus = overridePremiumStatus;
-window.clearPremiumOverride = clearPremiumOverride;
 
 // Simple test function to manually clear premium localStorage
 function testClearPremium() {
@@ -2217,61 +2214,6 @@ function checkGlobalFunctionStatus() {
 }
 
 window.checkGlobalFunctionStatus = checkGlobalFunctionStatus;
-
-// Development function to temporarily override premium status for testing
-function overridePremiumStatus(isPremium) {
-    if (getCurrentAppState() === 'development') {
-        console.log('🔥 overridePremiumStatus() called with:', isPremium);
-        
-        // Store the override flag
-        localStorage.setItem('mbti_premium_override', isPremium.toString());
-        localStorage.setItem('mbti_premium_override_timestamp', Date.now().toString());
-        
-        console.log('🔥 Premium status override stored:', {
-            mbti_premium_override: localStorage.getItem('mbti_premium_override'),
-            mbti_premium_override_timestamp: localStorage.getItem('mbti_premium_override_timestamp')
-        });
-        
-        // Force refresh premium status
-        if (window.vkBridgeManager) {
-            window.vkBridgeManager.refreshPremiumStatus().then(() => {
-                console.log('🔥 Premium status refreshed with override');
-            }).catch(error => {
-                console.error('🔥 Error refreshing premium status with override:', error);
-            });
-        }
-        
-        alert(`Premium status overridden to: ${isPremium ? 'PREMIUM' : 'FREE'}`);
-    } else {
-        console.warn('overridePremiumStatus called in non-development mode');
-    }
-}
-
-// Development function to clear premium override
-function clearPremiumOverride() {
-    if (getCurrentAppState() === 'development') {
-        console.log('🔥 clearPremiumOverride() called');
-        
-        // Remove override flags
-        localStorage.removeItem('mbti_premium_override');
-        localStorage.removeItem('mbti_premium_override_timestamp');
-        
-        console.log('🔥 Premium override cleared');
-        
-        // Force refresh premium status
-        if (window.vkBridgeManager) {
-            window.vkBridgeManager.refreshPremiumStatus().then(() => {
-                console.log('🔥 Premium status refreshed without override');
-            }).catch(error => {
-                console.error('🔥 Error refreshing premium status without override:', error);
-            });
-        }
-        
-        alert('Premium override cleared! Backend status will be used.');
-    } else {
-        console.warn('clearPremiumOverride called in non-development mode');
-    }
-}
 
 // Subscription Management Functions
 function openSubscriptionModal() {
