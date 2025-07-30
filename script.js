@@ -2038,6 +2038,8 @@ window.notifyGlobalFunctionsReady = notifyGlobalFunctionsReady;
 
 // Function to ensure global functions are exposed
 function ensureGlobalFunctionsExposed() {
+    console.log('🔥 Ensuring global functions are exposed...');
+    
     // Explicitly expose functions to window if they exist locally
     if (typeof setPremium === 'function' && !window.setPremium) {
         window.setPremium = setPremium;
