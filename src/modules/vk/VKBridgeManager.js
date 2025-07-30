@@ -67,6 +67,9 @@ export class VKBridgeManager {
                 
                 // Debug VK environment
                 this.debugVKEnvironment();
+                
+                // Expose debug methods globally for testing
+                this.exposeDebugMethods();
             } else {
                 this.isVKPlatform = false;
                 
@@ -417,6 +420,9 @@ export class VKBridgeManager {
      */
     async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 No user ID available for backend premium check');
+            }
             return null;
         }
 
@@ -424,19 +430,44 @@ export class VKBridgeManager {
             const url = `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`;
             
             if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Checking backend premium status:', url);
+                console.log('🔥 Checking backend premium status:', {
+                    url: url,
+                    user_id: this.userInfo.id,
+                    app_id: '53942833',
+                    item_id: 'mbti_premium'
+                });
             }
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                timeout: 10000 // 10 second timeout
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
+
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 Backend response status:', response.status, response.statusText);
+            }
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Try to get error details from response
+                let errorDetails = '';
+                try {
+                    const errorData = await response.text();
+                    errorDetails = errorData;
+                } catch (e) {
+                    errorDetails = 'Could not read error response';
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
             }
 
             const data = await response.json();
@@ -448,7 +479,7 @@ export class VKBridgeManager {
             if (data.success && typeof data.has_purchase === 'boolean') {
                 return data.has_purchase;
             } else {
-                throw new Error('Invalid response format from backend');
+                throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
         } catch (error) {
@@ -456,7 +487,9 @@ export class VKBridgeManager {
             
             this.trackVKEvent('premium_status_backend_error', {
                 error_message: error.message,
-                user_id: this.userInfo?.id
+                error_type: error.name,
+                user_id: this.userInfo?.id,
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo?.id}&app_id=53942833&item_id=mbti_premium`
             });
             
             return null;
@@ -547,6 +580,90 @@ export class VKBridgeManager {
             
             return false;
         }
+    }
+
+    /**
+     * Debug backend API with different parameters
+     */
+    async debugBackendAPI() {
+        if (!this.userInfo?.id) {
+            console.log('🔥 Debug: No user ID available');
+            return;
+        }
+
+        console.log('🔥 Debug: Testing backend API with different parameters...');
+        
+        const testCases = [
+            {
+                name: 'Original parameters',
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`
+            },
+            {
+                name: 'Without app_id',
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&item_id=mbti_premium`
+            },
+            {
+                name: 'Without item_id',
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833`
+            },
+            {
+                name: 'Only user_id',
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}`
+            },
+            {
+                name: 'Base URL only',
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
+            }
+        ];
+
+        for (const testCase of testCases) {
+            try {
+                console.log(`🔥 Debug: Testing ${testCase.name}...`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(testCase.url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                console.log(`🔥 Debug: ${testCase.name} - Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`🔥 Debug: ${testCase.name} - Response:`, data);
+                } else {
+                    const errorText = await response.text();
+                    console.log(`🔥 Debug: ${testCase.name} - Error:`, errorText);
+                }
+                
+            } catch (error) {
+                console.log(`🔥 Debug: ${testCase.name} - Exception:`, error.message);
+            }
+        }
+    }
+
+    /**
+     * Expose debug methods globally for testing
+     */
+    exposeDebugMethods() {
+        // Expose debug methods to window for testing
+        window.vkDebug = {
+            debugBackendAPI: () => this.debugBackendAPI(),
+            checkPremiumStatus: () => this.checkPremiumStatus(),
+            refreshPremiumStatus: () => this.refreshPremiumStatus(),
+            getUserInfo: () => this.userInfo,
+            getVKEnvironment: () => this.isVKEnvironment()
+        };
+        
+        console.log('🔥 VK Debug methods exposed to window.vkDebug');
+        console.log('🔥 Available methods: debugBackendAPI(), checkPremiumStatus(), refreshPremiumStatus(), getUserInfo, getVKEnvironment()');
     }
 
     /**
