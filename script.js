@@ -2596,8 +2596,8 @@ window.closeHelpModal = closeHelpModal;
 // Test if function exists
 typeof clearPremiumStorage
 
-// Test manual clearing
-testClearPremium()
+// // Test manual clearing
+// testClearPremium()
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')
