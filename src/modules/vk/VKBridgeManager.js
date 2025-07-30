@@ -485,52 +485,130 @@ export class VKBridgeManager {
             bridge_available: !!this.bridge
         });
         
-        // Additional safety check: ensure we're actually in VK environment
-        const isActuallyVK = this.isVKPlatform && this.bridge && this.isVKEnvironment();
+        // Use custom JavaScript dialog instead of VK snackbar
+        this.showCustomNotification(message);
         
-        if (this.isVKFeatureSupported('snackbar') && isActuallyVK) {
-            try {
-                await this.bridge.send('VKWebAppShowSnackbar', {
-                    text: message
-                });
-                
-                // Track successful notification
-                this.trackVKEvent('vk_notification_success', {
-                    message_length: message.length
-                });
-            } catch (error) {
-                // Handle VK error gracefully
-                const errorResult = this.handleVKError(error, 'showNotification');
-                
-                // Track notification error
-                this.trackVKEvent('vk_notification_error', {
-                    error_type: error.error_type,
-                    error_code: error.error_data?.error_code,
-                    error_reason: error.error_data?.error_reason,
-                    message_length: message.length,
-                    fallback_used: errorResult.fallback
-                });
-                
-                // Fallback to alert
-                alert(message);
-            }
-        } else {
-            // Not in VK environment or bridge not available, use fallback
-            const fallbackReason = !this.isVKPlatform ? 'not_vk_platform' : 
-                                  !this.bridge ? 'bridge_not_available' : 
-                                  !this.isVKEnvironment() ? 'environment_check_failed' : 'feature_not_supported';
-            
-            alert(message);
-            
-            // Track fallback usage
-            this.trackVKEvent('vk_notification_fallback', {
-                reason: fallbackReason,
-                is_vk_platform: this.isVKPlatform,
-                bridge_available: !!this.bridge,
-                is_vk_environment: this.isVKEnvironment(),
-                message_length: message.length
-            });
+        // Track successful notification
+        this.trackVKEvent('vk_notification_success', {
+            message_length: message.length,
+            method: 'custom_dialog'
+        });
+    }
+
+    /**
+     * Show custom notification dialog
+     */
+    showCustomNotification(message) {
+        // Create notification container if it doesn't exist
+        let notificationContainer = document.getElementById('custom-notification-container');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'custom-notification-container';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 300px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+            document.body.appendChild(notificationContainer);
         }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        `;
+
+        // Add content
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="flex: 1; margin-right: 10px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Уведомление</div>
+                    <div style="font-size: 14px; opacity: 0.9;">${message}</div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 18px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0.7;
+                    transition: opacity 0.2s;
+                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">×</button>
+            </div>
+            <div style="
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 3px;
+                background: rgba(255, 255, 255, 0.3);
+                width: 100%;
+                animation: progress 3s linear;
+            "></div>
+        `;
+
+        // Add progress bar animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes progress {
+                from { width: 100%; }
+                to { width: 0%; }
+            }
+        `;
+        if (!document.getElementById('notification-styles')) {
+            style.id = 'notification-styles';
+            document.head.appendChild(style);
+        }
+
+        // Add to container
+        notificationContainer.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 3000);
+
+        // Click to dismiss
+        notification.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        });
     }
 
     /**
