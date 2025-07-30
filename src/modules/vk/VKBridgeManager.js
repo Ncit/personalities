@@ -5,6 +5,10 @@
  */
 
 export class VKBridgeManager {
+    // Backend API configuration
+    static BACKEND_BASE_URL = 'https://user6582162-kq5e7yaj.tunnel.vk-apps.com';
+    static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
+    
     constructor() {
         this.bridge = null;
         this.isVKPlatform = false;
@@ -427,7 +431,7 @@ export class VKBridgeManager {
         }
 
         try {
-            const url = `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`;
+            const url = `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`;
             
             const requestBody = {
                 user_id: this.userInfo.id,
@@ -495,7 +499,7 @@ export class VKBridgeManager {
                 error_message: error.message,
                 error_type: error.name,
                 user_id: this.userInfo?.id,
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`
             });
             
             return null;
@@ -603,7 +607,7 @@ export class VKBridgeManager {
             {
                 name: 'POST with JSON body (recommended)',
                 method: 'POST',
-                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
                 body: {
                     user_id: this.userInfo.id,
                     app_id: '53942833',
@@ -613,7 +617,7 @@ export class VKBridgeManager {
             {
                 name: 'POST with minimal body',
                 method: 'POST',
-                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
                 body: {
                     user_id: this.userInfo.id
                 }
@@ -621,17 +625,17 @@ export class VKBridgeManager {
             {
                 name: 'GET with query parameters (original)',
                 method: 'GET',
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`
             },
             {
                 name: 'GET with minimal parameters',
                 method: 'GET',
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}`
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}?user_id=${this.userInfo.id}`
             },
             {
                 name: 'POST with empty body',
                 method: 'POST',
-                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
                 body: {}
             }
         ];

@@ -170,6 +170,18 @@ The system uses the following configuration:
 - **Timeout**: 10 seconds
 - **Cache Keys**: `mbti_premium`, `mbti_premium_timestamp`
 
+#### URL Configuration
+
+The backend URL is centralized in the `VKBridgeManager` class:
+
+```javascript
+// Backend API configuration
+static BACKEND_BASE_URL = 'https://user6582162-sejkta2h.tunnel.vk-apps.com';
+static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
+```
+
+This allows easy URL updates by changing only the constants.
+
 ### 10. Debug Mode
 
 When Firebase Analytics debug mode is enabled, the system logs:

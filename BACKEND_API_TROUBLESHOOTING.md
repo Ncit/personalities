@@ -162,6 +162,18 @@ Based on the resolved implementation, the backend accepts:
 }
 ```
 
+## Configuration
+
+The backend URL is now centralized in the `VKBridgeManager` class:
+
+```javascript
+// Backend API configuration
+static BACKEND_BASE_URL = 'https://user6582162-sejkta2h.tunnel.vk-apps.com';
+static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
+```
+
+This makes it easy to update the backend URL in one place if needed.
+
 **Expected Response**:
 ```json
 {
