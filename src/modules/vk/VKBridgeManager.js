@@ -58,8 +58,12 @@ export class VKBridgeManager {
                 // Track successful initialization
                 this.trackVKEvent('vk_bridge_init_success');
                 
-                // Check premium status
-                await this.checkPremiumStatus();
+                // Check premium status (non-blocking, after user info is loaded)
+                this.checkPremiumStatus().catch(error => {
+                    if (window.firebaseAnalyticsDebug) {
+                        console.log('🔥 Premium status check failed (non-blocking):', error);
+                    }
+                });
                 
                 // Debug VK environment
                 this.debugVKEnvironment();
@@ -867,7 +871,7 @@ export class VKBridgeManager {
             }
 
             // If not found in local storage, check backend
-            if (true) {
+            if (this.isVKPlatform && this.userInfo?.id) {
                 const backendPremium = await this.checkBackendPremiumStatus();
                 
                 if (backendPremium.isPremium) {
@@ -989,14 +993,25 @@ export class VKBridgeManager {
                 backend_url: backendUrl
             });
 
-            const response = await fetch(`${backendUrl}purchase?user_id=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                timeout: 10000 // 10 second timeout
-            });
+            // Try to fetch with CORS handling
+            let response;
+            try {
+                response = await fetch(`${backendUrl}purchase?user_id=${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors', // Explicitly request CORS
+                    credentials: 'omit' // Don't send cookies
+                });
+            } catch (fetchError) {
+                // Handle CORS or network errors
+                if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+                    throw new Error('CORS or network error - backend server may not be accessible');
+                }
+                throw fetchError;
+            }
 
             if (!response.ok) {
                 throw new Error(`Backend responded with status: ${response.status}`);
@@ -1040,10 +1055,47 @@ export class VKBridgeManager {
             
             this.trackVKEvent('premium_backend_check_error', {
                 error_message: error.message,
+                error_type: error.name,
                 user_id: this.userInfo?.id
             });
             
             return { isPremium: false, source: 'backend_error', error: error.message };
+        }
+    }
+
+    /**
+     * Alternative backend check using JSONP or different method
+     */
+    async checkBackendPremiumStatusAlternative() {
+        try {
+            const backendUrl = 'https://user6582162-sejkta2h.tunnel.vk-apps.com/';
+            const userId = this.userInfo?.id;
+            
+            if (!userId) {
+                throw new Error('No user ID available for alternative backend check');
+            }
+
+            // Try using a different approach - maybe the server supports JSONP or has different endpoints
+            const response = await fetch(`${backendUrl}api/purchase?user_id=${userId}&format=json`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                mode: 'no-cors' // Try no-cors mode as fallback
+            });
+
+            // Note: With no-cors mode, we can't read the response, but we can check if the request succeeded
+            if (response.type === 'opaque') {
+                // Request succeeded but we can't read the response due to CORS
+                // This means the server is reachable but doesn't allow CORS
+                throw new Error('Backend server is reachable but CORS is not configured');
+            }
+
+            return { isPremium: false, source: 'backend_cors_issue' };
+            
+        } catch (error) {
+            console.error('Error in alternative backend check:', error);
+            return { isPremium: false, source: 'backend_alternative_error', error: error.message };
         }
     }
 
