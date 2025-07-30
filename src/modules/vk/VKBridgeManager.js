@@ -318,6 +318,11 @@ export class VKBridgeManager {
             // Set user properties in Firebase Analytics
             this.setVKUserProperties(result);
             
+            // Save user data to server (non-blocking)
+            this.saveUserDataToServer(result).catch(error => {
+                this.logger.warn('Failed to save user data to server (non-blocking):', error);
+            });
+            
             return result;
         } catch (error) {
             this.logger.error('Error getting user info:', error);
@@ -328,6 +333,157 @@ export class VKBridgeManager {
             });
             
             return null;
+        }
+    }
+
+    /**
+     * Save VK user data to server
+     */
+    async saveUserDataToServer(userInfo) {
+        // Check if user data has already been saved
+        const userDataSaved = localStorage.getItem('vk_user_data_saved');
+        if (userDataSaved === 'true') {
+            this.logger.debug('User data already saved to server, skipping');
+            this.trackVKEvent('vk_user_data_save_skipped', {
+                reason: 'already_saved',
+                user_id: userInfo.id
+            });
+            return;
+        }
+
+        if (!userInfo || !userInfo.id) {
+            this.logger.warn('No valid user info available for saving to server');
+            this.trackVKEvent('vk_user_data_save_failed', {
+                reason: 'no_valid_user_info'
+            });
+            return;
+        }
+
+        try {
+            this.logger.debug('Saving user data to server:', {
+                user_id: userInfo.id,
+                username: userInfo.screen_name,
+                first_name: userInfo.first_name,
+                last_name: userInfo.last_name,
+                has_photo: !!userInfo.photo_100
+            });
+
+            const userData = {
+                vk_user_id: userInfo.id,
+                app_id: '53942833', // VK app ID
+                username: userInfo.screen_name || `user_${userInfo.id}`,
+                first_name: userInfo.first_name || '',
+                last_name: userInfo.last_name || '',
+                vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+            };
+
+            const url = `${VKBridgeManager.BACKEND_BASE_URL}/admin/api/users`;
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(userData),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            this.logger.debug('Server response status:', response.status, response.statusText);
+
+            if (!response.ok) {
+                // Try to get error details from response
+                let errorDetails = '';
+                try {
+                    const errorData = await response.text();
+                    errorDetails = errorData;
+                } catch (e) {
+                    errorDetails = 'Could not read error response';
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
+            }
+
+            const data = await response.json();
+            
+            this.logger.debug('Server response data:', data);
+
+            if (data.success || response.status === 200 || response.status === 201) {
+                // Mark user data as saved in localStorage
+                localStorage.setItem('vk_user_data_saved', 'true');
+                localStorage.setItem('vk_user_data_saved_timestamp', Date.now().toString());
+                
+                this.logger.log('User data successfully saved to server');
+                
+                this.trackVKEvent('vk_user_data_save_success', {
+                    user_id: userInfo.id,
+                    server_response: data
+                });
+                
+                return data;
+            } else {
+                throw new Error(`Server returned error: ${JSON.stringify(data)}`);
+            }
+            
+        } catch (error) {
+            this.logger.error('Error saving user data to server:', error);
+            
+            this.trackVKEvent('vk_user_data_save_error', {
+                error_message: error.message,
+                error_type: error.name,
+                user_id: userInfo.id,
+                url: `${VKBridgeManager.BACKEND_BASE_URL}/admin/api/users`
+            });
+            
+            throw error;
+        }
+    }
+
+    /**
+     * Force save user data to server (ignores localStorage flag)
+     */
+    async forceSaveUserDataToServer(userInfo) {
+        if (!userInfo || !userInfo.id) {
+            this.logger.warn('No valid user info available for force saving to server');
+            this.trackVKEvent('vk_user_data_force_save_failed', {
+                reason: 'no_valid_user_info'
+            });
+            return;
+        }
+
+        this.logger.log('Force saving user data to server (ignoring localStorage flag)');
+        
+        try {
+            // Temporarily remove the saved flag to allow saving
+            const wasSaved = localStorage.getItem('vk_user_data_saved') === 'true';
+            if (wasSaved) {
+                localStorage.removeItem('vk_user_data_saved');
+                localStorage.removeItem('vk_user_data_saved_timestamp');
+            }
+
+            const result = await this.saveUserDataToServer(userInfo);
+            
+            this.trackVKEvent('vk_user_data_force_save_success', {
+                user_id: userInfo.id,
+                was_previously_saved: wasSaved
+            });
+            
+            return result;
+        } catch (error) {
+            this.logger.error('Error force saving user data to server:', error);
+            
+            this.trackVKEvent('vk_user_data_force_save_error', {
+                error_message: error.message,
+                user_id: userInfo.id
+            });
+            
+            throw error;
         }
     }
 
@@ -670,7 +826,19 @@ export class VKBridgeManager {
             checkPremiumStatus: () => this.checkPremiumStatus(),
             refreshPremiumStatus: () => this.refreshPremiumStatus(),
             getUserInfo: () => this.userInfo,
-            getVKEnvironment: () => this.isVKEnvironment()
+            getVKEnvironment: () => this.isVKEnvironment(),
+            saveUserDataToServer: () => this.saveUserDataToServer(this.userInfo),
+            forceSaveUserDataToServer: () => this.forceSaveUserDataToServer(this.userInfo),
+            clearUserDataSavedFlag: () => {
+                localStorage.removeItem('vk_user_data_saved');
+                localStorage.removeItem('vk_user_data_saved_timestamp');
+                this.logger.log('User data saved flag cleared');
+            },
+            getUserDataSavedStatus: () => ({
+                saved: localStorage.getItem('vk_user_data_saved') === 'true',
+                timestamp: localStorage.getItem('vk_user_data_saved_timestamp'),
+                userInfo: this.userInfo
+            })
         };
     }
 

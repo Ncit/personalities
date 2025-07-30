@@ -168,12 +168,6 @@ overridePremiumStatus(false)
 ```
 
 ### **4. Test Backend Integration**
-```javascript
-// Clear override to use backend status
-clearPremiumOverride()
-
-// Check if UI reflects actual backend status
-```
 
 ## Expected Behavior
 
