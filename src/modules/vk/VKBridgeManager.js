@@ -427,14 +427,19 @@ export class VKBridgeManager {
         }
 
         try {
-            const url = `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`;
+            const url = `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`;
+            
+            const requestBody = {
+                user_id: this.userInfo.id,
+                app_id: '53942833',
+                item_id: 'mbti_premium'
+            };
             
             if (window.firebaseAnalyticsDebug) {
                 console.log('🔥 Checking backend premium status:', {
                     url: url,
-                    user_id: this.userInfo.id,
-                    app_id: '53942833',
-                    item_id: 'mbti_premium'
+                    method: 'POST',
+                    body: requestBody
                 });
             }
             
@@ -443,11 +448,12 @@ export class VKBridgeManager {
             const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             const response = await fetch(url, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
+                body: JSON.stringify(requestBody),
                 signal: controller.signal
             });
             
@@ -489,7 +495,7 @@ export class VKBridgeManager {
                 error_message: error.message,
                 error_type: error.name,
                 user_id: this.userInfo?.id,
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo?.id}&app_id=53942833&item_id=mbti_premium`
+                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
             });
             
             return null;
@@ -595,24 +601,38 @@ export class VKBridgeManager {
         
         const testCases = [
             {
-                name: 'Original parameters',
+                name: 'POST with JSON body (recommended)',
+                method: 'POST',
+                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                body: {
+                    user_id: this.userInfo.id,
+                    app_id: '53942833',
+                    item_id: 'mbti_premium'
+                }
+            },
+            {
+                name: 'POST with minimal body',
+                method: 'POST',
+                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                body: {
+                    user_id: this.userInfo.id
+                }
+            },
+            {
+                name: 'GET with query parameters (original)',
+                method: 'GET',
                 url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`
             },
             {
-                name: 'Without app_id',
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&item_id=mbti_premium`
-            },
-            {
-                name: 'Without item_id',
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}&app_id=53942833`
-            },
-            {
-                name: 'Only user_id',
+                name: 'GET with minimal parameters',
+                method: 'GET',
                 url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=${this.userInfo.id}`
             },
             {
-                name: 'Base URL only',
-                url: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
+                name: 'POST with empty body',
+                method: 'POST',
+                url: 'https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase',
+                body: {}
             }
         ];
 
@@ -623,13 +643,20 @@ export class VKBridgeManager {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 5000);
                 
-                const response = await fetch(testCase.url, {
-                    method: 'GET',
+                const fetchOptions = {
+                    method: testCase.method,
                     headers: {
                         'Accept': 'application/json'
                     },
                     signal: controller.signal
-                });
+                };
+                
+                if (testCase.method === 'POST') {
+                    fetchOptions.headers['Content-Type'] = 'application/json';
+                    fetchOptions.body = JSON.stringify(testCase.body);
+                }
+                
+                const response = await fetch(testCase.url, fetchOptions);
                 
                 clearTimeout(timeoutId);
                 

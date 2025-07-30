@@ -1,13 +1,40 @@
 # Backend API Troubleshooting Guide
 
-## Issue: 400 Bad Request Error
+## Issue: 400 Bad Request Error - RESOLVED
 
-The premium status check is receiving a `400 Bad Request` error from the backend API. This guide provides debugging steps and potential solutions.
+The premium status check was receiving a `400 Bad Request` error from the backend API. The issue has been identified and resolved.
 
-## Current Error Details
+## Root Cause Identified
+
+The backend API was expecting a **JSON request body** but receiving **query parameters**. The error showed:
 
 ```
-GET https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=6582162&app_id=53942833&item_id=mbti_premium 400 (Bad Request)
+SyntaxError: Unexpected token '"', """" is not valid JSON
+at JSON.parse (<anonymous>)
+at createStrictSyntaxError (/Users/nikitaf/development/goodsv2/node_modules/body-parser/lib/types/json.js:169:10)
+```
+
+This indicated the backend uses `body-parser` middleware and expects POST requests with JSON body, not GET requests with query parameters.
+
+## Solution Implemented
+
+**Changed from GET with query parameters to POST with JSON body:**
+
+**Before:**
+```
+GET https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase?user_id=6582162&app_id=53942833&item_id=mbti_premium
+```
+
+**After:**
+```
+POST https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase
+Content-Type: application/json
+
+{
+  "user_id": "6582162",
+  "app_id": "53942833", 
+  "item_id": "mbti_premium"
+}
 ```
 
 ## Debugging Steps
@@ -119,14 +146,21 @@ window.vkDebug.refreshPremiumStatus()
 
 ## Backend API Requirements
 
-Based on the original specification, the backend should accept:
+Based on the resolved implementation, the backend accepts:
 
 **URL**: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
-**Method**: GET
-**Parameters**:
-- `user_id` (string): VK user ID
-- `app_id` (string): VK app ID (53942833)
-- `item_id` (string): Item identifier (mbti_premium)
+**Method**: POST
+**Headers**:
+- `Content-Type: application/json`
+- `Accept: application/json`
+**Request Body**:
+```json
+{
+  "user_id": "6582162",
+  "app_id": "53942833",
+  "item_id": "mbti_premium"
+}
+```
 
 **Expected Response**:
 ```json
@@ -141,12 +175,31 @@ Based on the original specification, the backend should accept:
 }
 ```
 
-## Next Steps
+## Status: RESOLVED ✅
 
-1. **Run Debug Tests**: Use `window.vkDebug.debugBackendAPI()` to test different parameter combinations
-2. **Check Backend Logs**: Verify what the backend is receiving and why it's rejecting the request
-3. **Verify API Documentation**: Ensure the API endpoint and parameters match the backend implementation
-4. **Test Directly**: Try calling the API directly (not from VK context) to isolate the issue
+The 400 Bad Request error has been successfully resolved by changing the request method from GET to POST with JSON body.
+
+## Testing the Fix
+
+You can test the resolved implementation using the debug methods:
+
+```javascript
+// Test the new POST implementation
+window.vkDebug.debugBackendAPI()
+
+// Check premium status with the fixed implementation
+window.vkDebug.checkPremiumStatus()
+
+// Force refresh from backend
+window.vkDebug.refreshPremiumStatus()
+```
+
+## What Changed
+
+1. **Request Method**: Changed from `GET` to `POST`
+2. **Request Format**: Changed from query parameters to JSON body
+3. **Headers**: Added proper `Content-Type: application/json`
+4. **Error Handling**: Enhanced to provide better debugging information
 
 ## Fallback Behavior
 

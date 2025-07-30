@@ -28,8 +28,8 @@ this.checkPremiumStatus().catch(error => {
 - Returns cached status if available
 
 #### **Tier 2: Backend API Check**
-- Makes HTTP request to: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
-- Parameters: `user_id`, `app_id=53942833`, `item_id=mbti_premium`
+- Makes HTTP POST request to: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
+- Request body: JSON with `user_id`, `app_id=53942833`, `item_id=mbti_premium`
 - Stores result in localStorage for future use
 
 ### 3. API Response Format
@@ -85,8 +85,9 @@ Checks localStorage for cached premium status:
 - Handles JSON parsing errors gracefully
 
 #### **`checkBackendPremiumStatus()`**
-Makes HTTP request to backend API:
+Makes HTTP POST request to backend API:
 - Uses user ID from VK user info
+- Sends JSON request body with parameters
 - 10-second timeout
 - Validates response format
 - Returns boolean or null on error
@@ -163,6 +164,7 @@ const isPremium = await vkBridgeManager.checkPremiumStatus();
 The system uses the following configuration:
 
 - **Backend URL**: `https://user6582162-sejkta2h.tunnel.vk-apps.com/api/check-purchase`
+- **Method**: POST with JSON body
 - **App ID**: `53942833`
 - **Item ID**: `mbti_premium`
 - **Timeout**: 10 seconds
