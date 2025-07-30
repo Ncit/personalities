@@ -1060,7 +1060,7 @@ export class VKBridgeManager {
         
         try {
             const result = await this.bridge.send('VKWebAppShowOrderBox', {
-                type: 'consumable',
+                type: 'item',
                 item: productId,
                 title: productName,
                 description: 'Доступ к премиум-функциям',
