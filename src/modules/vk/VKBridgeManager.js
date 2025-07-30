@@ -460,13 +460,7 @@ export class VKBridgeManager {
      */
     checkLocalPremiumStatus() {
         try {
-            // Check for premium override first (development mode only)
-            const premiumOverride = localStorage.getItem('mbti_premium_override');
-            if (premiumOverride !== null) {
-                console.log('🔥 Premium override found in localStorage:', premiumOverride);
-                return premiumOverride === 'true';
-            }
-            
+        
             // Check for premium flag in localStorage
             const premiumFlag = localStorage.getItem('mbti_premium');
             const premiumTimestamp = localStorage.getItem('mbti_premium_timestamp');
@@ -474,7 +468,6 @@ export class VKBridgeManager {
             
             if (window.firebaseAnalyticsDebug) {
                 console.log('🔥 Checking local premium status:', {
-                    mbti_premium_override: premiumOverride,
                     mbti_premium: premiumFlag,
                     mbti_premium_timestamp: premiumTimestamp,
                     mbti_subscription_data: subscriptionData

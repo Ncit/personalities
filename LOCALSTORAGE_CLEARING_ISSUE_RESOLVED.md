@@ -44,48 +44,9 @@ console.log('🔥 storePremiumStatus() called with:', isPremium);
 
 Created a development-only override system that allows testing different premium states:
 
-#### **Override Functions**
-```javascript
-// Set premium status to FREE for testing
-overridePremiumStatus(false)
-
-// Set premium status to PREMIUM for testing  
-overridePremiumStatus(true)
-
-// Clear override and use backend status
-clearPremiumOverride()
-```
-
-#### **Override Implementation**
-```javascript
-// Check for premium override first (development mode only)
-const premiumOverride = localStorage.getItem('mbti_premium_override');
-if (premiumOverride !== null) {
-    console.log('🔥 Premium override found in localStorage:', premiumOverride);
-    return premiumOverride === 'true';
-}
-```
-
 ### 3. Enhanced UI Controls
 
 **Files**: `index.html`, `index.en.html`
-
-Added development buttons for testing:
-
-```html
-<button class="btn btn-dev" onclick="clearPremiumStorage()">
-    <i class="fas fa-crown"></i> Очистить Premium
-</button>
-<button class="btn btn-dev" onclick="overridePremiumStatus(false)">
-    <i class="fas fa-user"></i> Установить FREE
-</button>
-<button class="btn btn-dev" onclick="overridePremiumStatus(true)">
-    <i class="fas fa-crown"></i> Установить PREMIUM
-</button>
-<button class="btn btn-dev" onclick="clearPremiumOverride()">
-    <i class="fas fa-undo"></i> Сбросить Override
-</button>
-```
 
 ### 4. Multiple Access Methods
 
@@ -110,12 +71,6 @@ window.vkDebug.checkPremiumStatus()
 ```
 
 #### **Global Functions**
-```javascript
-// Available globally in development mode
-clearPremiumStorage()
-overridePremiumStatus(isPremium)
-clearPremiumOverride()
-```
 
 ## How It Works
 
@@ -152,11 +107,7 @@ overridePremiumStatus(true)
 ```
 
 ### **Scenario 3: Test Backend Integration**
-```javascript
-clearPremiumOverride()
-// UI should show actual backend status
-// Premium features based on real user data
-```
+
 
 ### **Scenario 4: Test localStorage Clearing**
 ```javascript
@@ -181,8 +132,6 @@ To verify the solution is working:
 1. **Enable Development Mode**: Set URL parameter `?state=development`
 2. **Check Current Status**: `window.vkDebug.checkPremiumStatus()`
 3. **Test Override**: `overridePremiumStatus(false)` then check UI
-4. **Test Reset**: `clearPremiumOverride()` then check UI
-5. **Check Logs**: Console shows detailed step-by-step process
 
 ## Expected Behavior
 
