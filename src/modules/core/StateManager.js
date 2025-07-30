@@ -2,6 +2,11 @@
  * Centralized State Management for MBTI Quiz Application
  * Handles application state, user preferences, and quiz progress
  */
+import { LoggerManager } from './LoggerManager.js';
+
+// Initialize logger for this module
+const logger = new LoggerManager().createModuleLogger('StateManager');
+
 export class StateManager {
     constructor() {
         this.state = {
@@ -156,7 +161,7 @@ export class StateManager {
             };
             localStorage.setItem('mbti_state', JSON.stringify(dataToSave));
         } catch (error) {
-            console.warn('Failed to save state to localStorage:', error);
+            logger.warn('Failed to save state to localStorage:', error);
         }
     }
 
@@ -179,7 +184,7 @@ export class StateManager {
                 this.setState({ isPremium: premiumStatus === 'true' });
             }
         } catch (error) {
-            console.warn('Failed to load state from localStorage:', error);
+            logger.warn('Failed to load state from localStorage:', error);
         }
     }
 

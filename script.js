@@ -1,3 +1,8 @@
+// Import Firebase modules
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAnalytics, logEvent, setUserId, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
+
 // Import data from QuizData.js
 import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
 import localizationManager from './src/locales/LocalizationManager.js';
@@ -10,6 +15,125 @@ import { LoggerManager } from './src/modules/core/LoggerManager.js';
 
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A",
+    authDomain: "nikitaproject-b0a52.firebaseapp.com",
+    projectId: "nikitaproject-b0a52",
+    storageBucket: "nikitaproject-b0a52.firebasestorage.app",
+    messagingSenderId: "188919966813",
+    appId: "1:188919966813:web:748cc6a6354d672173f1b4",
+    measurementId: "G-TZ5LN0BB9L"
+};
+
+// Initialize Firebase
+let firebaseApp = null;
+let firebaseAnalytics = null;
+let firebasePerformance = null;
+
+try {
+    firebaseApp = initializeApp(firebaseConfig);
+    logger.log('Firebase app initialized successfully');
+} catch (error) {
+    logger.error('Failed to initialize Firebase app:', error);
+}
+
+// Initialize Analytics
+try {
+    firebaseAnalytics = getAnalytics(firebaseApp);
+    logger.log('Firebase Analytics initialized successfully');
+} catch (error) {
+    logger.error('Failed to initialize Firebase Analytics:', error);
+}
+
+// Initialize Performance Monitoring
+try {
+    firebasePerformance = getPerformance(firebaseApp);
+    logger.log('Firebase Performance initialized successfully');
+} catch (error) {
+    logger.error('Failed to initialize Firebase Performance:', error);
+}
+
+// Firebase Analytics Debug Mode Toggle
+window.firebaseAnalyticsDebug = localStorage.getItem('firebaseAnalyticsDebug') === 'true';
+
+// Toggle function for Firebase Analytics debug mode
+window.toggleFirebaseAnalyticsDebug = () => {
+    const isDevelopment = window.getCurrentAppState ? window.getCurrentAppState() === 'development' : true;
+    
+    if (isDevelopment) {
+        window.firebaseAnalyticsDebug = !window.firebaseAnalyticsDebug;
+        localStorage.setItem('firebaseAnalyticsDebug', window.firebaseAnalyticsDebug);
+        logger.log(`Firebase Analytics debug mode: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`);
+        
+        // Show notification
+        if (window.vkBridgeManager) {
+            window.vkBridgeManager.showNotification(
+                `Firebase Analytics debug: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`
+            );
+        }
+    } else {
+        logger.warn('Firebase Analytics debug toggle is only available in development mode');
+    }
+};
+
+// Make Firebase available globally
+window.firebaseAnalytics = {
+    logEvent: (eventName, parameters = {}) => {
+        if (firebaseAnalytics) {
+            try {
+                logEvent(firebaseAnalytics, eventName, parameters);
+                if (window.firebaseAnalyticsDebug) {
+                    logger.log('🔥 Firebase Analytics Event:', eventName, parameters);
+                }
+            } catch (error) {
+                logger.error('Failed to log analytics event:', error);
+            }
+        }
+    },
+    setUserId: (userId) => {
+        if (firebaseAnalytics) {
+            try {
+                setUserId(firebaseAnalytics, userId);
+                if (window.firebaseAnalyticsDebug) {
+                    logger.log('🔥 Firebase Analytics User ID set:', userId);
+                }
+            } catch (error) {
+                logger.error('Failed to set user ID:', error);
+                // Fallback: log user ID as an event
+                window.firebaseAnalytics.logEvent('user_id_set', { user_id: userId });
+            }
+        }
+    },
+    setUserProperties: (properties) => {
+        if (firebaseAnalytics) {
+            try {
+                setUserProperties(firebaseAnalytics, properties);
+                if (window.firebaseAnalyticsDebug) {
+                    logger.log('🔥 Firebase Analytics User Properties set:', properties);
+                }
+            } catch (error) {
+                logger.error('Failed to set user properties:', error);
+                // Fallback: log user properties as events
+                Object.entries(properties).forEach(([key, value]) => {
+                    window.firebaseAnalytics.logEvent('user_property_set', {
+                        property_name: key,
+                        property_value: value
+                    });
+                });
+            }
+        }
+    }
+};
+
+// Log page view
+if (firebaseAnalytics) {
+    logEvent(firebaseAnalytics, 'page_view', {
+        page_title: document.title,
+        page_location: window.location.href
+    });
+}
 
 // MBTI Quiz Application
 class MBTIQuiz {

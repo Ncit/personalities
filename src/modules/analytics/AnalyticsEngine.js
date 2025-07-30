@@ -4,6 +4,10 @@
  */
 import { stateManager } from '../core/StateManager.js';
 import { firebaseAnalytics } from '../../config/firebase.js';
+import { LoggerManager } from '../core/LoggerManager.js';
+
+// Initialize logger for this module
+const logger = new LoggerManager().createModuleLogger('AnalyticsEngine');
 
 export class AnalyticsEngine {
     constructor() {
@@ -49,7 +53,7 @@ export class AnalyticsEngine {
     // Main analytics method
     createAnalyticsCharts(results) {
         if (!results || !results.scores) {
-            console.warn('No results data provided for analytics');
+            logger.warn('No results data provided for analytics');
             return;
         }
 
@@ -599,7 +603,7 @@ export class AnalyticsEngine {
             firebaseAnalytics.logEvent(eventName, enhancedParameters);
             
             } catch (error) {
-            console.warn('Failed to track event:', error);
+            logger.warn('Failed to track event:', error);
         }
     }
 

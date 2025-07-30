@@ -2,6 +2,10 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, logEvent, setUserId, setUserProperties } from 'firebase/analytics';
 import { getPerformance } from 'firebase/performance';
+import { LoggerManager } from '../modules/core/LoggerManager.js';
+
+// Initialize logger for this module
+const logger = new LoggerManager().createModuleLogger('Firebase');
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -22,7 +26,7 @@ let analytics = null;
 try {
   analytics = getAnalytics(app);
   } catch (error) {
-  console.warn('Firebase Analytics initialization failed:', error);
+  logger.warn('Firebase Analytics initialization failed:', error);
 }
 
 // Initialize Performance Monitoring
@@ -30,7 +34,7 @@ let performance = null;
 try {
   performance = getPerformance(app);
   } catch (error) {
-  console.warn('Firebase Performance initialization failed:', error);
+  logger.warn('Firebase Performance initialization failed:', error);
 }
 
 // Analytics helper functions
@@ -41,7 +45,7 @@ export const firebaseAnalytics = {
       try {
         logEvent(analytics, eventName, parameters);
         } catch (error) {
-        console.warn('Failed to log analytics event:', error);
+        logger.warn('Failed to log analytics event:', error);
       }
     }
   },
@@ -52,7 +56,7 @@ export const firebaseAnalytics = {
       try {
         setUserId(analytics, userId);
         } catch (error) {
-        console.warn('Failed to set analytics user ID:', error);
+        logger.warn('Failed to set analytics user ID:', error);
       }
     }
   },
@@ -74,7 +78,7 @@ export const firebaseAnalytics = {
           });
           }
       } catch (error) {
-        console.warn('Failed to set analytics user properties:', error);
+        logger.warn('Failed to set analytics user properties:', error);
         // Fallback: log user properties as custom events
         Object.entries(properties).forEach(([key, value]) => {
           this.logEvent('user_property_set', {
@@ -121,7 +125,7 @@ export const firebasePerformance = {
       try {
         // Note: Custom performance events require additional setup
         } catch (error) {
-        console.warn('Failed to log performance event:', error);
+        logger.warn('Failed to log performance event:', error);
       }
     }
   }

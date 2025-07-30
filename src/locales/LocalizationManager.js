@@ -5,6 +5,10 @@
 
 import { en } from './en.js';
 import { ru } from './ru.js';
+import { LoggerManager } from '../modules/core/LoggerManager.js';
+
+// Initialize logger for this module
+const logger = new LoggerManager().createModuleLogger('LocalizationManager');
 
 class LocalizationManager {
     constructor() {
@@ -25,7 +29,7 @@ class LocalizationManager {
             this.currentLocale = locale;
             this.updateURLWithLocale(locale);
         } else {
-            console.warn(`Locale '${locale}' not found, falling back to '${this.fallbackLocale}'`);
+            logger.warn(`Locale '${locale}' not found, falling back to '${this.fallbackLocale}'`);
             this.currentLocale = this.fallbackLocale;
         }
     }

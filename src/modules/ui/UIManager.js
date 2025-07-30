@@ -4,6 +4,10 @@
  */
 import { stateManager } from '../core/StateManager.js';
 import { quizEngine } from '../quiz/QuizEngine.js';
+import { LoggerManager } from '../core/LoggerManager.js';
+
+// Initialize logger for this module
+const logger = new LoggerManager().createModuleLogger('UIManager');
 
 export class UIManager {
     constructor() {
@@ -166,7 +170,7 @@ export class UIManager {
                 this.displayCurrentQuestion();
             }
         } catch (error) {
-            console.error('Error in nextQuestion:', error);
+            logger.error('Error in nextQuestion:', error);
             this.showError('Please select an option before continuing.');
         }
     }
