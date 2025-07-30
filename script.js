@@ -1782,6 +1782,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup modal click-outside-to-close functionality
     setupModalClickOutside();
+    
+    // Update Firebase debug button appearance
+    updateFirebaseDebugButton();
 });
 
 // Initialize the quiz
@@ -1874,6 +1877,37 @@ window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.generatePDF = generatePDF;
 window.copyShareLink = copyShareLink;
+
+/**
+ * Update Firebase Analytics debug button appearance
+ */
+function updateFirebaseDebugButton() {
+    const debugBtn = document.getElementById('debugToggleBtn');
+    if (debugBtn) {
+        // Only show debug button in development mode
+        const isDevelopment = getCurrentAppState() === 'development';
+        debugBtn.style.display = isDevelopment ? 'inline-block' : 'none';
+        
+        if (isDevelopment) {
+            const isDebugOn = window.firebaseAnalyticsDebug;
+            debugBtn.innerHTML = `<i class="fas fa-bug"></i> Firebase Debug ${isDebugOn ? 'ON' : 'OFF'}`;
+            debugBtn.style.backgroundColor = isDebugOn ? '#28a745' : '#6c757d';
+            debugBtn.style.color = isDebugOn ? 'white' : 'white';
+        }
+    }
+}
+
+// Override the toggle function to also update the button
+const originalToggle = window.toggleFirebaseAnalyticsDebug;
+window.toggleFirebaseAnalyticsDebug = () => {
+    // Only allow toggle in development mode
+    if (getCurrentAppState() === 'development') {
+        originalToggle();
+        updateFirebaseDebugButton();
+    } else {
+        console.warn('Firebase Analytics debug toggle is only available in development mode');
+    }
+};
 
 // Development function to clear localStorage
 function clearLocalStorage() {

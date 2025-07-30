@@ -22,6 +22,9 @@
                 <button class="btn btn-secondary" id="subscriptionBtn" onclick="openSubscriptionModal()" style="margin-left: 10px;">
                     <i class="fas fa-cog"></i> Subscription Management
                 </button>
+                <button class="btn btn-secondary" id="debugToggleBtn" onclick="toggleFirebaseAnalyticsDebug()" style="margin-left: 10px; font-size: 12px; display: none;">
+                    <i class="fas fa-bug"></i> Firebase Debug
+                </button>
             </div>
         </header>
 
@@ -635,11 +638,37 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         
+        // Firebase Analytics Debug Mode Toggle
+        window.firebaseAnalyticsDebug = localStorage.getItem('firebaseAnalyticsDebug') === 'true';
+        
+        // Toggle function for Firebase Analytics debug mode
+        window.toggleFirebaseAnalyticsDebug = () => {
+            // Check if we're in development mode (this will be overridden by script.js)
+            const isDevelopment = window.getCurrentAppState ? window.getCurrentAppState() === 'development' : true;
+            
+            if (isDevelopment) {
+                window.firebaseAnalyticsDebug = !window.firebaseAnalyticsDebug;
+                localStorage.setItem('firebaseAnalyticsDebug', window.firebaseAnalyticsDebug);
+                console.log(`Firebase Analytics debug mode: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`);
+                
+                // Show notification
+                if (window.vkBridgeManager) {
+                    window.vkBridgeManager.showNotification(
+                        `Firebase Analytics debug: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`
+                );
+                }
+            } else {
+                console.warn('Firebase Analytics debug toggle is only available in development mode');
+            }
+        };
+        
         // Initialize Analytics
         let analytics = null;
         try {
             analytics = getAnalytics(app);
-            console.log('Firebase Analytics initialized in HTML');
+            if (window.firebaseAnalyticsDebug) {
+                console.log('Firebase Analytics initialized in HTML');
+            }
         } catch (error) {
             console.warn('Firebase Analytics initialization failed in HTML:', error);
         }
@@ -659,7 +688,9 @@
                 if (analytics) {
                     try {
                         logEvent(analytics, eventName, parameters);
-                        console.log('Analytics event logged from HTML:', eventName, parameters);
+                        if (window.firebaseAnalyticsDebug) {
+                            console.log('🔥 Firebase Analytics Event:', eventName, parameters);
+                        }
                     } catch (error) {
                         console.warn('Failed to log analytics event from HTML:', error);
                     }
@@ -669,7 +700,9 @@
                 if (analytics) {
                     try {
                         setUserId(analytics, userId);
-                        console.log('User ID set from HTML:', userId);
+                        if (window.firebaseAnalyticsDebug) {
+                            console.log('🔥 Firebase Analytics User ID set:', userId);
+                        }
                     } catch (error) {
                         console.warn('Failed to set user ID from HTML:', error);
                         // Fallback: log user ID as an event
@@ -681,7 +714,9 @@
                 if (analytics) {
                     try {
                         setUserProperties(analytics, properties);
-                        console.log('User properties set from HTML:', properties);
+                        if (window.firebaseAnalyticsDebug) {
+                            console.log('🔥 Firebase Analytics User Properties set:', properties);
+                        }
                     } catch (error) {
                         console.warn('Failed to set user properties from HTML:', error);
                         // Fallback: log user properties as events
