@@ -58,6 +58,9 @@ export class VKBridgeManager {
                 // Track successful initialization
                 this.trackVKEvent('vk_bridge_init_success');
                 
+                // Check premium status
+                await this.checkPremiumStatus();
+                
                 // Debug VK environment
                 this.debugVKEnvironment();
             } else {
@@ -828,6 +831,252 @@ export class VKBridgeManager {
         // For now, we'll assume methods are supported if bridge is available
         // In the future, this could be enhanced with a method availability check
         return true;
+    }
+
+    /**
+     * Check premium status from local storage and backend
+     */
+    async checkPremiumStatus() {
+        try {
+            // Track premium check attempt
+            this.trackVKEvent('premium_status_check_attempted', {
+                vk_platform: this.isVKPlatform,
+                user_id: this.userInfo?.id
+            });
+
+            // First, check local storage
+            const localPremium = this.checkLocalPremiumStatus();
+            
+            if (localPremium.isPremium) {
+                // Premium found in local storage
+                this.trackVKEvent('premium_status_local_found', {
+                    source: localPremium.source,
+                    user_id: this.userInfo?.id
+                });
+                
+                // Update global premium status
+                if (typeof window.setPremium === 'function') {
+                    window.setPremium(true);
+                }
+                
+                if (window.firebaseAnalyticsDebug) {
+                    console.log('🔥 Premium status found in local storage:', localPremium);
+                }
+                
+                return localPremium;
+            }
+
+            // If not found in local storage, check backend
+            if (true) {
+                const backendPremium = await this.checkBackendPremiumStatus();
+                
+                if (backendPremium.isPremium) {
+                    // Premium found on backend, save to local storage
+                    this.savePremiumToLocalStorage(backendPremium);
+                    
+                    // Update global premium status
+                    if (typeof window.setPremium === 'function') {
+                        window.setPremium(true);
+                    }
+                    
+                    this.trackVKEvent('premium_status_backend_found', {
+                        user_id: this.userInfo.id,
+                        subscription_data: backendPremium.subscriptionData
+                    });
+                    
+                    if (window.firebaseAnalyticsDebug) {
+                        console.log('🔥 Premium status found on backend:', backendPremium);
+                    }
+                    
+                    return backendPremium;
+                } else {
+                    // No premium found anywhere
+                    this.trackVKEvent('premium_status_not_found', {
+                        user_id: this.userInfo.id,
+                        checked_local: true,
+                        checked_backend: true
+                    });
+                    
+                    if (window.firebaseAnalyticsDebug) {
+                        console.log('🔥 Premium status not found');
+                    }
+                }
+            } else {
+                // Not in VK environment or no user ID
+                this.trackVKEvent('premium_status_skip_backend', {
+                    reason: !this.isVKPlatform ? 'not_vk_platform' : 'no_user_id',
+                    user_id: this.userInfo?.id
+                });
+            }
+
+            return { isPremium: false, source: 'none' };
+            
+        } catch (error) {
+            console.error('Error checking premium status:', error);
+            
+            this.trackVKEvent('premium_status_check_error', {
+                error_message: error.message,
+                user_id: this.userInfo?.id
+            });
+            
+            return { isPremium: false, source: 'error', error: error.message };
+        }
+    }
+
+    /**
+     * Check premium status in local storage
+     */
+    checkLocalPremiumStatus() {
+        try {
+            // Check for premium flag
+            const premiumFlag = localStorage.getItem('mbti_premium');
+            if (premiumFlag === 'true') {
+                return { isPremium: true, source: 'local_flag' };
+            }
+
+            // Check for subscription data
+            const subscriptionData = localStorage.getItem('mbti_subscription_data');
+            if (subscriptionData) {
+                try {
+                    const subscription = JSON.parse(subscriptionData);
+                    
+                    // Check if subscription is still valid
+                    if (subscription.tier === 'lifetime') {
+                        return { isPremium: true, source: 'local_subscription_lifetime', subscriptionData: subscription };
+                    }
+                    
+                    if (subscription.endDate && subscription.endDate !== 'Бессрочно') {
+                        const endDate = new Date(subscription.endDate);
+                        const now = new Date();
+                        
+                        if (endDate > now) {
+                            return { isPremium: true, source: 'local_subscription_active', subscriptionData: subscription };
+                        } else {
+                            // Subscription expired, remove from storage
+                            localStorage.removeItem('mbti_subscription_data');
+                            return { isPremium: false, source: 'local_subscription_expired' };
+                        }
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing subscription data:', parseError);
+                    localStorage.removeItem('mbti_subscription_data');
+                }
+            }
+
+            return { isPremium: false, source: 'local_not_found' };
+            
+        } catch (error) {
+            console.error('Error checking local premium status:', error);
+            return { isPremium: false, source: 'local_error', error: error.message };
+        }
+    }
+
+    /**
+     * Check premium status on backend server
+     */
+    async checkBackendPremiumStatus() {
+        try {
+            const backendUrl = 'https://user6582162-sejkta2h.tunnel.vk-apps.com/';
+            const userId = this.userInfo?.id;
+            
+            if (!userId) {
+                throw new Error('No user ID available for backend check');
+            }
+
+            // Track backend check attempt
+            this.trackVKEvent('premium_backend_check_attempted', {
+                user_id: userId,
+                backend_url: backendUrl
+            });
+
+            const response = await fetch(`${backendUrl}purchase?user_id=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout: 10000 // 10 second timeout
+            });
+
+            if (!response.ok) {
+                throw new Error(`Backend responded with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Track successful backend response
+            this.trackVKEvent('premium_backend_check_success', {
+                user_id: userId,
+                response_status: response.status
+            });
+
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 Backend premium check response:', data);
+            }
+
+            // Process backend response
+            if (data.success && data.premium) {
+                const subscriptionData = {
+                    tier: data.subscription_tier || 'monthly',
+                    startDate: data.start_date || new Date().toLocaleDateString(),
+                    endDate: data.end_date || 'Бессрочно',
+                    nextPayment: data.next_payment || 'Нет',
+                    price: data.price || '40 RUB',
+                    orderId: data.order_id || 'backend_' + Date.now()
+                };
+
+                return {
+                    isPremium: true,
+                    source: 'backend',
+                    subscriptionData: subscriptionData,
+                    backendData: data
+                };
+            }
+
+            return { isPremium: false, source: 'backend_not_found' };
+            
+        } catch (error) {
+            console.error('Error checking backend premium status:', error);
+            
+            this.trackVKEvent('premium_backend_check_error', {
+                error_message: error.message,
+                user_id: this.userInfo?.id
+            });
+            
+            return { isPremium: false, source: 'backend_error', error: error.message };
+        }
+    }
+
+    /**
+     * Save premium data to local storage
+     */
+    savePremiumToLocalStorage(premiumData) {
+        try {
+            // Set premium flag
+            localStorage.setItem('mbti_premium', 'true');
+            
+            // Save subscription data if available
+            if (premiumData.subscriptionData) {
+                localStorage.setItem('mbti_subscription_data', JSON.stringify(premiumData.subscriptionData));
+            }
+            
+            this.trackVKEvent('premium_data_saved_to_local', {
+                source: premiumData.source,
+                user_id: this.userInfo?.id
+            });
+            
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 Premium data saved to local storage:', premiumData);
+            }
+            
+        } catch (error) {
+            console.error('Error saving premium data to local storage:', error);
+            
+            this.trackVKEvent('premium_data_save_error', {
+                error_message: error.message,
+                user_id: this.userInfo?.id
+            });
+        }
     }
 
     /**

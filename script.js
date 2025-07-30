@@ -1816,10 +1816,24 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAndShowLastResultsButton();
     
     // Setup modal click-outside-to-close functionality
-    setupModalClickOutside();
-    
-    // Update Firebase debug button appearance
-    updateFirebaseDebugButton();
+setupModalClickOutside();
+
+// Update Firebase debug button appearance
+updateFirebaseDebugButton();
+
+// Check premium status on app load
+if (window.vkBridgeManager) {
+    window.vkBridgeManager.checkPremiumStatus().then(premiumStatus => {
+        if (window.firebaseAnalyticsDebug) {
+            console.log('🔥 Initial premium status check result:', premiumStatus);
+        }
+        
+        // Update UI based on premium status
+        if (premiumStatus.isPremium) {
+            updatePremiumUI();
+        }
+    });
+}
 });
 
 // Initialize the quiz
