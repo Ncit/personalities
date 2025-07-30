@@ -628,9 +628,6 @@ async function unlockPremium() {
                         unlockMsg.style.color = '#28a745'; // Green color for success messages
                     }
                     
-                    // Show success notification
-                    vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
-                    
                     // Complete premium unlock
                     completePremiumUnlock();
                 } else if (paymentResult.cancelled) {

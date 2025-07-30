@@ -158,6 +158,7 @@ export const en = {
             saveShare: 'Save/share results with a custom link',
             fullDescriptions: 'Full type descriptions',
             visualAnalytics: 'Visual analytics (charts/graphs)',
+            newTests: 'New tests every month',
             adFree: 'Ad-free experience'
         },
         
