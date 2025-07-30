@@ -1,17 +1,36 @@
-# MBTI 16 Personalities Quiz
+# MBTI 16 Personalities Quiz - Enhanced Platform
 
-A modern, interactive web application for discovering your Myers-Briggs Type Indicator (MBTI) personality type. This static website provides a comprehensive 60-question assessment that evaluates your preferences across the four MBTI dimensions.
+A modern, modular web application for discovering your Myers-Briggs Type Indicator (MBTI) personality type. This comprehensive platform features a 60-question assessment with advanced analytics, VK platform integration, and multiple specialized quizzes.
 
-## 🌟 Features
+## 🌟 Enhanced Features
 
 - **60 Comprehensive Questions**: Carefully crafted questions covering all four MBTI dimensions
-- **Interactive Quiz Interface**: Modern, responsive design with smooth animations
-- **Real-time Progress Tracking**: Visual progress bar and question counter
-- **Detailed Results**: Complete personality type analysis with descriptions and traits
-- **Dimension Breakdown**: Visual representation of your preferences across all four dimensions
-- **Mobile Responsive**: Works perfectly on desktop, tablet, and mobile devices
-- **Share Results**: Easy sharing of your personality type results
+- **Modular Architecture**: Clean, scalable codebase with ES6 modules and separation of concerns
+- **VK Platform Integration**: Native VK Mini Apps support with payment processing
+- **Multiple Quiz Types**: 15+ specialized assessments for premium users
+- **Advanced Analytics**: Interactive charts and detailed personality insights
+- **Internationalization**: Full Russian and English language support
+- **Firebase Integration**: Comprehensive analytics and error tracking
+- **Premium Features**: Subscription-based access to specialized content
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **No Data Storage**: All processing happens locally - your privacy is protected
+
+## 🏗️ Architecture Overview
+
+The application follows a modern modular architecture:
+
+```
+src/
+├── modules/
+│   ├── core/           # State management and app logic
+│   ├── quiz/           # Quiz engine and scoring
+│   ├── ui/             # DOM manipulation and UI updates
+│   ├── analytics/      # Data visualization and charts
+│   └── vk/             # VK platform integration
+├── data/               # Quiz questions and personality data
+├── config/             # Firebase and external service configs
+└── locales/            # Internationalization files
+```
 
 ## 🎯 MBTI Dimensions
 
@@ -36,24 +55,30 @@ The quiz evaluates your preferences across four key dimensions:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- No additional software or installations required
+- Node.js 16.0.0 or higher
+- npm 8.0.0 or higher
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ### Installation
-1. Download or clone this repository
-2. Open `index.html` in your web browser
-3. Start the quiz!
+1. Clone this repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+4. Open `http://localhost:5173` in your browser
 
-### Alternative: Live Demo
-Simply open the `index.html` file in any web browser to begin the quiz immediately.
+### Build for Production
+```bash
+npm run build
+npm run preview
+```
 
 ## 📱 How to Use
 
-1. **Welcome Screen**: Read about the MBTI dimensions and click "Start Quiz"
-2. **Answer Questions**: Select the option that best describes you for each of the 60 questions
+1. **Welcome Screen**: Read about the MBTI dimensions and choose your quiz type
+2. **Answer Questions**: Select the option that best describes you for each question
 3. **Navigate**: Use "Previous" and "Next" buttons to review or change answers
-4. **View Results**: See your personality type, description, and dimension breakdown
-5. **Share**: Share your results with friends or take the quiz again
+4. **View Results**: See your personality type, description, and detailed analytics
+5. **Premium Features**: Unlock specialized quizzes and advanced insights
+6. **Share**: Share your results with friends or take the quiz again
 
 ## 🎨 Design Features
 
@@ -62,6 +87,32 @@ Simply open the `index.html` file in any web browser to begin the quiz immediate
 - **Responsive Layout**: Adapts to any screen size
 - **Accessibility**: High contrast colors and clear typography
 - **Interactive Elements**: Hover effects and visual feedback
+- **Dark/Light Themes**: Automatic theme switching based on system preference
+
+## 📊 Advanced Analytics
+
+The platform includes comprehensive analytics features:
+
+- **Radar Charts**: Visual representation of personality dimensions
+- **Bar Charts**: Score comparison across dimensions
+- **Balance Charts**: Preference balance visualization
+- **Pie Charts**: Score distribution analysis
+- **Timeline Charts**: Progress tracking
+- **Strengths Charts**: Dominant trait analysis
+
+## 🌐 VK Platform Integration
+
+### Features
+- **Native VK Experience**: Seamless integration with VK Mini Apps
+- **Payment Processing**: In-app purchases for premium features
+- **User Authentication**: Automatic VK user identification
+- **Analytics**: VK-specific event tracking
+- **Error Handling**: Graceful fallbacks for non-VK environments
+
+### Premium Subscription Tiers
+- **Monthly**: 1.99 RUB/month
+- **Yearly**: 19.90 RUB/year (17% savings)
+- **Lifetime**: 49.90 RUB (one-time payment)
 
 ## 📊 16 Personality Types
 
@@ -89,29 +140,45 @@ The quiz identifies one of 16 possible personality types:
 ## 🔧 Technical Details
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **No Dependencies**: Pure vanilla JavaScript - no frameworks required
-- **Responsive Design**: CSS Grid and Flexbox for layout
-- **Modern CSS**: Custom properties, gradients, and animations
-- **Local Processing**: All calculations happen in the browser
+- **Build Tool**: Vite for fast development and optimized builds
+- **Module System**: ES6 modules with clean separation of concerns
+- **State Management**: Centralized state management with observer pattern
+- **Analytics**: Firebase Analytics integration
+- **Internationalization**: Multi-language support with localization manager
+- **VK Integration**: VK Bridge API for platform-specific features
 
-## 📁 File Structure
+## 📁 Project Structure
 
 ```
-mbti-quiz/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles and responsive design
-├── script.js           # JavaScript quiz logic and functionality
-└── README.md           # This file
+mbti-personality-quiz/
+├── src/
+│   ├── modules/           # Core application modules
+│   │   ├── core/         # State management
+│   │   ├── quiz/         # Quiz engine
+│   │   ├── ui/           # UI management
+│   │   ├── analytics/    # Analytics engine
+│   │   └── vk/           # VK platform integration
+│   ├── data/             # Quiz data and questions
+│   ├── config/           # Configuration files
+│   └── locales/          # Internationalization
+├── dist/                 # Build output
+├── index.html            # Main HTML file
+├── index.en.html         # English version
+├── styles.css            # Main stylesheet
+├── script.js             # Main application logic
+├── package.json          # Dependencies and scripts
+└── vite.config.js        # Build configuration
 ```
 
 ## 🎯 Quiz Algorithm
 
-The quiz uses a weighted scoring system:
+The quiz uses a sophisticated scoring system:
 
 1. **Question Weighting**: Each answer option has a weight (-3 to +3) indicating preference strength
 2. **Dimension Scoring**: Scores are accumulated for each dimension pair (E/I, S/N, T/F, J/P)
 3. **Type Calculation**: The higher score in each dimension pair determines the final type
-4. **Result Display**: Shows personality type, description, traits, and dimension breakdown
+4. **Advanced Analytics**: Multiple chart types provide detailed insights
+5. **Result Display**: Shows personality type, description, traits, and comprehensive breakdown
 
 ## 🌐 Browser Compatibility
 
@@ -120,6 +187,23 @@ The quiz uses a weighted scoring system:
 - ✅ Safari 12+
 - ✅ Edge 79+
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+
+## 🧪 Development
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run test` - Run tests
+- `npm run lint` - Lint code
+- `npm run format` - Format code
+
+### Development Features
+- **Hot Reload**: Instant updates during development
+- **Source Maps**: Easy debugging
+- **ESLint**: Code quality enforcement
+- **Prettier**: Code formatting
+- **TypeScript Support**: Enhanced type safety (optional)
 
 ## 📄 License
 
@@ -133,6 +217,8 @@ Contributions are welcome! Feel free to:
 - Improve the quiz questions
 - Enhance the design
 - Add new personality type descriptions
+- Improve VK integration
+- Add new analytics features
 
 ## 📞 Support
 
