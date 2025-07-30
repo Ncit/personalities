@@ -2111,6 +2111,14 @@ window.testUpdatePremiumUI = testUpdatePremiumUI;
 function notifyGlobalFunctionsReady() {
     console.log('🔥 Global functions are ready, notifying VKBridgeManager');
     
+    // Debug: Check what's actually available
+    console.log('🔥 Debug - Available global functions:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium,
+        vkBridgeManager: typeof window.vkBridgeManager
+    });
+    
     // Check if VKBridgeManager exists and has a method to handle this
     if (window.vkBridgeManager && window.vkBridgeManager.updateGlobalPremiumStatus) {
         // Get current premium status and update UI
@@ -2119,16 +2127,96 @@ function notifyGlobalFunctionsReady() {
         
         // Update global premium status to trigger UI update
         window.vkBridgeManager.updateGlobalPremiumStatus(currentPremium);
+    } else {
+        console.warn('🔥 VKBridgeManager not available for UI update');
     }
 }
 
 // Call this when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 DOM loaded, checking if global functions are ready');
+    console.log('🔥 DOM loaded, ensuring global functions are exposed');
+    ensureGlobalFunctionsExposed();
     setTimeout(notifyGlobalFunctionsReady, 100);
 });
 
 window.notifyGlobalFunctionsReady = notifyGlobalFunctionsReady;
+
+// Function to ensure global functions are exposed
+function ensureGlobalFunctionsExposed() {
+    console.log('🔥 Ensuring global functions are exposed...');
+    
+    // Check if functions exist locally
+    console.log('🔥 Local function availability:', {
+        setPremium: typeof setPremium,
+        updatePremiumUI: typeof updatePremiumUI,
+        isPremium: typeof isPremium
+    });
+    
+    // Explicitly expose functions to window if they exist locally
+    if (typeof setPremium === 'function' && !window.setPremium) {
+        console.log('🔥 Exposing setPremium to window');
+        window.setPremium = setPremium;
+    }
+    
+    if (typeof updatePremiumUI === 'function' && !window.updatePremiumUI) {
+        console.log('🔥 Exposing updatePremiumUI to window');
+        window.updatePremiumUI = updatePremiumUI;
+    }
+    
+    if (typeof isPremium === 'function' && !window.isPremium) {
+        console.log('🔥 Exposing isPremium to window');
+        window.isPremium = isPremium;
+    }
+    
+    // Check final state
+    console.log('🔥 Final global function availability:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium
+    });
+}
+
+window.ensureGlobalFunctionsExposed = ensureGlobalFunctionsExposed;
+
+// Manual test function to check global function status
+function checkGlobalFunctionStatus() {
+    console.log('🔥 === GLOBAL FUNCTION STATUS CHECK ===');
+    
+    // Check local functions
+    console.log('🔥 Local functions:', {
+        setPremium: typeof setPremium,
+        updatePremiumUI: typeof updatePremiumUI,
+        isPremium: typeof isPremium
+    });
+    
+    // Check window functions
+    console.log('🔥 Window functions:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium
+    });
+    
+    // Check VKBridgeManager
+    console.log('🔥 VKBridgeManager:', {
+        exists: typeof window.vkBridgeManager,
+        updateGlobalPremiumStatus: window.vkBridgeManager ? typeof window.vkBridgeManager.updateGlobalPremiumStatus : 'N/A'
+    });
+    
+    // Try to manually expose functions
+    console.log('🔥 Attempting to expose functions...');
+    ensureGlobalFunctionsExposed();
+    
+    // Check again after exposure
+    console.log('🔥 After exposure attempt:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium
+    });
+    
+    console.log('🔥 === END STATUS CHECK ===');
+}
+
+window.checkGlobalFunctionStatus = checkGlobalFunctionStatus;
 
 // Development function to temporarily override premium status for testing
 function overridePremiumStatus(isPremium) {
