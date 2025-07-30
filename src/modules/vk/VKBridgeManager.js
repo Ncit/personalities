@@ -172,7 +172,17 @@ export class VKBridgeManager {
                 
                 // Set user properties
                 try {
-                    window.firebaseAnalytics.setUserProperties(userProperties);
+                    if (window.firebaseAnalytics && typeof window.firebaseAnalytics.setUserProperties === 'function') {
+                        window.firebaseAnalytics.setUserProperties(userProperties);
+                    } else {
+                        // Fallback: log user properties as individual events
+                        Object.entries(userProperties).forEach(([key, value]) => {
+                            window.firebaseAnalytics.logEvent('vk_user_property_set', {
+                                property_name: key,
+                                property_value: value
+                            });
+                        });
+                    }
                 } catch (error) {
                     console.warn('Failed to set user properties, logging as events instead:', error);
                     // Fallback: log user properties as individual events
@@ -186,7 +196,14 @@ export class VKBridgeManager {
                 
                 // Set user ID
                 try {
-                    window.firebaseAnalytics.setUserId(userInfo.id?.toString());
+                    if (window.firebaseAnalytics && typeof window.firebaseAnalytics.setUserId === 'function') {
+                        window.firebaseAnalytics.setUserId(userInfo.id?.toString());
+                    } else {
+                        // Fallback: log user ID as an event
+                        window.firebaseAnalytics.logEvent('vk_user_id_set', {
+                            vk_user_id: userInfo.id?.toString()
+                        });
+                    }
                 } catch (error) {
                     console.warn('Failed to set user ID, logging as event instead:', error);
                     // Fallback: log user ID as an event
