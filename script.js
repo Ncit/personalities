@@ -2040,69 +2040,6 @@ function clearPremiumStorage() {
 
 window.clearLocalStorage = clearLocalStorage;
 
-// Simple test function to manually clear premium localStorage
-function testClearPremium() {
-    console.log('🔥 testClearPremium() called');
-    console.log('🔥 Current localStorage before test:', {
-        mbti_premium: localStorage.getItem('mbti_premium'),
-        mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
-        mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-    });
-    
-    // Clear manually
-    localStorage.removeItem('mbti_premium');
-    localStorage.removeItem('mbti_premium_timestamp');
-    localStorage.removeItem('mbti_subscription_data');
-    
-    console.log('🔥 localStorage after manual clearing:', {
-        mbti_premium: localStorage.getItem('mbti_premium'),
-        mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
-        mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-    });
-    
-    alert('Manual premium clearing test completed. Check console for results.');
-}
-
-window.testClearPremium = testClearPremium;
-
-// Test function to check if updatePremiumUI is working
-function testUpdatePremiumUI() {
-    console.log('🔥 testUpdatePremiumUI() called');
-    
-    // Check if function exists
-    console.log('🔥 updatePremiumUI function exists:', typeof updatePremiumUI);
-    console.log('🔥 isPremium function exists:', typeof isPremium);
-    
-    // Check current premium status
-    const currentPremium = isPremium();
-    console.log('🔥 Current premium status:', currentPremium);
-    
-    // Check localStorage
-    const localStorageValue = localStorage.getItem('mbti_premium');
-    console.log('🔥 localStorage value:', localStorageValue);
-    
-    // Try to call updatePremiumUI
-    try {
-        console.log('🔥 Calling updatePremiumUI()...');
-        updatePremiumUI();
-        console.log('🔥 updatePremiumUI() called successfully');
-    } catch (error) {
-        console.error('🔥 Error calling updatePremiumUI():', error);
-    }
-    
-    // Check premium elements
-    const premiumLocked = document.querySelectorAll('.premium-locked').length;
-    const premiumContent = document.querySelectorAll('.premium-content').length;
-    const btnPremium = document.querySelectorAll('.btn-premium').length;
-    
-    console.log('🔥 Premium elements found:', {
-        premiumLocked: premiumLocked,
-        premiumContent: premiumContent,
-        btnPremium: btnPremium
-    });
-}
-
-window.testUpdatePremiumUI = testUpdatePremiumUI;
 
 // Function to notify VKBridgeManager that global functions are ready
 function notifyGlobalFunctionsReady() {
@@ -2684,12 +2621,6 @@ function closeHelpModal() {
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
-
-// Test if function exists
-typeof clearPremiumStorage
-
-// // Test manual clearing
-// testClearPremium()
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')

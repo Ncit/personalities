@@ -734,109 +734,17 @@ export class VKBridgeManager {
     }
 
     /**
-     * Debug backend API with different parameters
-     */
-    async debugBackendAPI() {
-        if (!this.userInfo?.id) {
-            console.log('🔥 Debug: No user ID available');
-            return;
-        }
-
-        console.log('🔥 Debug: Testing backend API with different parameters...');
-        
-        const testCases = [
-            {
-                name: 'POST with JSON body (recommended)',
-                method: 'POST',
-                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
-                body: {
-                    user_id: this.userInfo.id,
-                    app_id: '53942833',
-                    item_id: 'mbti_premium'
-                }
-            },
-            {
-                name: 'POST with minimal body',
-                method: 'POST',
-                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
-                body: {
-                    user_id: this.userInfo.id
-                }
-            },
-            {
-                name: 'GET with query parameters (original)',
-                method: 'GET',
-                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}?user_id=${this.userInfo.id}&app_id=53942833&item_id=mbti_premium`
-            },
-            {
-                name: 'GET with minimal parameters',
-                method: 'GET',
-                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}?user_id=${this.userInfo.id}`
-            },
-            {
-                name: 'POST with empty body',
-                method: 'POST',
-                url: `${VKBridgeManager.BACKEND_BASE_URL}${VKBridgeManager.BACKEND_CHECK_PURCHASE_ENDPOINT}`,
-                body: {}
-            }
-        ];
-
-        for (const testCase of testCases) {
-            try {
-                console.log(`🔥 Debug: Testing ${testCase.name}...`);
-                
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
-                const fetchOptions = {
-                    method: testCase.method,
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    signal: controller.signal
-                };
-                
-                if (testCase.method === 'POST') {
-                    fetchOptions.headers['Content-Type'] = 'application/json';
-                    fetchOptions.body = JSON.stringify(testCase.body);
-                }
-                
-                const response = await fetch(testCase.url, fetchOptions);
-                
-                clearTimeout(timeoutId);
-                
-                console.log(`🔥 Debug: ${testCase.name} - Status: ${response.status} ${response.statusText}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`🔥 Debug: ${testCase.name} - Response:`, data);
-                } else {
-                    const errorText = await response.text();
-                    console.log(`🔥 Debug: ${testCase.name} - Error:`, errorText);
-                }
-                
-            } catch (error) {
-                console.log(`🔥 Debug: ${testCase.name} - Exception:`, error.message);
-            }
-        }
-    }
-
-    /**
      * Expose debug methods globally for testing
      */
     exposeDebugMethods() {
         // Expose debug methods to window for testing
         window.vkDebug = {
-            debugBackendAPI: () => this.debugBackendAPI(),
             checkPremiumStatus: () => this.checkPremiumStatus(),
             refreshPremiumStatus: () => this.refreshPremiumStatus(),
             clearPremiumStorage: () => this.clearPremiumStorage(),
             getUserInfo: () => this.userInfo,
             getVKEnvironment: () => this.isVKEnvironment()
         };
-        
-        console.log('🔥 VK Debug methods exposed to window.vkDebug');
-        console.log('🔥 Available methods: debugBackendAPI(), checkPremiumStatus(), refreshPremiumStatus(), clearPremiumStorage(), getUserInfo, getVKEnvironment()');
     }
 
     /**
