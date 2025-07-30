@@ -618,9 +618,6 @@
         let analytics = null;
         try {
             analytics = getAnalytics(app);
-            if (window.firebaseAnalyticsDebug) {
-                console.log('Firebase Analytics initialized in HTML');
-            }
         } catch (error) {
             console.warn('Firebase Analytics initialization failed in HTML:', error);
         }
