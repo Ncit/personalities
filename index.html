@@ -666,9 +666,6 @@
                 if (analytics) {
                     try {
                         setUserProperties(analytics, properties);
-                        if (window.firebaseAnalyticsDebug) {
-                            console.log('🔥 Firebase Analytics User Properties set:', properties);
-                        }
                     } catch (error) {
                         console.warn('Failed to set user properties from HTML:', error);
                         // Fallback: log user properties as events

@@ -37,9 +37,6 @@ export class VKBridgeManager {
 
                 // Send ready event
                 await this.bridge.send('VKWebAppInit');
-                // Track VK app initialization
-                this.trackVKEvent('vk_app_initialized');
-                
                 // Get user info
                 await this.getUserInfo();
                 
@@ -135,13 +132,6 @@ export class VKBridgeManager {
                 window.firebaseAnalytics.logEvent(eventName, enhancedParameters);
             }
             
-            // Store event locally for debugging
-            this.vkEvents.push({
-                event: eventName,
-                parameters: enhancedParameters,
-                timestamp: new Date().toISOString()
-            });
-            
             } catch (error) {
             console.warn('Failed to track VK event:', error);
         }
@@ -192,17 +182,17 @@ export class VKBridgeManager {
                     if (window.firebaseAnalytics && typeof window.firebaseAnalytics.setUserId === 'function') {
                         window.firebaseAnalytics.setUserId(userInfo.id?.toString());
                     } else {
-                        // Fallback: log user ID as an event
-                        window.firebaseAnalytics.logEvent('vk_user_id_set', {
-                            vk_user_id: userInfo.id?.toString()
-                        });
+                        // // Fallback: log user ID as an event
+                        // window.firebaseAnalytics.logEvent('vk_user_id_set', {
+                        //     vk_user_id: userInfo.id?.toString()
+                        // });
                     }
                 } catch (error) {
-                    console.warn('Failed to set user ID, logging as event instead:', error);
-                    // Fallback: log user ID as an event
-                    window.firebaseAnalytics.logEvent('vk_user_id_set', {
-                        vk_user_id: userInfo.id?.toString()
-                    });
+                    // console.warn('Failed to set user ID, logging as event instead:', error);
+                    // // Fallback: log user ID as an event
+                    // window.firebaseAnalytics.logEvent('vk_user_id_set', {
+                    //     vk_user_id: userInfo.id?.toString()
+                    // });
                 }
                 
                 // Track user ID setting event
@@ -372,7 +362,6 @@ export class VKBridgeManager {
             // Check for premium override first (development mode only)
             const premiumOverride = localStorage.getItem('mbti_premium_override');
             if (premiumOverride !== null) {
-                console.log('🔥 Premium override found in localStorage:', premiumOverride);
                 return premiumOverride === 'true';
             }
             
@@ -471,18 +460,10 @@ export class VKBridgeManager {
      * Store premium status in local storage
      */
     storePremiumStatus(isPremium) {
-        console.log('🔥 storePremiumStatus() called with:', isPremium);
         try {
             localStorage.setItem('mbti_premium', isPremium.toString());
-            
             // Also store timestamp for cache invalidation
             localStorage.setItem('mbti_premium_timestamp', Date.now().toString());
-            
-            console.log('🔥 Premium status stored in localStorage:', isPremium);
-            console.log('🔥 Current localStorage after storing:', {
-                mbti_premium: localStorage.getItem('mbti_premium'),
-                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp')
-            });
         } catch (error) {
             console.error('Error storing premium status:', error);
         }
@@ -496,16 +477,10 @@ export class VKBridgeManager {
         
         const checkFunctions = () => {
             attempts++;
-            console.log(`🔥 Checking for global functions (attempt ${attempts}/${maxAttempts})`);
-            
             if (window.setPremium && window.updatePremiumUI) {
-                console.log('🔥 Global functions found, executing callback');
                 callback();
             } else if (attempts < maxAttempts) {
-                console.log('🔥 Global functions not ready, retrying in 200ms...');
                 setTimeout(checkFunctions, 200);
-            } else {
-                console.warn('🔥 Global functions not available after maximum attempts');
             }
         };
         
@@ -516,27 +491,17 @@ export class VKBridgeManager {
      * Update global premium status
      */
     updateGlobalPremiumStatus(isPremium) {
-        console.log('🔥 updateGlobalPremiumStatus() called with:', isPremium);
-        
         const updateFunctions = () => {
             try {
                 // Update global premium state
                 if (window.setPremium) {
-                    console.log('🔥 Calling window.setPremium with:', isPremium);
                     window.setPremium(isPremium);
-                } else {
-                    console.warn('🔥 window.setPremium still not found');
                 }
                 
                 // Update UI if available
                 if (window.updatePremiumUI) {
-                    console.log('🔥 Calling window.updatePremiumUI()');
                     window.updatePremiumUI();
-                } else {
-                    console.warn('🔥 window.updatePremiumUI still not found');
                 }
-                
-                console.log('🔥 Global premium status updated:', isPremium);
             } catch (error) {
                 console.error('Error updating global premium status:', error);
             }
@@ -555,7 +520,6 @@ export class VKBridgeManager {
      * Manually refresh premium status from backend
      */
     async refreshPremiumStatus() {
-        console.log('🔥 refreshPremiumStatus() called');
         
         this.trackVKEvent('premium_status_refresh_attempted', {
             user_id: this.userInfo?.id
@@ -563,19 +527,12 @@ export class VKBridgeManager {
 
         try {
             // Clear local storage cache
-            console.log('🔥 Clearing localStorage cache in refreshPremiumStatus...');
             localStorage.removeItem('mbti_premium');
             localStorage.removeItem('mbti_premium_timestamp');
-            
-            console.log('🔥 After clearing in refreshPremiumStatus:', {
-                mbti_premium: localStorage.getItem('mbti_premium'),
-                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp')
-            });
             
             // Check for premium override first
             const premiumOverride = localStorage.getItem('mbti_premium_override');
             if (premiumOverride !== null) {
-                console.log('🔥 Premium override found, using override value:', premiumOverride);
                 const overrideValue = premiumOverride === 'true';
                 
                 // Store the override result
@@ -594,13 +551,10 @@ export class VKBridgeManager {
             }
             
             // Check backend again
-            console.log('🔥 Checking backend premium status...');
             const backendPremiumStatus = await this.checkBackendPremiumStatus();
-            console.log('🔥 Backend premium status result:', backendPremiumStatus);
             
             if (backendPremiumStatus !== null) {
                 // Store the fresh result
-                console.log('🔥 Storing backend result to localStorage:', backendPremiumStatus);
                 this.storePremiumStatus(backendPremiumStatus);
                 
                 // Update global premium status
@@ -618,8 +572,6 @@ export class VKBridgeManager {
             return false;
             
         } catch (error) {
-            console.error('Error refreshing premium status:', error);
-            
             this.trackVKEvent('premium_status_refresh_error', {
                 error_message: error.message,
                 user_id: this.userInfo?.id
@@ -633,14 +585,6 @@ export class VKBridgeManager {
      * Clear premium-related localStorage and refresh status
      */
     clearPremiumStorage() {
-        console.log('🔥 VKBridgeManager.clearPremiumStorage() called');
-        
-        // Log current state before clearing
-        console.log('🔥 Before clearing - localStorage state:', {
-            mbti_premium: localStorage.getItem('mbti_premium'),
-            mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
-            mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-        });
         
         // Clear specific premium-related keys
         localStorage.removeItem('mbti_premium');
@@ -650,20 +594,6 @@ export class VKBridgeManager {
         // Reset internal state
         this.premiumStatus = null;
         this.premiumStatusTimestamp = null;
-        
-        console.log('🔥 After clearing - localStorage state:', {
-            mbti_premium: localStorage.getItem('mbti_premium'),
-            mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
-            mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
-        });
-        
-        console.log('🔥 Internal state reset:', {
-            premiumStatus: this.premiumStatus,
-            premiumStatusTimestamp: this.premiumStatusTimestamp
-        });
-        
-        // Force refresh premium status
-        console.log('🔥 Calling refreshPremiumStatus...');
         return this.refreshPremiumStatus();
     }
 
@@ -672,12 +602,9 @@ export class VKBridgeManager {
      */
     async debugBackendAPI() {
         if (!this.userInfo?.id) {
-            console.log('🔥 Debug: No user ID available');
             return;
         }
 
-        console.log('🔥 Debug: Testing backend API with different parameters...');
-        
         const testCases = [
             {
                 name: 'POST with JSON body (recommended)',
@@ -717,8 +644,6 @@ export class VKBridgeManager {
 
         for (const testCase of testCases) {
             try {
-                console.log(`🔥 Debug: Testing ${testCase.name}...`);
-                
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 5000);
                 
@@ -739,14 +664,10 @@ export class VKBridgeManager {
                 
                 clearTimeout(timeoutId);
                 
-                console.log(`🔥 Debug: ${testCase.name} - Status: ${response.status} ${response.statusText}`);
-                
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`🔥 Debug: ${testCase.name} - Response:`, data);
                 } else {
                     const errorText = await response.text();
-                    console.log(`🔥 Debug: ${testCase.name} - Error:`, errorText);
                 }
                 
             } catch (error) {
@@ -768,9 +689,6 @@ export class VKBridgeManager {
             getUserInfo: () => this.userInfo,
             getVKEnvironment: () => this.isVKEnvironment()
         };
-        
-        console.log('🔥 VK Debug methods exposed to window.vkDebug');
-        console.log('🔥 Available methods: debugBackendAPI(), checkPremiumStatus(), refreshPremiumStatus(), clearPremiumStorage(), getUserInfo, getVKEnvironment()');
     }
 
     /**
