@@ -330,9 +330,65 @@ export class VKBridgeManager {
     }
 
     /**
+     * Refresh premium status - checks localStorage first, then backend if needed
+     */
+    async refreshPremiumStatus() {
+        console.log('🔥 refreshPremiumStatus() called');
+        
+        // First check localStorage
+        const localPremiumStatus = this.checkLocalPremiumStatus();
+        
+        if (localPremiumStatus !== null) {
+            console.log('🔥 Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+            
+            this.trackVKEvent('premium_status_refresh_from_local', {
+                is_premium: localPremiumStatus,
+                backend_request_skipped: true
+            });
+            
+            // Update global premium status
+            this.updateGlobalPremiumStatus(localPremiumStatus);
+            return localPremiumStatus;
+        }
+
+        // Only check backend if no premium status found in localStorage
+        if (this.userInfo?.id) {
+            console.log('🔥 No local premium status found, checking backend...');
+            
+            const backendPremiumStatus = await this.checkBackendPremiumStatus();
+            
+            if (backendPremiumStatus !== null) {
+                // Store the result in local storage
+                this.storePremiumStatus(backendPremiumStatus);
+                
+                // Update global premium status
+                this.updateGlobalPremiumStatus(backendPremiumStatus);
+                
+                this.trackVKEvent('premium_status_refresh_from_backend', {
+                    is_premium: backendPremiumStatus,
+                    user_id: this.userInfo.id
+                });
+                
+                return backendPremiumStatus;
+            }
+        }
+
+        // If we can't determine premium status, assume not premium
+        console.log('🔥 Could not determine premium status, defaulting to false');
+        
+        this.trackVKEvent('premium_status_refresh_unknown', {
+            user_id: this.userInfo?.id
+        });
+        
+        return false;
+    }
+
+    /**
      * Check premium status from local storage and backend
      */
     async checkPremiumStatus() {
+        console.log('🔥 checkPremiumStatus() called');
+        
         this.trackVKEvent('premium_status_check_attempted', {
             vk_platform: this.isVKPlatform,
             user_id: this.userInfo?.id
@@ -356,6 +412,8 @@ export class VKBridgeManager {
                 return localPremiumStatus;
             }
 
+            console.log('🔥 No local premium status found, checking backend...');
+
             // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
                 const backendPremiumStatus = await this.checkBackendPremiumStatus();
@@ -377,6 +435,8 @@ export class VKBridgeManager {
             }
 
             // If we can't determine premium status, assume not premium
+            console.log('🔥 Could not determine premium status, defaulting to false');
+            
             this.trackVKEvent('premium_status_unknown', {
                 user_id: this.userInfo?.id
             });
@@ -629,6 +689,7 @@ export class VKBridgeManager {
         // Expose debug methods to window for testing
         window.vkDebug = {
             checkPremiumStatus: () => this.checkPremiumStatus(),
+            refreshPremiumStatus: () => this.refreshPremiumStatus(),
             getUserInfo: () => this.userInfo,
             getVKEnvironment: () => this.isVKEnvironment()
         };
