@@ -607,10 +607,8 @@ async function unlockPremium() {
     if (unlockMsg) {
         unlockMsg.textContent = 'Обработка запроса...';
         unlockMsg.style.display = 'block';
+        unlockMsg.style.color = '#007bff'; // Blue color for loading state
     }
-    
-
-    
     // Check if we're in VK environment and VK Bridge is available
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         try {
@@ -627,6 +625,7 @@ async function unlockPremium() {
                     if (unlockMsg) {
                         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
                         unlockMsg.style.display = 'block';
+                        unlockMsg.style.color = '#28a745'; // Green color for success messages
                     }
                     
                     // Show success notification
@@ -639,6 +638,7 @@ async function unlockPremium() {
                     if (unlockMsg) {
                         unlockMsg.textContent = 'Покупка отменена';
                         unlockMsg.style.display = 'block';
+                        unlockMsg.style.color = '#ffc107'; // Yellow color for cancellation messages
                     }
                     setTimeout(() => {
                         if (unlockMsg) unlockMsg.style.display = 'none';
@@ -648,6 +648,7 @@ async function unlockPremium() {
                     if (unlockMsg) {
                         unlockMsg.textContent = 'Ошибка платежа. Попробуйте еще раз.';
                         unlockMsg.style.display = 'block';
+                        unlockMsg.style.color = '#dc3545'; // Red color for error messages
                     }
                     setTimeout(() => {
                         if (unlockMsg) unlockMsg.style.display = 'none';
@@ -669,6 +670,7 @@ async function unlockPremium() {
                 if (unlockMsg) {
                     unlockMsg.textContent = errorMessage;
                     unlockMsg.style.display = 'block';
+                    unlockMsg.style.color = '#dc3545'; // Red color for error messages
                 }
                 
                 // Log specific error for debugging
@@ -701,6 +703,7 @@ async function unlockPremium() {
             if (unlockMsg) {
                 unlockMsg.textContent = 'Ошибка при обработке платежа';
                 unlockMsg.style.display = 'block';
+                unlockMsg.style.color = '#dc3545'; // Red color for error messages
             }
             
             // Log to Firebase Analytics
@@ -722,6 +725,7 @@ async function unlockPremium() {
         if (unlockMsg) {
             unlockMsg.textContent = 'Премиум доступ временно недоступен';
             unlockMsg.style.display = 'block';
+            unlockMsg.style.color = '#dc3545'; // Red color for error messages
         }
         setTimeout(() => {
             if (unlockMsg) unlockMsg.style.display = 'none';
