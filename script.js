@@ -2068,6 +2068,45 @@ function testClearPremium() {
 
 window.testClearPremium = testClearPremium;
 
+// Test function to check if updatePremiumUI is working
+function testUpdatePremiumUI() {
+    console.log('🔥 testUpdatePremiumUI() called');
+    
+    // Check if function exists
+    console.log('🔥 updatePremiumUI function exists:', typeof updatePremiumUI);
+    console.log('🔥 isPremium function exists:', typeof isPremium);
+    
+    // Check current premium status
+    const currentPremium = isPremium();
+    console.log('🔥 Current premium status:', currentPremium);
+    
+    // Check localStorage
+    const localStorageValue = localStorage.getItem('mbti_premium');
+    console.log('🔥 localStorage value:', localStorageValue);
+    
+    // Try to call updatePremiumUI
+    try {
+        console.log('🔥 Calling updatePremiumUI()...');
+        updatePremiumUI();
+        console.log('🔥 updatePremiumUI() called successfully');
+    } catch (error) {
+        console.error('🔥 Error calling updatePremiumUI():', error);
+    }
+    
+    // Check premium elements
+    const premiumLocked = document.querySelectorAll('.premium-locked').length;
+    const premiumContent = document.querySelectorAll('.premium-content').length;
+    const btnPremium = document.querySelectorAll('.btn-premium').length;
+    
+    console.log('🔥 Premium elements found:', {
+        premiumLocked: premiumLocked,
+        premiumContent: premiumContent,
+        btnPremium: btnPremium
+    });
+}
+
+window.testUpdatePremiumUI = testUpdatePremiumUI;
+
 // Development function to temporarily override premium status for testing
 function overridePremiumStatus(isPremium) {
     if (getCurrentAppState() === 'development') {

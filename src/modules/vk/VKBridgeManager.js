@@ -558,20 +558,26 @@ export class VKBridgeManager {
      * Update global premium status
      */
     updateGlobalPremiumStatus(isPremium) {
+        console.log('🔥 updateGlobalPremiumStatus() called with:', isPremium);
+        
         try {
             // Update global premium state
             if (window.setPremium) {
+                console.log('🔥 Calling window.setPremium with:', isPremium);
                 window.setPremium(isPremium);
+            } else {
+                console.warn('🔥 window.setPremium not found');
             }
             
             // Update UI if available
             if (window.updatePremiumUI) {
+                console.log('🔥 Calling window.updatePremiumUI()');
                 window.updatePremiumUI();
+            } else {
+                console.warn('🔥 window.updatePremiumUI not found');
             }
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Global premium status updated:', isPremium);
-            }
+            console.log('🔥 Global premium status updated:', isPremium);
         } catch (error) {
             console.error('Error updating global premium status:', error);
         }
