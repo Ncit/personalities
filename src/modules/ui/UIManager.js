@@ -372,23 +372,6 @@ export class UIManager {
         });
     }
 
-    // Development function to clear localStorage
-    clearLocalStorage() {
-        if (stateManager.isDevelopment()) {
-            const confirmed = confirm('Are you sure you want to clear all localStorage data? This will reset the application state.');
-            if (confirmed) {
-                localStorage.clear();
-                this.showSuccess('localStorage cleared successfully!');
-                // Refresh the page to reset all state
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            }
-        } else {
-            console.warn('clearLocalStorage called in non-development mode');
-        }
-    }
-
     // Enhanced Types Modal Methods
     populateTypesModal() {
         const typesList = document.getElementById('typesList');
