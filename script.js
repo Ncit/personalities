@@ -676,31 +676,27 @@ async function unlockPremium() {
                 }
                 
                 // Log specific error for debugging
-                if (window.firebaseAnalyticsDebug) {
-                    console.log('🔥 Premium unlock failed:', {
-                        error: orderResult.error,
-                        message: orderResult.message,
-                        order_error: orderResult.order_error,
-                        error_code: orderResult.error_code
-                    });
-                }
+                logger.debug('Premium unlock failed:', {
+                    error: orderResult.error,
+                    message: orderResult.message,
+                    order_error: orderResult.order_error,
+                    error_code: orderResult.error_code
+                });
                 
                 setTimeout(() => {
                     if (unlockMsg) unlockMsg.style.display = 'none';
                 }, 5000); // Show error longer for configuration issues
             }
         } catch (error) {
-            console.error('Error during VK payment:', error);
+            logger.error('Error during VK payment:', error);
             
             // Log detailed error for debugging
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Payment Error:', {
-                    error: error,
-                    error_type: error.error_type,
-                    error_code: error.error_data?.error_code,
-                    error_reason: error.error_data?.error_reason
-                });
-            }
+            logger.debug('VK Payment Error:', {
+                error: error,
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason
+            });
             
             if (unlockMsg) {
                 unlockMsg.textContent = 'Ошибка при обработке платежа';
@@ -786,7 +782,7 @@ function updatePremiumUI() {
     const isPremiumUser = isPremium();
     const localStorageValue = localStorage.getItem('mbti_premium');
     
-    console.log('🔥 updatePremiumUI() called:', {
+    logger.log('updatePremiumUI() called:', {
         isPremiumUser: isPremiumUser,
         localStorageValue: localStorageValue,
         premiumElements: document.querySelectorAll('.premium-locked, .premium-content, .btn-premium').length
@@ -814,7 +810,7 @@ function updatePremiumUI() {
     // Update quiz description based on premium status
     updateQuizDescription();
     
-    console.log('🔥 updatePremiumUI() completed. Premium status:', isPremiumUser);
+    logger.log('updatePremiumUI() completed. Premium status:', isPremiumUser);
 }
 
 // Function to display advanced insights
@@ -876,7 +872,7 @@ function createAnalyticsCharts() {
             const results = JSON.parse(savedResults);
             scores = results.scores;
         } else {
-            console.warn('No scores available for charts');
+            logger.warn('No scores available for charts');
             return;
         }
     }
@@ -1813,7 +1809,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startBannerAdTimer();
         }
     } catch (error) {
-        console.error('VK Bridge Manager not available:', error);
+        logger.error('VK Bridge Manager not available:', error);
         window.vkBridgeManager = null;
     }
     
@@ -1954,7 +1950,7 @@ window.toggleFirebaseAnalyticsDebug = () => {
         originalToggle();
         updateFirebaseDebugButton();
     } else {
-        console.warn('Firebase Analytics debug toggle is only available in development mode');
+        logger.warn('Firebase Analytics debug toggle is only available in development mode');
     }
 };
 
@@ -1969,7 +1965,7 @@ function clearLocalStorage() {
             location.reload();
         }
     } else {
-        console.warn('clearLocalStorage called in non-development mode');
+        logger.warn('clearLocalStorage called in non-development mode');
     }
 }
 
@@ -1978,10 +1974,10 @@ window.clearLocalStorage = clearLocalStorage;
 
 // Function to notify VKBridgeManager that global functions are ready
 function notifyGlobalFunctionsReady() {
-    console.log('🔥 Global functions are ready, notifying VKBridgeManager');
+    logger.log('Global functions are ready, notifying VKBridgeManager');
     
     // Debug: Check what's actually available
-    console.log('🔥 Debug - Available global functions:', {
+    logger.debug('Available global functions:', {
         setPremium: typeof window.setPremium,
         updatePremiumUI: typeof window.updatePremiumUI,
         isPremium: typeof window.isPremium,
@@ -1992,18 +1988,18 @@ function notifyGlobalFunctionsReady() {
     if (window.vkBridgeManager && window.vkBridgeManager.updateGlobalPremiumStatus) {
         // Get current premium status and update UI
         const currentPremium = isPremium();
-        console.log('🔥 Current premium status:', currentPremium);
+        logger.log('Current premium status:', currentPremium);
         
         // Update global premium status to trigger UI update
         window.vkBridgeManager.updateGlobalPremiumStatus(currentPremium);
     } else {
-        console.warn('🔥 VKBridgeManager not available for UI update');
+        logger.warn('VKBridgeManager not available for UI update');
     }
 }
 
 // Call this when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 DOM loaded, ensuring global functions are exposed');
+    logger.log('DOM loaded, ensuring global functions are exposed');
     ensureGlobalFunctionsExposed();
     setTimeout(notifyGlobalFunctionsReady, 100);
 });
@@ -2012,10 +2008,10 @@ window.notifyGlobalFunctionsReady = notifyGlobalFunctionsReady;
 
 // Function to ensure global functions are exposed
 function ensureGlobalFunctionsExposed() {
-    console.log('🔥 Ensuring global functions are exposed...');
+    logger.log('Ensuring global functions are exposed...');
     
     // Check if functions exist locally
-    console.log('🔥 Local function availability:', {
+    logger.debug('Local function availability:', {
         setPremium: typeof setPremium,
         updatePremiumUI: typeof updatePremiumUI,
         isPremium: typeof isPremium
@@ -2023,22 +2019,22 @@ function ensureGlobalFunctionsExposed() {
     
     // Explicitly expose functions to window if they exist locally
     if (typeof setPremium === 'function' && !window.setPremium) {
-        console.log('🔥 Exposing setPremium to window');
+        logger.log('Exposing setPremium to window');
         window.setPremium = setPremium;
     }
     
     if (typeof updatePremiumUI === 'function' && !window.updatePremiumUI) {
-        console.log('🔥 Exposing updatePremiumUI to window');
+        logger.log('Exposing updatePremiumUI to window');
         window.updatePremiumUI = updatePremiumUI;
     }
     
     if (typeof isPremium === 'function' && !window.isPremium) {
-        console.log('🔥 Exposing isPremium to window');
+        logger.log('Exposing isPremium to window');
         window.isPremium = isPremium;
     }
     
     // Check final state
-    console.log('🔥 Final global function availability:', {
+    logger.debug('Final global function availability:', {
         setPremium: typeof window.setPremium,
         updatePremiumUI: typeof window.updatePremiumUI,
         isPremium: typeof window.isPremium
@@ -2049,40 +2045,40 @@ window.ensureGlobalFunctionsExposed = ensureGlobalFunctionsExposed;
 
 // Manual test function to check global function status
 function checkGlobalFunctionStatus() {
-    console.log('🔥 === GLOBAL FUNCTION STATUS CHECK ===');
+    logger.log('=== GLOBAL FUNCTION STATUS CHECK ===');
     
     // Check local functions
-    console.log('🔥 Local functions:', {
+    logger.debug('Local functions:', {
         setPremium: typeof setPremium,
         updatePremiumUI: typeof updatePremiumUI,
         isPremium: typeof isPremium
     });
     
     // Check window functions
-    console.log('🔥 Window functions:', {
+    logger.debug('Window functions:', {
         setPremium: typeof window.setPremium,
         updatePremiumUI: typeof window.updatePremiumUI,
         isPremium: typeof window.isPremium
     });
     
     // Check VKBridgeManager
-    console.log('🔥 VKBridgeManager:', {
+    logger.debug('VKBridgeManager:', {
         exists: typeof window.vkBridgeManager,
         updateGlobalPremiumStatus: window.vkBridgeManager ? typeof window.vkBridgeManager.updateGlobalPremiumStatus : 'N/A'
     });
     
     // Try to manually expose functions
-    console.log('🔥 Attempting to expose functions...');
+    logger.log('Attempting to expose functions...');
     ensureGlobalFunctionsExposed();
     
     // Check again after exposure
-    console.log('🔥 After exposure attempt:', {
+    logger.debug('After exposure attempt:', {
         setPremium: typeof window.setPremium,
         updatePremiumUI: typeof window.updatePremiumUI,
         isPremium: typeof window.isPremium
     });
     
-    console.log('🔥 === END STATUS CHECK ===');
+    logger.log('=== END STATUS CHECK ===');
 }
 
 window.checkGlobalFunctionStatus = checkGlobalFunctionStatus;
@@ -2311,12 +2307,12 @@ async function purchasePremiumSubscription(tier = 'monthly') {
             }
         } else {
             // Order box failed
-            alert('Платежная система недоступна');
-        }
-    } catch (error) {
-        console.error('Error during subscription purchase:', error);
-        alert('Ошибка при обработке платежа');
+                    alert('Платежная система недоступна');
     }
+} catch (error) {
+    logger.error('Error during subscription purchase:', error);
+    alert('Ошибка при обработке платежа');
+}
 }
 
 // Make purchase function available globally

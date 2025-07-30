@@ -649,7 +649,8 @@
             if (isDevelopment) {
                 window.firebaseAnalyticsDebug = !window.firebaseAnalyticsDebug;
                 localStorage.setItem('firebaseAnalyticsDebug', window.firebaseAnalyticsDebug);
-                console.log(`Firebase Analytics debug mode: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`);
+                // Note: LoggerManager not available in HTML context, using console.log
+        console.log(`Firebase Analytics debug mode: ${window.firebaseAnalyticsDebug ? 'ON' : 'OFF'}`);
                 
                 // Show notification
                 if (window.vkBridgeManager) {
@@ -658,7 +659,8 @@
                 );
                 }
             } else {
-                console.warn('Firebase Analytics debug toggle is only available in development mode');
+                // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Firebase Analytics debug toggle is only available in development mode');
             }
         };
         
@@ -667,19 +669,23 @@
         try {
             analytics = getAnalytics(app);
             if (window.firebaseAnalyticsDebug) {
-                console.log('Firebase Analytics initialized in HTML');
+                // Note: LoggerManager not available in HTML context, using console.log
+        console.log('Firebase Analytics initialized in HTML');
             }
         } catch (error) {
-            console.warn('Firebase Analytics initialization failed in HTML:', error);
+            // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Firebase Analytics initialization failed in HTML:', error);
         }
 
         // Initialize Performance Monitoring
         let performance = null;
         try {
             performance = getPerformance(app);
-            console.log('Firebase Performance initialized in HTML');
+            // Note: LoggerManager not available in HTML context, using console.log
+        console.log('Firebase Performance initialized in HTML');
         } catch (error) {
-            console.warn('Firebase Performance initialization failed in HTML:', error);
+            // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Firebase Performance initialization failed in HTML:', error);
         }
 
         // Make Firebase available globally for fallback
@@ -689,10 +695,12 @@
                     try {
                         logEvent(analytics, eventName, parameters);
                         if (window.firebaseAnalyticsDebug) {
-                            console.log('🔥 Firebase Analytics Event:', eventName, parameters);
+                            // Note: LoggerManager not available in HTML context, using console.log
+        console.log('🔥 Firebase Analytics Event:', eventName, parameters);
                         }
                     } catch (error) {
-                        console.warn('Failed to log analytics event from HTML:', error);
+                        // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Failed to log analytics event from HTML:', error);
                     }
                 }
             },
@@ -701,10 +709,12 @@
                     try {
                         setUserId(analytics, userId);
                         if (window.firebaseAnalyticsDebug) {
-                            console.log('🔥 Firebase Analytics User ID set:', userId);
+                            // Note: LoggerManager not available in HTML context, using console.log
+        console.log('🔥 Firebase Analytics User ID set:', userId);
                         }
                     } catch (error) {
-                        console.warn('Failed to set user ID from HTML:', error);
+                        // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Failed to set user ID from HTML:', error);
                         // Fallback: log user ID as an event
                         window.firebaseAnalytics.logEvent('user_id_set', { user_id: userId });
                     }
@@ -715,10 +725,12 @@
                     try {
                         setUserProperties(analytics, properties);
                         if (window.firebaseAnalyticsDebug) {
-                            console.log('🔥 Firebase Analytics User Properties set:', properties);
+                            // Note: LoggerManager not available in HTML context, using console.log
+        console.log('🔥 Firebase Analytics User Properties set:', properties);
                         }
                     } catch (error) {
-                        console.warn('Failed to set user properties from HTML:', error);
+                        // Note: LoggerManager not available in HTML context, using console.warn
+        console.warn('Failed to set user properties from HTML:', error);
                         // Fallback: log user properties as events
                         Object.entries(properties).forEach(([key, value]) => {
                             window.firebaseAnalytics.logEvent('user_property_set', {
