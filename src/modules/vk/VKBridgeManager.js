@@ -4,6 +4,8 @@
  * Enhanced with Firebase Analytics tracking
  */
 
+import { LoggerManager } from '../core/LoggerManager.js';
+
 export class VKBridgeManager {
     // Backend API configuration
     static BACKEND_BASE_URL = 'https://user6582162-br6365eb.tunnel.vk-apps.com';
@@ -14,6 +16,10 @@ export class VKBridgeManager {
         this.isVKPlatform = false;
         this.userInfo = null;
         this.vkEvents = [];
+        
+        // Initialize logger for this module
+        this.logger = new LoggerManager().createModuleLogger('VKBridgeManager');
+        
         this.init();
     }
 
@@ -53,17 +59,13 @@ export class VKBridgeManager {
                 
                 // Check premium status (non-blocking)
                 this.checkPremiumStatus().catch(error => {
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 Premium status check failed (non-blocking):', error);
-                    }
+                    this.logger.warn('Premium status check failed (non-blocking):', error);
                 });
                 
                 // Configure app appearance (non-blocking)
                 this.configureAppearance().catch(error => {
                     // Appearance configuration failed, but don't block initialization
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 VK Appearance configuration failed (non-blocking):', error);
-                    }
+                    this.logger.warn('VK Appearance configuration failed (non-blocking):', error);
                 });
                 
                 // Track successful initialization
@@ -84,7 +86,7 @@ export class VKBridgeManager {
                 this.debugVKEnvironment();
             }
         } catch (error) {
-            console.error('Error initializing VK Bridge:', error);
+            this.logger.error('Error initializing VK Bridge:', error);
             this.isVKPlatform = false;
             
             // Track initialization error
@@ -169,7 +171,7 @@ export class VKBridgeManager {
             });
             
             } catch (error) {
-            console.warn('Failed to track VK event:', error);
+            this.logger.warn('Failed to track VK event:', error);
         }
     }
 
@@ -203,7 +205,7 @@ export class VKBridgeManager {
                         });
                     }
                 } catch (error) {
-                    console.warn('Failed to set user properties, logging as events instead:', error);
+                    this.logger.warn('Failed to set user properties, logging as events instead:', error);
                     // Fallback: log user properties as individual events
                     Object.entries(userProperties).forEach(([key, value]) => {
                         window.firebaseAnalytics.logEvent('vk_user_property_set', {
@@ -224,7 +226,7 @@ export class VKBridgeManager {
                         });
                     }
                 } catch (error) {
-                    console.warn('Failed to set user ID, logging as event instead:', error);
+                    this.logger.warn('Failed to set user ID, logging as event instead:', error);
                     // Fallback: log user ID as an event
                     window.firebaseAnalytics.logEvent('vk_user_id_set', {
                         vk_user_id: userInfo.id?.toString()
@@ -240,7 +242,7 @@ export class VKBridgeManager {
                 
                 }
         } catch (error) {
-            console.warn('Failed to set VK user properties:', error);
+            this.logger.warn('Failed to set VK user properties:', error);
             
             // Track the error
             this.trackVKEvent('vk_user_properties_error', {
@@ -318,7 +320,7 @@ export class VKBridgeManager {
             
             return result;
         } catch (error) {
-            console.error('Error getting user info:', error);
+            this.logger.error('Error getting user info:', error);
             
             this.trackVKEvent('vk_get_user_info_error', {
                 error_message: error.message,
@@ -333,13 +335,13 @@ export class VKBridgeManager {
      * Refresh premium status - checks localStorage first, then backend if needed
      */
     async refreshPremiumStatus() {
-        console.log('🔥 refreshPremiumStatus() called');
+        this.logger.log('refreshPremiumStatus() called');
         
         // First check localStorage
         const localPremiumStatus = this.checkLocalPremiumStatus();
         
         if (localPremiumStatus !== null) {
-            console.log('🔥 Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+            this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
             
             this.trackVKEvent('premium_status_refresh_from_local', {
                 is_premium: localPremiumStatus,
@@ -353,7 +355,7 @@ export class VKBridgeManager {
 
         // Only check backend if no premium status found in localStorage
         if (this.userInfo?.id) {
-            console.log('🔥 No local premium status found, checking backend...');
+            this.logger.log('No local premium status found, checking backend...');
             
             const backendPremiumStatus = await this.checkBackendPremiumStatus();
             
@@ -374,7 +376,7 @@ export class VKBridgeManager {
         }
 
         // If we can't determine premium status, assume not premium
-        console.log('🔥 Could not determine premium status, defaulting to false');
+        this.logger.log('Could not determine premium status, defaulting to false');
         
         this.trackVKEvent('premium_status_refresh_unknown', {
             user_id: this.userInfo?.id
@@ -387,7 +389,7 @@ export class VKBridgeManager {
      * Check premium status from local storage and backend
      */
     async checkPremiumStatus() {
-        console.log('🔥 checkPremiumStatus() called');
+        this.logger.log('checkPremiumStatus() called');
         
         this.trackVKEvent('premium_status_check_attempted', {
             vk_platform: this.isVKPlatform,
@@ -400,7 +402,7 @@ export class VKBridgeManager {
             
             if (localPremiumStatus !== null) {
                 // Local storage has premium status, use it and skip backend request
-                console.log('🔥 Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+                this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
                 
                 this.trackVKEvent('premium_status_from_local_storage', {
                     is_premium: localPremiumStatus,
@@ -412,7 +414,7 @@ export class VKBridgeManager {
                 return localPremiumStatus;
             }
 
-            console.log('🔥 No local premium status found, checking backend...');
+            this.logger.log('No local premium status found, checking backend...');
 
             // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
@@ -435,7 +437,7 @@ export class VKBridgeManager {
             }
 
             // If we can't determine premium status, assume not premium
-            console.log('🔥 Could not determine premium status, defaulting to false');
+            this.logger.log('Could not determine premium status, defaulting to false');
             
             this.trackVKEvent('premium_status_unknown', {
                 user_id: this.userInfo?.id
@@ -444,7 +446,7 @@ export class VKBridgeManager {
             return false;
             
         } catch (error) {
-            console.error('Error checking premium status:', error);
+            this.logger.error('Error checking premium status:', error);
             
             this.trackVKEvent('premium_status_check_error', {
                 error_message: error.message,
@@ -466,18 +468,14 @@ export class VKBridgeManager {
             const premiumTimestamp = localStorage.getItem('mbti_premium_timestamp');
             const subscriptionData = localStorage.getItem('mbti_subscription_data');
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Checking local premium status:', {
-                    mbti_premium: premiumFlag,
-                    mbti_premium_timestamp: premiumTimestamp,
-                    mbti_subscription_data: subscriptionData
-                });
-            }
+            this.logger.debug('Checking local premium status:', {
+                mbti_premium: premiumFlag,
+                mbti_premium_timestamp: premiumTimestamp,
+                mbti_subscription_data: subscriptionData
+            });
             
             if (premiumFlag === 'true') {
-                if (window.firebaseAnalyticsDebug) {
-                    console.log('🔥 Premium flag found in localStorage: true');
-                }
+                this.logger.debug('Premium flag found in localStorage: true');
                 return true;
             }
             
@@ -485,19 +483,15 @@ export class VKBridgeManager {
             if (subscriptionData) {
                 const subscription = JSON.parse(subscriptionData);
                 if (subscription && subscription.isActive) {
-                    if (window.firebaseAnalyticsDebug) {
-                        console.log('🔥 Active subscription found in localStorage:', subscription);
-                    }
+                    this.logger.debug('Active subscription found in localStorage:', subscription);
                     return true;
                 }
             }
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 No premium data found in localStorage');
-            }
+            this.logger.debug('No premium data found in localStorage');
             return null; // No local data found
         } catch (error) {
-            console.error('Error reading premium status from localStorage:', error);
+            this.logger.error('Error reading premium status from localStorage:', error);
             return null;
         }
     }
@@ -507,9 +501,7 @@ export class VKBridgeManager {
      */
     async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 No user ID available for backend premium check');
-            }
+            this.logger.debug('No user ID available for backend premium check');
             return null;
         }
 
@@ -522,13 +514,11 @@ export class VKBridgeManager {
                 item_id: 'mbti_premium'
             };
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Checking backend premium status:', {
-                    url: url,
-                    method: 'POST',
-                    body: requestBody
-                });
-            }
+            this.logger.debug('Checking backend premium status:', {
+                url: url,
+                method: 'POST',
+                body: requestBody
+            });
             
             // Create AbortController for timeout
             const controller = new AbortController();
@@ -546,9 +536,7 @@ export class VKBridgeManager {
             
             clearTimeout(timeoutId);
 
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Backend response status:', response.status, response.statusText);
-            }
+            this.logger.debug('Backend response status:', response.status, response.statusText);
 
             if (!response.ok) {
                 // Try to get error details from response
@@ -565,9 +553,7 @@ export class VKBridgeManager {
 
             const data = await response.json();
             
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 Backend premium status response:', data);
-            }
+            this.logger.debug('Backend premium status response:', data);
 
             if (data.success && typeof data.has_purchase === 'boolean') {
                 return data.has_purchase;
@@ -576,7 +562,7 @@ export class VKBridgeManager {
             }
             
         } catch (error) {
-            console.error('Error checking backend premium status:', error);
+            this.logger.error('Error checking backend premium status:', error);
             
             this.trackVKEvent('premium_status_backend_error', {
                 error_message: error.message,
@@ -593,20 +579,20 @@ export class VKBridgeManager {
      * Store premium status in local storage
      */
     storePremiumStatus(isPremium) {
-        console.log('🔥 storePremiumStatus() called with:', isPremium);
+        this.logger.log('storePremiumStatus() called with:', isPremium);
         try {
             localStorage.setItem('mbti_premium', isPremium.toString());
             
             // Also store timestamp for cache invalidation
             localStorage.setItem('mbti_premium_timestamp', Date.now().toString());
             
-            console.log('🔥 Premium status stored in localStorage:', isPremium);
-            console.log('🔥 Current localStorage after storing:', {
+            this.logger.log('Premium status stored in localStorage:', isPremium);
+            this.logger.debug('Current localStorage after storing:', {
                 mbti_premium: localStorage.getItem('mbti_premium'),
                 mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp')
             });
         } catch (error) {
-            console.error('Error storing premium status:', error);
+            this.logger.error('Error storing premium status:', error);
         }
     }
 
@@ -618,16 +604,16 @@ export class VKBridgeManager {
         
         const checkFunctions = () => {
             attempts++;
-            console.log(`🔥 Checking for global functions (attempt ${attempts}/${maxAttempts})`);
+            this.logger.debug(`Checking for global functions (attempt ${attempts}/${maxAttempts})`);
             
             if (window.setPremium && window.updatePremiumUI) {
-                console.log('🔥 Global functions found, executing callback');
+                this.logger.log('Global functions found, executing callback');
                 callback();
             } else if (attempts < maxAttempts) {
-                console.log('🔥 Global functions not ready, retrying in 200ms...');
+                this.logger.debug('Global functions not ready, retrying in 200ms...');
                 setTimeout(checkFunctions, 200);
             } else {
-                console.warn('🔥 Global functions not available after maximum attempts');
+                this.logger.warn('Global functions not available after maximum attempts');
             }
         };
         
@@ -638,29 +624,29 @@ export class VKBridgeManager {
      * Update global premium status
      */
     updateGlobalPremiumStatus(isPremium) {
-        console.log('🔥 updateGlobalPremiumStatus() called with:', isPremium);
+        this.logger.log('updateGlobalPremiumStatus() called with:', isPremium);
         
         const updateFunctions = () => {
             try {
                 // Update global premium state
                 if (window.setPremium) {
-                    console.log('🔥 Calling window.setPremium with:', isPremium);
+                    this.logger.log('Calling window.setPremium with:', isPremium);
                     window.setPremium(isPremium);
                 } else {
-                    console.warn('🔥 window.setPremium still not found');
+                    this.logger.warn('window.setPremium still not found');
                 }
                 
                 // Update UI if available
                 if (window.updatePremiumUI) {
-                    console.log('🔥 Calling window.updatePremiumUI()');
+                    this.logger.log('Calling window.updatePremiumUI()');
                     window.updatePremiumUI();
                 } else {
-                    console.warn('🔥 window.updatePremiumUI still not found');
+                    this.logger.warn('window.updatePremiumUI still not found');
                 }
                 
-                console.log('🔥 Global premium status updated:', isPremium);
+                this.logger.log('Global premium status updated:', isPremium);
             } catch (error) {
-                console.error('Error updating global premium status:', error);
+                this.logger.error('Error updating global premium status:', error);
             }
         };
         
@@ -735,14 +721,12 @@ export class VKBridgeManager {
                 });
                 
                 // Log the error details for debugging
-                if (window.firebaseAnalyticsDebug) {
-                    console.log('🔥 VK Appearance Configuration Error Details:', {
-                        first_attempt_error: error,
-                        second_attempt_error: secondError,
-                        bridge_available: !!this.bridge,
-                        is_vk_platform: this.isVKPlatform
-                    });
-                }
+                this.logger.debug('VK Appearance Configuration Error Details:', {
+                    first_attempt_error: error,
+                    second_attempt_error: secondError,
+                    bridge_available: !!this.bridge,
+                    is_vk_platform: this.isVKPlatform
+                });
             }
         }
     }
@@ -1239,7 +1223,7 @@ export class VKBridgeManager {
                               error.error_data?.error_code !== 6; // Don't log unsupported platform errors
         
         if (shouldLogError) {
-            console.error(`VK Error in ${context}:`, error);
+            this.logger.error(`VK Error in ${context}:`, error);
         }
         
         // Track the error
@@ -1320,7 +1304,7 @@ export class VKBridgeManager {
                 status: 'success'
             });
         } catch (error) {
-            console.error('Error closing app:', error);
+            this.logger.error('Error closing app:', error);
         }
     }
 
@@ -1333,7 +1317,7 @@ export class VKBridgeManager {
         try {
             await this.bridge.send('VKWebAppExpand');
         } catch (error) {
-            console.error('Error expanding app:', error);
+            this.logger.error('Error expanding app:', error);
         }
     }
 
@@ -1349,7 +1333,7 @@ export class VKBridgeManager {
                 height: height
             });
         } catch (error) {
-            console.error('Error resizing app:', error);
+            this.logger.error('Error resizing app:', error);
         }
     }
 
@@ -1366,7 +1350,7 @@ export class VKBridgeManager {
                 navigation_bar_color: color
             });
         } catch (error) {
-            console.error('Error setting app header:', error);
+            this.logger.error('Error setting app header:', error);
         }
     }
 
@@ -1386,7 +1370,7 @@ export class VKBridgeManager {
             });
             return result;
         } catch (error) {
-            console.error('Error showing popup:', error);
+            this.logger.error('Error showing popup:', error);
             return confirm(message);
         }
     }
@@ -1433,7 +1417,7 @@ export class VKBridgeManager {
                 return false;
             }
         } catch (error) {
-            console.error('Error showing banner ad:', error);
+            this.logger.error('Error showing banner ad:', error);
             
             this.trackVKEvent('vk_banner_ad_error', {
                 error_message: error.message
@@ -1454,7 +1438,7 @@ export class VKBridgeManager {
                 return false;
             }
         } catch (error) {
-            console.error('Error hiding banner ad:', error);
+            this.logger.error('Error hiding banner ad:', error);
             return false;
         }
     }
@@ -1480,7 +1464,7 @@ export class VKBridgeManager {
                 return false;
             }
         } catch (error) {
-            console.error('Error showing interstitial ad:', error);
+            this.logger.error('Error showing interstitial ad:', error);
             
             this.trackVKEvent('vk_interstitial_ad_error', {
                 error_message: error.message
@@ -1518,14 +1502,12 @@ export class VKBridgeManager {
         }
         
         try {
-            // Log the request for debugging
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Request:', {
+                            // Log the request for debugging
+                this.logger.debug('VK Order Box Request:', {
                     product_id: productId,
                     product_name: productName,
                     bridge_available: !!this.bridge
                 });
-            }
             
             const result = await this.bridge.send('VKWebAppShowOrderBox', {
                 type: 'item',
@@ -1538,10 +1520,8 @@ export class VKBridgeManager {
                 currency: 'Голоса'
             });
             
-            // Log the result for debugging
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Response:', result);
-            }
+                            // Log the result for debugging
+                this.logger.debug('VK Order Box Response:', result);
             
             // Track successful order box display
             this.trackVKEvent('vk_order_box_success', {
@@ -1569,9 +1549,8 @@ export class VKBridgeManager {
                 fallback_used: errorResult.fallback
             });
             
-            // Log detailed error information in debug mode
-            if (window.firebaseAnalyticsDebug) {
-                console.log('🔥 VK Order Box Error Details:', {
+                            // Log detailed error information in debug mode
+                this.logger.debug('VK Order Box Error Details:', {
                     error: error,
                     error_code: error.error_data?.error_code,
                     error_reason: error.error_data?.error_reason,
@@ -1580,7 +1559,6 @@ export class VKBridgeManager {
                     bridge_available: !!this.bridge,
                     is_vk_platform: this.isVKPlatform
                 });
-            }
             
             return errorResult;
         }
@@ -1591,9 +1569,7 @@ export class VKBridgeManager {
      */
     async handleOrderBoxResult(result) {
         // Log the result for debugging
-        if (window.firebaseAnalyticsDebug) {
-            console.log('🔥 VK Order Box Result:', result);
-        }
+        this.logger.debug('VK Order Box Result:', result);
         
         if (result.success) {
             // Payment successful - VK returns success: true when payment is successful
