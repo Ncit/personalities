@@ -259,6 +259,14 @@ export class VKBridgeManager {
             case 'VKWebAppGetLaunchParamsResult':
                 this.handleLaunchParams(data);
                 break;
+            case 'VKWebAppShowOrderBoxResult':
+                // Handle order box result - this is the payment result from VK
+                this.trackVKEvent('vk_order_box_result_received', {
+                    success: data.success,
+                    order_id: data.order_id,
+                    request_id: data.request_id
+                });
+                break;
             default:
                 this.trackVKEvent('vk_unhandled_bridge_event', {
                     event_type: type,
@@ -1059,6 +1067,15 @@ export class VKBridgeManager {
         }
         
         try {
+            // Log the request for debugging
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 VK Order Box Request:', {
+                    product_id: productId,
+                    product_name: productName,
+                    bridge_available: !!this.bridge
+                });
+            }
+            
             const result = await this.bridge.send('VKWebAppShowOrderBox', {
                 type: 'item',
                 item: productId,
@@ -1070,17 +1087,21 @@ export class VKBridgeManager {
                 currency: 'Голоса'
             });
             
+            // Log the result for debugging
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 VK Order Box Response:', result);
+            }
+            
             // Track successful order box display
             this.trackVKEvent('vk_order_box_success', {
                 product_id: productId,
                 order_id: result.order_id,
-                status: result.status
+                success: result.success
             });
             
             return {
                 success: true,
                 order_id: result.order_id,
-                status: result.status,
                 product_id: productId
             };
             
@@ -1118,8 +1139,13 @@ export class VKBridgeManager {
      * Handle order box result and process payment
      */
     async handleOrderBoxResult(result) {
-        if (result.success && result.status === 'success') {
-            // Payment successful
+        // Log the result for debugging
+        if (window.firebaseAnalyticsDebug) {
+            console.log('🔥 VK Order Box Result:', result);
+        }
+        
+        if (result.success) {
+            // Payment successful - VK returns success: true when payment is successful
             this.trackVKEvent('vk_payment_successful', {
                 order_id: result.order_id,
                 product_id: result.product_id
@@ -1130,7 +1156,7 @@ export class VKBridgeManager {
                 message: 'Payment successful! Premium access activated.',
                 order_id: result.order_id
             };
-        } else if (result.status === 'cancel') {
+        } else if (result.status === 'cancel' || result.cancelled) {
             // User cancelled the payment
             this.trackVKEvent('vk_payment_cancelled', {
                 product_id: result.product_id
@@ -1151,7 +1177,7 @@ export class VKBridgeManager {
             return {
                 success: false,
                 message: 'Payment failed. Please try again.',
-                error: result.status
+                error: result.status || 'unknown_error'
             };
         }
     }
