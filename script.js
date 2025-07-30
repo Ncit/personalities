@@ -781,6 +781,8 @@ function updatePremiumUI() {
     
     // Update quiz description based on premium status
     updateQuizDescription();
+    
+    console.log('🔥 updatePremiumUI() completed. Premium status:', isPremiumUser);
 }
 
 // Function to display advanced insights
@@ -2016,11 +2018,22 @@ window.clearPremiumOverride = clearPremiumOverride;
 
 // Function to notify VKBridgeManager that global functions are ready
 function notifyGlobalFunctionsReady() {
+    console.log('🔥 Global functions are ready, notifying VKBridgeManager');
+    
+    // Debug: Check what's actually available
+    console.log('🔥 Debug - Available global functions:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium,
+        vkBridgeManager: typeof window.vkBridgeManager
+    });
     
     // Check if VKBridgeManager exists and has a method to handle this
     if (window.vkBridgeManager && window.vkBridgeManager.updateGlobalPremiumStatus) {
         // Get current premium status and update UI
         const currentPremium = isPremium();
+        console.log('🔥 Current premium status:', currentPremium);
+        
         // Update global premium status to trigger UI update
         window.vkBridgeManager.updateGlobalPremiumStatus(currentPremium);
     } else {
@@ -2058,7 +2071,40 @@ window.ensureGlobalFunctionsExposed = ensureGlobalFunctionsExposed;
 
 // Manual test function to check global function status
 function checkGlobalFunctionStatus() {
+    console.log('🔥 === GLOBAL FUNCTION STATUS CHECK ===');
+    
+    // Check local functions
+    console.log('🔥 Local functions:', {
+        setPremium: typeof setPremium,
+        updatePremiumUI: typeof updatePremiumUI,
+        isPremium: typeof isPremium
+    });
+    
+    // Check window functions
+    console.log('🔥 Window functions:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium
+    });
+    
+    // Check VKBridgeManager
+    console.log('🔥 VKBridgeManager:', {
+        exists: typeof window.vkBridgeManager,
+        updateGlobalPremiumStatus: window.vkBridgeManager ? typeof window.vkBridgeManager.updateGlobalPremiumStatus : 'N/A'
+    });
+    
+    // Try to manually expose functions
+    console.log('🔥 Attempting to expose functions...');
     ensureGlobalFunctionsExposed();
+    
+    // Check again after exposure
+    console.log('🔥 After exposure attempt:', {
+        setPremium: typeof window.setPremium,
+        updatePremiumUI: typeof window.updatePremiumUI,
+        isPremium: typeof window.isPremium
+    });
+    
+    console.log('🔥 === END STATUS CHECK ===');
 }
 
 window.checkGlobalFunctionStatus = checkGlobalFunctionStatus;
@@ -2066,9 +2112,25 @@ window.checkGlobalFunctionStatus = checkGlobalFunctionStatus;
 // Development function to temporarily override premium status for testing
 function overridePremiumStatus(isPremium) {
     if (getCurrentAppState() === 'development') {
+        console.log('🔥 overridePremiumStatus() called with:', isPremium);
+        
         // Store the override flag
         localStorage.setItem('mbti_premium_override', isPremium.toString());
         localStorage.setItem('mbti_premium_override_timestamp', Date.now().toString());
+        
+        console.log('🔥 Premium status override stored:', {
+            mbti_premium_override: localStorage.getItem('mbti_premium_override'),
+            mbti_premium_override_timestamp: localStorage.getItem('mbti_premium_override_timestamp')
+        });
+        
+        // Force refresh premium status
+        if (window.vkBridgeManager) {
+            window.vkBridgeManager.refreshPremiumStatus().then(() => {
+                console.log('🔥 Premium status refreshed with override');
+            }).catch(error => {
+                console.error('🔥 Error refreshing premium status with override:', error);
+            });
+        }
         
         alert(`Premium status overridden to: ${isPremium ? 'PREMIUM' : 'FREE'}`);
     } else {
@@ -2571,6 +2633,11 @@ function closeHelpModal() {
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
+
+// Test if function exists
+typeof clearPremiumStorage
+
+// testClearPremium()
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')
