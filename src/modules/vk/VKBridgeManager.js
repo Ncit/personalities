@@ -945,6 +945,119 @@ export class VKBridgeManager {
             return false;
         }
     }
+
+    /**
+     * Show VK order box for premium purchase
+     */
+    async showOrderBox(productId = 'mbti_premium', productName = 'MBTI премиум') {
+        // Track order box attempt
+        this.trackVKEvent('vk_order_box_attempted', {
+            vk_platform: this.isVKPlatform,
+            bridge_available: !!this.bridge,
+            product_id: productId,
+            product_name: productName
+        });
+        
+        if (!this.isVKFeatureSupported('payment')) {
+            // Track fallback usage
+            this.trackVKEvent('vk_order_box_fallback', {
+                reason: 'payment_not_supported',
+                product_id: productId
+            });
+            
+            // Return fallback result
+            return {
+                success: false,
+                error: 'payment_not_supported',
+                message: 'Payment is not supported in this environment',
+                fallback: true
+            };
+        }
+        
+        try {
+            const result = await this.bridge.send('VKWebAppShowOrderBox', {
+                type: 'consumable',
+                item: productId,
+                title: productName,
+                description: 'Доступ к премиум-функциям',
+                photo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzAiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTMyIDEyQzIxLjUgMTIgMTMgMjAuNSAxMyAzMUMxMyA0MS41IDIxLjUgNTAgMzIgNTBDNDIuNSA1MCA1MSA0MS41IDUxIDMxQzUxIDIwLjUgNDIuNSAxMiAzMiAxMloiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTI4IDI0SDM2VjQwSDI4VjI0WiIgZmlsbD0iIzAwMCIvPgo8cGF0aCBkPSJNMjQgMjhIMzZWMzJIMjRWMjhaIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9IjMyIiB5PSIzOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMDAwIj40MDwvdGV4dD4KPC9zdmc+', // Replace with your icon URL
+                price: 40, // Price in kopecks (1.99 RUB)
+                discount: 0, // Discount percentage
+                currency: 'Голоса'
+            });
+            
+            // Track successful order box display
+            this.trackVKEvent('vk_order_box_success', {
+                product_id: productId,
+                order_id: result.order_id,
+                status: result.status
+            });
+            
+            return {
+                success: true,
+                order_id: result.order_id,
+                status: result.status,
+                product_id: productId
+            };
+            
+        } catch (error) {
+            // Handle VK error gracefully
+            const errorResult = this.handleVKError(error, 'showOrderBox');
+            
+            // Track order box error
+            this.trackVKEvent('vk_order_box_error', {
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason,
+                product_id: productId,
+                fallback_used: errorResult.fallback
+            });
+            
+            return errorResult;
+        }
+    }
+
+    /**
+     * Handle order box result and process payment
+     */
+    async handleOrderBoxResult(result) {
+        if (result.success && result.status === 'success') {
+            // Payment successful
+            this.trackVKEvent('vk_payment_successful', {
+                order_id: result.order_id,
+                product_id: result.product_id
+            });
+            
+            return {
+                success: true,
+                message: 'Payment successful! Premium access activated.',
+                order_id: result.order_id
+            };
+        } else if (result.status === 'cancel') {
+            // User cancelled the payment
+            this.trackVKEvent('vk_payment_cancelled', {
+                product_id: result.product_id
+            });
+            
+            return {
+                success: false,
+                message: 'Payment was cancelled by user.',
+                cancelled: true
+            };
+        } else {
+            // Payment failed
+            this.trackVKEvent('vk_payment_failed', {
+                status: result.status,
+                product_id: result.product_id
+            });
+            
+            return {
+                success: false,
+                message: 'Payment failed. Please try again.',
+                error: result.status
+            };
+        }
+    }
 }
 
 // Create global instance for backward compatibility

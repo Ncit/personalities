@@ -600,36 +600,106 @@ function closePremiumModal() {
     }
 }
 
-function unlockPremium() {
+async function unlockPremium() {
     const unlockMsg = document.getElementById('premiumUnlockMsg');
     
-    // if (getCurrentAppState() == 'development') {
-    //     setPremium(true);
-    //     if (unlockMsg) {
-    //         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
-    //         unlockMsg.style.display = 'block';
-    //     } else {
-    //         //     }
-    // } else {
+    // Show loading state
+    if (unlockMsg) {
+        unlockMsg.textContent = 'Обработка запроса...';
+        unlockMsg.style.display = 'block';
+    }
+    
+    // Check if we're in development mode
+    if (getCurrentAppState() === 'development') {
         // Development mode - directly unlock premium
-        // setPremium(true);
+        setPremium(true);
         if (unlockMsg) {
             unlockMsg.textContent = '🎉 Премиум доступ открыт!';
             unlockMsg.style.display = 'block';
-        } else {
-            }
+        }
         completePremiumUnlock();
         return;
-    // }
-    setTimeout(() => {
-        completePremiumUnlock();
-    }, 1200);
+    }
+    
+    // Check if we're in VK environment and VK Bridge is available
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        try {
+            // Show VK order box for payment
+            const orderResult = await vkBridgeManager.showOrderBox();
+            
+            if (orderResult.success) {
+                // Process the order result
+                const paymentResult = await vkBridgeManager.handleOrderBoxResult(orderResult);
+                
+                if (paymentResult.success) {
+                    // Payment successful - unlock premium
+                    setPremium(true);
+                    if (unlockMsg) {
+                        unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                        unlockMsg.style.display = 'block';
+                    }
+                    
+                    // Show success notification
+                    vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+                    
+                    // Complete premium unlock
+                    completePremiumUnlock();
+                } else if (paymentResult.cancelled) {
+                    // User cancelled payment
+                    if (unlockMsg) {
+                        unlockMsg.textContent = 'Покупка отменена';
+                        unlockMsg.style.display = 'block';
+                    }
+                    setTimeout(() => {
+                        if (unlockMsg) unlockMsg.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // Payment failed
+                    if (unlockMsg) {
+                        unlockMsg.textContent = 'Ошибка платежа. Попробуйте еще раз.';
+                        unlockMsg.style.display = 'block';
+                    }
+                    setTimeout(() => {
+                        if (unlockMsg) unlockMsg.style.display = 'none';
+                    }, 3000);
+                }
+            } else {
+                // Order box failed or not supported
+                if (unlockMsg) {
+                    unlockMsg.textContent = 'Платежная система недоступна';
+                    unlockMsg.style.display = 'block';
+                }
+                setTimeout(() => {
+                    if (unlockMsg) unlockMsg.style.display = 'none';
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error during VK payment:', error);
+            if (unlockMsg) {
+                unlockMsg.textContent = 'Ошибка при обработке платежа';
+                unlockMsg.style.display = 'block';
+            }
+            setTimeout(() => {
+                if (unlockMsg) unlockMsg.style.display = 'none';
+            }, 3000);
+        }
+    } else {
+        // Not in VK environment - show fallback or alternative payment method
+        if (unlockMsg) {
+            unlockMsg.textContent = 'Премиум доступ временно недоступен';
+            unlockMsg.style.display = 'block';
+        }
+        setTimeout(() => {
+            if (unlockMsg) unlockMsg.style.display = 'none';
+        }, 3000);
+    }
     
     // Log to Firebase Analytics
     if (window.firebaseAnalytics) {
         window.firebaseAnalytics.logEvent('premium_unlock_attempted', {
             app_state: getCurrentAppState(),
-            vk_environment: vkBridgeManager && vkBridgeManager.isVKEnvironment()
+            vk_environment: vkBridgeManager && vkBridgeManager.isVKEnvironment(),
+            payment_method: vkBridgeManager && vkBridgeManager.isVKEnvironment() ? 'vk_payment' : 'fallback'
         });
     }
 }
@@ -1955,6 +2025,107 @@ window.openSubscriptionModal = openSubscriptionModal;
 window.closeSubscriptionModal = closeSubscriptionModal;
 window.cancelSubscription = cancelSubscription;
 window.restoreSubscription = restoreSubscription;
+
+/**
+ * Purchase premium subscription with VK payment
+ */
+async function purchasePremiumSubscription(tier = 'monthly') {
+    const subscriptionConfigs = {
+        monthly: {
+            id: 'premium_monthly',
+            name: 'Premium Monthly',
+            price: 199, // 1.99 RUB in kopecks
+            description: 'Premium access for 1 month'
+        },
+        yearly: {
+            id: 'premium_yearly',
+            name: 'Premium Yearly',
+            price: 1990, // 19.90 RUB in kopecks
+            description: 'Premium access for 1 year (save 17%)'
+        },
+        lifetime: {
+            id: 'premium_lifetime',
+            name: 'Premium Lifetime',
+            price: 4990, // 49.90 RUB in kopecks
+            description: 'Lifetime premium access'
+        }
+    };
+    
+    const config = subscriptionConfigs[tier] || subscriptionConfigs.monthly;
+    
+    // Check if we're in VK environment
+    if (!vkBridgeManager || !vkBridgeManager.isVKEnvironment()) {
+        alert('Premium subscriptions are only available in VK environment');
+        return;
+    }
+    
+    try {
+        // Show VK order box for the selected tier
+        const orderResult = await vkBridgeManager.showOrderBox(config.id, config.name);
+        
+        if (orderResult.success) {
+            // Process the order result
+            const paymentResult = await vkBridgeManager.handleOrderBoxResult(orderResult);
+            
+            if (paymentResult.success) {
+                // Payment successful - unlock premium
+                setPremium(true);
+                
+                // Save subscription data
+                const subscriptionData = {
+                    tier: tier,
+                    startDate: new Date().toLocaleDateString(),
+                    endDate: tier === 'lifetime' ? 'Бессрочно' : 
+                             tier === 'yearly' ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString() :
+                             new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                    nextPayment: tier === 'lifetime' ? 'Нет' : 
+                                tier === 'yearly' ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString() :
+                                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                    price: `${config.price / 100} RUB`,
+                    orderId: paymentResult.order_id
+                };
+                
+                localStorage.setItem('mbti_subscription_data', JSON.stringify(subscriptionData));
+                
+                // Show success notification
+                vkBridgeManager.showNotification(`Подписка ${config.name} успешно активирована!`);
+                
+                // Update UI
+                updatePremiumUI();
+                updateSubscriptionModal();
+                
+                // Close subscription modal if open
+                closeSubscriptionModal();
+                
+                // Log to Firebase Analytics
+                if (window.firebaseAnalytics) {
+                    window.firebaseAnalytics.logEvent('subscription_purchased', {
+                        tier: tier,
+                        price: config.price,
+                        currency: 'RUB',
+                        order_id: paymentResult.order_id
+                    });
+                }
+                
+            } else if (paymentResult.cancelled) {
+                // User cancelled payment
+                alert('Покупка отменена');
+            } else {
+                // Payment failed
+                alert('Ошибка платежа. Попробуйте еще раз.');
+            }
+        } else {
+            // Order box failed
+            alert('Платежная система недоступна');
+        }
+    } catch (error) {
+        console.error('Error during subscription purchase:', error);
+        alert('Ошибка при обработке платежа');
+    }
+}
+
+// Make purchase function available globally
+window.purchasePremiumSubscription = purchasePremiumSubscription;
 window.contactSupport = contactSupport;
 window.viewBillingHistory = viewBillingHistory;
 
