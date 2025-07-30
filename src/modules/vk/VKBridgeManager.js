@@ -399,19 +399,38 @@ export class VKBridgeManager {
         try {
             // Check for premium flag in localStorage
             const premiumFlag = localStorage.getItem('mbti_premium');
+            const premiumTimestamp = localStorage.getItem('mbti_premium_timestamp');
+            const subscriptionData = localStorage.getItem('mbti_subscription_data');
+            
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 Checking local premium status:', {
+                    mbti_premium: premiumFlag,
+                    mbti_premium_timestamp: premiumTimestamp,
+                    mbti_subscription_data: subscriptionData
+                });
+            }
+            
             if (premiumFlag === 'true') {
+                if (window.firebaseAnalyticsDebug) {
+                    console.log('🔥 Premium flag found in localStorage: true');
+                }
                 return true;
             }
             
             // Check for subscription data
-            const subscriptionData = localStorage.getItem('mbti_subscription_data');
             if (subscriptionData) {
                 const subscription = JSON.parse(subscriptionData);
                 if (subscription && subscription.isActive) {
+                    if (window.firebaseAnalyticsDebug) {
+                        console.log('🔥 Active subscription found in localStorage:', subscription);
+                    }
                     return true;
                 }
             }
             
+            if (window.firebaseAnalyticsDebug) {
+                console.log('🔥 No premium data found in localStorage');
+            }
             return null; // No local data found
         } catch (error) {
             console.error('Error reading premium status from localStorage:', error);
@@ -593,6 +612,35 @@ export class VKBridgeManager {
     }
 
     /**
+     * Clear premium-related localStorage and refresh status
+     */
+    clearPremiumStorage() {
+        if (window.firebaseAnalyticsDebug) {
+            console.log('🔥 Clearing premium localStorage...');
+        }
+        
+        // Clear specific premium-related keys
+        localStorage.removeItem('mbti_premium');
+        localStorage.removeItem('mbti_premium_timestamp');
+        localStorage.removeItem('mbti_subscription_data');
+        
+        // Reset internal state
+        this.premiumStatus = null;
+        this.premiumStatusTimestamp = null;
+        
+        if (window.firebaseAnalyticsDebug) {
+            console.log('🔥 Premium localStorage cleared. Current localStorage:', {
+                mbti_premium: localStorage.getItem('mbti_premium'),
+                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+                mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+            });
+        }
+        
+        // Force refresh premium status
+        return this.refreshPremiumStatus();
+    }
+
+    /**
      * Debug backend API with different parameters
      */
     async debugBackendAPI() {
@@ -689,12 +737,13 @@ export class VKBridgeManager {
             debugBackendAPI: () => this.debugBackendAPI(),
             checkPremiumStatus: () => this.checkPremiumStatus(),
             refreshPremiumStatus: () => this.refreshPremiumStatus(),
+            clearPremiumStorage: () => this.clearPremiumStorage(),
             getUserInfo: () => this.userInfo,
             getVKEnvironment: () => this.isVKEnvironment()
         };
         
         console.log('🔥 VK Debug methods exposed to window.vkDebug');
-        console.log('🔥 Available methods: debugBackendAPI(), checkPremiumStatus(), refreshPremiumStatus(), getUserInfo, getVKEnvironment()');
+        console.log('🔥 Available methods: debugBackendAPI(), checkPremiumStatus(), refreshPremiumStatus(), clearPremiumStorage(), getUserInfo, getVKEnvironment()');
     }
 
     /**

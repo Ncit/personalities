@@ -1959,7 +1959,40 @@ function clearLocalStorage() {
     }
 }
 
+// Development function to clear only premium-related localStorage
+function clearPremiumStorage() {
+    if (getCurrentAppState() === 'development') {
+        const confirmed = confirm('Are you sure you want to clear premium-related localStorage data? This will reset premium status.');
+        if (confirmed) {
+            // Clear specific premium-related keys
+            localStorage.removeItem('mbti_premium');
+            localStorage.removeItem('mbti_premium_timestamp');
+            localStorage.removeItem('mbti_subscription_data');
+            
+            console.log('🔥 Premium localStorage cleared. Current localStorage:', {
+                mbti_premium: localStorage.getItem('mbti_premium'),
+                mbti_premium_timestamp: localStorage.getItem('mbti_premium_timestamp'),
+                mbti_subscription_data: localStorage.getItem('mbti_subscription_data')
+            });
+            
+            alert('Premium localStorage cleared successfully! Premium status will be rechecked on next interaction.');
+            
+            // Force refresh premium status without page reload
+            if (window.vkBridgeManager) {
+                window.vkBridgeManager.refreshPremiumStatus().then(() => {
+                    console.log('🔥 Premium status refreshed after clearing localStorage');
+                }).catch(error => {
+                    console.error('🔥 Error refreshing premium status:', error);
+                });
+            }
+        }
+    } else {
+        console.warn('clearPremiumStorage called in non-development mode');
+    }
+}
+
 window.clearLocalStorage = clearLocalStorage;
+window.clearPremiumStorage = clearPremiumStorage;
 
 // Subscription Management Functions
 function openSubscriptionModal() {
