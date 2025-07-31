@@ -1,6 +1,7 @@
 // Firebase Configuration
-// Note: Firebase modules are loaded via CDN in the HTML file
-// This file provides a wrapper around the global Firebase objects
+import { initializeApp } from 'firebase/app';
+import { getAnalytics, logEvent, setUserId, setUserProperties } from 'firebase/analytics';
+import { getPerformance } from 'firebase/performance';
 import { LoggerManager } from '../modules/core/LoggerManager.js';
 
 // Initialize logger for this module
@@ -18,22 +19,22 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app = null;
-let analytics = null;
-let performance = null;
+const app = initializeApp(firebaseConfig);
 
+// Initialize Analytics
+let analytics = null;
 try {
-  // Check if Firebase is available globally (loaded via CDN)
-  if (typeof window !== 'undefined' && window.firebase) {
-    app = window.firebase.initializeApp(firebaseConfig);
-    analytics = window.firebase.analytics();
-    performance = window.firebase.performance();
-    logger.log('Firebase initialized successfully via CDN');
-  } else {
-    logger.warn('Firebase not available globally, using fallback mode');
-  }
-} catch (error) {
-  logger.warn('Firebase initialization failed:', error);
+  analytics = getAnalytics(app);
+  } catch (error) {
+  logger.warn('Firebase Analytics initialization failed:', error);
+}
+
+// Initialize Performance Monitoring
+let performance = null;
+try {
+  performance = getPerformance(app);
+  } catch (error) {
+  logger.warn('Firebase Performance initialization failed:', error);
 }
 
 // Analytics helper functions
@@ -42,7 +43,7 @@ export const firebaseAnalytics = {
   logEvent: (eventName, parameters = {}) => {
     if (analytics) {
       try {
-        analytics.logEvent(eventName, parameters);
+        logEvent(analytics, eventName, parameters);
         } catch (error) {
         logger.warn('Failed to log analytics event:', error);
       }
@@ -53,7 +54,7 @@ export const firebaseAnalytics = {
   setUserId: (userId) => {
     if (analytics) {
       try {
-        analytics.setUserId(userId);
+        setUserId(analytics, userId);
         } catch (error) {
         logger.warn('Failed to set analytics user ID:', error);
       }
@@ -64,7 +65,18 @@ export const firebaseAnalytics = {
   setUserProperties: (properties) => {
     if (analytics) {
       try {
-        analytics.setUserProperties(properties);
+        // Check if setUserProperties is available
+        if (typeof setUserProperties === 'function') {
+          setUserProperties(analytics, properties);
+          } else {
+          // Fallback: log user properties as custom events
+          Object.entries(properties).forEach(([key, value]) => {
+            this.logEvent('user_property_set', {
+              property_name: key,
+              property_value: value
+            });
+          });
+          }
       } catch (error) {
         logger.warn('Failed to set analytics user properties:', error);
         // Fallback: log user properties as custom events
