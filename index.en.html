@@ -8,6 +8,34 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Global function fallbacks -->
+    <script>
+        // Fallback functions that will be replaced when the main script loads
+        window.openPremiumModal = function() {
+            console.log('Premium modal not yet loaded, please wait...');
+            // Show a simple alert as fallback
+            alert('Loading premium features... Please wait a moment and try again.');
+        };
+        
+        window.closePremiumModal = function() {
+            console.log('Premium modal close not yet loaded');
+        };
+        
+        window.openSubscriptionModal = function() {
+            console.log('Subscription modal not yet loaded');
+            alert('Loading subscription features... Please wait a moment and try again.');
+        };
+        
+        window.closeSubscriptionModal = function() {
+            console.log('Subscription modal close not yet loaded');
+        };
+        
+        window.showAIInsights = function() {
+            console.log('AI insights not yet loaded');
+            alert('Loading AI insights... Please wait a moment and try again.');
+        };
+    </script>
 </head>
 <body>
     <div class="container">
@@ -421,6 +449,9 @@
                         <button class="btn btn-primary btn-center" onclick="shareResults()">
                             <i class="fas fa-share"></i> Share Results
                         </button>
+                        <button class="btn btn-ai" onclick="showAIInsights()" id="aiInsightsBtn">
+                            <i class="fas fa-robot"></i> AI Insights
+                        </button>
                         <button class="btn btn-secondary" onclick="openTypesModal()">
                             <i class="fas fa-book-open"></i> Browse Types
                         </button>
@@ -616,6 +647,11 @@
 
     <!-- VK Bridge Integration -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-performance-compat.js"></script>
     
     <!-- Firebase Analytics will be initialized in script.js -->
     

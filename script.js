@@ -12,6 +12,8 @@ import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js'
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
+import { aiInsightsEngine } from './src/modules/ai/AIInsightsEngine.js';
+import { AIInsightsUI } from './src/modules/ai/AIInsightsUI.js';
 
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
@@ -127,13 +129,58 @@ window.firebaseAnalytics = {
     }
 };
 
-// Log page view
-if (firebaseAnalytics) {
-    logEvent(firebaseAnalytics, 'page_view', {
-        page_title: document.title,
-        page_location: window.location.href
-    });
-}
+        // Log page view
+        if (firebaseAnalytics) {
+            logEvent(firebaseAnalytics, 'page_view', {
+                page_title: document.title,
+                page_location: window.location.href
+            });
+        }
+
+        // Initialize AI Insights Engine and UI
+        try {
+            await aiInsightsEngine.init();
+            await window.aiInsightsUI.init();
+            logger.log('AI Insights system initialized successfully');
+        } catch (error) {
+            logger.error('Error initializing AI Insights system:', error);
+        }
+
+        // Replace fallback functions with real implementations
+        logger.log('Replacing fallback functions with real implementations');
+        
+        // Notify that the application is ready
+        if (typeof window !== 'undefined') {
+            window.appReady = true;
+            logger.log('Application fully loaded and ready');
+        }
+
+        // Add manual test function for debugging
+        window.testDevTools = function() {
+            console.log('=== Manual DevTools Test ===');
+            console.log('Current URL:', window.location.href);
+            console.log('getCurrentAppState():', getCurrentAppState());
+            console.log('devToolsWelcome element:', document.getElementById('devToolsWelcome'));
+            updateDevToolsWelcomeVisibility();
+        };
+
+        // Add function to manually trigger dev tools update
+        window.forceUpdateDevTools = function() {
+            console.log('=== Force Update DevTools ===');
+            updateDevToolsAll();
+        };
+
+        // Fallback initialization for dev tools
+        setTimeout(() => {
+            console.log('Fallback dev tools initialization');
+            updateDevToolsAll();
+        }, 1000);
+
+        // Also listen for window load event as backup
+        window.addEventListener('load', () => {
+            console.log('Window load event fired');
+            updateDevToolsAll();
+        });
 
 // MBTI Quiz Application
 class MBTIQuiz {
@@ -1585,9 +1632,17 @@ const APP_STATE = 'release'; // Change to 'development' for development
 function getAppStateFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const stateParam = urlParams.get('state');
+    
+    console.log('getAppStateFromURL called');
+    console.log('URL search:', window.location.search);
+    console.log('stateParam:', stateParam);
+    console.log('APP_STATE:', APP_STATE);
+    
     if (stateParam === 'development' || stateParam === 'release') {
+        console.log('Returning stateParam:', stateParam);
         return stateParam;
     }
+    console.log('Returning APP_STATE:', APP_STATE);
     return APP_STATE;
 }
 
@@ -1614,8 +1669,19 @@ function updateDevToolsVisibility() {
 // Show/hide dev tools on welcome screen
 function updateDevToolsWelcomeVisibility() {
     const devToolsWelcome = document.getElementById('devToolsWelcome');
+    const currentState = getCurrentAppState();
+    
+    console.log('updateDevToolsWelcomeVisibility called');
+    console.log('devToolsWelcome element:', devToolsWelcome);
+    console.log('currentState:', currentState);
+    console.log('URL params:', window.location.search);
+    
     if (devToolsWelcome) {
-        devToolsWelcome.style.display = getCurrentAppState() === 'development' ? 'block' : 'none';
+        const shouldShow = currentState === 'development';
+        devToolsWelcome.style.display = shouldShow ? 'block' : 'none';
+        console.log('Setting devToolsWelcome display to:', shouldShow ? 'block' : 'none');
+    } else {
+        console.log('devToolsWelcome element not found');
     }
 }
 
@@ -1655,6 +1721,7 @@ function fillAllRandomAnswersFromWelcome() {
 
 // Update dev tools visibility on mode change
 function updateDevToolsAll() {
+    console.log('updateDevToolsAll called');
     updateDevToolsVisibility();
     updateDevToolsWelcomeVisibility();
 }
@@ -1923,6 +1990,9 @@ function setupModalClickOutside() {
 let vkBridgeManager;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired');
+    console.log('Current URL:', window.location.href);
+    
     // Initialize VK Bridge Manager
     try {
         vkBridgeManager = new VKBridgeManager();
@@ -1941,6 +2011,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quiz = new MBTIQuiz();
     
     updatePremiumUI();
+    console.log('About to call updateDevToolsAll()');
     updateDevToolsAll();
     
     // Update quiz description based on premium status
@@ -2002,6 +2073,39 @@ function shareResults() {
     if (quiz) quiz.shareResults();
 }
 
+// AI Insights functions
+function showAIInsights() {
+    try {
+        // Update AI engine with current quiz results
+        const lastResults = stateManager.getLastResults();
+        if (lastResults) {
+            aiInsightsEngine.updateUserProfile({
+                personalityType: lastResults.personalityType,
+                scores: lastResults.scores,
+                dimensionBreakdown: lastResults.dimensionBreakdown,
+                quizType: stateManager.getCurrentQuizType(),
+                isPremium: stateManager.isPremium(),
+                timestamp: Date.now()
+            });
+        }
+        
+        // Show AI insights
+        window.aiInsightsUI.showInsights();
+        
+        // Track AI insights usage
+        if (window.firebaseAnalytics) {
+            window.firebaseAnalytics.logEvent('ai_insights_opened', {
+                personality_type: lastResults?.personalityType,
+                quiz_type: stateManager.getCurrentQuizType(),
+                is_premium: stateManager.isPremium()
+            });
+        }
+    } catch (error) {
+        logger.error('Error showing AI insights:', error);
+        alert('Unable to load AI insights. Please try again.');
+    }
+}
+
 function exitQuiz() {
     // Show custom confirmation modal
     const exitQuizModal = document.getElementById('exitQuizModal');
@@ -2046,6 +2150,7 @@ window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.generatePDF = generatePDF;
 window.copyShareLink = copyShareLink;
+window.showAIInsights = showAIInsights;
 
 /**
  * Update Firebase Analytics debug button appearance
