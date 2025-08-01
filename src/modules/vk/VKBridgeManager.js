@@ -8,7 +8,7 @@ import { LoggerManager } from '../core/LoggerManager.js';
 
 export class VKBridgeManager {
     // Backend API configuration
-    static BACKEND_BASE_URL = 'https://user6582162-fy54ecjl.tunnel.vk-apps.com/';
+    static BACKEND_BASE_URL = 'http://82.202.158.140:3001/';
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     
     constructor() {
