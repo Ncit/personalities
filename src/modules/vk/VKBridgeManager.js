@@ -9,7 +9,7 @@ import { LoggerManager } from '../core/LoggerManager.js';
 export class VKBridgeManager {
     // Backend API configuration
     static BACKEND_BASE_URL = 'https://nikmobdev.ru/goodsshop';
-    static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
+    static BACKEND_CHECK_PURCHASE_ENDPOINT = '/goodsshop/api/check-purchase';
     
     constructor() {
         this.bridge = null;

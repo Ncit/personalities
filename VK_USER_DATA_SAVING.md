@@ -31,7 +31,7 @@ This document describes the implementation of VK user data saving to the server 
 
 ### API Endpoint
 ```
-POST /admin/api/users
+POST /goodsshop/admin/api/users
 Content-Type: application/json
 
 {
