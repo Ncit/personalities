@@ -1695,7 +1695,55 @@ function fillAllRandomAnswersFromWelcome() {
     quiz.showResults();
     updateDevToolsVisibility();
     updateDevToolsWelcomeVisibility();
+}
+
+// Fill premium quiz with random answers from welcome screen
+function fillPremiumRandomAnswers() {
+    if (getCurrentAppState() !== 'development') return;
+    
+    // Check if user is premium
+    if (!isPremium()) {
+        alert('Премиум функции доступны только для премиум пользователей');
+        return;
     }
+    
+    // Create quiz instance and generate specialized questions
+    quiz = new MBTIQuiz();
+    quiz.generateSpecializedQuestions();
+    
+    // Fill all questions with random answers
+    for (let i = 0; i < quiz.questions.length; i++) {
+        const randomAnswer = Math.floor(Math.random() * 4) + 1;
+        quiz.answers[i] = randomAnswer;
+        const question = quiz.questions[i];
+        const weight = question.weights[randomAnswer - 1];
+        if (question.dimension === 'EI') {
+            if (weight > 0) quiz.scores.I += weight;
+            else if (weight < 0) quiz.scores.E += Math.abs(weight);
+        } else if (question.dimension === 'SN') {
+            if (weight > 0) quiz.scores.S += weight;
+            else if (weight < 0) quiz.scores.N += Math.abs(weight);
+        } else if (question.dimension === 'TF') {
+            if (weight > 0) quiz.scores.T += weight;
+            else if (weight < 0) quiz.scores.F += Math.abs(weight);
+        } else if (question.dimension === 'JP') {
+            if (weight > 0) quiz.scores.J += weight;
+            else if (weight < 0) quiz.scores.P += Math.abs(weight);
+        }
+    }
+    
+    quiz.currentQuestion = quiz.questions.length - 1;
+    quiz.selectedOption = quiz.answers[quiz.currentQuestion];
+    
+    // Hide welcome screen and show results
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('quizQuestions').style.display = 'none';
+    document.getElementById('resultsScreen').style.display = 'block';
+    
+    quiz.showResults();
+    updateDevToolsVisibility();
+    updateDevToolsWelcomeVisibility();
+}
 
 // Update dev tools visibility on mode change
 function updateDevToolsAll() {
@@ -2100,6 +2148,7 @@ window.toggleAppState = toggleAppState;
 window.viewLastResults = viewLastResults;
 window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
+window.fillPremiumRandomAnswers = fillPremiumRandomAnswers;
 window.generatePDF = generatePDF;
 window.copyShareLink = copyShareLink;
 

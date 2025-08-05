@@ -767,6 +767,18 @@ body {
     box-shadow: 0 4px 12px rgba(255, 85, 85, 0.4);
 }
 
+/* Special styling for premium dev button */
+.btn-dev[onclick*="fillPremiumRandomAnswers"] {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+    border-color: #ffd700;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.btn-dev[onclick*="fillPremiumRandomAnswers"]:hover {
+    background: linear-gradient(135deg, #ffb347 0%, #ffd700 100%);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
 /* Results Screen */
 .results-screen {
     padding: 40px;
