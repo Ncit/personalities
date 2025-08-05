@@ -37,15 +37,11 @@ export class VKBridgeManager {
         try {
             this.analytics.trackBridgeInit(true, false);
             
-            // Check if VK Bridge redirect protection is active
-            if (window.vkBridgeRedirectFix && window.vkBridgeRedirectFix.getStatus().isPrevented) {
-                this.logger.warn('VK Bridge redirect was prevented, skipping initialization');
-                return;
-            }
-            
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
+                // Send ready event
+                this.bridge.send('VKWebAppInit');
                 this.isVKPlatform = true;
                 
                 this.analytics.trackVKEvent('environment_detected');
@@ -57,41 +53,20 @@ export class VKBridgeManager {
                 // Apply VK-specific styles
                 this.applyVKStyles();
                 
-                // Subscribe to bridge events with protection
+                // Subscribe to bridge events
                 this.bridge.subscribe(({ detail: { type, data } }) => {
-                    // Check if this event might cause a redirect
-                    if (window.vkBridgeRedirectFix && window.vkBridgeRedirectFix.isUrlBlocked) {
-                        if (type === 'VKWebAppOpenURL' || type === 'VKWebAppOpenLink') {
-                            const url = data?.url || data?.link;
-                            if (url && window.vkBridgeRedirectFix.isUrlBlocked(url)) {
-                                this.logger.warn('Blocking VK Bridge event that would cause redirect:', type, url);
-                                return;
-                            }
-                        }
-                    }
-                    
                     this.handleBridgeEvent(type, data);
                 });
 
-                // Send ready event
-                await this.bridge.send('VKWebAppInit');
                 this.analytics.trackVKEvent('app_initialized');
                 
                 // Get user info
                 await this.userService.getUserInfo();
                 
-                // Check premium status (blocking - important for VK Mini Apps)
-                this.logger.log('Checking premium status for VK Mini App...');
-                const premiumStatus = await this.userService.checkPremiumStatus();
-                this.logger.log('Premium status check result:', premiumStatus);
-                
-                // Force update global premium status
-                if (typeof window.setPremium === 'function') {
-                    window.setPremium(premiumStatus);
-                    this.logger.log('Global premium status updated to:', premiumStatus);
-                } else {
-                    this.logger.warn('Global setPremium function not available');
-                }
+                // Check premium status (non-blocking)
+                this.userService.checkPremiumStatus().catch(error => {
+                    this.logger.warn('Premium status check failed (non-blocking):', error);
+                });
                 
                 // Configure app appearance (non-blocking)
                 this.configureAppearance().catch(error => {
