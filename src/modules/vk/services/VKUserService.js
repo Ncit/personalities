@@ -217,10 +217,10 @@ export class VKUserService {
             // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
 
-                alert('this.userInfo?.id');
                 const backendPremiumStatus = await this.checkBackendPremiumStatus();
                 
                 if (backendPremiumStatus !== null) {
+                    alert('not premium null');
                     // Store the result in local storage
                     this.storePremiumStatus(backendPremiumStatus);
                     
@@ -230,10 +230,9 @@ export class VKUserService {
                     this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { user_id: this.userInfo.id });
                     
                     return backendPremiumStatus;
+                } else {
+                alert('premium null');
                 }
-            } else {
-
-                alert('this.userInfo?.id not found');
             }
             
             // If we can't determine premium status, assume not premium
