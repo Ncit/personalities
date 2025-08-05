@@ -180,6 +180,19 @@ class MBTIQuiz {
         this.selectedOption = null;
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'flex';
+        
+        // Hide the "На главную" button when starting the quiz
+        const onMainPageBtn = document.getElementById('onMainPageBtn');
+        if (onMainPageBtn) {
+            onMainPageBtn.style.display = 'none';
+        }
+        
+        // Hide the subscription button when starting the quiz
+        const subscriptionBtn = document.getElementById('subscriptionBtn');
+        if (subscriptionBtn) {
+            subscriptionBtn.style.display = 'none';
+        }
+        
         this.displayQuestion();
         
         // Log to Firebase Analytics
@@ -344,6 +357,18 @@ class MBTIQuiz {
                 is_premium: isPremium()
             });
         }
+        
+        // Show the "На главную" button after test completion
+        const onMainPageBtn = document.getElementById('onMainPageBtn');
+        if (onMainPageBtn) {
+            onMainPageBtn.style.display = 'inline-block';
+        }
+        
+        // Hide the subscription button after test completion
+        const subscriptionBtn = document.getElementById('subscriptionBtn');
+        if (subscriptionBtn) {
+            subscriptionBtn.style.display = 'none';
+        }
     }
 
     calculatePersonalityType() {
@@ -427,6 +452,18 @@ class MBTIQuiz {
         
         if (resultsScreen) resultsScreen.style.display = 'none';
         if (welcomeScreen) welcomeScreen.style.display = 'block';
+        
+        // Hide the "На главную" button when returning to welcome screen
+        const onMainPageBtn = document.getElementById('onMainPageBtn');
+        if (onMainPageBtn) {
+            onMainPageBtn.style.display = 'none';
+        }
+        
+        // Show the subscription button when returning to welcome screen
+        const subscriptionBtn = document.getElementById('subscriptionBtn');
+        if (subscriptionBtn) {
+            subscriptionBtn.style.display = 'inline-block';
+        }
         
         // Check and show last results button after restart
         checkAndShowLastResultsButton();
@@ -1729,6 +1766,18 @@ function viewLastResults() {
         
         // Update premium UI
         updatePremiumUI();
+        
+        // Show the "На главную" button when viewing last results
+        const onMainPageBtn = document.getElementById('onMainPageBtn');
+        if (onMainPageBtn) {
+            onMainPageBtn.style.display = 'inline-block';
+        }
+        
+        // Hide the subscription button when viewing last results
+        const subscriptionBtn = document.getElementById('subscriptionBtn');
+        if (subscriptionBtn) {
+            subscriptionBtn.style.display = 'none';
+        }
     }
 }
 
