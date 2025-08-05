@@ -61,7 +61,7 @@ export class VKBridgeManager {
                 this.analytics.trackVKEvent('app_initialized');
                 
                 // Get user info
-                await this.userService.getUserInfo();
+                this.userService.getUserInfo();
                 
                 // Check premium status (non-blocking)
                 this.userService.checkPremiumStatus().catch(error => {
@@ -713,7 +713,7 @@ export class VKBridgeManager {
         return this.userService?.forceSaveUserDataToServer(userInfo);
     }
 
-    async checkPremiumStatus() {
+    checkPremiumStatus() {
         return this.userService?.checkPremiumStatus();
     }
 
