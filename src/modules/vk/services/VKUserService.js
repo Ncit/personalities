@@ -231,6 +231,9 @@ export class VKUserService {
                     
                     return backendPremiumStatus;
                 }
+            } else {
+
+                alert('this.userInfo?.id not found');
             }
             
             // If we can't determine premium status, assume not premium
