@@ -728,7 +728,7 @@ body {
     
     background: white;
     padding: var(--spacing-md) 0;
-    border-top: 1px solid var(--border);
+    /* border-top: 1px solid var(--border); */
     z-index: 10;
 }
 
