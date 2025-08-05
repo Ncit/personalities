@@ -675,7 +675,6 @@ export class VKBridgeManager {
         window.vkDebug = {
             checkPremiumStatus: () => this.userService?.checkPremiumStatus(),
             refreshPremiumStatus: () => this.userService?.refreshPremiumStatus(),
-            debugPremiumStatus: () => this.userService?.debugPremiumStatus(),
             getUserInfo: () => this.userService?.getUserData(),
             getVKEnvironment: () => this.isVKEnvironment(),
             saveUserDataToServer: () => this.userService?.saveUserDataToServer(this.userService?.getUserData()),
@@ -692,13 +691,7 @@ export class VKBridgeManager {
             }),
             getAnalyticsData: () => this.analytics.getAnalyticsData(),
             getPaymentStatus: () => this.paymentService?.getPaymentStatus(),
-            getUserStatus: () => this.userService?.getStatus(),
-            clearPremiumCache: () => {
-                localStorage.removeItem(VKConfig.getStorageKey('premiumStatus'));
-                localStorage.removeItem(VKConfig.getStorageKey('premiumTimestamp'));
-                localStorage.removeItem(VKConfig.getStorageKey('subscriptionData'));
-                this.logger.log('Premium cache cleared');
-            }
+            getUserStatus: () => this.userService?.getStatus()
         };
     }
 
