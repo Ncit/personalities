@@ -65,6 +65,7 @@ export class VKBridgeManager {
                 
                 // Check premium status (non-blocking)
                 this.userService.checkPremiumStatus().catch(error => {
+                    alert('Premium status check failed (non-blocking):!');
                     this.logger.warn('Premium status check failed (non-blocking):', error);
                 });
                 

@@ -202,6 +202,7 @@ export class VKUserService {
             const localPremiumStatus = this.checkLocalPremiumStatus();
             
             if (localPremiumStatus !== null) {
+                alert('Premium status found in localStorage:');
                 this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
                 
                 this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
