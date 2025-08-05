@@ -40,14 +40,15 @@ export class LoggerManager {
     isDevelopmentMode() {
         // Check for development indicators
         return (
-            window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1' ||
-            window.location.hostname.includes('dev') ||
-            window.location.hostname.includes('staging') ||
-            window.location.search.includes('debug=true') ||
-            window.location.search.includes('dev=true') ||
-            window.firebaseAnalyticsDebug === true ||
-            window.localStorage.getItem('debug_mode') === 'true'
+            // window.location.hostname === 'localhost' ||
+            // window.location.hostname === '127.0.0.1' ||
+            // window.location.hostname.includes('dev') ||
+            // window.location.hostname.includes('staging') ||
+            // window.location.search.includes('debug=true') ||
+            // window.location.search.includes('dev=true') ||
+            window.firebaseAnalyticsDebug === true 
+            // ||
+            // window.localStorage.getItem('debug_mode') === 'true'
         );
     }
 
