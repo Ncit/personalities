@@ -775,13 +775,13 @@ async function unlockPremium() {
         unlockMsg.style.display = 'block';
         unlockMsg.style.color = '#007bff'; // Blue color for loading state
     }
-    if (window.firebaseAnalyticsDebug) {
+    // if (window.firebaseAnalyticsDebug) {
 
-        setPremium(true);
-        // Complete premium unlock
-        completePremiumUnlock();
-        return;
-    }
+    //     setPremium(true);
+    //     // Complete premium unlock
+    //     completePremiumUnlock();
+    //     return;
+    // }
     // Check if we're in VK environment and VK Bridge is available
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         try {
