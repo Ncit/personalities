@@ -40,6 +40,8 @@ export class VKBridgeManager {
             // Check if VK Bridge is available
             if (typeof window.vkBridge !== 'undefined') {
                 this.bridge = window.vkBridge;
+                // Send ready event
+                this.bridge.send('VKWebAppInit');
                 this.isVKPlatform = true;
                 
                 this.analytics.trackVKEvent('environment_detected');
@@ -56,8 +58,6 @@ export class VKBridgeManager {
                     this.handleBridgeEvent(type, data);
                 });
 
-                // Send ready event
-                this.bridge.send('VKWebAppInit');
                 this.analytics.trackVKEvent('app_initialized');
                 
                 // Get user info
