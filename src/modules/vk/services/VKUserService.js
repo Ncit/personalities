@@ -216,6 +216,8 @@ export class VKUserService {
             
             // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
+
+                alert('this.userInfo?.id');
                 const backendPremiumStatus = await this.checkBackendPremiumStatus();
                 
                 if (backendPremiumStatus !== null) {
