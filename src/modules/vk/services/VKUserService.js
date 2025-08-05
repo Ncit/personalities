@@ -299,6 +299,151 @@ export class VKUserService {
     }
     
     /**
+     * Enhanced debug method for premium status troubleshooting
+     */
+    async debugPremiumStatus() {
+        this.logger.log('=== Premium Status Debug ===');
+        
+        const debugInfo = {
+            timestamp: new Date().toISOString(),
+            userInfo: this.userInfo,
+            localStorage: {},
+            backendCheck: null,
+            errors: []
+        };
+        
+        // Check localStorage
+        try {
+            debugInfo.localStorage = {
+                premiumStatus: localStorage.getItem(VKConfig.getStorageKey('premiumStatus')),
+                premiumTimestamp: localStorage.getItem(VKConfig.getStorageKey('premiumTimestamp')),
+                subscriptionData: localStorage.getItem(VKConfig.getStorageKey('subscriptionData')),
+                userDataSaved: localStorage.getItem(VKConfig.getStorageKey('userDataSaved'))
+            };
+        } catch (error) {
+            debugInfo.errors.push(`localStorage error: ${error.message}`);
+        }
+        
+        // Check backend if user info is available
+        if (this.userInfo?.id) {
+            try {
+                debugInfo.backendCheck = await this.checkBackendPremiumStatusWithDetails();
+            } catch (error) {
+                debugInfo.errors.push(`Backend check error: ${error.message}`);
+            }
+        } else {
+            debugInfo.errors.push('No user info available for backend check');
+        }
+        
+        this.logger.log('Premium Status Debug Info:', debugInfo);
+        return debugInfo;
+    }
+    
+    /**
+     * Enhanced backend premium status check with detailed response
+     */
+    async checkBackendPremiumStatusWithDetails() {
+        if (!this.userInfo?.id) {
+            this.logger.debug('No user ID available for backend premium check');
+            return null;
+        }
+        
+        try {
+            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+            
+            const requestBody = {
+                user_id: this.userInfo.id,
+                app_id: VKConfig.VK_APP_ID,
+                item_id: 'mbti_premium'
+            };
+            
+            this.logger.debug('Enhanced backend premium check:', {
+                url: url,
+                method: 'POST',
+                body: requestBody,
+                user_id: this.userInfo.id,
+                app_id: VKConfig.VK_APP_ID
+            });
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            this.logger.debug('Backend response details:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            if (!response.ok) {
+                let errorDetails = '';
+                try {
+                    const errorData = await response.text();
+                    errorDetails = errorData;
+                } catch (e) {
+                    errorDetails = 'Could not read error response';
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
+            }
+            
+            const data = await response.json();
+            
+            this.logger.debug('Backend premium status full response:', data);
+            
+            // Enhanced response validation
+            const result = {
+                success: data.success,
+                has_purchase: data.has_purchase,
+                raw_response: data,
+                request_info: {
+                    user_id: this.userInfo.id,
+                    app_id: VKConfig.VK_APP_ID,
+                    item_id: 'mbti_premium'
+                }
+            };
+            
+            if (data.success && typeof data.has_purchase === 'boolean') {
+                return result;
+            } else {
+                this.logger.warn('Invalid response format from backend:', data);
+                return result;
+            }
+            
+        } catch (error) {
+            this.logger.error('Error in enhanced backend premium check:', error);
+            
+            this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
+                user_id: this.userInfo?.id,
+                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+            });
+            
+            return {
+                success: false,
+                has_purchase: false,
+                error: error.message,
+                request_info: {
+                    user_id: this.userInfo?.id,
+                    app_id: VKConfig.VK_APP_ID,
+                    item_id: 'mbti_premium'
+                }
+            };
+        }
+    }
+    
+    /**
      * Check premium status in local storage
      */
     checkLocalPremiumStatus() {
