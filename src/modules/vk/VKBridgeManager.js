@@ -11,6 +11,9 @@ export class VKBridgeManager {
     static BACKEND_BASE_URL = 'https://nikmobdev.ru/goodsshop';
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     
+    // VK App configuration
+    static VK_APP_ID = '53942833';
+    
     constructor() {
         this.bridge = null;
         this.isVKPlatform = false;
@@ -370,7 +373,7 @@ export class VKBridgeManager {
 
             const userData = {
                 vk_user_id: userInfo.id,
-                app_id: '53942833', // VK app ID
+                app_id: VKBridgeManager.VK_APP_ID,
                 username: userInfo.screen_name || `user_${userInfo.id}`,
                 first_name: userInfo.first_name || '',
                 last_name: userInfo.last_name || '',
@@ -666,7 +669,7 @@ export class VKBridgeManager {
             
             const requestBody = {
                 user_id: this.userInfo.id,
-                app_id: '53942833',
+                app_id: VKBridgeManager.VK_APP_ID,
                 item_id: 'mbti_premium'
             };
             
