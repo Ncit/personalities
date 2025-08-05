@@ -34,6 +34,8 @@ export class VKBridgeManager {
      * Initialize VK Bridge
      */
     async init() {
+        this.bridge.send('VKWebAppInit');
+
         try {
             this.analytics.trackBridgeInit(true, false);
             
@@ -57,7 +59,6 @@ export class VKBridgeManager {
                 });
 
                 // Send ready event
-                await this.bridge.send('VKWebAppInit');
                 this.analytics.trackVKEvent('app_initialized');
                 
                 // Get user info
