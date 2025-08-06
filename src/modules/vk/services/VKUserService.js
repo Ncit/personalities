@@ -82,82 +82,38 @@ export class VKUserService {
             return;
         }
         
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        let timeoutId = null;
+        const platform = VKConfig.detectPlatform();
+        const retryConfig = VKConfig.getRetryConfig();
+        
+        this.logger.debug('Saving user data to server with platform:', platform, retryConfig);
+        
+        const userData = {
+            vk_user_id: userInfo.id,
+            app_id: VKConfig.VK_APP_ID,
+            username: userInfo.screen_name || `user_${userInfo.id}`,
+            first_name: userInfo.first_name || '',
+            last_name: userInfo.last_name || '',
+            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+        };
         
         try {
-            this.logger.debug('Saving user data to server:', {
-                user_id: userInfo.id,
-                username: userInfo.screen_name,
-                first_name: userInfo.first_name,
-                last_name: userInfo.last_name,
-                has_photo: !!userInfo.photo_100
-            });
+            const result = await this._makeNetworkRequestWithRetry(
+                'user_data',
+                userData,
+                retryConfig
+            );
             
-            const userData = {
-                vk_user_id: userInfo.id,
-                app_id: VKConfig.VK_APP_ID,
-                username: userInfo.screen_name || `user_${userInfo.id}`,
-                first_name: userInfo.first_name || '',
-                last_name: userInfo.last_name || '',
-                vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
-            };
+            // Mark user data as saved in localStorage
+            localStorage.setItem(VKConfig.getStorageKey('userDataSaved'), 'true');
+            localStorage.setItem(VKConfig.getStorageKey('userDataSavedTimestamp'), Date.now().toString());
             
-            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
+            this.logger.log('User data successfully saved to server');
             
-            // Set timeout
-            timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
+            this.analytics.trackUserDataSave(userInfo.id, true, null, { server_response: result });
             
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(userData),
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            this.logger.debug('Server response status:', response.status, response.statusText);
-            
-            if (!response.ok) {
-                let errorDetails = '';
-                try {
-                    const errorData = await response.text();
-                    errorDetails = errorData;
-                } catch (e) {
-                    errorDetails = 'Could not read error response';
-                }
-                
-                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
-            }
-            
-            const data = await response.json();
-            
-            this.logger.debug('Server response data:', data);
-            
-            if (data.success || response.status === 200 || response.status === 201) {
-                // Mark user data as saved in localStorage
-                localStorage.setItem(VKConfig.getStorageKey('userDataSaved'), 'true');
-                localStorage.setItem(VKConfig.getStorageKey('userDataSavedTimestamp'), Date.now().toString());
-                
-                this.logger.log('User data successfully saved to server');
-                
-                this.analytics.trackUserDataSave(userInfo.id, true, null, { server_response: data });
-                
-                return data;
-            } else {
-                throw new Error(`Server returned error: ${JSON.stringify(data)}`);
-            }
+            return result;
             
         } catch (error) {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-            
             // Handle specific error types
             let errorType = 'unknown_error';
             let errorMessage = error.message || 'Unknown error';
@@ -174,20 +130,19 @@ export class VKUserService {
             }
             
             this.logger.warn(`User data save failed (${errorType}): ${errorMessage}`, {
-                url: url,
                 user_id: userInfo.id,
                 error: error
             });
             
             // Show alert for CORS and network errors
             if (errorType === 'cors_error' || errorType === 'network_error') {
-                alert(`CORS/Network Error: ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+                alert(`CORS/Network Error: ${errorMessage}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
             }
             
             this.analytics.trackUserDataSave(userInfo.id, false, { 
                 error_type: errorType, 
                 error_message: errorMessage 
-            }, { url });
+            });
             
             // Store user data locally as fallback
             try {
@@ -405,34 +360,128 @@ export class VKUserService {
             return null;
         }
         
+        const platform = VKConfig.detectPlatform();
+        const retryConfig = VKConfig.getRetryConfig();
+        
+        this.logger.debug('Checking backend premium status with platform:', platform, retryConfig);
+        
+        // Try multiple endpoints and retry logic for Android
+        return await this._makeNetworkRequestWithRetry(
+            'premium_status',
+            { user_id: this.userInfo.id, app_id: VKConfig.VK_APP_ID, item_id: 'mbti_premium' },
+            retryConfig
+        );
+    }
+    
+    /**
+     * Make network request with retry logic for Android platforms
+     */
+    async _makeNetworkRequestWithRetry(requestType, requestBody, retryConfig) {
+        const platform = VKConfig.detectPlatform();
+        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
+                         platform === VKConfig.PLATFORMS.VK_ANDROID;
+        
+        // Define endpoints to try
+        const endpoints = [];
+        
+        if (requestType === 'premium_status') {
+            if (isAndroid && retryConfig.useAlternativeEndpoints) {
+                // Try Android-specific endpoint first
+                endpoints.push(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT);
+            }
+            endpoints.push(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+        } else if (requestType === 'user_data') {
+            if (isAndroid && retryConfig.useAlternativeEndpoints) {
+                endpoints.push(VKConfig.ANDROID_USER_DATA_ENDPOINT);
+            }
+            endpoints.push(VKConfig.BACKEND_USER_DATA_ENDPOINT);
+        }
+        
+        let lastError = null;
+        
+        // Try each endpoint with retries
+        for (const endpoint of endpoints) {
+            for (let attempt = 1; attempt <= retryConfig.maxRetries; attempt++) {
+                try {
+                    this.logger.debug(`Attempting ${requestType} request (attempt ${attempt}/${retryConfig.maxRetries}) to endpoint: ${endpoint}`);
+                    
+                    const result = await this._makeSingleRequest(endpoint, requestBody, attempt);
+                    
+                    // If successful, return the result
+                    if (result !== null) {
+                        this.logger.debug(`${requestType} request successful on attempt ${attempt}`);
+                        return result;
+                    }
+                    
+                } catch (error) {
+                    lastError = error;
+                    this.logger.warn(`${requestType} request failed on attempt ${attempt}:`, error);
+                    
+                    // Track Android-specific errors
+                    if (isAndroid) {
+                        this.analytics.trackVKEvent(VKConfig.ANALYTICS_EVENTS.androidNetworkError, {
+                            request_type: requestType,
+                            endpoint: endpoint,
+                            attempt: attempt,
+                            error_type: error.name,
+                            error_message: error.message
+                        });
+                    }
+                    
+                    // If this is the last attempt for this endpoint, continue to next endpoint
+                    if (attempt === retryConfig.maxRetries) {
+                        break;
+                    }
+                    
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, retryConfig.retryDelay));
+                }
+            }
+        }
+        
+        // All attempts failed, handle fallback
+        if (retryConfig.fallbackToLocalStorage && requestType === 'premium_status') {
+            this.logger.warn('All network attempts failed, falling back to local storage');
+            return this.checkLocalPremiumStatus();
+        }
+        
+        // Re-throw the last error
+        throw lastError || new Error(`All ${requestType} requests failed`);
+    }
+    
+    /**
+     * Make a single network request
+     */
+    async _makeSingleRequest(endpoint, requestBody, attempt = 1) {
+        const platform = VKConfig.detectPlatform();
+        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
+                         platform === VKConfig.PLATFORMS.VK_ANDROID;
+        
         // Create AbortController for timeout
         const controller = new AbortController();
         let timeoutId = null;
         
         try {
-            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+            const url = VKConfig.getPlatformBackendUrl(endpoint);
+            const headers = VKConfig.getPlatformHeaders();
             
-            const requestBody = {
-                user_id: this.userInfo.id,
-                app_id: VKConfig.VK_APP_ID,
-                item_id: 'mbti_premium'
-            };
+            // Add attempt-specific headers for Android
+            if (isAndroid && attempt > 1) {
+                headers['X-Retry-Attempt'] = attempt.toString();
+                headers['X-Platform-Version'] = 'android_retry';
+            }
             
-            this.logger.debug('Checking backend premium status:', {
-                url: url,
+            this.logger.debug(`Making request to: ${url}`, {
                 method: 'POST',
-                body: requestBody
+                headers: headers,
+                body: requestBody,
+                platform: platform,
+                attempt: attempt
             });
-            
-            // Set timeout
-            timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
             
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: headers,
                 body: JSON.stringify(requestBody),
                 signal: controller.signal
             });

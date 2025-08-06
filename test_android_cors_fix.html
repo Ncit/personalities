@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android VK Mini App CORS Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        .test-button.android {
+            background: #4CAF50;
+        }
+        .test-button.android:hover {
+            background: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .platform-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .platform-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #667eea;
+        }
+        .platform-card.android {
+            border-left-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Android VK Mini App CORS Fix Test</h1>
+    
+    <div class="test-section">
+        <h2>Platform Detection</h2>
+        <button class="test-button" onclick="detectPlatform()">Detect Platform</button>
+        <button class="test-button android" onclick="simulateAndroid()">Simulate Android</button>
+        <button class="test-button" onclick="simulateVKAndroid()">Simulate VK Android</button>
+        <div id="platformInfo" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Configuration Test</h2>
+        <button class="test-button" onclick="testConfiguration()">Test Configuration</button>
+        <button class="test-button" onclick="testEndpoints()">Test Endpoints</button>
+        <button class="test-button" onclick="testHeaders()">Test Headers</button>
+        <div id="configInfo" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Network Request Test</h2>
+        <button class="test-button" onclick="testPremiumStatus()">Test Premium Status</button>
+        <button class="test-button" onclick="testUserDataSave()">Test User Data Save</button>
+        <button class="test-button" onclick="testRetryLogic()">Test Retry Logic</button>
+        <div id="networkInfo" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Error Handling Test</h2>
+        <button class="test-button" onclick="testNetworkError()">Test Network Error</button>
+        <button class="test-button" onclick="testCORSError()">Test CORS Error</button>
+        <button class="test-button" onclick="testTimeoutError()">Test Timeout Error</button>
+        <div id="errorInfo" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Fallback Test</h2>
+        <button class="test-button" onclick="testLocalStorageFallback()">Test LocalStorage Fallback</button>
+        <button class="test-button" onclick="testAlternativeEndpoints()">Test Alternative Endpoints</button>
+        <div id="fallbackInfo" class="status"></div>
+    </div>
+
+    <script type="module">
+        // Import the VKUserService and VKConfig for testing
+        import { VKUserService } from './src/modules/vk/services/VKUserService.js';
+        import { VKConfig } from './src/modules/vk/config/VKConfig.js';
+
+        // Create a mock logger and analytics for testing
+        const mockLogger = {
+            log: console.log,
+            debug: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+
+        const mockAnalytics = {
+            trackPremiumStatus: () => {},
+            trackUserDataSave: () => {},
+            trackUserInfo: () => {},
+            trackVKEvent: (event, data) => console.log('Analytics event:', event, data)
+        };
+
+        const mockErrorHandler = {
+            handleError: (error) => console.error('Error handled:', error)
+        };
+
+        // Create VKUserService instance
+        const userService = new VKUserService(null, mockLogger, mockAnalytics, mockErrorHandler);
+
+        // Test functions
+        window.detectPlatform = function() {
+            const statusDiv = document.getElementById('platformInfo');
+            const platform = VKConfig.detectPlatform();
+            const userAgent = navigator.userAgent;
+            const isVK = typeof window.vkBridge !== 'undefined';
+            
+            statusDiv.innerHTML = `
+                <div class="status info">
+                    <strong>Platform Detection Results:</strong><br>
+                    <div class="platform-info">
+                        <div class="platform-card ${platform.includes('android') ? 'android' : ''}">
+                            <strong>Detected Platform:</strong> ${platform}<br>
+                            <strong>Is VK Environment:</strong> ${isVK}<br>
+                            <strong>User Agent:</strong> ${userAgent.substring(0, 100)}...
+                        </div>
+                        <div class="platform-card">
+                            <strong>Available Platforms:</strong><br>
+                            ${Object.values(VKConfig.PLATFORMS).join('<br>')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.simulateAndroid = function() {
+            // Override user agent to simulate Android
+            Object.defineProperty(navigator, 'userAgent', {
+                value: 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
+                configurable: true
+            });
+            
+            const statusDiv = document.getElementById('platformInfo');
+            const platform = VKConfig.detectPlatform();
+            
+            statusDiv.innerHTML = `
+                <div class="status warning">
+                    <strong>Android Simulation Active:</strong><br>
+                    <strong>Detected Platform:</strong> ${platform}<br>
+                    <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                    <em>Note: This simulation will affect subsequent tests</em>
+                </div>
+            `;
+        };
+
+        window.simulateVKAndroid = function() {
+            // Override user agent and add vkBridge to simulate VK Android
+            Object.defineProperty(navigator, 'userAgent', {
+                value: 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
+                configurable: true
+            });
+            
+            // Mock vkBridge
+            window.vkBridge = {
+                send: () => Promise.resolve({}),
+                subscribe: () => {}
+            };
+            
+            const statusDiv = document.getElementById('platformInfo');
+            const platform = VKConfig.detectPlatform();
+            
+            statusDiv.innerHTML = `
+                <div class="status warning">
+                    <strong>VK Android Simulation Active:</strong><br>
+                    <strong>Detected Platform:</strong> ${platform}<br>
+                    <strong>VK Bridge Available:</strong> ${typeof window.vkBridge !== 'undefined'}<br>
+                    <em>Note: This simulation will affect subsequent tests</em>
+                </div>
+            `;
+        };
+
+        window.testConfiguration = function() {
+            const statusDiv = document.getElementById('configInfo');
+            const platform = VKConfig.detectPlatform();
+            const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
+                             platform === VKConfig.PLATFORMS.VK_ANDROID;
+            
+            const config = {
+                platform: platform,
+                isAndroid: isAndroid,
+                features: {
+                    userDataSaving: VKConfig.isFeatureEnabled('userDataSaving'),
+                    premiumStatusChecking: VKConfig.isFeatureEnabled('premiumStatusChecking'),
+                    useAlternativeEndpoints: VKConfig.ANDROID_FEATURES.useAlternativeEndpoints,
+                    fallbackToLocalStorage: VKConfig.ANDROID_FEATURES.fallbackToLocalStorage
+                },
+                timeouts: {
+                    apiRequest: VKConfig.getTimeout('apiRequest'),
+                    androidApiRequest: VKConfig.getTimeout('androidApiRequest')
+                },
+                retryConfig: VKConfig.getRetryConfig()
+            };
+            
+            statusDiv.innerHTML = `
+                <div class="status info">
+                    <strong>Configuration Test Results:</strong><br>
+                    <pre>${JSON.stringify(config, null, 2)}</pre>
+                </div>
+            `;
+        };
+
+        window.testEndpoints = function() {
+            const statusDiv = document.getElementById('configInfo');
+            const platform = VKConfig.detectPlatform();
+            
+            const endpoints = {
+                platform: platform,
+                standard: {
+                    premium: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+                    userData: VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT)
+                },
+                android: {
+                    premium: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT),
+                    userData: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_USER_DATA_ENDPOINT)
+                },
+                platformSpecific: {
+                    premium: VKConfig.getPlatformBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+                    userData: VKConfig.getPlatformBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT)
+                }
+            };
+            
+            statusDiv.innerHTML = `
+                <div class="status info">
+                    <strong>Endpoint Test Results:</strong><br>
+                    <pre>${JSON.stringify(endpoints, null, 2)}</pre>
+                </div>
+            `;
+        };
+
+        window.testHeaders = function() {
+            const statusDiv = document.getElementById('configInfo');
+            const headers = VKConfig.getPlatformHeaders();
+            
+            statusDiv.innerHTML = `
+                <div class="status info">
+                    <strong>Headers Test Results:</strong><br>
+                    <pre>${JSON.stringify(headers, null, 2)}</pre>
+                </div>
+            `;
+        };
+
+        window.testPremiumStatus = async function() {
+            const statusDiv = document.getElementById('networkInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing premium status check...</div>';
+
+            try {
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                console.log('Testing checkBackendPremiumStatus method...');
+                
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Premium status check completed!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Type:</strong> ${typeof result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Premium status check failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Premium status check failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        };
+
+        window.testUserDataSave = async function() {
+            const statusDiv = document.getElementById('networkInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing user data save...</div>';
+
+            try {
+                // Enable user data saving for test
+                userService.isEnabled = true;
+
+                const mockUserInfo = {
+                    id: 12345,
+                    screen_name: 'test_user',
+                    first_name: 'Test',
+                    last_name: 'User',
+                    photo_100: 'https://example.com/photo.jpg'
+                };
+
+                console.log('Testing saveUserDataToServer method...');
+                
+                const result = await userService.saveUserDataToServer(mockUserInfo);
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ User data save completed!</strong><br>
+                        <strong>Result:</strong><br>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('User data save failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ User data save failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        };
+
+        window.testRetryLogic = async function() {
+            const statusDiv = document.getElementById('networkInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing retry logic...</div>';
+
+            try {
+                // Override fetch to simulate failures then success
+                let attemptCount = 0;
+                const originalFetch = window.fetch;
+                
+                window.fetch = async (url, options) => {
+                    attemptCount++;
+                    console.log(`Fetch attempt ${attemptCount} to: ${url}`);
+                    
+                    if (attemptCount < 3) {
+                        throw new Error(`Simulated network error on attempt ${attemptCount}`);
+                    }
+                    
+                    // Restore original fetch and return success
+                    window.fetch = originalFetch;
+                    return new Response(JSON.stringify({ success: true, has_purchase: false }), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                };
+
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Retry logic test completed!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Attempts:</strong> ${attemptCount}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+                // Restore original fetch
+                window.fetch = originalFetch;
+
+            } catch (error) {
+                console.error('Retry logic test failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Retry logic test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testNetworkError = async function() {
+            const statusDiv = document.getElementById('errorInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing network error handling...</div>';
+
+            try {
+                // Override fetch to simulate network error
+                const originalFetch = window.fetch;
+                window.fetch = () => {
+                    throw new Error('Failed to fetch - Network error');
+                };
+
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Network error handled successfully!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+                // Restore original fetch
+                window.fetch = originalFetch;
+
+            } catch (error) {
+                console.error('Network error test failed:', error);
+                
+                // Restore original fetch
+                window.fetch = originalFetch;
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Network error test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testCORSError = async function() {
+            const statusDiv = document.getElementById('errorInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing CORS error handling...</div>';
+
+            try {
+                // Override fetch to simulate CORS error
+                const originalFetch = window.fetch;
+                window.fetch = () => {
+                    throw new Error('CORS policy blocked the request');
+                };
+
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ CORS error handled successfully!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+                // Restore original fetch
+                window.fetch = originalFetch;
+
+            } catch (error) {
+                console.error('CORS error test failed:', error);
+                
+                // Restore original fetch
+                window.fetch = originalFetch;
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ CORS error test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testTimeoutError = async function() {
+            const statusDiv = document.getElementById('errorInfo');
+            statusDiv.innerHTML = '<div class="status info">Testing timeout error handling...</div>';
+
+            try {
+                // Override fetch to simulate timeout
+                const originalFetch = window.fetch;
+                window.fetch = () => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            reject(new Error('Request timed out'));
+                        }, 100);
+                    });
+                };
+
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Timeout error handled successfully!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+                // Restore original fetch
+                window.fetch = originalFetch;
+
+            } catch (error) {
+                console.error('Timeout error test failed:', error);
+                
+                // Restore original fetch
+                window.fetch = originalFetch;
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Timeout error test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testLocalStorageFallback = function() {
+            const statusDiv = document.getElementById('fallbackInfo');
+            
+            try {
+                // Test localStorage functionality
+                const testKey = 'test_fallback';
+                const testData = { test: true, timestamp: Date.now() };
+                
+                localStorage.setItem(testKey, JSON.stringify(testData));
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                localStorage.removeItem(testKey);
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ LocalStorage fallback test passed!</strong><br>
+                        <strong>Storage Available:</strong> true<br>
+                        <strong>Data Integrity:</strong> ${JSON.stringify(testData) === JSON.stringify(retrieved)}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ LocalStorage fallback test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testAlternativeEndpoints = function() {
+            const statusDiv = document.getElementById('fallbackInfo');
+            const platform = VKConfig.detectPlatform();
+            const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
+                             platform === VKConfig.PLATFORMS.VK_ANDROID;
+            
+            const endpoints = {
+                platform: platform,
+                isAndroid: isAndroid,
+                standard: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+                android: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT),
+                platformSpecific: VKConfig.getPlatformBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+            };
+            
+            statusDiv.innerHTML = `
+                <div class="status info">
+                    <strong>Alternative Endpoints Test:</strong><br>
+                    <pre>${JSON.stringify(endpoints, null, 2)}</pre>
+                </div>
+            `;
+        };
+    </script>
+</body>
+</html> 

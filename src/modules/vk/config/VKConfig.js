@@ -9,8 +9,23 @@ export class VKConfig {
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     static BACKEND_USER_DATA_ENDPOINT = '/admin/api/users';
     
+    // Alternative endpoints for Android VK Mini Apps
+    static ANDROID_BACKEND_BASE_URL = 'https://nikmobdev.ru/goodsshop';
+    static ANDROID_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase-android';
+    static ANDROID_USER_DATA_ENDPOINT = '/admin/api/users-android';
+    
     // VK App configuration
     static VK_APP_ID = '53942833';
+    
+    // Platform detection
+    static PLATFORMS = {
+        ANDROID: 'android',
+        IOS: 'ios',
+        WEB: 'web',
+        VK_ANDROID: 'vk_android',
+        VK_IOS: 'vk_ios',
+        VK_WEB: 'vk_web'
+    };
     
     // Payment configuration
     static PAYMENT_CONFIG = {
@@ -55,11 +70,27 @@ export class VKConfig {
         appearance: true
     };
     
+    // Android-specific feature flags
+    static ANDROID_FEATURES = {
+        analytics: true,
+        userDataSaving: false, // Disabled for Android due to CORS issues
+        premiumStatusChecking: false, // Disabled for Android due to CORS issues
+        payment: true,
+        sharing: true,
+        ads: true,
+        appearance: true,
+        useAlternativeEndpoints: true, // Use Android-specific endpoints
+        fallbackToLocalStorage: true, // Fallback to localStorage when network fails
+        retryWithDifferentHeaders: true // Retry with different headers if first attempt fails
+    };
+    
     // Timeout configurations
     static TIMEOUTS = {
         apiRequest: 10000,
         bridgeInit: 5000,
-        userDataSave: 15000
+        userDataSave: 15000,
+        androidApiRequest: 15000, // Longer timeout for Android
+        retryDelay: 2000 // Delay between retries
     };
     
     // Local storage keys
@@ -69,7 +100,10 @@ export class VKConfig {
         subscriptionData: 'mbti_subscription_data',
         userDataSaved: 'vk_user_data_saved',
         userDataSavedTimestamp: 'vk_user_data_saved_timestamp',
-        userDataLocal: 'vk_user_data_local'
+        userDataLocal: 'vk_user_data_local',
+        platform: 'vk_platform',
+        lastNetworkError: 'vk_last_network_error',
+        networkErrorCount: 'vk_network_error_count'
     };
     
     // Analytics event names
@@ -80,7 +114,9 @@ export class VKConfig {
         paymentSuccess: 'vk_payment_success',
         paymentError: 'vk_payment_error',
         premiumStatusCheck: 'vk_premium_status_check',
-        userDataSave: 'vk_user_data_save'
+        userDataSave: 'vk_user_data_save',
+        androidNetworkError: 'vk_android_network_error',
+        platformDetected: 'vk_platform_detected'
     };
     
     // Error codes mapping
@@ -88,7 +124,9 @@ export class VKConfig {
         UNSUPPORTED_PLATFORM: 6,
         ORDER_CONFIGURATION_ERROR: 13,
         CLIENT_ERROR: 'client_error',
-        NETWORK_ERROR: 'network_error'
+        NETWORK_ERROR: 'network_error',
+        ANDROID_CORS_ERROR: 'android_cors_error',
+        ANDROID_NETWORK_ERROR: 'android_network_error'
     };
     
     /**
@@ -114,16 +152,83 @@ export class VKConfig {
     }
     
     /**
-     * Check if a feature is enabled
+     * Get Android-specific backend URL
+     */
+    static getAndroidBackendUrl(endpoint) {
+        return `${this.ANDROID_BACKEND_BASE_URL}${endpoint}`;
+    }
+    
+    /**
+     * Get platform-appropriate backend URL
+     */
+    static getPlatformBackendUrl(endpoint, platform = null) {
+        if (!platform) {
+            platform = this.detectPlatform();
+        }
+        
+        // Use Android-specific endpoints for Android platforms
+        if (platform === this.PLATFORMS.ANDROID || 
+            platform === this.PLATFORMS.VK_ANDROID) {
+            return this.getAndroidBackendUrl(endpoint);
+        }
+        
+        return this.getBackendUrl(endpoint);
+    }
+    
+    /**
+     * Detect current platform
+     */
+    static detectPlatform() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isVK = typeof window.vkBridge !== 'undefined';
+        
+        if (isVK) {
+            if (userAgent.includes('android')) {
+                return this.PLATFORMS.VK_ANDROID;
+            } else if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                return this.PLATFORMS.VK_IOS;
+            } else {
+                return this.PLATFORMS.VK_WEB;
+            }
+        } else {
+            if (userAgent.includes('android')) {
+                return this.PLATFORMS.ANDROID;
+            } else if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                return this.PLATFORMS.IOS;
+            } else {
+                return this.PLATFORMS.WEB;
+            }
+        }
+    }
+    
+    /**
+     * Check if a feature is enabled for current platform
      */
     static isFeatureEnabled(feature) {
+        const platform = this.detectPlatform();
+        
+        // Use Android-specific features for Android platforms
+        if (platform === this.PLATFORMS.ANDROID || 
+            platform === this.PLATFORMS.VK_ANDROID) {
+            return this.ANDROID_FEATURES[feature] === true;
+        }
+        
         return this.FEATURES[feature] === true;
     }
     
     /**
-     * Get timeout value for a specific operation
+     * Get timeout value for a specific operation and platform
      */
     static getTimeout(operation) {
+        const platform = this.detectPlatform();
+        
+        // Use Android-specific timeouts for Android platforms
+        if ((platform === this.PLATFORMS.ANDROID || 
+             platform === this.PLATFORMS.VK_ANDROID) && 
+            this.TIMEOUTS[`android${operation.charAt(0).toUpperCase() + operation.slice(1)}`]) {
+            return this.TIMEOUTS[`android${operation.charAt(0).toUpperCase() + operation.slice(1)}`];
+        }
+        
         return this.TIMEOUTS[operation] || this.TIMEOUTS.apiRequest;
     }
     
@@ -132,5 +237,53 @@ export class VKConfig {
      */
     static getStorageKey(dataType) {
         return this.STORAGE_KEYS[dataType];
+    }
+    
+    /**
+     * Get platform-specific headers for network requests
+     */
+    static getPlatformHeaders() {
+        const platform = this.detectPlatform();
+        const baseHeaders = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        
+        // Add platform-specific headers for Android
+        if (platform === this.PLATFORMS.ANDROID || 
+            platform === this.PLATFORMS.VK_ANDROID) {
+            return {
+                ...baseHeaders,
+                'X-Platform': 'android',
+                'X-VK-App': this.VK_APP_ID,
+                'User-Agent': navigator.userAgent
+            };
+        }
+        
+        return baseHeaders;
+    }
+    
+    /**
+     * Get retry configuration for failed requests
+     */
+    static getRetryConfig() {
+        const platform = this.detectPlatform();
+        
+        if (platform === this.PLATFORMS.ANDROID || 
+            platform === this.PLATFORMS.VK_ANDROID) {
+            return {
+                maxRetries: 3,
+                retryDelay: this.TIMEOUTS.retryDelay,
+                useAlternativeEndpoints: this.ANDROID_FEATURES.useAlternativeEndpoints,
+                fallbackToLocalStorage: this.ANDROID_FEATURES.fallbackToLocalStorage
+            };
+        }
+        
+        return {
+            maxRetries: 1,
+            retryDelay: this.TIMEOUTS.retryDelay,
+            useAlternativeEndpoints: false,
+            fallbackToLocalStorage: false
+        };
     }
 } 
