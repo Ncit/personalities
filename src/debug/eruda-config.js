@@ -70,6 +70,15 @@ class ErudaDebugger {
                 return;
             }
 
+            // Check if Eruda is already initialized
+            if (eruda.get && eruda.get().container) {
+                console.log('Eruda already initialized, configuring...');
+                this.isInitialized = true;
+                this.isEnabled = true;
+                this.configureEruda();
+                return;
+            }
+
             // Initialize Eruda
             eruda.init({
                 autoScale: true,
@@ -81,14 +90,8 @@ class ErudaDebugger {
                 }
             });
 
-            // Load plugins
-            this.loadPlugins();
-
-            // Customize appearance
-            this.customizeAppearance();
-
-            // Add custom tools
-            this.addCustomTools();
+            // Configure Eruda
+            this.configureEruda();
 
             this.isInitialized = true;
             this.isEnabled = true;
@@ -101,6 +104,20 @@ class ErudaDebugger {
         } catch (error) {
             console.error('❌ Failed to initialize Eruda:', error);
         }
+    }
+
+    /**
+     * Configure Eruda after initialization
+     */
+    configureEruda() {
+        // Load plugins
+        this.loadPlugins();
+
+        // Customize appearance
+        this.customizeAppearance();
+
+        // Add custom tools
+        this.addCustomTools();
     }
 
     /**
@@ -409,13 +426,25 @@ const erudaDebugger = new ErudaDebugger();
 
 // Auto-initialize if configured
 if (erudaDebugger.config.autoInit) {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
+    // Check if Eruda is already available
+    if (typeof eruda !== 'undefined') {
+        // Wait a bit for Eruda to be fully loaded
+        setTimeout(() => {
             erudaDebugger.init();
-        });
+        }, 100);
     } else {
-        erudaDebugger.init();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    erudaDebugger.init();
+                }, 100);
+            });
+        } else {
+            setTimeout(() => {
+                erudaDebugger.init();
+            }, 100);
+        }
     }
 }
 

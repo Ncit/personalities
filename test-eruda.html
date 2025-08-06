@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eruda Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .info { background: rgba(33, 150, 243, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Eruda Debug Console Test</h1>
+        
+        <div class="test-section">
+            <h3>🔧 Basic Tests</h3>
+            <button onclick="testErudaBasic()">Test Eruda Basic</button>
+            <button onclick="testErudaToggle()">Toggle Eruda</button>
+            <button onclick="testDebugUtils()">Test Debug Utils</button>
+            <div id="basicResults" class="status info">Click a button to run tests...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Async/Await Tests</h3>
+            <button onclick="testAsyncAwait()">Test Async/Await</button>
+            <button onclick="testPromise()">Test Promise</button>
+            <div id="asyncResults" class="status info">Click a button to run tests...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔗 VK Bridge Tests</h3>
+            <button onclick="testVKBridge()">Test VK Bridge</button>
+            <button onclick="testVKEnvironment()">Test VK Environment</button>
+            <div id="vkResults" class="status info">Click a button to run tests...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 Performance Tests</h3>
+            <button onclick="testPerformance()">Test Performance</button>
+            <button onclick="testMemory()">Test Memory</button>
+            <div id="perfResults" class="status info">Click a button to run tests...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Debug Console</h3>
+            <button onclick="openEruda()">Open Eruda Console</button>
+            <button onclick="addTestSnippets()">Add Test Snippets</button>
+            <button onclick="clearResults()">Clear Results</button>
+            <div id="consoleResults" class="status info">Click a button to run tests...</div>
+        </div>
+    </div>
+
+    <!-- Eruda Console -->
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>
+        // Initialize Eruda immediately
+        if (typeof eruda !== 'undefined') {
+            eruda.init();
+            console.log('✅ Eruda initialized from test page');
+        }
+    </script>
+    <script type="module" src="src/debug/eruda-config.js"></script>
+    <script type="module" src="src/debug/debug-utils.js"></script>
+
+    <script>
+        // Test functions
+        function updateResults(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        function testErudaBasic() {
+            console.log('🧪 Testing Eruda basic functionality...');
+            
+            try {
+                const result = window.debug?.testEruda();
+                if (result) {
+                    updateResults('basicResults', 
+                        `✅ Eruda Test Results:
+                        Available: ${result.available}
+                        Initialized: ${result.initialized}
+                        Visible: ${result.visible}`, 'success');
+                } else {
+                    updateResults('basicResults', '❌ Eruda test failed', 'error');
+                }
+            } catch (error) {
+                updateResults('basicResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testErudaToggle() {
+            console.log('🔄 Testing Eruda toggle...');
+            
+            try {
+                if (window.erudaDebugger) {
+                    window.erudaDebugger.toggle();
+                    updateResults('basicResults', '✅ Eruda toggled successfully', 'success');
+                } else {
+                    updateResults('basicResults', '❌ Eruda debugger not available', 'error');
+                }
+            } catch (error) {
+                updateResults('basicResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testDebugUtils() {
+            console.log('🛠️ Testing debug utilities...');
+            
+            try {
+                if (window.debug) {
+                    window.debug.log('Test log message');
+                    window.debug.info('Test info message');
+                    window.debug.warn('Test warning message');
+                    window.debug.error('Test error message');
+                    updateResults('basicResults', '✅ Debug utilities working', 'success');
+                } else {
+                    updateResults('basicResults', '❌ Debug utilities not available', 'error');
+                }
+            } catch (error) {
+                updateResults('basicResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAsyncAwait() {
+            console.log('⏳ Testing async/await...');
+            
+            try {
+                const result = await Promise.resolve('Async/Await works!');
+                updateResults('asyncResults', `✅ ${result}`, 'success');
+            } catch (error) {
+                updateResults('asyncResults', `❌ Async/Await failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testPromise() {
+            console.log('🤝 Testing Promise...');
+            
+            try {
+                const promise = new Promise((resolve) => {
+                    setTimeout(() => resolve('Promise works!'), 1000);
+                });
+                
+                promise.then(result => {
+                    updateResults('asyncResults', `✅ ${result}`, 'success');
+                }).catch(error => {
+                    updateResults('asyncResults', `❌ Promise failed: ${error.message}`, 'error');
+                });
+                
+                updateResults('asyncResults', '⏳ Testing Promise (1 second delay)...', 'info');
+            } catch (error) {
+                updateResults('asyncResults', `❌ Promise test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testVKBridge() {
+            console.log('🔗 Testing VK Bridge...');
+            
+            try {
+                if (window.vkBridge) {
+                    updateResults('vkResults', '✅ VK Bridge available', 'success');
+                } else {
+                    updateResults('vkResults', 'ℹ️ VK Bridge not available (not in VK environment)', 'info');
+                }
+            } catch (error) {
+                updateResults('vkResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testVKEnvironment() {
+            console.log('🌍 Testing VK Environment...');
+            
+            try {
+                const userAgent = navigator.userAgent;
+                const isVK = userAgent.includes('VK') || userAgent.includes('vk');
+                const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+                
+                updateResults('vkResults', 
+                    `Environment Info:
+                    User Agent: ${userAgent.substring(0, 50)}...
+                    Is VK: ${isVK}
+                    Is Mobile: ${isMobile}`, 'info');
+            } catch (error) {
+                updateResults('vkResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testPerformance() {
+            console.log('⚡ Testing performance...');
+            
+            try {
+                const start = performance.now();
+                setTimeout(() => {
+                    const end = performance.now();
+                    const duration = end - start;
+                    updateResults('perfResults', `✅ Performance test: ${duration.toFixed(2)}ms`, 'success');
+                }, 100);
+                
+                updateResults('perfResults', '⏳ Testing performance...', 'info');
+            } catch (error) {
+                updateResults('perfResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testMemory() {
+            console.log('🧠 Testing memory...');
+            
+            try {
+                if (performance.memory) {
+                    const memory = {
+                        used: Math.round(performance.memory.usedJSHeapSize / 1048576),
+                        total: Math.round(performance.memory.totalJSHeapSize / 1048576),
+                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576)
+                    };
+                    updateResults('perfResults', 
+                        `Memory Usage:
+                        Used: ${memory.used} MB
+                        Total: ${memory.total} MB
+                        Limit: ${memory.limit} MB`, 'info');
+                } else {
+                    updateResults('perfResults', 'ℹ️ Memory info not available', 'info');
+                }
+            } catch (error) {
+                updateResults('perfResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function openEruda() {
+            console.log('🎯 Opening Eruda console...');
+            
+            try {
+                if (window.erudaDebugger) {
+                    window.erudaDebugger.toggle();
+                    updateResults('consoleResults', '✅ Eruda console toggled', 'success');
+                } else if (eruda) {
+                    eruda.show();
+                    updateResults('consoleResults', '✅ Eruda console shown', 'success');
+                } else {
+                    updateResults('consoleResults', '❌ Eruda not available', 'error');
+                }
+            } catch (error) {
+                updateResults('consoleResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function addTestSnippets() {
+            console.log('📝 Adding test snippets...');
+            
+            try {
+                if (eruda && eruda.get) {
+                    const snippets = eruda.get('snippets');
+                    if (snippets) {
+                        snippets.add('Test Async/Await', async () => {
+                            console.log('Testing async/await from snippet...');
+                            const result = await Promise.resolve('Snippet test successful!');
+                            console.log('✅', result);
+                        });
+                        
+                        snippets.add('Test VK Bridge', () => {
+                            console.log('Testing VK Bridge from snippet...');
+                            if (window.vkBridge) {
+                                console.log('✅ VK Bridge available');
+                            } else {
+                                console.log('ℹ️ VK Bridge not available');
+                            }
+                        });
+                        
+                        updateResults('consoleResults', '✅ Test snippets added to Eruda', 'success');
+                    } else {
+                        updateResults('consoleResults', '❌ Snippets plugin not available', 'error');
+                    }
+                } else {
+                    updateResults('consoleResults', '❌ Eruda not available', 'error');
+                }
+            } catch (error) {
+                updateResults('consoleResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearResults() {
+            const elements = ['basicResults', 'asyncResults', 'vkResults', 'perfResults', 'consoleResults'];
+            elements.forEach(id => {
+                updateResults(id, 'Click a button to run tests...', 'info');
+            });
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testErudaBasic();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

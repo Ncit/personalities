@@ -565,6 +565,22 @@
     
     <!-- Eruda Console for Mobile Debugging -->
     <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>
+        // Initialize Eruda immediately after loading
+        if (typeof eruda !== 'undefined') {
+            eruda.init();
+            console.log('Eruda initialized from HTML');
+        }
+        
+        // Fallback initialization
+        window.addEventListener('load', () => {
+            if (typeof eruda !== 'undefined' && !window.erudaInitialized) {
+                eruda.init();
+                window.erudaInitialized = true;
+                console.log('Eruda initialized from fallback');
+            }
+        });
+    </script>
     <script type="module" src="src/debug/eruda-config.js"></script>
     
     <!-- Debug Utilities -->
