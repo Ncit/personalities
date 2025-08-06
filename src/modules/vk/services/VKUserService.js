@@ -18,46 +18,46 @@ export class VKUserService {
     /**
      * Get user information from VK
      */
-    async getUserInfo() {
+    getUserInfo() {
         if (!this.bridge) {
             this.analytics.trackUserInfo(null, false, { error_type: 'bridge_unavailable' });
-            return null;
+            return Promise.resolve(null);
         }
         
-        try {
-            this.analytics.trackUserInfo(null, false, null, { action: 'attempted' });
-            
-            const result = await this.bridge.send('VKWebAppGetUserInfo');
-            this.userInfo = result;
-            
-            this.analytics.trackUserInfo(result, true);
-            this.analytics.setUserProperties(result);
-            
-            // Save user data to server (non-blocking)
-            if (this.isEnabled) {
-                this.saveUserDataToServer(result).catch(error => {
-                    this.logger.warn('Failed to save user data to server (non-blocking):', error);
-                });
-            }
-            
-            return result;
-            
-        } catch (error) {
-            this.logger.error('Error getting user info:', error);
-            
-            this.analytics.trackUserInfo(null, false, error);
-            
-            return null;
-        }
+        this.analytics.trackUserInfo(null, false, null, { action: 'attempted' });
+        
+        return this.bridge.send('VKWebAppGetUserInfo')
+            .then(result => {
+                this.userInfo = result;
+                
+                this.analytics.trackUserInfo(result, true);
+                this.analytics.setUserProperties(result);
+                
+                // Save user data to server (non-blocking)
+                if (this.isEnabled) {
+                    this.saveUserDataToServer(result).catch(error => {
+                        this.logger.warn('Failed to save user data to server (non-blocking):', error);
+                    });
+                }
+                
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error getting user info:', error);
+                
+                this.analytics.trackUserInfo(null, false, error);
+                
+                return null;
+            });
     }
     
     /**
      * Save VK user data to server
      */
-    async saveUserDataToServer(userInfo) {
+    saveUserDataToServer(userInfo) {
         if (!this.isEnabled) {
             this.logger.debug('User data saving is disabled');
-            return;
+            return Promise.resolve();
         }
         
         // Check if user data has already been saved
@@ -65,70 +65,64 @@ export class VKUserService {
         if (userDataSaved === 'true') {
             this.logger.debug('User data already saved to server, skipping');
             this.analytics.trackUserDataSave(userInfo.id, true, null, { reason: 'already_saved' });
-            return;
+            return Promise.resolve();
         }
         
         if (!userInfo || !userInfo.id) {
             this.logger.warn('No valid user info available for saving to server');
             this.analytics.trackUserDataSave(null, false, { error_type: 'no_valid_user_info' });
-            return;
+            return Promise.resolve();
         }
         
-        try {
-            this.logger.debug('Saving user data to server:', {
-                user_id: userInfo.id,
-                username: userInfo.screen_name,
-                first_name: userInfo.first_name,
-                last_name: userInfo.last_name,
-                has_photo: !!userInfo.photo_100
-            });
-            
-            const userData = {
-                vk_user_id: userInfo.id,
-                app_id: VKConfig.VK_APP_ID,
-                username: userInfo.screen_name || `user_${userInfo.id}`,
-                first_name: userInfo.first_name || '',
-                last_name: userInfo.last_name || '',
-                vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
-            };
-            
-            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
-            
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(userData),
-                signal: controller.signal
-            });
-            
+        this.logger.debug('Saving user data to server:', {
+            user_id: userInfo.id,
+            username: userInfo.screen_name,
+            first_name: userInfo.first_name,
+            last_name: userInfo.last_name,
+            has_photo: !!userInfo.photo_100
+        });
+        
+        const userData = {
+            vk_user_id: userInfo.id,
+            app_id: VKConfig.VK_APP_ID,
+            username: userInfo.screen_name || `user_${userInfo.id}`,
+            first_name: userInfo.first_name || '',
+            last_name: userInfo.last_name || '',
+            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+        };
+        
+        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
+        
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(userData),
+            signal: controller.signal
+        })
+        .then(response => {
             clearTimeout(timeoutId);
             
             this.logger.debug('Server response status:', response.status, response.statusText);
             
             if (!response.ok) {
-                let errorDetails = '';
-                try {
-                    const errorData = await response.text();
-                    errorDetails = errorData;
-                } catch (e) {
-                    errorDetails = 'Could not read error response';
-                }
-                
-                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
+                return response.text().then(errorData => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorData || 'Could not read error response'}`);
+                });
             }
             
-            const data = await response.json();
-            
+            return response.json();
+        })
+        .then(data => {
             this.logger.debug('Server response data:', data);
             
-            if (data.success || response.status === 200 || response.status === 201) {
+            if (data.success || data.status === 200 || data.status === 201) {
                 // Mark user data as saved in localStorage
                 localStorage.setItem(VKConfig.getStorageKey('userDataSaved'), 'true');
                 localStorage.setItem(VKConfig.getStorageKey('userDataSavedTimestamp'), Date.now().toString());
@@ -141,116 +135,120 @@ export class VKUserService {
             } else {
                 throw new Error(`Server returned error: ${JSON.stringify(data)}`);
             }
-            
-        } catch (error) {
+        })
+        .catch(error => {
             this.logger.error('Error saving user data to server:', error);
             
             this.analytics.trackUserDataSave(userInfo.id, false, error, { url });
             
             throw error;
-        }
+        });
     }
     
     /**
      * Force save user data to server (ignores localStorage flag)
      */
-    async forceSaveUserDataToServer(userInfo) {
+    forceSaveUserDataToServer(userInfo) {
         if (!userInfo || !userInfo.id) {
             this.logger.warn('No valid user info available for force saving to server');
             this.analytics.trackUserDataSave(null, false, { error_type: 'no_valid_user_info' }, { action: 'force_save' });
-            return;
+            return Promise.resolve();
         }
         
         this.logger.log('Force saving user data to server (ignoring localStorage flag)');
         
-        try {
-            // Temporarily remove the saved flag to allow saving
-            const wasSaved = localStorage.getItem(VKConfig.getStorageKey('userDataSaved')) === 'true';
-            if (wasSaved) {
-                localStorage.removeItem(VKConfig.getStorageKey('userDataSaved'));
-                localStorage.removeItem(VKConfig.getStorageKey('userDataSavedTimestamp'));
-            }
-            
-            const result = await this.saveUserDataToServer(userInfo);
-            
-            this.analytics.trackUserDataSave(userInfo.id, true, null, { 
-                action: 'force_save',
-                was_previously_saved: wasSaved 
-            });
-            
-            return result;
-            
-        } catch (error) {
-            this.logger.error('Error force saving user data to server:', error);
-            
-            this.analytics.trackUserDataSave(userInfo.id, false, error, { action: 'force_save' });
-            
-            throw error;
+        // Temporarily remove the saved flag to allow saving
+        const wasSaved = localStorage.getItem(VKConfig.getStorageKey('userDataSaved')) === 'true';
+        if (wasSaved) {
+            localStorage.removeItem(VKConfig.getStorageKey('userDataSaved'));
+            localStorage.removeItem(VKConfig.getStorageKey('userDataSavedTimestamp'));
         }
+        
+        return this.saveUserDataToServer(userInfo)
+            .then(result => {
+                this.analytics.trackUserDataSave(userInfo.id, true, null, { 
+                    action: 'force_save',
+                    was_previously_saved: wasSaved 
+                });
+                
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error force saving user data to server:', error);
+                
+                this.analytics.trackUserDataSave(userInfo.id, false, error, { action: 'force_save' });
+                
+                throw error;
+            });
     }
     
     /**
      * Check premium status from local storage and backend
      */
-    async checkPremiumStatus() {
+    checkPremiumStatus() {
         this.logger.log('checkPremiumStatus() called');
         
         this.analytics.trackPremiumStatus(null, 'unknown', null, { action: 'attempted' });
         
-        try {
-            // First, check local storage
-            const localPremiumStatus = this.checkLocalPremiumStatus();
+        // First, check local storage
+        const localPremiumStatus = this.checkLocalPremiumStatus();
+        
+        if (localPremiumStatus !== null) {
+            this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
             
-            if (localPremiumStatus !== null) {
-                this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
-                
-                this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
-                
-                // Update global premium status
-                this.updateGlobalPremiumStatus(localPremiumStatus);
-                return localPremiumStatus;
-            }
+            this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
             
-            this.logger.log('No local premium status found, checking backend...');
-            
-            // Only check backend if no premium status found in localStorage
-            if (this.userInfo?.id) {
-
-                const backendPremiumStatus = await this.checkBackendPremiumStatus();
-                
-                if (backendPremiumStatus !== null) {
-                    // Store the result in local storage
-                    this.storePremiumStatus(backendPremiumStatus);
-                    
-                    // Update global premium status
-                    this.updateGlobalPremiumStatus(backendPremiumStatus);
-                    
-                    this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { user_id: this.userInfo.id });
-                    
-                    return backendPremiumStatus;
-                }
-            }
-            
-            // If we can't determine premium status, assume not premium
-            this.logger.log('Could not determine premium status, defaulting to false');
-            
-            this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
-            
-            return false;
-            
-        } catch (error) {
-            this.logger.error('Error checking premium status:', error);
-            
-            this.analytics.trackPremiumStatus(false, 'error', error, { user_id: this.userInfo?.id });
-            
-            return false;
+            // Update global premium status
+            this.updateGlobalPremiumStatus(localPremiumStatus);
+            return Promise.resolve(localPremiumStatus);
         }
+        
+        this.logger.log('No local premium status found, checking backend...');
+        
+        // Only check backend if no premium status found in localStorage
+        if (this.userInfo?.id) {
+            return this.checkBackendPremiumStatus()
+                .then(backendPremiumStatus => {
+                    if (backendPremiumStatus !== null) {
+                        // Store the result in local storage
+                        this.storePremiumStatus(backendPremiumStatus);
+                        
+                        // Update global premium status
+                        this.updateGlobalPremiumStatus(backendPremiumStatus);
+                        
+                        this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { user_id: this.userInfo.id });
+                        
+                        return backendPremiumStatus;
+                    }
+                    
+                    // If we can't determine premium status, assume not premium
+                    this.logger.log('Could not determine premium status, defaulting to false');
+                    
+                    this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
+                    
+                    return false;
+                })
+                .catch(error => {
+                    this.logger.error('Error checking premium status:', error);
+                    
+                    this.analytics.trackPremiumStatus(false, 'error', error, { user_id: this.userInfo?.id });
+                    
+                    return false;
+                });
+        }
+        
+        // If we can't determine premium status, assume not premium
+        this.logger.log('Could not determine premium status, defaulting to false');
+        
+        this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
+        
+        return Promise.resolve(false);
     }
     
     /**
      * Refresh premium status - checks localStorage first, then backend if needed
      */
-    async refreshPremiumStatus() {
+    refreshPremiumStatus() {
         this.logger.log('refreshPremiumStatus() called');
         
         // First check localStorage
@@ -263,29 +261,40 @@ export class VKUserService {
             
             // Update global premium status
             this.updateGlobalPremiumStatus(localPremiumStatus);
-            return localPremiumStatus;
+            return Promise.resolve(localPremiumStatus);
         }
         
         // Only check backend if no premium status found in localStorage
         if (this.userInfo?.id) {
             this.logger.log('No local premium status found, checking backend...');
             
-            const backendPremiumStatus = await this.checkBackendPremiumStatus();
-            
-            if (backendPremiumStatus !== null) {
-                // Store the result in local storage
-                this.storePremiumStatus(backendPremiumStatus);
-                
-                // Update global premium status
-                this.updateGlobalPremiumStatus(backendPremiumStatus);
-                
-                this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { 
-                    action: 'refresh',
-                    user_id: this.userInfo.id 
+            return this.checkBackendPremiumStatus()
+                .then(backendPremiumStatus => {
+                    if (backendPremiumStatus !== null) {
+                        // Store the result in local storage
+                        this.storePremiumStatus(backendPremiumStatus);
+                        
+                        // Update global premium status
+                        this.updateGlobalPremiumStatus(backendPremiumStatus);
+                        
+                        this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { 
+                            action: 'refresh',
+                            user_id: this.userInfo.id 
+                        });
+                        
+                        return backendPremiumStatus;
+                    }
+                    
+                    // If we can't determine premium status, assume not premium
+                    this.logger.log('Could not determine premium status, defaulting to false');
+                    
+                    this.analytics.trackPremiumStatus(false, 'unknown', null, { 
+                        action: 'refresh',
+                        user_id: this.userInfo?.id 
+                    });
+                    
+                    return false;
                 });
-                
-                return backendPremiumStatus;
-            }
         }
         
         // If we can't determine premium status, assume not premium
@@ -296,7 +305,7 @@ export class VKUserService {
             user_id: this.userInfo?.id 
         });
         
-        return false;
+        return Promise.resolve(false);
     }
     
     /**
@@ -340,59 +349,53 @@ export class VKUserService {
     /**
      * Check premium status from backend API
      */
-    async checkBackendPremiumStatus() {
+    checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
             this.logger.debug('No user ID available for backend premium check');
-            return null;
+            return Promise.resolve(null);
         }
         
-        try {
-            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
-            
-            const requestBody = {
-                user_id: this.userInfo.id,
-                app_id: VKConfig.VK_APP_ID,
-                item_id: 'mbti_premium'
-            };
-            
-            this.logger.debug('Checking backend premium status:', {
-                url: url,
-                method: 'POST',
-                body: requestBody
-            });
-            
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestBody),
-                signal: controller.signal
-            });
-            
+        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+        
+        const requestBody = {
+            user_id: this.userInfo.id,
+            app_id: VKConfig.VK_APP_ID,
+            item_id: 'mbti_premium'
+        };
+        
+        this.logger.debug('Checking backend premium status:', {
+            url: url,
+            method: 'POST',
+            body: requestBody
+        });
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+        
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        })
+        .then(response => {
             clearTimeout(timeoutId);
             
             this.logger.debug('Backend response status:', response.status, response.statusText);
             
             if (!response.ok) {
-                let errorDetails = '';
-                try {
-                    const errorData = await response.text();
-                    errorDetails = errorData;
-                } catch (e) {
-                    errorDetails = 'Could not read error response';
-                }
-                
-                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
+                return response.text().then(errorData => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorData || 'Could not read error response'}`);
+                });
             }
             
-            const data = await response.json();
-            
+            return response.json();
+        })
+        .then(data => {
             this.logger.debug('Backend premium status response:', data);
             
             if (data.success && typeof data.has_purchase === 'boolean') {
@@ -400,8 +403,8 @@ export class VKUserService {
             } else {
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
-            
-        } catch (error) {
+        })
+        .catch(error => {
             this.logger.error('Error checking backend premium status:', error);
             
             this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
@@ -410,7 +413,7 @@ export class VKUserService {
             });
             
             return null;
-        }
+        });
     }
     
     /**

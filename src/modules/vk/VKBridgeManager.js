@@ -701,36 +701,102 @@ export class VKBridgeManager {
         return this.userService?.getUserData();
     }
 
-    async getUserInfo() {
-        return this.userService?.getUserInfo();
+    getUserInfo() {
+        return this.userService?.getUserInfo()
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error getting user info:', error);
+                return this.userService?.getUserData() || null;
+            });
     }
 
-    async saveUserDataToServer(userInfo) {
-        return this.userService?.saveUserDataToServer(userInfo);
+    saveUserDataToServer(userInfo) {
+        return this.userService?.saveUserDataToServer(userInfo)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error saving user data to server:', error);
+                return { 
+                    success: false, 
+                    error: error.message || 'Unknown error',
+                    errorType: 'save_user_data_error'
+                };
+            });
     }
 
-    async forceSaveUserDataToServer(userInfo) {
-        return this.userService?.forceSaveUserDataToServer(userInfo);
+    forceSaveUserDataToServer(userInfo) {
+        return this.userService?.forceSaveUserDataToServer(userInfo)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error force saving user data to server:', error);
+                return { 
+                    success: false, 
+                    error: error.message || 'Unknown error',
+                    errorType: 'force_save_user_data_error'
+                };
+            });
     }
 
-    async checkPremiumStatus() {
-        return this.userService?.checkPremiumStatus();
+    checkPremiumStatus() {
+        return this.userService?.checkPremiumStatus()
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error checking premium status:', error);
+                // Fallback to checking local user data
+                return this.userService?.getUserData()?.isPremium || false;
+            });
     }
 
-    async refreshPremiumStatus() {
-        return this.userService?.refreshPremiumStatus();
+    refreshPremiumStatus() {
+        return this.userService?.refreshPremiumStatus()
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error refreshing premium status:', error);
+                // Fallback to checking local user data
+                return this.userService?.getUserData()?.isPremium || false;
+            });
     }
 
-    async showOrderBox(productId, productName) {
-        return this.paymentService?.showOrderBox(productId, productName);
+    showOrderBox(productId, productName) {
+        return this.paymentService?.showOrderBox(productId, productName)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error showing order box:', error);
+                return { success: false, error: error.message || 'Unknown error' };
+            });
     }
 
-    async handleOrderBoxResult(result) {
-        return this.paymentService?.handleOrderBoxResult(result);
+    handleOrderBoxResult(result) {
+        return this.paymentService?.handleOrderBoxResult(result)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error handling order box result:', error);
+                return { success: false, error: error.message || 'Unknown error' };
+            });
     }
 
-    async purchaseSubscription(tier) {
-        return this.paymentService?.purchaseSubscription(tier);
+    purchaseSubscription(tier) {
+        return this.paymentService?.purchaseSubscription(tier)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                this.logger.error('Error purchasing subscription:', error);
+                return { success: false, error: error.message || 'Unknown error' };
+            });
     }
 
     getVKAnalyticsData() {
