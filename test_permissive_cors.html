@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permissive CORS Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        .test-button.android {
+            background: #4CAF50;
+        }
+        .test-button.android:hover {
+            background: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Permissive CORS Test for Android VK Mini Apps</h1>
+    
+    <div class="test-section">
+        <h2>Direct API Test (Permissive CORS)</h2>
+        <p>This test makes direct requests to the API with permissive CORS settings to verify the nginx configuration works.</p>
+        <button class="test-button" onclick="testDirectAPI()">Test Direct API Call</button>
+        <button class="test-button android" onclick="testAndroidAPI()">Test Android API Call</button>
+        <button class="test-button" onclick="testOptionsRequest()">Test OPTIONS Request</button>
+        <div id="directApiStatus" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>VK User Service Test</h2>
+        <p>This test uses the VKUserService with permissive CORS settings.</p>
+        <button class="test-button" onclick="testVKUserService()">Test VK User Service</button>
+        <button class="test-button" onclick="testPremiumStatus()">Test Premium Status</button>
+        <div id="vkServiceStatus" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>CORS Headers Test</h2>
+        <p>This test checks if the CORS headers are properly set.</p>
+        <button class="test-button" onclick="testCORSHeaders()">Test CORS Headers</button>
+        <div id="corsHeadersStatus" class="status"></div>
+    </div>
+
+    <script type="module">
+        // Import the VKUserService and VKConfig for testing
+        import { VKUserService } from './src/modules/vk/services/VKUserService.js';
+        import { VKConfig } from './src/modules/vk/config/VKConfig.js';
+
+        // Create a mock logger and analytics for testing
+        const mockLogger = {
+            log: console.log,
+            debug: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+
+        const mockAnalytics = {
+            trackPremiumStatus: () => {},
+            trackUserDataSave: () => {},
+            trackUserInfo: () => {},
+            trackVKEvent: (event, data) => console.log('Analytics event:', event, data)
+        };
+
+        const mockErrorHandler = {
+            handleError: (error) => console.error('Error handled:', error)
+        };
+
+        // Create VKUserService instance
+        const userService = new VKUserService(null, mockLogger, mockAnalytics, mockErrorHandler);
+
+        // Test functions
+        window.testDirectAPI = async function() {
+            const statusDiv = document.getElementById('directApiStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing direct API call...</div>';
+
+            try {
+                const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+                const requestBody = {
+                    user_id: 12345,
+                    app_id: VKConfig.VK_APP_ID,
+                    item_id: 'mbti_premium'
+                };
+
+                console.log('Making direct request to:', url);
+                console.log('Request body:', requestBody);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Direct API call successful!</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Direct API call failed:', error);
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Direct API call failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        };
+
+        window.testAndroidAPI = async function() {
+            const statusDiv = document.getElementById('directApiStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing Android API call...</div>';
+
+            try {
+                const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+                const requestBody = {
+                    user_id: 12345,
+                    app_id: VKConfig.VK_APP_ID,
+                    item_id: 'mbti_premium'
+                };
+
+                console.log('Making Android request to:', url);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-Platform': 'android',
+                        'X-VK-App': VKConfig.VK_APP_ID,
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify(requestBody),
+                    mode: 'cors',
+                    credentials: 'omit',
+                    cache: 'no-cache'
+                });
+
+                console.log('Android response status:', response.status);
+                console.log('Android response headers:', Object.fromEntries(response.headers.entries()));
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Android response data:', data);
+
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Android API call successful!</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Android API call failed:', error);
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Android API call failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        };
+
+        window.testOptionsRequest = async function() {
+            const statusDiv = document.getElementById('directApiStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing OPTIONS request...</div>';
+
+            try {
+                const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+
+                console.log('Making OPTIONS request to:', url);
+
+                const response = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type,Accept,X-Requested-With,X-Platform,X-VK-App'
+                    }
+                });
+
+                console.log('OPTIONS response status:', response.status);
+                console.log('OPTIONS response headers:', Object.fromEntries(response.headers.entries()));
+
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ OPTIONS request successful!</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>CORS Headers:</strong><br>
+                        <pre>${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</pre>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('OPTIONS request failed:', error);
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ OPTIONS request failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+
+        window.testVKUserService = async function() {
+            const statusDiv = document.getElementById('vkServiceStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing VK User Service...</div>';
+
+            try {
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                console.log('Testing VK User Service with permissive CORS...');
+                
+                const result = await userService.checkBackendPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ VK User Service test successful!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Type:</strong> ${typeof result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('VK User Service test failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ VK User Service test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        };
+
+        window.testPremiumStatus = async function() {
+            const statusDiv = document.getElementById('vkServiceStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing premium status check...</div>';
+
+            try {
+                // Set mock user info
+                userService.userInfo = { id: 12345 };
+
+                console.log('Testing premium status check with permissive CORS...');
+                
+                const result = await userService.checkPremiumStatus();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Premium status check successful!</strong><br>
+                        <strong>Result:</strong> ${result}<br>
+                        <strong>Type:</strong> ${typeof result}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Premium status check failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Premium status check failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}<br>
+                        <strong>Platform:</strong> ${VKConfig.detectPlatform()}
+                    </div>
+                `;
+            }
+        };
+
+        window.testCORSHeaders = async function() {
+            const statusDiv = document.getElementById('corsHeadersStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing CORS headers...</div>';
+
+            try {
+                const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+
+                console.log('Testing CORS headers for:', url);
+
+                const response = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type,Accept,X-Requested-With,X-Platform,X-VK-App'
+                    }
+                });
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                    'Access-Control-Max-Age': response.headers.get('Access-Control-Max-Age')
+                };
+
+                console.log('CORS headers:', corsHeaders);
+
+                const isPermissive = corsHeaders['Access-Control-Allow-Origin'] === '*' &&
+                                   corsHeaders['Access-Control-Allow-Headers'] === '*';
+
+                statusDiv.innerHTML = `
+                    <div class="status ${isPermissive ? 'success' : 'error'}">
+                        <strong>${isPermissive ? '✅' : '❌'} CORS Headers Test ${isPermissive ? 'PASSED' : 'FAILED'}</strong><br>
+                        <strong>CORS Headers:</strong><br>
+                        <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>
+                        <strong>Permissive:</strong> ${isPermissive ? 'Yes' : 'No'}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('CORS headers test failed:', error);
+                
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ CORS headers test failed!</strong><br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+            }
+        };
+    </script>
+</body>
+</html> 

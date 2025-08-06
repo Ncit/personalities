@@ -471,6 +471,18 @@ export class VKUserService {
                 headers['X-Platform-Version'] = 'android_retry';
             }
             
+            // Add additional headers for Android to bypass CORS restrictions
+            if (isAndroid) {
+                headers['X-Requested-With'] = 'XMLHttpRequest';
+                headers['X-Platform'] = 'android';
+                headers['X-VK-App'] = VKConfig.VK_APP_ID;
+                headers['Cache-Control'] = 'no-cache';
+                headers['Pragma'] = 'no-cache';
+                // Remove any problematic headers
+                delete headers['Origin'];
+                delete headers['Referer'];
+            }
+            
             this.logger.debug(`Making request to: ${url}`, {
                 method: 'POST',
                 headers: headers,
@@ -479,12 +491,25 @@ export class VKUserService {
                 attempt: attempt
             });
             
-            const response = await fetch(url, {
+            // Set timeout
+            timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+            
+            // Use different fetch options for Android
+            const fetchOptions = {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(requestBody),
                 signal: controller.signal
-            });
+            };
+            
+            // Add mode and credentials for Android to be more permissive
+            if (isAndroid) {
+                fetchOptions.mode = 'cors';
+                fetchOptions.credentials = 'omit';
+                fetchOptions.cache = 'no-cache';
+            }
+            
+            const response = await fetch(url, fetchOptions);
             
             clearTimeout(timeoutId);
             
