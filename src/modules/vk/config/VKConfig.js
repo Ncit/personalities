@@ -47,7 +47,7 @@ export class VKConfig {
     // Feature flags
     static FEATURES = {
         analytics: true,
-        userDataSaving: true,
+        userDataSaving: false, // Disabled by default to prevent network errors
         premiumStatusChecking: true,
         payment: true,
         sharing: true,
@@ -68,7 +68,8 @@ export class VKConfig {
         premiumTimestamp: 'mbti_premium_timestamp',
         subscriptionData: 'mbti_subscription_data',
         userDataSaved: 'vk_user_data_saved',
-        userDataSavedTimestamp: 'vk_user_data_saved_timestamp'
+        userDataSavedTimestamp: 'vk_user_data_saved_timestamp',
+        userDataLocal: 'vk_user_data_local'
     };
     
     // Analytics event names

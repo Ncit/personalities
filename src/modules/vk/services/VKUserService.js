@@ -35,9 +35,15 @@ export class VKUserService {
                 
                 // Save user data to server (non-blocking)
                 if (this.isEnabled) {
-                    this.saveUserDataToServer(result).catch(error => {
-                        this.logger.warn('Failed to save user data to server (non-blocking):', error);
-                    });
+                    this.saveUserDataToServer(result)
+                        .then(saveResult => {
+                            if (!saveResult.success) {
+                                this.logger.debug('User data save completed with warnings:', saveResult);
+                            }
+                        })
+                        .catch(error => {
+                            this.logger.warn('Failed to save user data to server (non-blocking):', error);
+                        });
                 }
                 
                 return result;
@@ -74,6 +80,13 @@ export class VKUserService {
             return Promise.resolve();
         }
         
+        // Check if we're in a browser environment that supports fetch
+        if (typeof fetch === 'undefined') {
+            this.logger.warn('Fetch API not available, skipping user data save');
+            this.analytics.trackUserDataSave(userInfo.id, false, { error_type: 'fetch_not_available' });
+            return Promise.resolve();
+        }
+        
         this.logger.debug('Saving user data to server:', {
             user_id: userInfo.id,
             username: userInfo.screen_name,
@@ -104,7 +117,9 @@ export class VKUserService {
                 'Accept': 'application/json'
             },
             body: JSON.stringify(userData),
-            signal: controller.signal
+            signal: controller.signal,
+            mode: 'cors', // Explicitly set CORS mode
+            credentials: 'omit' // Don't send cookies for cross-origin requests
         })
         .then(response => {
             clearTimeout(timeoutId);
@@ -137,11 +152,49 @@ export class VKUserService {
             }
         })
         .catch(error => {
-            this.logger.error('Error saving user data to server:', error);
+            clearTimeout(timeoutId);
             
-            this.analytics.trackUserDataSave(userInfo.id, false, error, { url });
+            // Handle specific error types
+            let errorType = 'unknown_error';
+            let errorMessage = error.message || 'Unknown error';
             
-            throw error;
+            if (error.name === 'AbortError') {
+                errorType = 'timeout_error';
+                errorMessage = 'Request timed out';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorType = 'network_error';
+                errorMessage = 'Network error - server may be unreachable or CORS blocked';
+            } else if (error.message && error.message.includes('CORS')) {
+                errorType = 'cors_error';
+                errorMessage = 'CORS policy blocked the request';
+            }
+            
+            this.logger.warn(`User data save failed (${errorType}): ${errorMessage}`, {
+                url: url,
+                user_id: userInfo.id,
+                error: error
+            });
+            
+            this.analytics.trackUserDataSave(userInfo.id, false, { 
+                error_type: errorType, 
+                error_message: errorMessage 
+            }, { url });
+            
+            // Store user data locally as fallback
+            try {
+                localStorage.setItem(VKConfig.getStorageKey('userDataLocal'), JSON.stringify(userData));
+                this.logger.debug('User data stored locally as fallback');
+            } catch (localStorageError) {
+                this.logger.warn('Failed to store user data locally:', localStorageError);
+            }
+            
+            // Don't throw the error, just resolve with failure
+            return Promise.resolve({ 
+                success: false, 
+                error: errorType, 
+                message: errorMessage,
+                fallback_stored: true
+            });
         });
     }
     
@@ -505,6 +558,34 @@ export class VKUserService {
      */
     getUserData() {
         return this.userInfo;
+    }
+    
+    /**
+     * Get locally stored user data (fallback)
+     */
+    getLocalUserData() {
+        try {
+            const localData = localStorage.getItem(VKConfig.getStorageKey('userDataLocal'));
+            return localData ? JSON.parse(localData) : null;
+        } catch (error) {
+            this.logger.warn('Error retrieving local user data:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Enable or disable user data saving
+     */
+    setUserDataSavingEnabled(enabled) {
+        this.isEnabled = enabled;
+        this.logger.log(`User data saving ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    /**
+     * Check if user data saving is enabled
+     */
+    isUserDataSavingEnabled() {
+        return this.isEnabled;
     }
     
     /**
