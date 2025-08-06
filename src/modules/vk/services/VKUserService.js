@@ -395,9 +395,25 @@ export class VKUserService {
             
             this.logger.debug('Backend premium status response:', data);
             
+            // Handle different response formats
             if (data.success && typeof data.has_purchase === 'boolean') {
                 return data.has_purchase;
+            } else if (data.status === 0 && typeof data.has_purchase === 'boolean') {
+                // Handle status 0 response format
+                this.logger.debug('Received status 0 response, treating as success');
+                return data.has_purchase;
+            } else if (data.status === 0) {
+                // Status 0 but no has_purchase field - assume no purchase
+                this.logger.debug('Received status 0 response without has_purchase field, assuming no purchase');
+                return false;
+            } else if (typeof data.has_purchase === 'boolean') {
+                // Has purchase field but no success/status - use the value
+                this.logger.debug('Response has has_purchase field, using value:', data.has_purchase);
+                return data.has_purchase;
             } else {
+                // Log the response for debugging
+                this.logger.warn('Unexpected response format from backend:', data);
+                alert(`Unexpected response format from backend:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nHas Purchase: ${data.has_purchase}\n\nFull Response: ${JSON.stringify(data, null, 2)}`);
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
@@ -514,5 +530,49 @@ export class VKUserService {
             userInfo: !!this.userInfo,
             userId: this.userInfo?.id
         };
+    }
+    
+    /**
+     * Test check-purchase endpoint and show response
+     */
+    async testCheckPurchase() {
+        if (!this.userInfo?.id) {
+            alert('No user ID available for testing check-purchase endpoint');
+            return;
+        }
+        
+        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+        const requestBody = {
+            user_id: this.userInfo.id,
+            app_id: VKConfig.VK_APP_ID,
+            item_id: 'mbti_premium'
+        };
+        
+        alert(`Testing check-purchase endpoint:\n\nURL: ${url}\n\nRequest Body: ${JSON.stringify(requestBody, null, 2)}\n\nCheck console for response.`);
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const data = await response.json();
+            
+            this.logger.log('Check-purchase test response:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: data
+            });
+            
+            alert(`Check-purchase test completed!\n\nHTTP Status: ${response.status} ${response.statusText}\n\nResponse Data:\n${JSON.stringify(data, null, 2)}`);
+            
+        } catch (error) {
+            this.logger.error('Check-purchase test failed:', error);
+            alert(`Check-purchase test failed:\n\nError: ${error.message}`);
+        }
     }
 } 

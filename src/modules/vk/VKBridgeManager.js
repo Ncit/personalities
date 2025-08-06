@@ -700,7 +700,8 @@ export class VKBridgeManager {
             }),
             getAnalyticsData: () => this.analytics.getAnalyticsData(),
             getPaymentStatus: () => this.paymentService?.getPaymentStatus(),
-            getUserStatus: () => this.userService?.getStatus()
+            getUserStatus: () => this.userService?.getStatus(),
+            testCheckPurchase: () => this.userService?.testCheckPurchase()
         };
     }
 
