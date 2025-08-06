@@ -673,6 +673,13 @@ export class VKBridgeManager {
      * Expose debug methods globally for testing
      */
     exposeDebugMethods() {
+        // Ensure services are initialized before exposing debug methods
+        if (!this.userService) {
+            this.logger.warn('VKUserService not initialized, delaying debug methods exposure');
+            // Retry after a short delay
+            setTimeout(() => this.exposeDebugMethods(), 1000);
+            return;
+        }
         window.vkDebug = {
             checkPremiumStatus: () => this.userService?.checkPremiumStatus(),
             refreshPremiumStatus: () => this.userService?.refreshPremiumStatus(),
@@ -682,12 +689,65 @@ export class VKBridgeManager {
             isUserDataSavingEnabled: () => this.userService?.isUserDataSavingEnabled(),
             setPremiumStatusCheckingEnabled: (enabled) => this.userService?.setPremiumStatusCheckingEnabled(enabled),
             isPremiumStatusCheckingEnabled: () => this.userService?.isPremiumStatusCheckingEnabled(),
-            testCORS: () => this.userService?.testCORS(),
-            showCORSStatus: () => this.userService?.showCORSStatus(),
-            enableFeaturesForTesting: () => this.userService?.enableFeaturesForTesting(),
+            testCORS: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                if (typeof this.userService.testCORS !== 'function') {
+                    console.error('testCORS method not available on userService');
+                    alert('testCORS method not available on userService');
+                    return;
+                }
+                return this.userService.testCORS();
+            },
+            showCORSStatus: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.showCORSStatus();
+            },
+            enableFeaturesForTesting: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.enableFeaturesForTesting();
+            },
             getVKEnvironment: () => this.isVKEnvironment(),
-            saveUserDataToServer: () => this.userService?.saveUserDataToServer(this.userService?.getUserData()),
-            forceSaveUserDataToServer: () => this.userService?.forceSaveUserDataToServer(this.userService?.getUserData()),
+            isUserServiceReady: () => {
+                const isReady = !!this.userService;
+                console.log('VKUserService ready status:', isReady);
+                if (!isReady) {
+                    alert('VKUserService is not ready. Please wait for VK Bridge to initialize.');
+                }
+                return isReady;
+            },
+            forceExposeDebugMethods: () => {
+                console.log('Force exposing debug methods...');
+                this.exposeDebugMethods();
+                return 'Debug methods exposure triggered';
+            },
+            saveUserDataToServer: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.saveUserDataToServer(this.userService.getUserData());
+            },
+            forceSaveUserDataToServer: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.forceSaveUserDataToServer(this.userService.getUserData());
+            },
             clearUserDataSavedFlag: () => {
                 localStorage.removeItem(VKConfig.getStorageKey('userDataSaved'));
                 localStorage.removeItem(VKConfig.getStorageKey('userDataSavedTimestamp'));
@@ -701,7 +761,14 @@ export class VKBridgeManager {
             getAnalyticsData: () => this.analytics.getAnalyticsData(),
             getPaymentStatus: () => this.paymentService?.getPaymentStatus(),
             getUserStatus: () => this.userService?.getStatus(),
-            testCheckPurchase: () => this.userService?.testCheckPurchase()
+            testCheckPurchase: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.testCheckPurchase();
+            }
         };
     }
 
