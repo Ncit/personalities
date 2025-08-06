@@ -766,7 +766,7 @@ function closePremiumModal() {
     }
 }
 
-function unlockPremium() {
+async function unlockPremium() {
     const unlockMsg = document.getElementById('premiumUnlockMsg');
     
     // Show loading state
@@ -784,47 +784,14 @@ function unlockPremium() {
     // }
     // Check if we're in VK environment and VK Bridge is available
     if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-        // Show VK order box for payment
-        vkBridgeManager.showOrderBox()
-            .then(orderResult => {
-                if (orderResult.success) {
-                    // Process the order result
-                    return vkBridgeManager.handleOrderBoxResult(orderResult);
-                } else {
-                    // Order box failed or not supported
-                    let errorMessage = 'Платежная система недоступна';
-                    
-                    // Handle specific error cases
-                    if (orderResult.error === 'order_configuration_error') {
-                        errorMessage = 'Ошибка конфигурации платежа. Обратитесь в поддержку.';
-                    } else if (orderResult.error === 'payment_not_supported') {
-                        errorMessage = 'Платежи не поддерживаются в данной среде';
-                    } else if (orderResult.error === 'unsupported_platform') {
-                        errorMessage = 'Платежи доступны только в VK';
-                    }
-                    
-                    if (unlockMsg) {
-                        unlockMsg.textContent = errorMessage;
-                        unlockMsg.style.display = 'block';
-                        unlockMsg.style.color = '#dc3545'; // Red color for error messages
-                    }
-                    
-                    // Log specific error for debugging
-                    logger.debug('Premium unlock failed:', {
-                        error: orderResult.error,
-                        message: orderResult.message,
-                        order_error: orderResult.order_error,
-                        error_code: orderResult.error_code
-                    });
-                    
-                    setTimeout(() => {
-                        if (unlockMsg) unlockMsg.style.display = 'none';
-                    }, 5000); // Show error longer for configuration issues
-                    
-                    throw new Error('Order box failed');
-                }
-            })
-            .then(paymentResult => {
+        try {
+            // Show VK order box for payment
+            const orderResult = await vkBridgeManager.showOrderBox();
+            
+            if (orderResult.success) {
+                // Process the order result
+                const paymentResult = await vkBridgeManager.handleOrderBoxResult(orderResult);
+                
                 if (paymentResult.success) {
                     // Payment successful - unlock premium
                     setPremium(true);
@@ -857,38 +824,68 @@ function unlockPremium() {
                         if (unlockMsg) unlockMsg.style.display = 'none';
                     }, 3000);
                 }
-            })
-            .catch(error => {
-                logger.error('Error during VK payment:', error);
-            
-                // Log detailed error for debugging
-                logger.debug('VK Payment Error:', {
-                    error: error,
-                    error_type: error.error_type,
-                    error_code: error.error_data?.error_code,
-                    error_reason: error.error_data?.error_reason
-                });
+            } else {
+                // Order box failed or not supported
+                let errorMessage = 'Платежная система недоступна';
+                
+                // Handle specific error cases
+                if (orderResult.error === 'order_configuration_error') {
+                    errorMessage = 'Ошибка конфигурации платежа. Обратитесь в поддержку.';
+                } else if (orderResult.error === 'payment_not_supported') {
+                    errorMessage = 'Платежи не поддерживаются в данной среде';
+                } else if (orderResult.error === 'unsupported_platform') {
+                    errorMessage = 'Платежи доступны только в VK';
+                }
                 
                 if (unlockMsg) {
-                    unlockMsg.textContent = 'Ошибка при обработке платежа';
+                    unlockMsg.textContent = errorMessage;
                     unlockMsg.style.display = 'block';
                     unlockMsg.style.color = '#dc3545'; // Red color for error messages
                 }
                 
-                // Log to Firebase Analytics
-                if (window.firebaseAnalytics) {
-                    window.firebaseAnalytics.logEvent('premium_unlock_vk_error', {
-                        error_type: error.error_type,
-                        error_code: error.error_data?.error_code,
-                        error_reason: error.error_data?.error_reason,
-                        app_state: getCurrentAppState()
-                    });
-                }
+                // Log specific error for debugging
+                logger.debug('Premium unlock failed:', {
+                    error: orderResult.error,
+                    message: orderResult.message,
+                    order_error: orderResult.order_error,
+                    error_code: orderResult.error_code
+                });
                 
                 setTimeout(() => {
                     if (unlockMsg) unlockMsg.style.display = 'none';
-                }, 3000);
+                }, 5000); // Show error longer for configuration issues
+            }
+        } catch (error) {
+            logger.error('Error during VK payment:', error);
+            
+            // Log detailed error for debugging
+            logger.debug('VK Payment Error:', {
+                error: error,
+                error_type: error.error_type,
+                error_code: error.error_data?.error_code,
+                error_reason: error.error_data?.error_reason
             });
+            
+            if (unlockMsg) {
+                unlockMsg.textContent = 'Ошибка при обработке платежа';
+                unlockMsg.style.display = 'block';
+                unlockMsg.style.color = '#dc3545'; // Red color for error messages
+            }
+            
+            // Log to Firebase Analytics
+            if (window.firebaseAnalytics) {
+                window.firebaseAnalytics.logEvent('premium_unlock_vk_error', {
+                    error_type: error.error_type,
+                    error_code: error.error_data?.error_code,
+                    error_reason: error.error_data?.error_reason,
+                    app_state: getCurrentAppState()
+                });
+            }
+            
+            setTimeout(() => {
+                if (unlockMsg) unlockMsg.style.display = 'none';
+            }, 3000);
+        }
     } else {
         // Not in VK environment - show fallback or alternative payment method
         if (unlockMsg) {
@@ -2452,7 +2449,7 @@ window.restoreSubscription = restoreSubscription;
 /**
  * Purchase premium subscription with VK payment
  */
-function purchasePremiumSubscription(tier = 'monthly') {
+async function purchasePremiumSubscription(tier = 'monthly') {
     const subscriptionConfigs = {
         monthly: {
             id: 'premium_monthly',
@@ -2482,19 +2479,14 @@ function purchasePremiumSubscription(tier = 'monthly') {
         return;
     }
     
-    // Show VK order box for the selected tier
-    vkBridgeManager.showOrderBox(config.id, config.name)
-        .then(orderResult => {
-            if (orderResult.success) {
-                // Process the order result
-                return vkBridgeManager.handleOrderBoxResult(orderResult);
-            } else {
-                // Order box failed
-                alert('Платежная система недоступна');
-                throw new Error('Order box failed');
-            }
-        })
-        .then(paymentResult => {
+    try {
+        // Show VK order box for the selected tier
+        const orderResult = await vkBridgeManager.showOrderBox(config.id, config.name);
+        
+        if (orderResult.success) {
+            // Process the order result
+            const paymentResult = await vkBridgeManager.handleOrderBoxResult(orderResult);
+            
             if (paymentResult.success) {
                 // Payment successful - unlock premium
                 setPremium(true);
@@ -2542,11 +2534,14 @@ function purchasePremiumSubscription(tier = 'monthly') {
                 // Payment failed
                 alert('Ошибка платежа. Попробуйте еще раз.');
             }
-        })
-        .catch(error => {
-            logger.error('Error during subscription purchase:', error);
-            alert('Ошибка при обработке платежа');
-        });
+        } else {
+            // Order box failed
+                    alert('Платежная система недоступна');
+    }
+} catch (error) {
+    logger.error('Error during subscription purchase:', error);
+    alert('Ошибка при обработке платежа');
+}
 }
 
 // Make purchase function available globally

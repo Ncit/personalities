@@ -91,21 +91,20 @@ class DebugUtils {
     /**
      * Log async operation
      */
-    logAsync(operation, promise) {
+    async logAsync(operation, promise) {
         const startTime = performance.now();
         this.info(`Starting async operation: ${operation}`);
         
-        return promise
-            .then(result => {
-                const duration = performance.now() - startTime;
-                this.info(`✅ Async operation completed: ${operation} (${duration.toFixed(2)}ms)`, result);
-                return result;
-            })
-            .catch(error => {
-                const duration = performance.now() - startTime;
-                this.error(`❌ Async operation failed: ${operation} (${duration.toFixed(2)}ms)`, error);
-                throw error;
-            });
+        try {
+            const result = await promise;
+            const duration = performance.now() - startTime;
+            this.info(`✅ Async operation completed: ${operation} (${duration.toFixed(2)}ms)`, result);
+            return result;
+        } catch (error) {
+            const duration = performance.now() - startTime;
+            this.error(`❌ Async operation failed: ${operation} (${duration.toFixed(2)}ms)`, error);
+            throw error;
+        }
     }
 
     /**
@@ -147,21 +146,20 @@ class DebugUtils {
      * Create a debug wrapper for functions
      */
     wrapFunction(name, fn) {
-        return (...args) => {
+        return async (...args) => {
             const startTime = performance.now();
             this.debug(`Calling function: ${name}`, args);
             
-            return Promise.resolve(fn(...args))
-                .then(result => {
-                    const duration = performance.now() - startTime;
-                    this.debug(`✅ Function completed: ${name} (${duration.toFixed(2)}ms)`, result);
-                    return result;
-                })
-                .catch(error => {
-                    const duration = performance.now() - startTime;
-                    this.error(`❌ Function failed: ${name} (${duration.toFixed(2)}ms)`, error);
-                    throw error;
-                });
+            try {
+                const result = await fn(...args);
+                const duration = performance.now() - startTime;
+                this.debug(`✅ Function completed: ${name} (${duration.toFixed(2)}ms)`, result);
+                return result;
+            } catch (error) {
+                const duration = performance.now() - startTime;
+                this.error(`❌ Function failed: ${name} (${duration.toFixed(2)}ms)`, error);
+                throw error;
+            }
         };
     }
 

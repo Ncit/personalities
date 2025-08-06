@@ -17,45 +17,46 @@ export class VKPaymentService {
     /**
      * Show VK order box for premium purchase
      */
-    showOrderBox(productId = 'mbti_premium', productName = null) {
+    async showOrderBox(productId = 'mbti_premium', productName = null) {
         if (!this.isEnabled) {
             this.analytics.trackPayment(productId, false, { error_type: 'payment_disabled' });
-            return Promise.resolve(this.errorHandler.handleError(
+            return this.errorHandler.handleError(
                 { error_type: 'payment_disabled', message: 'Payment is disabled' },
                 'showOrderBox'
-            ));
+            );
         }
         
         if (!this.bridge) {
             this.analytics.trackPayment(productId, false, { error_type: 'bridge_unavailable' });
-            return Promise.resolve(this.errorHandler.handleError(
+            return this.errorHandler.handleError(
                 { error_type: 'bridge_unavailable', message: 'VK Bridge not available' },
                 'showOrderBox'
-            ));
+            );
         }
         
-        const config = VKConfig.getPaymentConfig(productId);
-        const finalProductName = productName || config.name;
-        
-        this.logger.debug('VK Order Box Request:', {
-            product_id: productId,
-            product_name: finalProductName,
-            config: config
-        });
-        
-        this.analytics.trackPayment(productId, false, null, null, { action: 'attempted' });
-        
-        return this.bridge.send('VKWebAppShowOrderBox', {
-            type: 'item',
-            item: productId,
-            title: finalProductName,
-            description: config.description,
-            photo: config.icon,
-            price: config.price,
-            discount: 0,
-            currency: config.currency
-        })
-        .then(result => {
+        try {
+            const config = VKConfig.getPaymentConfig(productId);
+            const finalProductName = productName || config.name;
+            
+            this.logger.debug('VK Order Box Request:', {
+                product_id: productId,
+                product_name: finalProductName,
+                config: config
+            });
+            
+            this.analytics.trackPayment(productId, false, null, null, { action: 'attempted' });
+            
+            const result = await this.bridge.send('VKWebAppShowOrderBox', {
+                type: 'item',
+                item: productId,
+                title: finalProductName,
+                description: config.description,
+                photo: config.icon,
+                price: config.price,
+                discount: 0,
+                currency: config.currency
+            });
+            
             this.logger.debug('VK Order Box Response:', result);
             
             this.analytics.trackPayment(productId, true, null, result.order_id, { action: 'success' });
@@ -66,8 +67,8 @@ export class VKPaymentService {
                 product_id: productId,
                 result: result
             };
-        })
-        .catch(error => {
+            
+        } catch (error) {
             this.logger.error('VK Order Box Error:', error);
             
             this.analytics.trackPayment(productId, false, error);
@@ -76,77 +77,74 @@ export class VKPaymentService {
                 product_id: productId,
                 product_name: productName
             });
-        });
+        }
     }
     
     /**
      * Handle order box result and process payment
      */
-    handleOrderBoxResult(result) {
+    async handleOrderBoxResult(result) {
         this.logger.debug('VK Order Box Result:', result);
         
         if (result.success) {
             // Payment successful
             this.analytics.trackPayment(result.product_id, true, null, result.order_id, { action: 'completed' });
             
-            return Promise.resolve({
+            return {
                 success: true,
                 message: 'Payment successful! Premium access activated.',
                 order_id: result.order_id,
                 product_id: result.product_id
-            });
+            };
             
         } else if (result.status === 'cancel' || result.cancelled) {
             // User cancelled the payment
             this.analytics.trackPayment(result.product_id, false, { error_type: 'user_cancelled' });
             
-            return Promise.resolve({
+            return {
                 success: false,
                 message: 'Payment was cancelled by user.',
                 cancelled: true,
                 product_id: result.product_id
-            });
+            };
             
         } else {
             // Payment failed
             this.analytics.trackPayment(result.product_id, false, { error_type: 'payment_failed', status: result.status });
             
-            return Promise.resolve({
+            return {
                 success: false,
                 message: 'Payment failed. Please try again.',
                 error: result.status || 'unknown_error',
                 product_id: result.product_id
-            });
+            };
         }
     }
     
     /**
      * Process subscription purchase
      */
-    purchaseSubscription(tier = 'monthly') {
+    async purchaseSubscription(tier = 'monthly') {
         const subscriptionConfigs = VKConfig.PAYMENT_CONFIG.subscriptions;
         const config = subscriptionConfigs[tier];
         
         if (!config) {
             this.logger.error('Invalid subscription tier:', tier);
-            return Promise.resolve({
+            return {
                 success: false,
                 error: 'invalid_tier',
                 message: 'Invalid subscription tier'
-            });
+            };
         }
         
-        // Show VK order box for the selected tier
-        return this.showOrderBox(config.id, config.name)
-            .then(orderResult => {
-                if (orderResult.success) {
-                    // Process the order result
-                    return this.handleOrderBoxResult(orderResult);
-                } else {
-                    return Promise.resolve(orderResult);
-                }
-            })
-            .then(paymentResult => {
+        try {
+            // Show VK order box for the selected tier
+            const orderResult = await this.showOrderBox(config.id, config.name);
+            
+            if (orderResult.success) {
+                // Process the order result
+                const paymentResult = await this.handleOrderBoxResult(orderResult);
+                
                 if (paymentResult.success) {
                     // Payment successful - save subscription data
                     const subscriptionData = this.createSubscriptionData(tier, config, paymentResult.order_id);
@@ -178,21 +176,24 @@ export class VKPaymentService {
                         message: 'Payment failed. Please try again.'
                     };
                 }
-            })
-            .catch(error => {
-                this.logger.error('Error during subscription purchase:', error);
-                
-                this.analytics.trackVKEvent('subscription_purchase_error', {
-                    tier: tier,
-                    error_message: error.message
-                });
-                
-                return {
-                    success: false,
-                    error: 'purchase_error',
-                    message: 'Error processing payment'
-                };
+            } else {
+                return orderResult;
+            }
+            
+        } catch (error) {
+            this.logger.error('Error during subscription purchase:', error);
+            
+            this.analytics.trackVKEvent('subscription_purchase_error', {
+                tier: tier,
+                error_message: error.message
             });
+            
+            return {
+                success: false,
+                error: 'purchase_error',
+                message: 'Error processing payment'
+            };
+        }
     }
     
     /**
