@@ -343,8 +343,6 @@ export class VKUserService {
      */
     async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
-
-            alert('No user ID available for backend premium check');
             this.logger.debug('No user ID available for backend premium check');
             return null;
         }
@@ -391,7 +389,6 @@ export class VKUserService {
                     errorDetails = 'Could not read error response';
                 }
                 
-            alert('HTTP error! status: ${response.status} - ${errorDetails}');
                 throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
             }
             
@@ -400,18 +397,12 @@ export class VKUserService {
             this.logger.debug('Backend premium status response:', data);
             
             if (data.success && typeof data.has_purchase === 'boolean') {
-
-            alert('data.has_purchase');
                 return data.has_purchase;
             } else {
-
-            alert('Invalid response format from backend');
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
         } catch (error) {
-
-            alert('Error checking backend premium status');
             this.logger.error('Error checking backend premium status:', error);
             
             this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
