@@ -679,6 +679,8 @@ export class VKBridgeManager {
             getLocalUserData: () => this.userService?.getLocalUserData(),
             setUserDataSavingEnabled: (enabled) => this.userService?.setUserDataSavingEnabled(enabled),
             isUserDataSavingEnabled: () => this.userService?.isUserDataSavingEnabled(),
+            setPremiumStatusCheckingEnabled: (enabled) => this.userService?.setPremiumStatusCheckingEnabled(enabled),
+            isPremiumStatusCheckingEnabled: () => this.userService?.isPremiumStatusCheckingEnabled(),
             getVKEnvironment: () => this.isVKEnvironment(),
             saveUserDataToServer: () => this.userService?.saveUserDataToServer(this.userService?.getUserData()),
             forceSaveUserDataToServer: () => this.userService?.forceSaveUserDataToServer(this.userService?.getUserData()),

@@ -13,6 +13,7 @@ export class VKUserService {
         this.errorHandler = errorHandler;
         this.userInfo = null;
         this.isEnabled = VKConfig.isFeatureEnabled('userDataSaving');
+        this.isPremiumCheckingEnabled = VKConfig.isFeatureEnabled('premiumStatusChecking');
     }
     
     /**
@@ -258,8 +259,8 @@ export class VKUserService {
         
         this.logger.log('No local premium status found, checking backend...');
         
-        // Only check backend if no premium status found in localStorage
-        if (this.userInfo?.id) {
+        // Only check backend if no premium status found in localStorage and backend checking is enabled
+        if (this.userInfo?.id && this.isPremiumCheckingEnabled) {
             return this.checkBackendPremiumStatus()
                 .then(backendPremiumStatus => {
                     if (backendPremiumStatus !== null) {
@@ -317,8 +318,8 @@ export class VKUserService {
             return Promise.resolve(localPremiumStatus);
         }
         
-        // Only check backend if no premium status found in localStorage
-        if (this.userInfo?.id) {
+        // Only check backend if no premium status found in localStorage and backend checking is enabled
+        if (this.userInfo?.id && this.isPremiumCheckingEnabled) {
             this.logger.log('No local premium status found, checking backend...');
             
             return this.checkBackendPremiumStatus()
@@ -408,6 +409,15 @@ export class VKUserService {
             return Promise.resolve(null);
         }
         
+        // Check if we're in a browser environment that supports fetch
+        if (typeof fetch === 'undefined') {
+            this.logger.warn('Fetch API not available, skipping backend premium check');
+            this.analytics.trackPremiumStatus(false, 'fetch_not_available', null, { 
+                user_id: this.userInfo?.id 
+            });
+            return Promise.resolve(null);
+        }
+        
         const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
         
         const requestBody = {
@@ -433,7 +443,9 @@ export class VKUserService {
                 'Accept': 'application/json'
             },
             body: JSON.stringify(requestBody),
-            signal: controller.signal
+            signal: controller.signal,
+            mode: 'cors', // Explicitly set CORS mode
+            credentials: 'omit' // Don't send cookies for cross-origin requests
         })
         .then(response => {
             clearTimeout(timeoutId);
@@ -458,13 +470,37 @@ export class VKUserService {
             }
         })
         .catch(error => {
-            this.logger.error('Error checking backend premium status:', error);
+            clearTimeout(timeoutId);
             
-            this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
+            // Handle specific error types
+            let errorType = 'unknown_error';
+            let errorMessage = error.message || 'Unknown error';
+            
+            if (error.name === 'AbortError') {
+                errorType = 'timeout_error';
+                errorMessage = 'Request timed out';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorType = 'network_error';
+                errorMessage = 'Network error - server may be unreachable or CORS blocked';
+            } else if (error.message && error.message.includes('CORS')) {
+                errorType = 'cors_error';
+                errorMessage = 'CORS policy blocked the request';
+            }
+            
+            this.logger.warn(`Backend premium check failed (${errorType}): ${errorMessage}`, {
+                url: url,
                 user_id: this.userInfo?.id,
-                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+                error: error
             });
             
+            this.analytics.trackPremiumStatus(false, errorType, { 
+                error_message: errorMessage 
+            }, { 
+                user_id: this.userInfo?.id,
+                url: url
+            });
+            
+            // Return null instead of throwing error
             return null;
         });
     }
@@ -586,6 +622,21 @@ export class VKUserService {
      */
     isUserDataSavingEnabled() {
         return this.isEnabled;
+    }
+    
+    /**
+     * Enable or disable premium status checking
+     */
+    setPremiumStatusCheckingEnabled(enabled) {
+        this.isPremiumCheckingEnabled = enabled;
+        this.logger.log(`Premium status checking ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    /**
+     * Check if premium status checking is enabled
+     */
+    isPremiumStatusCheckingEnabled() {
+        return this.isPremiumCheckingEnabled;
     }
     
     /**

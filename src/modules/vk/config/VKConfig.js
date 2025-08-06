@@ -48,7 +48,7 @@ export class VKConfig {
     static FEATURES = {
         analytics: true,
         userDataSaving: false, // Disabled by default to prevent network errors
-        premiumStatusChecking: true,
+        premiumStatusChecking: false, // Disabled by default to prevent network errors
         payment: true,
         sharing: true,
         ads: true,
