@@ -82,6 +82,10 @@ export class VKUserService {
             return;
         }
         
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        let timeoutId = null;
+        
         try {
             this.logger.debug('Saving user data to server:', {
                 user_id: userInfo.id,
@@ -102,9 +106,8 @@ export class VKUserService {
             
             const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
             
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
+            // Set timeout
+            timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -151,7 +154,9 @@ export class VKUserService {
             }
             
         } catch (error) {
-            clearTimeout(timeoutId);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
             
             // Handle specific error types
             let errorType = 'unknown_error';
@@ -400,6 +405,10 @@ export class VKUserService {
             return null;
         }
         
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        let timeoutId = null;
+        
         try {
             const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
             
@@ -415,9 +424,8 @@ export class VKUserService {
                 body: requestBody
             });
             
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+            // Set timeout
+            timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -472,7 +480,9 @@ export class VKUserService {
             }
             
         } catch (error) {
-            clearTimeout(timeoutId);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
             
             // Handle specific error types
             let errorType = 'unknown_error';
