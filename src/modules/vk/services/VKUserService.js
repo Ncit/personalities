@@ -83,52 +83,6 @@ export class VKUserService {
         }
         
         const platform = VKConfig.detectPlatform();
-        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
-                         platform === VKConfig.PLATFORMS.VK_ANDROID;
-        
-        // For Android, bypass network requests entirely and use local storage only
-        if (isAndroid && VKConfig.ANDROID_FEATURES.bypassNetworkRequests) {
-            this.logger.debug('Android platform detected - bypassing network requests for user data save, using local storage only');
-            
-            // Track Android-specific behavior
-            this.analytics.trackVKEvent(VKConfig.ANALYTICS_EVENTS.androidNetworkError, {
-                request_type: 'user_data',
-                action: 'bypassed_network_request',
-                platform: platform,
-                reason: 'android_network_restrictions'
-            });
-            
-            // Store user data locally only
-            try {
-                localStorage.setItem(VKConfig.getStorageKey('userDataLocal'), JSON.stringify(userData));
-                localStorage.setItem(VKConfig.getStorageKey('userDataSaved'), 'true');
-                localStorage.setItem(VKConfig.getStorageKey('userDataSavedTimestamp'), Date.now().toString());
-                
-                this.logger.log('User data saved locally for Android platform');
-                
-                this.analytics.trackUserDataSave(userInfo.id, true, null, { 
-                    platform: platform,
-                    storage_type: 'local_only',
-                    reason: 'android_network_restrictions'
-                });
-                
-                return { success: true, platform: platform, storage_type: 'local_only' };
-                
-            } catch (localStorageError) {
-                this.logger.warn('Failed to store user data locally for Android:', localStorageError);
-                
-                this.analytics.trackUserDataSave(userInfo.id, false, { 
-                    error_type: 'local_storage_error',
-                    error_message: localStorageError.message 
-                }, { 
-                    platform: platform,
-                    reason: 'android_network_restrictions'
-                });
-                
-                throw localStorageError;
-            }
-        }
-        
         const retryConfig = VKConfig.getRetryConfig();
         
         this.logger.debug('Saving user data to server with platform:', platform, retryConfig);
@@ -397,35 +351,6 @@ export class VKUserService {
             return null;
         }
         
-        const platform = VKConfig.detectPlatform();
-        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
-                         platform === VKConfig.PLATFORMS.VK_ANDROID;
-        
-        // For Android, bypass network requests entirely and use local storage only
-        if (isAndroid && VKConfig.ANDROID_FEATURES.bypassNetworkRequests) {
-            this.logger.debug('Android platform detected - bypassing network requests, using local storage only');
-            
-            // Track Android-specific behavior
-            this.analytics.trackVKEvent(VKConfig.ANALYTICS_EVENTS.androidNetworkError, {
-                request_type: 'premium_status',
-                action: 'bypassed_network_request',
-                platform: platform,
-                reason: 'android_network_restrictions'
-            });
-            
-            // Use local storage for premium status
-            const localStatus = this.checkLocalPremiumStatus();
-            
-            if (localStatus !== null) {
-                this.logger.debug('Using local premium status for Android:', localStatus);
-                return localStatus;
-            } else {
-                // If no local status, assume no premium (default behavior)
-                this.logger.debug('No local premium status found, assuming no premium for Android');
-                return false;
-            }
-        }
-        
         // Check if we're in a browser environment that supports fetch
         if (typeof fetch === 'undefined') {
             this.logger.warn('Fetch API not available, skipping backend premium check');
@@ -435,11 +360,12 @@ export class VKUserService {
             return null;
         }
         
+        const platform = VKConfig.detectPlatform();
         const retryConfig = VKConfig.getRetryConfig();
         
         this.logger.debug('Checking backend premium status with platform:', platform, retryConfig);
         
-        // Try multiple endpoints and retry logic for non-Android platforms
+        // Try multiple endpoints and retry logic for Android
         return await this._makeNetworkRequestWithRetry(
             'premium_status',
             { user_id: this.userInfo.id, app_id: VKConfig.VK_APP_ID, item_id: 'mbti_premium' },
@@ -870,65 +796,6 @@ export class VKUserService {
                 alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`);
             });
         });
-    }
-    
-    /**
-     * Set premium status manually for Android users
-     * This is needed because Android can't make network requests to check premium status
-     */
-    setPremiumStatusForAndroid(isPremium) {
-        const platform = VKConfig.detectPlatform();
-        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
-                         platform === VKConfig.PLATFORMS.VK_ANDROID;
-        
-        if (!isAndroid) {
-            this.logger.warn('setPremiumStatusForAndroid called on non-Android platform:', platform);
-            return false;
-        }
-        
-        this.logger.log('Setting premium status for Android user:', isPremium);
-        
-        // Store premium status locally
-        this.storePremiumStatus(isPremium);
-        
-        // Update global premium status
-        this.updateGlobalPremiumStatus(isPremium);
-        
-        // Track the manual setting
-        this.analytics.trackVKEvent(VKConfig.ANALYTICS_EVENTS.premiumStatusCheck, {
-            action: 'manual_set_for_android',
-            platform: platform,
-            premium_status: isPremium,
-            reason: 'android_network_restrictions'
-        });
-        
-        return true;
-    }
-    
-    /**
-     * Get Android premium status info
-     */
-    getAndroidPremiumInfo() {
-        const platform = VKConfig.detectPlatform();
-        const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
-                         platform === VKConfig.PLATFORMS.VK_ANDROID;
-        
-        if (!isAndroid) {
-            return { isAndroid: false, message: 'Not an Android platform' };
-        }
-        
-        const localStatus = this.checkLocalPremiumStatus();
-        const timestamp = localStorage.getItem(VKConfig.getStorageKey('premiumTimestamp'));
-        
-        return {
-            isAndroid: true,
-            platform: platform,
-            localPremiumStatus: localStatus,
-            timestamp: timestamp,
-            message: 'Android platform - using local storage only',
-            canCheckServer: false,
-            bypassNetworkRequests: VKConfig.ANDROID_FEATURES.bypassNetworkRequests
-        };
     }
     
     /**

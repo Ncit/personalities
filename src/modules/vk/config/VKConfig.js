@@ -79,11 +79,9 @@ export class VKConfig {
         sharing: true,
         ads: true,
         appearance: true,
-        useAlternativeEndpoints: false, // Disabled - use local storage only
-        fallbackToLocalStorage: true, // Always use localStorage for Android
-        retryWithDifferentHeaders: false, // Disabled - no network requests
-        useLocalStorageOnly: true, // Force local storage only for Android
-        bypassNetworkRequests: true // Skip network requests entirely for Android
+        useAlternativeEndpoints: true, // Use Android-specific endpoints
+        fallbackToLocalStorage: true, // Fallback to localStorage when network fails
+        retryWithDifferentHeaders: true // Retry with different headers if first attempt fails
     };
     
     // Timeout configurations
