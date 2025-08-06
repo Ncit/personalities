@@ -13,58 +13,51 @@ export class VKUserService {
         this.errorHandler = errorHandler;
         this.userInfo = null;
         this.isEnabled = VKConfig.isFeatureEnabled('userDataSaving');
-        this.isPremiumCheckingEnabled = VKConfig.isFeatureEnabled('premiumStatusChecking');
     }
     
     /**
      * Get user information from VK
      */
-    getUserInfo() {
+    async getUserInfo() {
         if (!this.bridge) {
             this.analytics.trackUserInfo(null, false, { error_type: 'bridge_unavailable' });
-            return Promise.resolve(null);
+            return null;
         }
         
-        this.analytics.trackUserInfo(null, false, null, { action: 'attempted' });
-        
-        return this.bridge.send('VKWebAppGetUserInfo')
-            .then(result => {
-                this.userInfo = result;
-                
-                this.analytics.trackUserInfo(result, true);
-                this.analytics.setUserProperties(result);
-                
-                // Save user data to server (non-blocking)
-                if (this.isEnabled) {
-                    this.saveUserDataToServer(result)
-                        .then(saveResult => {
-                            if (!saveResult.success) {
-                                this.logger.debug('User data save completed with warnings:', saveResult);
-                            }
-                        })
-                        .catch(error => {
-                            this.logger.warn('Failed to save user data to server (non-blocking):', error);
-                        });
-                }
-                
-                return result;
-            })
-            .catch(error => {
-                this.logger.error('Error getting user info:', error);
-                
-                this.analytics.trackUserInfo(null, false, error);
-                
-                return null;
-            });
+        try {
+            this.analytics.trackUserInfo(null, false, null, { action: 'attempted' });
+            
+            const result = await this.bridge.send('VKWebAppGetUserInfo');
+            this.userInfo = result;
+            
+            this.analytics.trackUserInfo(result, true);
+            this.analytics.setUserProperties(result);
+            
+            // Save user data to server (non-blocking)
+            if (this.isEnabled) {
+                this.saveUserDataToServer(result).catch(error => {
+                    this.logger.warn('Failed to save user data to server (non-blocking):', error);
+                });
+            }
+            
+            return result;
+            
+        } catch (error) {
+            this.logger.error('Error getting user info:', error);
+            
+            this.analytics.trackUserInfo(null, false, error);
+            
+            return null;
+        }
     }
     
     /**
      * Save VK user data to server
      */
-    saveUserDataToServer(userInfo) {
+    async saveUserDataToServer(userInfo) {
         if (!this.isEnabled) {
             this.logger.debug('User data saving is disabled');
-            return Promise.resolve();
+            return;
         }
         
         // Check if user data has already been saved
@@ -72,73 +65,70 @@ export class VKUserService {
         if (userDataSaved === 'true') {
             this.logger.debug('User data already saved to server, skipping');
             this.analytics.trackUserDataSave(userInfo.id, true, null, { reason: 'already_saved' });
-            return Promise.resolve();
+            return;
         }
         
         if (!userInfo || !userInfo.id) {
             this.logger.warn('No valid user info available for saving to server');
             this.analytics.trackUserDataSave(null, false, { error_type: 'no_valid_user_info' });
-            return Promise.resolve();
+            return;
         }
         
-        // Check if we're in a browser environment that supports fetch
-        if (typeof fetch === 'undefined') {
-            this.logger.warn('Fetch API not available, skipping user data save');
-            this.analytics.trackUserDataSave(userInfo.id, false, { error_type: 'fetch_not_available' });
-            return Promise.resolve();
-        }
-        
-        this.logger.debug('Saving user data to server:', {
-            user_id: userInfo.id,
-            username: userInfo.screen_name,
-            first_name: userInfo.first_name,
-            last_name: userInfo.last_name,
-            has_photo: !!userInfo.photo_100
-        });
-        
-        const userData = {
-            vk_user_id: userInfo.id,
-            app_id: VKConfig.VK_APP_ID,
-            username: userInfo.screen_name || `user_${userInfo.id}`,
-            first_name: userInfo.first_name || '',
-            last_name: userInfo.last_name || '',
-            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
-        };
-        
-        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
-        
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
-        
-        return fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(userData),
-            signal: controller.signal,
-            mode: 'cors', // Explicitly set CORS mode
-            credentials: 'omit' // Don't send cookies for cross-origin requests
-        })
-        .then(response => {
+        try {
+            this.logger.debug('Saving user data to server:', {
+                user_id: userInfo.id,
+                username: userInfo.screen_name,
+                first_name: userInfo.first_name,
+                last_name: userInfo.last_name,
+                has_photo: !!userInfo.photo_100
+            });
+            
+            const userData = {
+                vk_user_id: userInfo.id,
+                app_id: VKConfig.VK_APP_ID,
+                username: userInfo.screen_name || `user_${userInfo.id}`,
+                first_name: userInfo.first_name || '',
+                last_name: userInfo.last_name || '',
+                vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+            };
+            
+            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(userData),
+                signal: controller.signal
+            });
+            
             clearTimeout(timeoutId);
             
             this.logger.debug('Server response status:', response.status, response.statusText);
             
             if (!response.ok) {
-                return response.text().then(errorData => {
-                    throw new Error(`HTTP error! status: ${response.status} - ${errorData || 'Could not read error response'}`);
-                });
+                let errorDetails = '';
+                try {
+                    const errorData = await response.text();
+                    errorDetails = errorData;
+                } catch (e) {
+                    errorDetails = 'Could not read error response';
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
             }
             
-            return response.json();
-        })
-        .then(data => {
+            const data = await response.json();
+            
             this.logger.debug('Server response data:', data);
             
-            if (data.success || data.status === 200 || data.status === 201) {
+            if (data.success || response.status === 200 || response.status === 201) {
                 // Mark user data as saved in localStorage
                 localStorage.setItem(VKConfig.getStorageKey('userDataSaved'), 'true');
                 localStorage.setItem(VKConfig.getStorageKey('userDataSavedTimestamp'), Date.now().toString());
@@ -151,163 +141,116 @@ export class VKUserService {
             } else {
                 throw new Error(`Server returned error: ${JSON.stringify(data)}`);
             }
-        })
-        .catch(error => {
-            clearTimeout(timeoutId);
             
-            // Handle specific error types
-            let errorType = 'unknown_error';
-            let errorMessage = error.message || 'Unknown error';
+        } catch (error) {
+            this.logger.error('Error saving user data to server:', error);
             
-            if (error.name === 'AbortError') {
-                errorType = 'timeout_error';
-                errorMessage = 'Request timed out';
-            } else if (error.message && error.message.includes('Failed to fetch')) {
-                errorType = 'network_error';
-                errorMessage = 'Network error - server may be unreachable or CORS blocked';
-            } else if (error.message && error.message.includes('CORS')) {
-                errorType = 'cors_error';
-                errorMessage = 'CORS policy blocked the request';
-            }
+            this.analytics.trackUserDataSave(userInfo.id, false, error, { url });
             
-            this.logger.warn(`User data save failed (${errorType}): ${errorMessage}`, {
-                url: url,
-                user_id: userInfo.id,
-                error: error
-            });
-            
-            // Show alert for CORS and network errors
-            if (errorType === 'cors_error' || errorType === 'network_error') {
-                alert(`CORS/Network Error: ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
-            }
-            
-            this.analytics.trackUserDataSave(userInfo.id, false, { 
-                error_type: errorType, 
-                error_message: errorMessage 
-            }, { url });
-            
-            // Store user data locally as fallback
-            try {
-                localStorage.setItem(VKConfig.getStorageKey('userDataLocal'), JSON.stringify(userData));
-                this.logger.debug('User data stored locally as fallback');
-            } catch (localStorageError) {
-                this.logger.warn('Failed to store user data locally:', localStorageError);
-            }
-            
-            // Don't throw the error, just resolve with failure
-            return Promise.resolve({ 
-                success: false, 
-                error: errorType, 
-                message: errorMessage,
-                fallback_stored: true
-            });
-        });
+            throw error;
+        }
     }
     
     /**
      * Force save user data to server (ignores localStorage flag)
      */
-    forceSaveUserDataToServer(userInfo) {
+    async forceSaveUserDataToServer(userInfo) {
         if (!userInfo || !userInfo.id) {
             this.logger.warn('No valid user info available for force saving to server');
             this.analytics.trackUserDataSave(null, false, { error_type: 'no_valid_user_info' }, { action: 'force_save' });
-            return Promise.resolve();
+            return;
         }
         
         this.logger.log('Force saving user data to server (ignoring localStorage flag)');
         
-        // Temporarily remove the saved flag to allow saving
-        const wasSaved = localStorage.getItem(VKConfig.getStorageKey('userDataSaved')) === 'true';
-        if (wasSaved) {
-            localStorage.removeItem(VKConfig.getStorageKey('userDataSaved'));
-            localStorage.removeItem(VKConfig.getStorageKey('userDataSavedTimestamp'));
-        }
-        
-        return this.saveUserDataToServer(userInfo)
-            .then(result => {
-                this.analytics.trackUserDataSave(userInfo.id, true, null, { 
-                    action: 'force_save',
-                    was_previously_saved: wasSaved 
-                });
-                
-                return result;
-            })
-            .catch(error => {
-                this.logger.error('Error force saving user data to server:', error);
-                
-                this.analytics.trackUserDataSave(userInfo.id, false, error, { action: 'force_save' });
-                
-                throw error;
+        try {
+            // Temporarily remove the saved flag to allow saving
+            const wasSaved = localStorage.getItem(VKConfig.getStorageKey('userDataSaved')) === 'true';
+            if (wasSaved) {
+                localStorage.removeItem(VKConfig.getStorageKey('userDataSaved'));
+                localStorage.removeItem(VKConfig.getStorageKey('userDataSavedTimestamp'));
+            }
+            
+            const result = await this.saveUserDataToServer(userInfo);
+            
+            this.analytics.trackUserDataSave(userInfo.id, true, null, { 
+                action: 'force_save',
+                was_previously_saved: wasSaved 
             });
+            
+            return result;
+            
+        } catch (error) {
+            this.logger.error('Error force saving user data to server:', error);
+            
+            this.analytics.trackUserDataSave(userInfo.id, false, error, { action: 'force_save' });
+            
+            throw error;
+        }
     }
     
     /**
      * Check premium status from local storage and backend
      */
-    checkPremiumStatus() {
+    async checkPremiumStatus() {
         this.logger.log('checkPremiumStatus() called');
         
         this.analytics.trackPremiumStatus(null, 'unknown', null, { action: 'attempted' });
         
-        // First, check local storage
-        const localPremiumStatus = this.checkLocalPremiumStatus();
-        
-        if (localPremiumStatus !== null) {
-            this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+        try {
+            // First, check local storage
+            const localPremiumStatus = this.checkLocalPremiumStatus();
             
-            this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
+            if (localPremiumStatus !== null) {
+                this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
+                
+                this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
+                
+                // Update global premium status
+                this.updateGlobalPremiumStatus(localPremiumStatus);
+                return localPremiumStatus;
+            }
             
-            // Update global premium status
-            this.updateGlobalPremiumStatus(localPremiumStatus);
-            return Promise.resolve(localPremiumStatus);
+            this.logger.log('No local premium status found, checking backend...');
+            
+            // Only check backend if no premium status found in localStorage
+            if (this.userInfo?.id) {
+
+                const backendPremiumStatus = await this.checkBackendPremiumStatus();
+                
+                if (backendPremiumStatus !== null) {
+                    // Store the result in local storage
+                    this.storePremiumStatus(backendPremiumStatus);
+                    
+                    // Update global premium status
+                    this.updateGlobalPremiumStatus(backendPremiumStatus);
+                    
+                    this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { user_id: this.userInfo.id });
+                    
+                    return backendPremiumStatus;
+                }
+            }
+            
+            // If we can't determine premium status, assume not premium
+            this.logger.log('Could not determine premium status, defaulting to false');
+            
+            this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
+            
+            return false;
+            
+        } catch (error) {
+            this.logger.error('Error checking premium status:', error);
+            
+            this.analytics.trackPremiumStatus(false, 'error', error, { user_id: this.userInfo?.id });
+            
+            return false;
         }
-        
-        this.logger.log('No local premium status found, checking backend...');
-        
-        // Only check backend if no premium status found in localStorage and backend checking is enabled
-        if (this.userInfo?.id && this.isPremiumCheckingEnabled) {
-            return this.checkBackendPremiumStatus()
-                .then(backendPremiumStatus => {
-                    if (backendPremiumStatus !== null) {
-                        // Store the result in local storage
-                        this.storePremiumStatus(backendPremiumStatus);
-                        
-                        // Update global premium status
-                        this.updateGlobalPremiumStatus(backendPremiumStatus);
-                        
-                        this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { user_id: this.userInfo.id });
-                        
-                        return backendPremiumStatus;
-                    }
-                    
-                    // If we can't determine premium status, assume not premium
-                    this.logger.log('Could not determine premium status, defaulting to false');
-                    
-                    this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
-                    
-                    return false;
-                })
-                .catch(error => {
-                    this.logger.error('Error checking premium status:', error);
-                    
-                    this.analytics.trackPremiumStatus(false, 'error', error, { user_id: this.userInfo?.id });
-                    
-                    return false;
-                });
-        }
-        
-        // If we can't determine premium status, assume not premium
-        this.logger.log('Could not determine premium status, defaulting to false');
-        
-        this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
-        
-        return Promise.resolve(false);
     }
     
     /**
      * Refresh premium status - checks localStorage first, then backend if needed
      */
-    refreshPremiumStatus() {
+    async refreshPremiumStatus() {
         this.logger.log('refreshPremiumStatus() called');
         
         // First check localStorage
@@ -320,40 +263,29 @@ export class VKUserService {
             
             // Update global premium status
             this.updateGlobalPremiumStatus(localPremiumStatus);
-            return Promise.resolve(localPremiumStatus);
+            return localPremiumStatus;
         }
         
-        // Only check backend if no premium status found in localStorage and backend checking is enabled
-        if (this.userInfo?.id && this.isPremiumCheckingEnabled) {
+        // Only check backend if no premium status found in localStorage
+        if (this.userInfo?.id) {
             this.logger.log('No local premium status found, checking backend...');
             
-            return this.checkBackendPremiumStatus()
-                .then(backendPremiumStatus => {
-                    if (backendPremiumStatus !== null) {
-                        // Store the result in local storage
-                        this.storePremiumStatus(backendPremiumStatus);
-                        
-                        // Update global premium status
-                        this.updateGlobalPremiumStatus(backendPremiumStatus);
-                        
-                        this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { 
-                            action: 'refresh',
-                            user_id: this.userInfo.id 
-                        });
-                        
-                        return backendPremiumStatus;
-                    }
-                    
-                    // If we can't determine premium status, assume not premium
-                    this.logger.log('Could not determine premium status, defaulting to false');
-                    
-                    this.analytics.trackPremiumStatus(false, 'unknown', null, { 
-                        action: 'refresh',
-                        user_id: this.userInfo?.id 
-                    });
-                    
-                    return false;
+            const backendPremiumStatus = await this.checkBackendPremiumStatus();
+            
+            if (backendPremiumStatus !== null) {
+                // Store the result in local storage
+                this.storePremiumStatus(backendPremiumStatus);
+                
+                // Update global premium status
+                this.updateGlobalPremiumStatus(backendPremiumStatus);
+                
+                this.analytics.trackPremiumStatus(backendPremiumStatus, 'backend', null, { 
+                    action: 'refresh',
+                    user_id: this.userInfo.id 
                 });
+                
+                return backendPremiumStatus;
+            }
         }
         
         // If we can't determine premium status, assume not premium
@@ -364,7 +296,7 @@ export class VKUserService {
             user_id: this.userInfo?.id 
         });
         
-        return Promise.resolve(false);
+        return false;
     }
     
     /**
@@ -408,64 +340,59 @@ export class VKUserService {
     /**
      * Check premium status from backend API
      */
-    checkBackendPremiumStatus() {
+    async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
             this.logger.debug('No user ID available for backend premium check');
-            return Promise.resolve(null);
+            return null;
         }
         
-        // Check if we're in a browser environment that supports fetch
-        if (typeof fetch === 'undefined') {
-            this.logger.warn('Fetch API not available, skipping backend premium check');
-            this.analytics.trackPremiumStatus(false, 'fetch_not_available', null, { 
-                user_id: this.userInfo?.id 
+        try {
+            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
+            
+            const requestBody = {
+                user_id: this.userInfo.id,
+                app_id: VKConfig.VK_APP_ID,
+                item_id: 'mbti_premium'
+            };
+            
+            this.logger.debug('Checking backend premium status:', {
+                url: url,
+                method: 'POST',
+                body: requestBody
             });
-            return Promise.resolve(null);
-        }
-        
-        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
-        
-        const requestBody = {
-            user_id: this.userInfo.id,
-            app_id: VKConfig.VK_APP_ID,
-            item_id: 'mbti_premium'
-        };
-        
-        this.logger.debug('Checking backend premium status:', {
-            url: url,
-            method: 'POST',
-            body: requestBody
-        });
-        
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
-        
-        return fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(requestBody),
-            signal: controller.signal,
-            mode: 'cors', // Explicitly set CORS mode
-            credentials: 'omit' // Don't send cookies for cross-origin requests
-        })
-        .then(response => {
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+            });
+            
             clearTimeout(timeoutId);
             
             this.logger.debug('Backend response status:', response.status, response.statusText);
             
             if (!response.ok) {
-                return response.text().then(errorData => {
-                    throw new Error(`HTTP error! status: ${response.status} - ${errorData || 'Could not read error response'}`);
-                });
+                let errorDetails = '';
+                try {
+                    const errorData = await response.text();
+                    errorDetails = errorData;
+                } catch (e) {
+                    errorDetails = 'Could not read error response';
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
             }
             
-            return response.json();
-        })
-        .then(data => {
+            const data = await response.json();
+            
             this.logger.debug('Backend premium status response:', data);
             
             if (data.success && typeof data.has_purchase === 'boolean') {
@@ -473,46 +400,17 @@ export class VKUserService {
             } else {
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
-        })
-        .catch(error => {
-            clearTimeout(timeoutId);
             
-            // Handle specific error types
-            let errorType = 'unknown_error';
-            let errorMessage = error.message || 'Unknown error';
+        } catch (error) {
+            this.logger.error('Error checking backend premium status:', error);
             
-            if (error.name === 'AbortError') {
-                errorType = 'timeout_error';
-                errorMessage = 'Request timed out';
-            } else if (error.message && error.message.includes('Failed to fetch')) {
-                errorType = 'network_error';
-                errorMessage = 'Network error - server may be unreachable or CORS blocked';
-            } else if (error.message && error.message.includes('CORS')) {
-                errorType = 'cors_error';
-                errorMessage = 'CORS policy blocked the request';
-            }
-            
-            this.logger.warn(`Backend premium check failed (${errorType}): ${errorMessage}`, {
-                url: url,
+            this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
                 user_id: this.userInfo?.id,
-                error: error
+                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
             });
             
-            // Show alert for CORS and network errors
-            if (errorType === 'cors_error' || errorType === 'network_error') {
-                alert(`CORS/Network Error (Premium Check): ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
-            }
-            
-            this.analytics.trackPremiumStatus(false, errorType, { 
-                error_message: errorMessage 
-            }, { 
-                user_id: this.userInfo?.id,
-                url: url
-            });
-            
-            // Return null instead of throwing error
             return null;
-        });
+        }
     }
     
     /**
@@ -604,133 +502,6 @@ export class VKUserService {
      */
     getUserData() {
         return this.userInfo;
-    }
-    
-    /**
-     * Get locally stored user data (fallback)
-     */
-    getLocalUserData() {
-        try {
-            const localData = localStorage.getItem(VKConfig.getStorageKey('userDataLocal'));
-            return localData ? JSON.parse(localData) : null;
-        } catch (error) {
-            this.logger.warn('Error retrieving local user data:', error);
-            return null;
-        }
-    }
-    
-    /**
-     * Enable or disable user data saving
-     */
-    setUserDataSavingEnabled(enabled) {
-        this.isEnabled = enabled;
-        this.logger.log(`User data saving ${enabled ? 'enabled' : 'disabled'}`);
-    }
-    
-    /**
-     * Check if user data saving is enabled
-     */
-    isUserDataSavingEnabled() {
-        return this.isEnabled;
-    }
-    
-    /**
-     * Enable or disable premium status checking
-     */
-    setPremiumStatusCheckingEnabled(enabled) {
-        this.isPremiumCheckingEnabled = enabled;
-        this.logger.log(`Premium status checking ${enabled ? 'enabled' : 'disabled'}`);
-    }
-    
-    /**
-     * Check if premium status checking is enabled
-     */
-    isPremiumStatusCheckingEnabled() {
-        return this.isPremiumCheckingEnabled;
-    }
-    
-    /**
-     * Show CORS and network status information
-     */
-    showCORSStatus() {
-        const urls = [
-            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
-            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
-        ];
-        
-        const status = {
-            userDataSaving: this.isEnabled,
-            premiumStatusChecking: this.isPremiumCheckingEnabled,
-            fetchAvailable: typeof fetch !== 'undefined',
-            urls: urls,
-            currentDomain: window.location.origin,
-            userAgent: navigator.userAgent
-        };
-        
-        const statusText = `CORS Status:\n\n` +
-            `User Data Saving: ${status.userDataSaving ? 'Enabled' : 'Disabled'}\n` +
-            `Premium Status Checking: ${status.premiumStatusChecking ? 'Enabled' : 'Disabled'}\n` +
-            `Fetch API: ${status.fetchAvailable ? 'Available' : 'Not Available'}\n` +
-            `Current Domain: ${status.currentDomain}\n\n` +
-            `Backend URLs:\n${urls.map((url, i) => `${i + 1}. ${url}`).join('\n')}\n\n` +
-            `User Agent: ${status.userAgent.substring(0, 100)}...`;
-        
-        alert(statusText);
-        this.logger.log('CORS Status:', status);
-    }
-    
-    /**
-     * Enable both features for testing
-     */
-    enableFeaturesForTesting() {
-        this.setUserDataSavingEnabled(true);
-        this.setPremiumStatusCheckingEnabled(true);
-        alert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.');
-    }
-    
-    /**
-     * Test CORS and network connectivity
-     */
-    testCORS() {
-        const urls = [
-            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
-            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
-        ];
-        
-        alert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`);
-        
-        urls.forEach((url, index) => {
-            this.logger.log(`Testing CORS for URL ${index + 1}: ${url}`);
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ test: true }),
-                mode: 'cors',
-                credentials: 'omit'
-            })
-            .then(response => {
-                this.logger.log(`✅ CORS test ${index + 1} SUCCESS:`, {
-                    url: url,
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers: Object.fromEntries(response.headers.entries())
-                });
-            })
-            .catch(error => {
-                this.logger.error(`❌ CORS test ${index + 1} FAILED:`, {
-                    url: url,
-                    error: error,
-                    errorType: error.name,
-                    errorMessage: error.message
-                });
-                
-                alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`);
-            });
-        });
     }
     
     /**
