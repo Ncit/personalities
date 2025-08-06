@@ -13,6 +13,7 @@ export class VKUserService {
         this.errorHandler = errorHandler;
         this.userInfo = null;
         this.isEnabled = VKConfig.isFeatureEnabled('userDataSaving');
+        this.isPremiumCheckingEnabled = VKConfig.isFeatureEnabled('premiumStatusChecking');
     }
     
     /**
@@ -74,6 +75,13 @@ export class VKUserService {
             return;
         }
         
+        // Check if we're in a browser environment that supports fetch
+        if (typeof fetch === 'undefined') {
+            this.logger.warn('Fetch API not available, skipping user data save');
+            this.analytics.trackUserDataSave(userInfo.id, false, { error_type: 'fetch_not_available' });
+            return;
+        }
+        
         try {
             this.logger.debug('Saving user data to server:', {
                 user_id: userInfo.id,
@@ -105,7 +113,9 @@ export class VKUserService {
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify(userData),
-                signal: controller.signal
+                signal: controller.signal,
+                mode: 'cors', // Explicitly set CORS mode
+                credentials: 'omit' // Don't send cookies for cross-origin requests
             });
             
             clearTimeout(timeoutId);
@@ -143,9 +153,46 @@ export class VKUserService {
             }
             
         } catch (error) {
-            this.logger.error('Error saving user data to server:', error);
+            clearTimeout(timeoutId);
             
-            this.analytics.trackUserDataSave(userInfo.id, false, error, { url });
+            // Handle specific error types
+            let errorType = 'unknown_error';
+            let errorMessage = error.message || 'Unknown error';
+            
+            if (error.name === 'AbortError') {
+                errorType = 'timeout_error';
+                errorMessage = 'Request timed out';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorType = 'network_error';
+                errorMessage = 'Network error - server may be unreachable or CORS blocked';
+            } else if (error.message && error.message.includes('CORS')) {
+                errorType = 'cors_error';
+                errorMessage = 'CORS policy blocked the request';
+            }
+            
+            this.logger.warn(`User data save failed (${errorType}): ${errorMessage}`, {
+                url: url,
+                user_id: userInfo.id,
+                error: error
+            });
+            
+            // Show alert for CORS and network errors
+            if (errorType === 'cors_error' || errorType === 'network_error') {
+                alert(`CORS/Network Error: ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+            }
+            
+            this.analytics.trackUserDataSave(userInfo.id, false, { 
+                error_type: errorType, 
+                error_message: errorMessage 
+            }, { url });
+            
+            // Store user data locally as fallback
+            try {
+                localStorage.setItem(VKConfig.getStorageKey('userDataLocal'), JSON.stringify(userData));
+                this.logger.debug('User data stored locally as fallback');
+            } catch (localStorageError) {
+                this.logger.warn('Failed to store user data locally:', localStorageError);
+            }
             
             throw error;
         }
@@ -346,6 +393,15 @@ export class VKUserService {
             return null;
         }
         
+        // Check if we're in a browser environment that supports fetch
+        if (typeof fetch === 'undefined') {
+            this.logger.warn('Fetch API not available, skipping backend premium check');
+            this.analytics.trackPremiumStatus(false, 'fetch_not_available', null, { 
+                user_id: this.userInfo?.id 
+            });
+            return null;
+        }
+        
         try {
             const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
             
@@ -372,7 +428,9 @@ export class VKUserService {
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify(requestBody),
-                signal: controller.signal
+                signal: controller.signal,
+                mode: 'cors', // Explicitly set CORS mode
+                credentials: 'omit' // Don't send cookies for cross-origin requests
             });
             
             clearTimeout(timeoutId);
@@ -418,9 +476,37 @@ export class VKUserService {
             }
             
         } catch (error) {
-            this.logger.error('Error checking backend premium status:', error);
+            clearTimeout(timeoutId);
             
-            this.analytics.trackPremiumStatus(false, 'backend_error', error, { 
+            // Handle specific error types
+            let errorType = 'unknown_error';
+            let errorMessage = error.message || 'Unknown error';
+            
+            if (error.name === 'AbortError') {
+                errorType = 'timeout_error';
+                errorMessage = 'Request timed out';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorType = 'network_error';
+                errorMessage = 'Network error - server may be unreachable or CORS blocked';
+            } else if (error.message && error.message.includes('CORS')) {
+                errorType = 'cors_error';
+                errorMessage = 'CORS policy blocked the request';
+            }
+            
+            this.logger.warn(`Backend premium check failed (${errorType}): ${errorMessage}`, {
+                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+                user_id: this.userInfo?.id,
+                error: error
+            });
+            
+            // Show alert for CORS and network errors
+            if (errorType === 'cors_error' || errorType === 'network_error') {
+                alert(`CORS/Network Error (Premium Check): ${errorMessage}\n\nURL: ${VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+            }
+            
+            this.analytics.trackPremiumStatus(false, errorType, { 
+                error_message: errorMessage 
+            }, { 
                 user_id: this.userInfo?.id,
                 url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
             });
@@ -530,6 +616,133 @@ export class VKUserService {
             userInfo: !!this.userInfo,
             userId: this.userInfo?.id
         };
+    }
+    
+    /**
+     * Get locally stored user data (fallback)
+     */
+    getLocalUserData() {
+        try {
+            const localData = localStorage.getItem(VKConfig.getStorageKey('userDataLocal'));
+            return localData ? JSON.parse(localData) : null;
+        } catch (error) {
+            this.logger.warn('Error retrieving local user data:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Enable or disable user data saving
+     */
+    setUserDataSavingEnabled(enabled) {
+        this.isEnabled = enabled;
+        this.logger.log(`User data saving ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    /**
+     * Check if user data saving is enabled
+     */
+    isUserDataSavingEnabled() {
+        return this.isEnabled;
+    }
+    
+    /**
+     * Enable or disable premium status checking
+     */
+    setPremiumStatusCheckingEnabled(enabled) {
+        this.isPremiumCheckingEnabled = enabled;
+        this.logger.log(`Premium status checking ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    /**
+     * Check if premium status checking is enabled
+     */
+    isPremiumStatusCheckingEnabled() {
+        return this.isPremiumCheckingEnabled;
+    }
+    
+    /**
+     * Show CORS and network status information
+     */
+    showCORSStatus() {
+        const urls = [
+            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
+            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+        ];
+        
+        const status = {
+            userDataSaving: this.isEnabled,
+            premiumStatusChecking: this.isPremiumCheckingEnabled,
+            fetchAvailable: typeof fetch !== 'undefined',
+            urls: urls,
+            currentDomain: window.location.origin,
+            userAgent: navigator.userAgent
+        };
+        
+        const statusText = `CORS Status:\n\n` +
+            `User Data Saving: ${status.userDataSaving ? 'Enabled' : 'Disabled'}\n` +
+            `Premium Status Checking: ${status.premiumStatusChecking ? 'Enabled' : 'Disabled'}\n` +
+            `Fetch API: ${status.fetchAvailable ? 'Available' : 'Not Available'}\n` +
+            `Current Domain: ${status.currentDomain}\n\n` +
+            `Backend URLs:\n${urls.map((url, i) => `${i + 1}. ${url}`).join('\n')}\n\n` +
+            `User Agent: ${status.userAgent.substring(0, 100)}...`;
+        
+        alert(statusText);
+        this.logger.log('CORS Status:', status);
+    }
+    
+    /**
+     * Enable both features for testing
+     */
+    enableFeaturesForTesting() {
+        this.setUserDataSavingEnabled(true);
+        this.setPremiumStatusCheckingEnabled(true);
+        alert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.');
+    }
+    
+    /**
+     * Test CORS and network connectivity
+     */
+    testCORS() {
+        const urls = [
+            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
+            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+        ];
+        
+        alert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`);
+        
+        urls.forEach((url, index) => {
+            this.logger.log(`Testing CORS for URL ${index + 1}: ${url}`);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ test: true }),
+                mode: 'cors',
+                credentials: 'omit'
+            })
+            .then(response => {
+                this.logger.log(`✅ CORS test ${index + 1} SUCCESS:`, {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+            })
+            .catch(error => {
+                this.logger.error(`❌ CORS test ${index + 1} FAILED:`, {
+                    url: url,
+                    error: error,
+                    errorType: error.name,
+                    errorMessage: error.message
+                });
+                
+                alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`);
+            });
+        });
     }
     
     /**
