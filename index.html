@@ -28,6 +28,9 @@
                 <button class="btn btn-secondary" id="debugToggleBtn" onclick="toggleFirebaseAnalyticsDebug()" style="margin-left: 10px; font-size: 12px; display: none;">
                     <i class="fas fa-bug"></i> Firebase Debug
                 </button>
+                <button class="btn btn-secondary" id="erudaToggleBtn" onclick="window.erudaDebugger?.toggle()" style="margin-left: 10px; font-size: 12px;">
+                    <i class="fas fa-terminal"></i> Debug Console
+                </button>
             </div>
         </header>
 
@@ -559,6 +562,13 @@
 
     <!-- VK Bridge Integration -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
+    
+    <!-- Eruda Console for Mobile Debugging -->
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script type="module" src="src/debug/eruda-config.js"></script>
+    
+    <!-- Debug Utilities -->
+    <script type="module" src="src/debug/debug-utils.js"></script>
     
     <!-- Firebase Analytics will be initialized in script.js -->
     
