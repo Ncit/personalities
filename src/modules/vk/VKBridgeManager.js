@@ -768,6 +768,22 @@ export class VKBridgeManager {
                     return;
                 }
                 return this.userService.testCheckPurchase();
+            },
+            setPremiumStatusForAndroid: (isPremium) => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.setPremiumStatusForAndroid(isPremium);
+            },
+            getAndroidPremiumInfo: () => {
+                if (!this.userService) {
+                    console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    return;
+                }
+                return this.userService.getAndroidPremiumInfo();
             }
         };
     }
