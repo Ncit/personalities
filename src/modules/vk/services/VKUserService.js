@@ -176,6 +176,11 @@ export class VKUserService {
                 error: error
             });
             
+            // Show alert for CORS and network errors
+            if (errorType === 'cors_error' || errorType === 'network_error') {
+                alert(`CORS/Network Error: ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+            }
+            
             this.analytics.trackUserDataSave(userInfo.id, false, { 
                 error_type: errorType, 
                 error_message: errorMessage 
@@ -493,6 +498,11 @@ export class VKUserService {
                 error: error
             });
             
+            // Show alert for CORS and network errors
+            if (errorType === 'cors_error' || errorType === 'network_error') {
+                alert(`CORS/Network Error (Premium Check): ${errorMessage}\n\nURL: ${url}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+            }
+            
             this.analytics.trackPremiumStatus(false, errorType, { 
                 error_message: errorMessage 
             }, { 
@@ -637,6 +647,90 @@ export class VKUserService {
      */
     isPremiumStatusCheckingEnabled() {
         return this.isPremiumCheckingEnabled;
+    }
+    
+    /**
+     * Show CORS and network status information
+     */
+    showCORSStatus() {
+        const urls = [
+            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
+            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+        ];
+        
+        const status = {
+            userDataSaving: this.isEnabled,
+            premiumStatusChecking: this.isPremiumCheckingEnabled,
+            fetchAvailable: typeof fetch !== 'undefined',
+            urls: urls,
+            currentDomain: window.location.origin,
+            userAgent: navigator.userAgent
+        };
+        
+        const statusText = `CORS Status:\n\n` +
+            `User Data Saving: ${status.userDataSaving ? 'Enabled' : 'Disabled'}\n` +
+            `Premium Status Checking: ${status.premiumStatusChecking ? 'Enabled' : 'Disabled'}\n` +
+            `Fetch API: ${status.fetchAvailable ? 'Available' : 'Not Available'}\n` +
+            `Current Domain: ${status.currentDomain}\n\n` +
+            `Backend URLs:\n${urls.map((url, i) => `${i + 1}. ${url}`).join('\n')}\n\n` +
+            `User Agent: ${status.userAgent.substring(0, 100)}...`;
+        
+        alert(statusText);
+        this.logger.log('CORS Status:', status);
+    }
+    
+    /**
+     * Enable both features for testing
+     */
+    enableFeaturesForTesting() {
+        this.setUserDataSavingEnabled(true);
+        this.setPremiumStatusCheckingEnabled(true);
+        alert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.');
+    }
+    
+    /**
+     * Test CORS and network connectivity
+     */
+    testCORS() {
+        const urls = [
+            VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT),
+            VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
+        ];
+        
+        alert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`);
+        
+        urls.forEach((url, index) => {
+            this.logger.log(`Testing CORS for URL ${index + 1}: ${url}`);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ test: true }),
+                mode: 'cors',
+                credentials: 'omit'
+            })
+            .then(response => {
+                this.logger.log(`✅ CORS test ${index + 1} SUCCESS:`, {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+            })
+            .catch(error => {
+                this.logger.error(`❌ CORS test ${index + 1} FAILED:`, {
+                    url: url,
+                    error: error,
+                    errorType: error.name,
+                    errorMessage: error.message
+                });
+                
+                alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`);
+            });
+        });
     }
     
     /**
