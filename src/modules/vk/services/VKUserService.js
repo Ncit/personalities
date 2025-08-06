@@ -217,7 +217,7 @@ export class VKUserService {
             // Only check backend if no premium status found in localStorage
             if (this.userInfo?.id) {
 
-                const backendPremiumStatus = this.checkBackendPremiumStatus();
+                const backendPremiumStatus = await this.checkBackendPremiumStatus();
                 
                 if (backendPremiumStatus !== null) {
                     // Store the result in local storage
@@ -343,6 +343,8 @@ export class VKUserService {
      */
     async checkBackendPremiumStatus() {
         if (!this.userInfo?.id) {
+
+            alert('No user ID available for backend premium check');
             this.logger.debug('No user ID available for backend premium check');
             return null;
         }
@@ -389,6 +391,7 @@ export class VKUserService {
                     errorDetails = 'Could not read error response';
                 }
                 
+            alert('HTTP error! status: ${response.status} - ${errorDetails}');
                 throw new Error(`HTTP error! status: ${response.status} - ${errorDetails}`);
             }
             
@@ -398,9 +401,11 @@ export class VKUserService {
             
             if (data.success && typeof data.has_purchase === 'boolean') {
 
+            alert('data.has_purchase');
                 return data.has_purchase;
             } else {
 
+            alert('Invalid response format from backend');
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
