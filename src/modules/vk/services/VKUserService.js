@@ -192,7 +192,7 @@ export class VKUserService {
     /**
      * Check premium status from local storage and backend
      */
-    checkPremiumStatus() {
+    async checkPremiumStatus() {
         this.logger.log('checkPremiumStatus() called');
         
         this.analytics.trackPremiumStatus(null, 'unknown', null, { action: 'attempted' });
