@@ -261,30 +261,31 @@ class ErudaDebugger {
 
         const asyncTool = eruda.get('snippets');
         if (asyncTool) {
-            asyncTool.add('Test Async/Await', async () => {
+            asyncTool.add('Test Async/Await', () => {
                 console.log('Testing async/await functionality...');
                 
-                try {
-                    // Test basic async/await
-                    const result = await Promise.resolve('Async/Await works!');
-                    console.log('✅ Basic async/await:', result);
-                    
-                    // Test with delay
-                    const delayedResult = await new Promise(resolve => {
-                        setTimeout(() => resolve('Delayed async/await works!'), 1000);
-                    });
-                    console.log('✅ Delayed async/await:', delayedResult);
-                    
-                    // Test error handling
-                    try {
-                        await Promise.reject(new Error('Test error'));
-                    } catch (error) {
+                // Test basic async/await
+                Promise.resolve('Async/Await works!')
+                    .then(result => {
+                        console.log('✅ Basic async/await:', result);
+                        
+                        // Test with delay
+                        return new Promise(resolve => {
+                            setTimeout(() => resolve('Delayed async/await works!'), 1000);
+                        });
+                    })
+                    .then(delayedResult => {
+                        console.log('✅ Delayed async/await:', delayedResult);
+                        
+                        // Test error handling
+                        return Promise.reject(new Error('Test error'));
+                    })
+                    .catch(error => {
                         console.log('✅ Error handling works:', error.message);
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Async/await test failed:', error);
-                }
+                    })
+                    .catch(error => {
+                        console.error('❌ Async/await test failed:', error);
+                    });
             });
         }
     }

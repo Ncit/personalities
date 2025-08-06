@@ -33,60 +33,59 @@ export class VKBridgeManager {
     /**
      * Initialize VK Bridge
      */
-    async init() {
-        try {
-            this.analytics.trackBridgeInit(true, false);
+    init() {
+        this.analytics.trackBridgeInit(true, false);
+        
+        // Check if VK Bridge is available
+        if (typeof window.vkBridge !== 'undefined') {
+            this.bridge = window.vkBridge;
+            // Send ready event
+            this.bridge.send('VKWebAppInit');
+            this.isVKPlatform = true;
             
-            // Check if VK Bridge is available
-            if (typeof window.vkBridge !== 'undefined') {
-                this.bridge = window.vkBridge;
-                // Send ready event
-                this.bridge.send('VKWebAppInit');
-                this.isVKPlatform = true;
-                
-                this.analytics.trackVKEvent('environment_detected');
-                
-                // Initialize services that depend on bridge
-                this.userService = new VKUserService(this.bridge, this.logger, this.analytics, this.errorHandler);
-                this.paymentService = new VKPaymentService(this.bridge, this.logger, this.analytics, this.errorHandler);
-                
-                // Apply VK-specific styles
-                this.applyVKStyles();
-                
-                // Subscribe to bridge events
-                this.bridge.subscribe(({ detail: { type, data } }) => {
-                    this.handleBridgeEvent(type, data);
-                });
+            this.analytics.trackVKEvent('environment_detected');
+            
+            // Initialize services that depend on bridge
+            this.userService = new VKUserService(this.bridge, this.logger, this.analytics, this.errorHandler);
+            this.paymentService = new VKPaymentService(this.bridge, this.logger, this.analytics, this.errorHandler);
+            
+            // Apply VK-specific styles
+            this.applyVKStyles();
+            
+            // Subscribe to bridge events
+            this.bridge.subscribe(({ detail: { type, data } }) => {
+                this.handleBridgeEvent(type, data);
+            });
 
-                this.analytics.trackVKEvent('app_initialized');
-                
-                // Get user info
-                await this.userService.getUserInfo();
-                
-                // Check premium status (non-blocking)
-                this.userService.checkPremiumStatus().catch(error => {
-                    alert('Premium status check failed (non-blocking):!');
-                    this.logger.warn('Premium status check failed (non-blocking):', error);
+            this.analytics.trackVKEvent('app_initialized');
+            
+            // Get user info
+            this.userService.getUserInfo()
+                .then(() => {
+                    // Check premium status (non-blocking)
+                    this.userService.checkPremiumStatus().catch(error => {
+                        alert('Premium status check failed (non-blocking):!');
+                        this.logger.warn('Premium status check failed (non-blocking):', error);
+                    });
+                    
+                    // Configure app appearance (non-blocking)
+                    this.configureAppearance().catch(error => {
+                        this.logger.warn('VK Appearance configuration failed (non-blocking):', error);
+                    });
+                    
+                    this.analytics.trackBridgeInit(true, true);
+                    this.debugVKEnvironment();
+                    this.exposeDebugMethods();
+                })
+                .catch(error => {
+                    this.logger.error('Error getting user info:', error);
+                    this.analytics.trackBridgeInit(true, false, error);
                 });
-                
-                // Configure app appearance (non-blocking)
-                this.configureAppearance().catch(error => {
-                    this.logger.warn('VK Appearance configuration failed (non-blocking):', error);
-                });
-                
-                this.analytics.trackBridgeInit(true, true);
-                this.debugVKEnvironment();
-                this.exposeDebugMethods();
-                
-            } else {
-                this.isVKPlatform = false;
-                this.analytics.trackVKEvent('standalone_mode');
-                this.debugVKEnvironment();
-            }
-        } catch (error) {
-            this.logger.error('Error initializing VK Bridge:', error);
+            
+        } else {
             this.isVKPlatform = false;
-            this.analytics.trackBridgeInit(true, false, error);
+            this.analytics.trackVKEvent('standalone_mode');
+            this.debugVKEnvironment();
         }
     }
 
@@ -172,7 +171,7 @@ export class VKBridgeManager {
     /**
      * Configure app appearance
      */
-    async configureAppearance() {
+    configureAppearance() {
         this.analytics.trackVKEvent('appearance_config_attempted', {
             vk_platform: this.isVKPlatform,
             bridge_available: !!this.bridge
@@ -182,31 +181,31 @@ export class VKBridgeManager {
             this.analytics.trackVKEvent('appearance_config_fallback', {
                 reason: 'feature_not_supported'
             });
-            return;
+            return Promise.resolve();
         }
         
-        try {
-            await this.bridge.send('VKWebAppSetViewSettings', {
-                status_bar_style: 'light'
-            });
-            
+        return this.bridge.send('VKWebAppSetViewSettings', {
+            status_bar_style: 'light'
+        })
+        .then(() => {
             this.analytics.trackVKEvent('appearance_config_success');
-            
-        } catch (error) {
-            try {
-                await this.bridge.send('VKWebAppSetViewSettings', {});
-                this.analytics.trackVKEvent('appearance_config_success_minimal');
-            } catch (secondError) {
-                const errorResult = this.errorHandler.handleError(secondError, 'configureAppearance');
-                
-                this.analytics.trackVKEvent('appearance_config_error', {
-                    error_type: secondError.error_type,
-                    error_code: secondError.error_data?.error_code,
-                    error_reason: secondError.error_data?.error_reason,
-                    fallback_used: errorResult.fallback
+        })
+        .catch(error => {
+            return this.bridge.send('VKWebAppSetViewSettings', {})
+                .then(() => {
+                    this.analytics.trackVKEvent('appearance_config_success_minimal');
+                })
+                .catch(secondError => {
+                    const errorResult = this.errorHandler.handleError(secondError, 'configureAppearance');
+                    
+                    this.analytics.trackVKEvent('appearance_config_error', {
+                        error_type: secondError.error_type,
+                        error_code: secondError.error_data?.error_code,
+                        error_reason: secondError.error_data?.error_reason,
+                        fallback_used: errorResult.fallback
+                    });
                 });
-            }
-        }
+        });
     }
 
     /**
@@ -244,29 +243,29 @@ export class VKBridgeManager {
     /**
      * Share results using VK sharing
      */
-    async shareResults(personalityType, shareText) {
+    shareResults(personalityType, shareText) {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
         
         if (!this.bridge) {
             this.analytics.trackSharing(personalityType, false, null, { action: 'fallback_native' });
-            return this.fallbackShare(shareText);
+            return Promise.resolve(this.fallbackShare(shareText));
         }
 
-        try {
-            await this.bridge.send('VKWebAppShare', {
-                link: window.location.href,
-                title: 'MBTI Personality Quiz Results',
-                text: shareText
-            });
-            
+        return this.bridge.send('VKWebAppShare', {
+            link: window.location.href,
+            title: 'MBTI Personality Quiz Results',
+            text: shareText
+        })
+        .then(() => {
             this.analytics.trackSharing(personalityType, true);
-        } catch (error) {
+        })
+        .catch(error => {
             const errorResult = this.errorHandler.handleError(error, 'shareResults');
             
             this.analytics.trackSharing(personalityType, false, error);
             
             return this.fallbackShare(shareText);
-        }
+        });
     }
 
     /**
@@ -415,63 +414,66 @@ export class VKBridgeManager {
     /**
      * Show banner ad
      */
-    async showBannerAd() {
+    showBannerAd() {
         this.analytics.trackAdEvent('banner', 'show', false, null, { action: 'attempted' });
         
-        try {
-            if (this.bridge && this.isVKPlatform) {
-                await this.bridge.send('VKWebAppShowBannerAd', {
-                    banner_location: 'bottom'
-                });
+        if (this.bridge && this.isVKPlatform) {
+            return this.bridge.send('VKWebAppShowBannerAd', {
+                banner_location: 'bottom'
+            })
+            .then(() => {
                 this.analytics.trackAdEvent('banner', 'show', true);
                 return true;
-            } else {
-                this.analytics.trackAdEvent('banner', 'show', false, null, { reason: 'not_vk_environment' });
+            })
+            .catch(error => {
+                this.logger.error('Error showing banner ad:', error);
+                this.analytics.trackAdEvent('banner', 'show', false, error);
                 return false;
-            }
-        } catch (error) {
-            this.logger.error('Error showing banner ad:', error);
-            this.analytics.trackAdEvent('banner', 'show', false, error);
-            return false;
+            });
+        } else {
+            this.analytics.trackAdEvent('banner', 'show', false, null, { reason: 'not_vk_environment' });
+            return Promise.resolve(false);
         }
     }
 
     /**
      * Hide banner ad
      */
-    async hideBannerAd() {
-        try {
-            if (this.bridge && this.isVKPlatform) {
-                await this.bridge.send('VKWebAppHideBannerAd');
-                return true;
-            } else {
-                return false;
-            }
-        } catch (error) {
-            this.logger.error('Error hiding banner ad:', error);
-            return false;
+    hideBannerAd() {
+        if (this.bridge && this.isVKPlatform) {
+            return this.bridge.send('VKWebAppHideBannerAd')
+                .then(() => {
+                    return true;
+                })
+                .catch(error => {
+                    this.logger.error('Error hiding banner ad:', error);
+                    return false;
+                });
+        } else {
+            return Promise.resolve(false);
         }
     }
 
     /**
      * Show interstitial ad
      */
-    async showInterstitialAd() {
+    showInterstitialAd() {
         this.analytics.trackAdEvent('interstitial', 'show', false, null, { action: 'attempted' });
         
-        try {
-            if (this.bridge && this.isVKPlatform) {
-                await this.bridge.send('VKWebAppShowInterstitialAd');
-                this.analytics.trackAdEvent('interstitial', 'show', true);
-                return true;
-            } else {
-                this.analytics.trackAdEvent('interstitial', 'show', false, null, { reason: 'not_vk_environment' });
-                return false;
-            }
-        } catch (error) {
-            this.logger.error('Error showing interstitial ad:', error);
-            this.analytics.trackAdEvent('interstitial', 'show', false, error);
-            return false;
+        if (this.bridge && this.isVKPlatform) {
+            return this.bridge.send('VKWebAppShowInterstitialAd')
+                .then(() => {
+                    this.analytics.trackAdEvent('interstitial', 'show', true);
+                    return true;
+                })
+                .catch(error => {
+                    this.logger.error('Error showing interstitial ad:', error);
+                    this.analytics.trackAdEvent('interstitial', 'show', false, error);
+                    return false;
+                });
+        } else {
+            this.analytics.trackAdEvent('interstitial', 'show', false, null, { reason: 'not_vk_environment' });
+            return Promise.resolve(false);
         }
     }
 
@@ -571,89 +573,86 @@ export class VKBridgeManager {
     /**
      * Close VK app
      */
-    async closeApp() {
-        if (!this.bridge) return;
+    closeApp() {
+        if (!this.bridge) return Promise.resolve();
         
-        try {
-            await this.bridge.send('VKWebAppClose', {
-                status: 'success'
-            });
-        } catch (error) {
+        return this.bridge.send('VKWebAppClose', {
+            status: 'success'
+        })
+        .catch(error => {
             this.logger.error('Error closing app:', error);
-        }
+        });
     }
 
     /**
      * Expand VK app
      */
-    async expandApp() {
-        if (!this.bridge) return;
+    expandApp() {
+        if (!this.bridge) return Promise.resolve();
         
-        try {
-            await this.bridge.send('VKWebAppExpand');
-        } catch (error) {
-            this.logger.error('Error expanding app:', error);
-        }
+        return this.bridge.send('VKWebAppExpand')
+            .catch(error => {
+                this.logger.error('Error expanding app:', error);
+            });
     }
 
     /**
      * Resize VK app
      */
-    async resizeApp(width, height) {
-        if (!this.bridge) return;
+    resizeApp(width, height) {
+        if (!this.bridge) return Promise.resolve();
         
-        try {
-            await this.bridge.send('VKWebAppResizeWindow', {
-                width: width,
-                height: height
-            });
-        } catch (error) {
+        return this.bridge.send('VKWebAppResizeWindow', {
+            width: width,
+            height: height
+        })
+        .catch(error => {
             this.logger.error('Error resizing app:', error);
-        }
+        });
     }
 
     /**
      * Set app header
      */
-    async setAppHeader(title, color = '#667eea') {
-        if (!this.bridge) return;
+    setAppHeader(title, color = '#667eea') {
+        if (!this.bridge) return Promise.resolve();
         
-        try {
-            await this.bridge.send('VKWebAppSetViewSettings', {
-                status_bar_style: 'light',
-                action_bar_color: color,
-                navigation_bar_color: color
-            });
-        } catch (error) {
+        return this.bridge.send('VKWebAppSetViewSettings', {
+            status_bar_style: 'light',
+            action_bar_color: color,
+            navigation_bar_color: color
+        })
+        .catch(error => {
             this.logger.error('Error setting app header:', error);
-        }
+        });
     }
 
     /**
      * Show popup
      */
-    async showPopup(title, message, buttons = []) {
+    showPopup(title, message, buttons = []) {
         if (!this.bridge) {
-            return confirm(message);
+            return Promise.resolve(confirm(message));
         }
         
-        try {
-            const result = await this.bridge.send('VKWebAppShowPopup', {
-                title: title,
-                message: message,
-                buttons: buttons
-            });
+        return this.bridge.send('VKWebAppShowPopup', {
+            title: title,
+            message: message,
+            buttons: buttons
+        })
+        .then(result => {
             return result;
-        } catch (error) {
+        })
+        .catch(error => {
             this.logger.error('Error showing popup:', error);
             return confirm(message);
-        }
+        });
     }
 
     /**
      * Show confirmation dialog
      */
-    async showConfirm(title, message) {
+    showConfirm(title, message) {
         return this.showPopup(title, message, [
             { type: 'cancel', text: 'Cancel' },
             { type: 'default', text: 'OK' }
@@ -663,7 +662,7 @@ export class VKBridgeManager {
     /**
      * Show alert dialog
      */
-    async showAlert(title, message) {
+    showAlert(title, message) {
         return this.showPopup(title, message, [
             { type: 'default', text: 'OK' }
         ]);

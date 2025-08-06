@@ -212,22 +212,24 @@ export class QuizEngine {
         }
     }
 
-    async generateMBTIQuestions(isPremium) {
+    generateMBTIQuestions(isPremium) {
         // Import questions from separate data file
-        const { MBTI_QUESTIONS } = await import('../../data/MainQuiz.js');
-        
-        if (isPremium) {
-            return MBTI_QUESTIONS; // Full questions
-        } else {
-            return MBTI_QUESTIONS.slice(0, 20); // First 20 questions for free users
-        }
+        return import('../../data/MainQuiz.js')
+            .then(({ MBTI_QUESTIONS }) => {
+                if (isPremium) {
+                    return MBTI_QUESTIONS; // Full questions
+                } else {
+                    return MBTI_QUESTIONS.slice(0, 20); // First 20 questions for free users
+                }
+            });
     }
 
-    async generateSpecializedQuestions(quizType) {
+    generateSpecializedQuestions(quizType) {
         // Import specialized questions from separate data file
-        const { MBTI_SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuiz.js');
-        
-        return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
+        return import('../../data/SpecializedQuiz.js')
+            .then(({ MBTI_SPECIALIZED_QUESTIONS }) => {
+                return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
+            });
     }
 
     // Utility methods

@@ -183,33 +183,35 @@ export class UIManager {
     }
 
     // Results display
-    async displayResults() {
+    displayResults() {
         const results = stateManager.getLastResults();
-        if (!results) return;
+        if (!results) return Promise.resolve();
 
-        const { MBTI_TYPES } = await import('../../data/QuizData.ru.js');
-        const personalityData = MBTI_TYPES[results.personalityType];
+        return import('../../data/QuizData.ru.js')
+            .then(({ MBTI_TYPES }) => {
+                const personalityData = MBTI_TYPES[results.personalityType];
 
-        // Update personality type
-        this.elements.personalityType.textContent = results.personalityType;
+                // Update personality type
+                this.elements.personalityType.textContent = results.personalityType;
 
-        // Update personality card
-        this.elements.personalityTitle.textContent = personalityData.title;
-        this.elements.personalitySubtitle.textContent = personalityData.subtitle;
-        this.elements.personalityDescription.textContent = personalityData.description;
+                // Update personality card
+                this.elements.personalityTitle.textContent = personalityData.title;
+                this.elements.personalitySubtitle.textContent = personalityData.subtitle;
+                this.elements.personalityDescription.textContent = personalityData.description;
 
-        // Update traits
-        this.elements.personalityTraits.innerHTML = personalityData.traits
-            .map(trait => `<span class="trait">${trait}</span>`)
-            .join('');
+                // Update traits
+                this.elements.personalityTraits.innerHTML = personalityData.traits
+                    .map(trait => `<span class="trait">${trait}</span>`)
+                    .join('');
 
-        // Update dimension breakdown
-        this.updateDimensionBreakdown(results.dimensionBreakdown);
+                // Update dimension breakdown
+                this.updateDimensionBreakdown(results.dimensionBreakdown);
 
-        // Show premium content if applicable
-        if (stateManager.isPremium()) {
-            this.showPremiumContent(results.personalityType);
-        }
+                // Show premium content if applicable
+                if (stateManager.isPremium()) {
+                    this.showPremiumContent(results.personalityType);
+                }
+            });
     }
 
     updateDimensionBreakdown(breakdown) {
