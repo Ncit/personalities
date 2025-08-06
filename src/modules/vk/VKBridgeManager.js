@@ -702,35 +702,111 @@ export class VKBridgeManager {
     }
 
     async getUserInfo() {
-        return this.userService?.getUserInfo();
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for getUserInfo');
+                return this.userService?.getUserData() || null;
+            }
+            return await this.userService?.getUserInfo();
+        } catch (error) {
+            this.logger.error('Error getting user info:', error);
+            return this.userService?.getUserData() || null;
+        }
     }
 
     async saveUserDataToServer(userInfo) {
-        return this.userService?.saveUserDataToServer(userInfo);
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for saveUserDataToServer');
+                return { success: false, error: 'Promise not supported' };
+            }
+            return await this.userService?.saveUserDataToServer(userInfo);
+        } catch (error) {
+            this.logger.error('Error saving user data to server:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     async forceSaveUserDataToServer(userInfo) {
-        return this.userService?.forceSaveUserDataToServer(userInfo);
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for forceSaveUserDataToServer');
+                return { success: false, error: 'Promise not supported' };
+            }
+            return await this.userService?.forceSaveUserDataToServer(userInfo);
+        } catch (error) {
+            this.logger.error('Error force saving user data to server:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     async checkPremiumStatus() {
-        return this.userService?.checkPremiumStatus();
+        try {
+            // Check if we're in an environment that supports async/await
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for checkPremiumStatus');
+                return this.userService?.getUserData()?.isPremium || false;
+            }
+            return await this.userService?.checkPremiumStatus();
+        } catch (error) {
+            this.logger.error('Error checking premium status:', error);
+            // Fallback to checking local user data
+            return this.userService?.getUserData()?.isPremium || false;
+        }
     }
 
     async refreshPremiumStatus() {
-        return this.userService?.refreshPremiumStatus();
+        try {
+            // Check if we're in an environment that supports async/await
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for refreshPremiumStatus');
+                return this.userService?.getUserData()?.isPremium || false;
+            }
+            return await this.userService?.refreshPremiumStatus();
+        } catch (error) {
+            this.logger.error('Error refreshing premium status:', error);
+            // Fallback to checking local user data
+            return this.userService?.getUserData()?.isPremium || false;
+        }
     }
 
     async showOrderBox(productId, productName) {
-        return this.paymentService?.showOrderBox(productId, productName);
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for showOrderBox');
+                return { success: false, error: 'Promise not supported' };
+            }
+            return await this.paymentService?.showOrderBox(productId, productName);
+        } catch (error) {
+            this.logger.error('Error showing order box:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     async handleOrderBoxResult(result) {
-        return this.paymentService?.handleOrderBoxResult(result);
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for handleOrderBoxResult');
+                return { success: false, error: 'Promise not supported' };
+            }
+            return await this.paymentService?.handleOrderBoxResult(result);
+        } catch (error) {
+            this.logger.error('Error handling order box result:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     async purchaseSubscription(tier) {
-        return this.paymentService?.purchaseSubscription(tier);
+        try {
+            if (typeof Promise === 'undefined') {
+                this.logger.warn('Promise not supported, using fallback for purchaseSubscription');
+                return { success: false, error: 'Promise not supported' };
+            }
+            return await this.paymentService?.purchaseSubscription(tier);
+        } catch (error) {
+            this.logger.error('Error purchasing subscription:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     getVKAnalyticsData() {
