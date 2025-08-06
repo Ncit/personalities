@@ -82,30 +82,30 @@ export class VKUserService {
             return;
         }
         
+        this.logger.debug('Saving user data to server:', {
+            user_id: userInfo.id,
+            username: userInfo.screen_name,
+            first_name: userInfo.first_name,
+            last_name: userInfo.last_name,
+            has_photo: !!userInfo.photo_100
+        });
+        
+        const userData = {
+            vk_user_id: userInfo.id,
+            app_id: VKConfig.VK_APP_ID,
+            username: userInfo.screen_name || `user_${userInfo.id}`,
+            first_name: userInfo.first_name || '',
+            last_name: userInfo.last_name || '',
+            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+        };
+        
+        const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
+        
         try {
-            this.logger.debug('Saving user data to server:', {
-                user_id: userInfo.id,
-                username: userInfo.screen_name,
-                first_name: userInfo.first_name,
-                last_name: userInfo.last_name,
-                has_photo: !!userInfo.photo_100
-            });
-            
-            const userData = {
-                vk_user_id: userInfo.id,
-                app_id: VKConfig.VK_APP_ID,
-                username: userInfo.screen_name || `user_${userInfo.id}`,
-                first_name: userInfo.first_name || '',
-                last_name: userInfo.last_name || '',
-                vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
-            };
-            
-            const url = VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT);
-            
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('userDataSave'));
-            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -117,8 +117,6 @@ export class VKUserService {
                 mode: 'cors', // Explicitly set CORS mode
                 credentials: 'omit' // Don't send cookies for cross-origin requests
             });
-            
-            clearTimeout(timeoutId);
             
             this.logger.debug('Server response status:', response.status, response.statusText);
             
@@ -147,12 +145,16 @@ export class VKUserService {
                 
                 this.analytics.trackUserDataSave(userInfo.id, true, null, { server_response: data });
                 
+                // Clear timeout on success
+                clearTimeout(timeoutId);
+                
                 return data;
             } else {
                 throw new Error(`Server returned error: ${JSON.stringify(data)}`);
             }
             
         } catch (error) {
+            // Clear timeout on error
             clearTimeout(timeoutId);
             
             // Handle specific error types
@@ -402,6 +404,10 @@ export class VKUserService {
             return null;
         }
         
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
+        
         try {
             const url = VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
             
@@ -417,10 +423,6 @@ export class VKUserService {
                 body: requestBody
             });
             
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), VKConfig.getTimeout('apiRequest'));
-            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -432,8 +434,6 @@ export class VKUserService {
                 mode: 'cors', // Explicitly set CORS mode
                 credentials: 'omit' // Don't send cookies for cross-origin requests
             });
-            
-            clearTimeout(timeoutId);
             
             this.logger.debug('Backend response status:', response.status, response.statusText);
             
@@ -475,7 +475,11 @@ export class VKUserService {
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
+            // Clear timeout on success
+            clearTimeout(timeoutId);
+            
         } catch (error) {
+            // Clear timeout on error
             clearTimeout(timeoutId);
             
             // Handle specific error types
