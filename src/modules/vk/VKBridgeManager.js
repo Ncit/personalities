@@ -103,10 +103,9 @@ export class VKBridgeManager {
      * Load VK-specific styles
      */
     loadVKStyles() {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = './src/modules/vk/vk-styles.css';
-        document.head.appendChild(link);
+        // VK styles are now imported in the main script and included in the build
+        // No need to dynamically load them
+        this.logger.log('VK styles are already included in the build');
     }
 
     /**
