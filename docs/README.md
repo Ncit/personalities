@@ -128,33 +128,74 @@ The platform includes comprehensive analytics features:
 
 ## 📚 Documentation
 
-- **[Architecture](./docs/architecture/)** - System design and architecture decisions
-- **[API Documentation](./docs/api/)** - VK integration and payment APIs
-- **[Deployment Guides](./docs/deployment/)** - Configuration and deployment instructions
-- **[Development Guides](./docs/guides/)** - Development and troubleshooting guides
+# Documentation Index
 
-## 🧪 Testing
+Welcome to the MBTI Personality Quiz documentation. This directory contains comprehensive documentation organized by category.
 
-Test files are located in the `tests/` directory. Run tests with:
-```bash
-npm test
-```
+## 📚 Documentation Structure
 
-## 🤝 Contributing
+### 🏗️ Architecture
+- **[ARCHITECTURE.md](./architecture/ARCHITECTURE.md)** - System architecture and design decisions
+- **[PROJECT_STATUS.md](./architecture/PROJECT_STATUS.md)** - Current project status and roadmap
+- **[MEMORY_BANK.md](./architecture/MEMORY_BANK.md)** - Important architectural decisions and notes
+- **[PROJECT_REVIEW_SUMMARY.md](./architecture/PROJECT_REVIEW_SUMMARY.md)** - Project review and analysis
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### 🔌 API Documentation
+- **[VK_INTEGRATION_REFACTORING_SUMMARY.md](./api/VK_INTEGRATION_REFACTORING_SUMMARY.md)** - VK platform integration overview
+- **[VK_PAYMENT_INTEGRATION.md](./api/VK_PAYMENT_INTEGRATION.md)** - Payment processing implementation
+- **[VK_PAYMENT_ERROR_HANDLING.md](./api/VK_PAYMENT_ERROR_HANDLING.md)** - Payment error handling strategies
+- **[VK_ERROR_HANDLING_IMPROVEMENTS.md](./api/VK_ERROR_HANDLING_IMPROVEMENTS.md)** - Error handling improvements
+- **[VK_USER_DATA_SAVING.md](./api/VK_USER_DATA_SAVING.md)** - User data persistence
+- **[VK_USER_SERVICE_ERROR_FIX.md](./api/VK_USER_SERVICE_ERROR_FIX.md)** - User service fixes
 
-## 📄 License
+### 🚀 Deployment & Configuration
+- **[ANDROID_VK_CORS_SOLUTION.md](./deployment/ANDROID_VK_CORS_SOLUTION.md)** - CORS issues on Android
+- **[PERMISSIVE_CORS_SOLUTION.md](./deployment/PERMISSIVE_CORS_SOLUTION.md)** - CORS configuration
+- **[NGINX_CORS_SETUP_GUIDE.md](./deployment/NGINX_CORS_SETUP_GUIDE.md)** - Nginx CORS setup
+- **[FIREBASE_ANALYTICS_FIX.md](./deployment/FIREBASE_ANALYTICS_FIX.md)** - Firebase analytics configuration
+- **[FIREBASE_DEBUG_TOGGLE.md](./deployment/FIREBASE_DEBUG_TOGGLE.md)** - Firebase debug mode
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### 🛠️ Development Guides
+- **[ERUDA_DEBUG_GUIDE.md](./guides/ERUDA_DEBUG_GUIDE.md)** - Debugging with Eruda
+- **[LOGGER_MANAGER.md](./guides/LOGGER_MANAGER.md)** - Logging system
+- **[LOCALSTORAGE_CLEARING_FIX.md](./guides/LOCALSTORAGE_CLEARING_FIX.md)** - LocalStorage management
+- **[LOCALSTORAGE_CLEARING_ISSUE_RESOLVED.md](./guides/LOCALSTORAGE_CLEARING_ISSUE_RESOLVED.md)** - LocalStorage fixes
+- **[UI_UPDATE_ISSUE_RESOLVED.md](./guides/UI_UPDATE_ISSUE_RESOLVED.md)** - UI update fixes
+- **[TIMEOUT_ID_ERROR_FIX.md](./guides/TIMEOUT_ID_ERROR_FIX.md)** - Timeout error resolution
+- **[CLEANUP_SUMMARY.md](./guides/CLEANUP_SUMMARY.md)** - Code cleanup summary
+- **[URL_EXTRACTION_SUMMARY.md](./guides/URL_EXTRACTION_SUMMARY.md)** - URL extraction implementation
+- **[PREMIUM_STATUS_CHECK.md](./guides/PREMIUM_STATUS_CHECK.md)** - Premium feature checks
+- **[BACKEND_API_TROUBLESHOOTING.md](./guides/BACKEND_API_TROUBLESHOOTING.md)** - API troubleshooting
 
-## 🆘 Support
+### 📋 Project Management
+- **[PROJECT_ORGANIZATION_SUMMARY.md](./PROJECT_ORGANIZATION_SUMMARY.md)** - Organization changes and structure
+- **[MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md)** - Rules and practices for maintaining organization
 
-For support and questions:
-- Check the [documentation](./docs/)
-- Review [troubleshooting guides](./docs/guides/)
-- Open an issue on GitHub 
+## 🎯 Quick Start
+
+1. **New to the project?** Start with [ARCHITECTURE.md](./architecture/ARCHITECTURE.md)
+2. **Setting up development?** Check [ERUDA_DEBUG_GUIDE.md](./guides/ERUDA_DEBUG_GUIDE.md)
+3. **Deploying?** Review [NGINX_CORS_SETUP_GUIDE.md](./deployment/NGINX_CORS_SETUP_GUIDE.md)
+4. **VK integration?** Read [VK_INTEGRATION_REFACTORING_SUMMARY.md](./api/VK_INTEGRATION_REFACTORING_SUMMARY.md)
+5. **Maintaining organization?** Check [MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md)
+
+## 🔍 Search Documentation
+
+Use your browser's search function (Ctrl/Cmd + F) to quickly find specific topics across all documentation files.
+
+## 📝 Contributing to Documentation
+
+When adding new documentation:
+1. Place files in the appropriate category directory
+2. Update this index with a link to the new file
+3. Follow the existing naming conventions
+4. Include clear titles and descriptions
+5. Review [MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md) for guidelines
+
+## 🆘 Need Help?
+
+If you can't find what you're looking for:
+1. Check the main [README.md](../README.md)
+2. Search through the documentation files
+3. Open an issue on GitHub
+4. Review the troubleshooting guides in the [guides](./guides/) directory 

@@ -194,6 +194,9 @@ class MBTIQuiz {
             subscriptionBtn.style.display = 'none';
         }
         
+        // Scroll to top to center the quiz content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
         this.displayQuestion();
         
         // Log to Firebase Analytics
