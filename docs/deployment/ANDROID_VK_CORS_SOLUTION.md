@@ -112,36 +112,23 @@ if (retryConfig.fallbackToLocalStorage && requestType === 'premium_status') {
 
 ## Server-Side Requirements
 
-### Nginx Configuration
-You need to add Android-specific endpoints to your nginx configuration:
+### Server Configuration
+Your server needs to handle Android-specific endpoints with proper CORS headers:
 
-```nginx
-# Android-specific endpoints
-location /goodsshop/api/check-purchase-android {
-    # CORS headers
-    add_header 'Access-Control-Allow-Origin' '*' always;
-    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Accept,X-Platform,X-VK-App' always;
-    add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
-    
-    # Handle preflight OPTIONS requests
-    if ($request_method = 'OPTIONS') {
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Accept,X-Platform,X-VK-App' always;
-        add_header 'Access-Control-Max-Age' 1728000 always;
-        add_header 'Content-Type' 'text/plain; charset=utf-8' always;
-        add_header 'Content-Length' 0 always;
-        return 204;
-    }
-    
-    # Your existing proxy_pass configuration
-    proxy_pass http://127.0.0.1:8000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
+#### Required CORS Headers
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Accept,X-Platform,X-VK-App
+Access-Control-Expose-Headers: Content-Length,Content-Range
+Access-Control-Allow-Credentials: true
+```
+
+#### Platform-Specific Headers
+For Android requests, include these headers:
+```
+X-Platform: android
+X-VK-App: true
 ```
 
 ### Backend API Support
@@ -253,7 +240,7 @@ static getRetryConfig() {
 ### Common Issues
 
 1. **Still getting CORS errors**
-   - Check that Android-specific endpoints are configured in nginx
+   - Check that Android-specific endpoints are configured on your server
    - Verify that backend supports Android endpoints
    - Check that CORS headers include `X-Platform` and `X-VK-App`
 
@@ -305,7 +292,7 @@ console.log('Headers:', VKConfig.getPlatformHeaders());
 ## Next Steps
 
 1. **Deploy the updated code** to your VK Mini App
-2. **Configure nginx** with Android-specific endpoints
+2. **Configure server** with Android-specific endpoints
 3. **Update your backend** to handle Android endpoints
 4. **Test on Android devices** using the test file
 5. **Monitor analytics** for Android-specific errors

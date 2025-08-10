@@ -36,7 +36,7 @@ personalities/
 │   ├── deployment/              # Deployment and configuration guides
 │   └── guides/                  # Development and troubleshooting guides
 ├── tests/                       # Test files and test utilities
-├── config/                      # Configuration files (nginx, etc.)
+├── config/                      # Configuration files
 ├── scripts/                     # Build and utility scripts
 ├── dist/                        # Build output
 └── node_modules/                # Dependencies
@@ -150,8 +150,6 @@ Welcome to the MBTI Personality Quiz documentation. This directory contains comp
 
 ### 🚀 Deployment & Configuration
 - **[ANDROID_VK_CORS_SOLUTION.md](./deployment/ANDROID_VK_CORS_SOLUTION.md)** - CORS issues on Android
-- **[PERMISSIVE_CORS_SOLUTION.md](./deployment/PERMISSIVE_CORS_SOLUTION.md)** - CORS configuration
-- **[NGINX_CORS_SETUP_GUIDE.md](./deployment/NGINX_CORS_SETUP_GUIDE.md)** - Nginx CORS setup
 - **[FIREBASE_ANALYTICS_FIX.md](./deployment/FIREBASE_ANALYTICS_FIX.md)** - Firebase analytics configuration
 - **[FIREBASE_DEBUG_TOGGLE.md](./deployment/FIREBASE_DEBUG_TOGGLE.md)** - Firebase debug mode
 
@@ -175,7 +173,7 @@ Welcome to the MBTI Personality Quiz documentation. This directory contains comp
 
 1. **New to the project?** Start with [ARCHITECTURE.md](./architecture/ARCHITECTURE.md)
 2. **Setting up development?** Check [ERUDA_DEBUG_GUIDE.md](./guides/ERUDA_DEBUG_GUIDE.md)
-3. **Deploying?** Review [NGINX_CORS_SETUP_GUIDE.md](./deployment/NGINX_CORS_SETUP_GUIDE.md)
+3. **Deploying?** Review [FIREBASE_ANALYTICS_FIX.md](./deployment/FIREBASE_ANALYTICS_FIX.md)
 4. **VK integration?** Read [VK_INTEGRATION_REFACTORING_SUMMARY.md](./api/VK_INTEGRATION_REFACTORING_SUMMARY.md)
 5. **Maintaining organization?** Check [MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md)
 

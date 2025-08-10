@@ -7,62 +7,56 @@ This directory contains configuration files for the MBTI Personality Quiz applic
 ```
 config/
 ├── README.md                           # This file
-├── nginx-cors-config.conf             # Standard CORS configuration
-└── nginx-cors-config-permissive.conf  # Permissive CORS configuration
+└── (no configuration files currently)
 ```
 
 ## 🔧 Configuration Files
 
-### 🌐 Nginx CORS Configuration
+Currently, there are no configuration files in this directory. Configuration is handled through:
 
-#### `nginx-cors-config.conf`
-Standard CORS configuration for production environments.
-- **Purpose**: Secure CORS settings for production deployment
-- **Use Case**: When you need controlled cross-origin access
-- **Security Level**: High
-
-#### `nginx-cors-config-permissive.conf`
-Permissive CORS configuration for development and testing.
-- **Purpose**: Allows broader cross-origin access for development
-- **Use Case**: Development environments and testing scenarios
-- **Security Level**: Low (development only)
+- **Firebase Configuration**: Located in `src/config/firebase.js`
+- **VK Configuration**: Located in `src/modules/vk/config/VKConfig.js`
+- **Build Configuration**: Located in `vite.config.js`
 
 ## 🚀 Deployment
 
-### Production Deployment
-1. Copy `nginx-cors-config.conf` to your Nginx configuration directory
-2. Include the configuration in your Nginx server block
-3. Restart Nginx service
+The application is configured for modern static hosting platforms:
 
-### Development Deployment
-1. Copy `nginx-cors-config-permissive.conf` to your Nginx configuration directory
-2. Include the configuration in your Nginx server block
-3. Restart Nginx service
+- **Vite Build System**: Handles asset optimization and bundling
+- **Firebase Integration**: Analytics and error tracking
+- **VK Platform Integration**: Native VK Mini Apps support
 
 ## 📝 Configuration Examples
 
-### Standard CORS Configuration
-```nginx
-# Include in your Nginx server block
-include /path/to/config/nginx-cors-config.conf;
+### Build Configuration
+Located in `vite.config.js`:
+```javascript
+export default defineConfig({
+  base: './',
+  plugins: [legacy({ targets: ['defaults', 'not IE 11'] })],
+  build: { outDir: 'dist', assetsDir: 'assets' }
+});
 ```
 
-### Permissive CORS Configuration
-```nginx
-# Include in your Nginx server block (development only)
-include /path/to/config/nginx-cors-config-permissive.conf;
+### Firebase Configuration
+Located in `src/config/firebase.js`:
+```javascript
+const firebaseConfig = {
+  // Firebase configuration
+};
 ```
 
 ## 🔍 Configuration Details
 
-### CORS Headers
-- **Access-Control-Allow-Origin**: Controls which origins can access resources
-- **Access-Control-Allow-Methods**: Specifies allowed HTTP methods
-- **Access-Control-Allow-Headers**: Defines allowed request headers
-- **Access-Control-Allow-Credentials**: Controls credential inclusion
+### Static Hosting
+The application is designed for static hosting platforms like:
+- **GitHub Pages**: Direct deployment from repository
+- **Netlify**: Automatic builds and deployments
+- **Vercel**: Optimized for frontend applications
+- **Firebase Hosting**: Integrated with Firebase services
 
 ### Security Considerations
-- **Production**: Use restrictive CORS settings
+- **Static Files Only**: No server-side configuration needed
 - **Development**: Use permissive settings only when necessary
 - **Testing**: Use permissive settings for comprehensive testing
 
@@ -109,4 +103,4 @@ include /path/to/config/nginx-cors-config-permissive.conf;
 - Check the [deployment documentation](../docs/deployment/)
 - Review CORS-related guides
 - Open an issue for configuration problems
-- Consult Nginx documentation for advanced configuration 
+- Consult platform-specific documentation for advanced configuration 

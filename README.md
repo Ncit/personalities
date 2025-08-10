@@ -62,7 +62,7 @@ personalities/
 │   └── debug/                   # Debug utilities and configurations
 ├── docs/                        # 📚 All documentation
 ├── tests/                       # 🧪 Test files and test utilities
-├── config/                      # ⚙️ Configuration files (nginx, etc.)
+├── config/                      # ⚙️ Configuration files
 ├── scripts/                     # 🔧 Build and utility scripts
 ├── dist/                        # Build output
 └── node_modules/                # Dependencies

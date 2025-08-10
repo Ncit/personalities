@@ -31,7 +31,7 @@ personalities/
 │   ├── deployment/              # Deployment and configuration guides
 │   └── guides/                  # Development and troubleshooting guides
 ├── tests/                       # Test files and test utilities
-├── config/                      # Configuration files (nginx, etc.)
+├── config/                      # Configuration files
 ├── scripts/                     # Build and utility scripts
 ├── dist/                        # Build output
 └── node_modules/                # Dependencies
@@ -44,7 +44,7 @@ personalities/
 - **Organized**: Documentation into categories:
   - `api/` - VK integration, payment, user service docs
   - `architecture/` - System design, project status, memory bank
-  - `deployment/` - CORS, nginx, firebase configuration
+  - `deployment/` - CORS, firebase configuration
   - `guides/` - Debug, logger, localStorage, UI fixes
 - **Created**: Documentation index (`docs/README.md`)
 
@@ -54,7 +54,7 @@ personalities/
 - **Organized**: Tests by category (CORS, debug, integration)
 
 ### 3. Configuration Organization
-- **Moved**: Nginx config files to `config/`
+- **Moved**: Configuration files to `config/`
 - **Created**: Configuration documentation (`config/README.md`)
 - **Organized**: Configuration by purpose and security level
 
@@ -77,7 +77,7 @@ personalities/
 personalities/
 ├── *.md (28 files scattered)
 ├── test_*.html (6 files)
-├── nginx-*.conf (2 files)
+├── (configuration files)
 ├── script.js (104KB)
 ├── src/
 └── ... (other files)
@@ -88,7 +88,7 @@ personalities/
 personalities/
 ├── docs/ (28 organized files)
 ├── tests/ (6 test files)
-├── config/ (2 config files)
+├── config/ (configuration files)
 ├── scripts/ (1 script file)
 ├── src/
 └── ... (other files)
