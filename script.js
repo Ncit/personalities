@@ -12,7 +12,6 @@ import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js'
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
-import './src/modules/vk/vk-styles.css';
 
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
