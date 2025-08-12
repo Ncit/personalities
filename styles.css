@@ -1233,6 +1233,10 @@ body {
         box-sizing: border-box;
         -webkit-overflow-scrolling: touch;
     }
+    /* Ensure the heading sits below the close button on small screens */
+    .modal-content > h2 {
+        margin-top: 26px;
+    }
     
     /* iPhone specific optimizations */
     .premium-modal-content {
