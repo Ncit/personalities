@@ -2655,6 +2655,7 @@ body {
         font-size: 1.3rem;
         margin-bottom: 16px;
         padding-bottom: 8px;
+        margin-top: 26px; /* ensure heading sits below close button */
     }
     
     .help-content {
@@ -2729,6 +2730,7 @@ body {
         font-size: 1.2rem;
         margin-bottom: 12px;
         padding-bottom: 6px;
+        margin-top: 26px; /* ensure heading sits below close button */
     }
     
     .help-content {
