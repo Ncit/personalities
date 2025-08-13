@@ -1345,16 +1345,6 @@ function createBalanceChart(e, s, t, j) {
         const leftWidth = half * (pair.value / 100);
         const rightWidth = half * (1 - pair.value / 100);
 
-        // Pair label (E/I, S/N, ...)
-        const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        nameText.setAttribute('x', 10);
-        nameText.setAttribute('y', y + barHeight - 2);
-        nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        nameText.setAttribute('font-size', '12');
-        nameText.setAttribute('fill', '#374151');
-        nameText.textContent = pair.name;
-        svg.appendChild(nameText);
-
         // Track background
         const track = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         track.setAttribute('x', barX);
@@ -1407,7 +1397,8 @@ function createBalanceChart(e, s, t, j) {
         leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         leftLabel.setAttribute('font-size', '12');
         leftLabel.setAttribute('fill', '#6b7280');
-        leftLabel.textContent = pair.leftLabel;
+        const leftPct = Math.round(pair.value);
+        leftLabel.textContent = `${pair.leftLabel} ${leftPct}%`;
         svg.appendChild(leftLabel);
 
         const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1417,21 +1408,9 @@ function createBalanceChart(e, s, t, j) {
         rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         rightLabel.setAttribute('font-size', '12');
         rightLabel.setAttribute('fill', '#6b7280');
-        rightLabel.textContent = pair.rightLabel;
-        svg.appendChild(rightLabel);
-
-        // Center percentage text
-        const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        pctText.setAttribute('x', centerX);
-        pctText.setAttribute('y', y + barHeight - 3);
-        pctText.setAttribute('text-anchor', 'middle');
-        pctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        pctText.setAttribute('font-size', '12');
-        pctText.setAttribute('fill', '#111827');
-        const leftPct = Math.round(pair.value);
         const rightPct = 100 - leftPct;
-        pctText.textContent = `${pair.leftLabel} ${leftPct}% | ${pair.rightLabel} ${rightPct}%`;
-        svg.appendChild(pctText);
+        rightLabel.textContent = `${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(rightLabel);
     });
 
     root.appendChild(svg);
