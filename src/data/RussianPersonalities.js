@@ -340,11 +340,8 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Михаил Лермонтов', profession: 'Писатель', image: '📖' },
         { name: 'Иван Тургенев', profession: 'Писатель', image: '📖' },
         { name: 'Антон Чехов', profession: 'Писатель', image: '📖' }
-    ]
-};
+    ],
 
-// Continue with remaining MBTI types...
-export const RUSSIAN_PERSONALITIES_CONTINUED = {
     INTP: [
         // Scientists & Researchers
         { name: 'Альберт Эйнштейн', profession: 'Физик', image: '⚡' },

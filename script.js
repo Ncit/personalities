@@ -1039,14 +1039,18 @@ function displayAdvancedInsights(personalityType) {
 // Function to display famous personalities
 function displayFamousPersonalities(personalityType) {
     if (!isPremium()) return;
-    
+    console.log('displayFamousPersonalities() called:', personalityType);
     const famous = FAMOUS_PERSONALITIES[personalityType];
-    if (!famous) return;
+    console.log('famous:', famous);
+    const famousGrid = document.getElementById('famousGrid');
+    if (!famousGrid) return;
+    if (!famous || !Array.isArray(famous) || famous.length === 0) {
+        famousGrid.innerHTML = `<div style="text-align:center; color:#666; padding:12px 0; font-size:0.95rem;">Список пока пуст</div>`;
+        return;
+    }
     
     // Limit to maximum 8 items
     const limitedFamous = famous.slice(0, 8);
-    
-    const famousGrid = document.getElementById('famousGrid');
     famousGrid.innerHTML = limitedFamous.map(person => `
         <div class="famous-person">
             <div style="font-size: 3rem; margin-bottom: 10px;">${person.image}</div>

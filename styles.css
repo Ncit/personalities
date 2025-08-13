@@ -929,106 +929,30 @@ body {
     margin: 0 auto;
     padding: 0 20px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 40px;
-    align-items: start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
 }
 
-.footer-section {
-    text-align: left;
-}
-
-.footer-section h3 {
+.footer-col h4 {
     color: white;
-    font-size: 1.2rem;
-    margin-bottom: 20px;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.footer-section h3 i {
-    color: #ffd700;
-    font-size: 1.1rem;
-}
-
-/* Help Section */
-.help-section {
-    grid-column: 1;
-}
-
-.help-links {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.help-link {
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    padding: 8px 0;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.95rem;
-}
-
-.help-link:hover {
-    color: #ffd700;
-    transform: translateX(5px);
-}
-
-.help-link i {
-    width: 16px;
-    color: #ffd700;
-    font-size: 0.9rem;
-}
-
-/* Info Section */
-.info-section p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-}
-
-.footer-links {
-    display: flex;
-    flex-direction: column;
     gap: 8px;
 }
+.footer-col h4 svg { color: #ffd700; }
+.footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.footer-col ul a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem; }
+.footer-col ul a:hover { color: #ffd700; }
 
-.footer-links a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
-}
+/* deprecated helpers removed in favor of simplified footer lists */
 
-.footer-links a:hover {
-    color: #ffd700;
-}
-
-/* Contact Section */
-.contact-info {
-    margin-bottom: 20px;
-}
-
-.contact-info p {
-    color: rgba(255, 255, 255, 0.8);
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-}
-
-.contact-info i {
-    color: #ffd700;
-    width: 16px;
-}
+/* footer links unified */
+.footer-col p { color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 0.9rem; }
+.footer-col a { color: rgba(255,255,255,0.85); text-decoration: none; transition: color 0.3s ease; }
+.footer-col a:hover { color: #ffd700; }
 
 .social-links {
     display: flex;
