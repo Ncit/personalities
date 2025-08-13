@@ -106,6 +106,11 @@ export const en = {
         
         // Results-related
         shareResults: 'Share Results',
+        shareTitle: 'MBTI Personality Quiz Results',
+        shareMessage: 'I just discovered my MBTI personality type is {type}! Take the quiz yourself to find yours.',
+        shareDetails: 'My type: {type}. Scores — E:{e}% I:{i}%, S:{s}% N:{n}%, T:{t}% F:{f}%, J:{j}% P:{p}%',
+        sharePersonality: 'Personality: {title} ({type})',
+        shareFamous: 'Famous people: {names}',
         
         copyLink: 'Copy Link',
         

@@ -553,14 +553,54 @@ class MBTIQuiz {
 
     shareResults() {
         const personalityType = this.calculatePersonalityType();
-        const shareText = `I just discovered my MBTI personality type is ${personalityType}! Take the quiz yourself to find yours.`;
+        const totalE = this.scores.E + this.scores.I;
+        const totalS = this.scores.S + this.scores.N;
+        const totalT = this.scores.T + this.scores.F;
+        const totalJ = this.scores.J + this.scores.P;
+        const ePct = totalE > 0 ? Math.round((this.scores.E / totalE) * 100) : 50;
+        const iPct = 100 - ePct;
+        const sPct = totalS > 0 ? Math.round((this.scores.S / totalS) * 100) : 50;
+        const nPct = 100 - sPct;
+        const tPct = totalT > 0 ? Math.round((this.scores.T / totalT) * 100) : 50;
+        const fPct = 100 - tPct;
+        const jPct = totalJ > 0 ? Math.round((this.scores.J / totalJ) * 100) : 50;
+        const pPct = 100 - jPct;
+
+        const baseMessage = localizationManager.get('ui.shareMessage', { type: personalityType });
+        const personalityTitle = (MBTI_TYPES[personalityType] && MBTI_TYPES[personalityType].title) ? MBTI_TYPES[personalityType].title : personalityType;
+        const personalityLine = localizationManager.get('ui.sharePersonality', { title: personalityTitle, type: personalityType });
+
+        // Famous personalities (take first 3 random or top 3)
+        let famousNames = '';
+        try {
+            const famousList = (FAMOUS_PERSONALITIES[personalityType] || []).slice();
+            const three = famousList.slice(0, 3).map(p => p.name).join(', ');
+            if (three) {
+                famousNames = localizationManager.get('ui.shareFamous', { names: three });
+            }
+        } catch (e) {
+            // ignore
+        }
+        const detailsMessage = localizationManager.get('ui.shareDetails', {
+            type: personalityType,
+            e: ePct,
+            i: iPct,
+            s: sPct,
+            n: nPct,
+            t: tPct,
+            f: fPct,
+            j: jPct,
+            p: pPct
+        });
+        const shareText = [baseMessage, personalityLine, detailsMessage, famousNames].filter(Boolean).join('\n');
+        const shareTitle = localizationManager.get('ui.shareTitle');
         
         // Use VK Bridge if available, otherwise fallback to native sharing
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-            vkBridgeManager.shareResults(personalityType, shareText);
+            vkBridgeManager.shareResults(personalityType, shareText, shareTitle);
         } else if (navigator.share) {
             navigator.share({
-                title: 'MBTI Personality Quiz Results',
+                title: shareTitle,
                 text: shareText,
                 url: window.location.href
             });

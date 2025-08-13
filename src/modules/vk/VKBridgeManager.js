@@ -247,18 +247,18 @@ export class VKBridgeManager {
     /**
      * Share results using VK sharing
      */
-    async shareResults(personalityType, shareText) {
+    async shareResults(personalityType, shareText, shareTitle = 'MBTI Personality Quiz Results') {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
         
         if (!this.bridge) {
             this.analytics.trackSharing(personalityType, false, null, { action: 'fallback_native' });
-            return this.fallbackShare(shareText);
+            return this.fallbackShare(shareText, shareTitle);
         }
 
         try {
             await this.bridge.send('VKWebAppShare', {
                 link: window.location.href,
-                title: 'MBTI Personality Quiz Results',
+                title: shareTitle,
                 text: shareText
             });
             
@@ -268,17 +268,17 @@ export class VKBridgeManager {
             
             this.analytics.trackSharing(personalityType, false, error);
             
-            return this.fallbackShare(shareText);
+            return this.fallbackShare(shareText, shareTitle);
         }
     }
 
     /**
      * Fallback sharing method
      */
-    fallbackShare(shareText) {
+    fallbackShare(shareText, shareTitle = 'MBTI Personality Quiz Results') {
         if (navigator.share) {
             return navigator.share({
-                title: 'MBTI Personality Quiz Results',
+                title: shareTitle,
                 text: shareText,
                 url: window.location.href
             });

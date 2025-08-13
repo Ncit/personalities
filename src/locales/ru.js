@@ -106,6 +106,11 @@ export const ru = {
         
         // Results-related
         shareResults: 'Поделиться результатами',
+        shareTitle: 'Результаты теста MBTI',
+        shareMessage: 'Я только что узнал свой тип личности MBTI — {type}! Пройди тест, чтобы узнать свой.',
+        shareDetails: 'Мой тип: {type}. Баллы — E:{e}% I:{i}%, S:{s}% N:{n}%, T:{t}% F:{f}%, J:{j}% P:{p}%',
+        sharePersonality: 'Личность: {title} ({type})',
+        shareFamous: 'Известные люди: {names}',
         
         copyLink: 'Копировать ссылку',
         
