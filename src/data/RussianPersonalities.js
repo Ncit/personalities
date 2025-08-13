@@ -375,81 +375,134 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Аркадий Волож', profession: 'Предприниматель', image: '💻' },
         { name: 'Евгений Касперский', profession: 'Предприниматель', image: '🛡️' },
         { name: 'Дмитрий Гришин', profession: 'Предприниматель', image: '💻' }
+    ],
+    ESTJ: [
+        // Administrators & Leaders
+        { name: 'Сергей Шойгу', profession: 'Министр обороны', image: '🛡️' },
+        { name: 'Герман Греф', profession: 'Глава Сбербанка', image: '🏦' },
+        { name: 'Алексей Миллер', profession: 'Глава Газпрома', image: '🏭' },
+        { name: 'Сергей Собянин', profession: 'Мэр Москвы', image: '🏙️' },
+        { name: 'Елена Батурина', profession: 'Предпринимательница', image: '💼' },
+        { name: 'Сергей Кириенко', profession: 'Госдеятель', image: '🏛️' },
+        { name: 'Игорь Сечин', profession: 'Глава Роснефти', image: '🛢️' },
+        { name: 'Дмитрий Рогозин', profession: 'Руководитель Роскосмоса', image: '🚀' },
+        { name: 'Эльвира Набиуллина', profession: 'Глава ЦБ', image: '💱' },
+        { name: 'Антон Силуанов', profession: 'Министр финансов', image: '💼' },
+        { name: 'Татьяна Голикова', profession: 'Вице-премьер', image: '🏥' },
+        { name: 'Сергей Чемезов', profession: 'Глава Ростех', image: '🏭' }
+    ],
+
+    ESFJ: [
+        // TV & Entertainment
+        { name: 'Иван Ургант', profession: 'Телеведущий', image: '📺' },
+        { name: 'Максим Галкин', profession: 'Артист', image: '🎭' },
+        { name: 'Филипп Киркоров', profession: 'Певец', image: '🎤' },
+        { name: 'Лариса Гузеева', profession: 'Актриса и телеведущая', image: '📺' },
+        { name: 'Регина Тодоренко', profession: 'Телеведущая', image: '🎤' },
+        { name: 'Дмитрий Нагиев', profession: 'Актер и телеведущий', image: '🎬' },
+        { name: 'Андрей Малахов', profession: 'Телеведущий', image: '📺' },
+        { name: 'Ксения Бородина', profession: 'Телеведущая', image: '🎤' },
+        { name: 'Тина Канделаки', profession: 'Телеведущая', image: '🎙️' },
+        { name: 'Ольга Бузова', profession: 'Телеведущая и певица', image: '🎤' },
+        { name: 'Екатерина Варнава', profession: 'Артистка', image: '🎭' },
+        { name: 'Агата Муцениеце', profession: 'Актриса и ведущая', image: '🎬' }
+    ],
+
+    ENFJ: [
+        // Cinema & Charity
+        { name: 'Константин Хабенский', profession: 'Актер, благотворитель', image: '🎬' },
+        { name: 'Чулпан Хаматова', profession: 'Актриса, благотворитель', image: '🎭' },
+        { name: 'Евгений Миронов', profession: 'Актер', image: '🎬' },
+        { name: 'Олег Табаков', profession: 'Режиссер и актер', image: '🎭' },
+        { name: 'Владимир Познер', profession: 'Журналист', image: '📰' },
+        { name: 'Данила Козловский', profession: 'Актер', image: '🎬' },
+        { name: 'Сергей Безруков', profession: 'Актер', image: '🎭' },
+        { name: 'Александр Петров', profession: 'Актер', image: '🎬' },
+        { name: 'Юлия Пересильд', profession: 'Актриса', image: '🎬' },
+        { name: 'Светлана Ходченкова', profession: 'Актриса', image: '🎭' },
+        { name: 'Елизавета Боярская', profession: 'Актриса', image: '🎬' },
+        { name: 'Наталья Водянова', profession: 'Модель и благотворитель', image: '💖' }
+    ],
+
+    ENTJ: [
+        // Business & Strategy
+        { name: 'Олег Тиньков', profession: 'Предприниматель', image: '💳' },
+        { name: 'Татьяна Бакальчук', profession: 'Основательница Wildberries', image: '🛍️' },
+        { name: 'Игорь Ашурбейли', profession: 'Предприниматель', image: '🏗️' },
+        { name: 'Анатолий Чубайс', profession: 'Менеджер и реформатор', image: '🧩' },
+        { name: 'Михаил Прохоров', profession: 'Предприниматель', image: '💼' },
+        { name: 'Сергей Галицкий', profession: 'Предприниматель', image: '🛒' },
+        { name: 'Андрей Мельниченко', profession: 'Предприниматель', image: '⚙️' },
+        { name: 'Леонид Федун', profession: 'Предприниматель', image: '🛢️' },
+        { name: 'Борис Нуралиев', profession: 'Основатель 1С', image: '💾' },
+        { name: 'Наталья Касперская', profession: 'Предпринимательница', image: '🛡️' },
+        { name: 'Рубен Варданян', profession: 'Предприниматель', image: '💼' },
+        { name: 'Игорь Рыбаков', profession: 'Предприниматель', image: '🧱' }
+    ],
+
+    ESTP: [
+        // Sport & Show
+        { name: 'Владимир Жириновский', profession: 'Политик и шоумен', image: '🎤' },
+        { name: 'Никита Михалков', profession: 'Режиссер и общественный деятель', image: '🎬' },
+        { name: 'Егор Крид', profession: 'Певец', image: '🎤' },
+        { name: 'Тимати', profession: 'Рэпер и бизнесмен', image: '🎧' },
+        { name: 'Моргенштерн', profession: 'Артист', image: '🎵' },
+        { name: 'Александр Емельяненко', profession: 'Боец ММА', image: '🥊' },
+        { name: 'Артем Дзюба', profession: 'Футболист', image: '⚽' },
+        { name: 'Федор Смолов', profession: 'Футболист', image: '⚽' },
+        { name: 'Александр Кокорин', profession: 'Футболист', image: '⚽' },
+        { name: 'Сергей Шнуров', profession: 'Музыкант', image: '🎸' },
+        { name: 'Гарик Харламов', profession: 'Комик', image: '🎤' },
+        { name: 'Никита Джигурда', profession: 'Артист', image: '🎭' }
+    ],
+
+    ESFP: [
+        // Pop & Stage
+        { name: 'Алла Пугачева', profession: 'Певица', image: '🎤' },
+        { name: 'Николай Басков', profession: 'Певец', image: '🎶' },
+        { name: 'Вера Брежнева', profession: 'Певица', image: '🎤' },
+        { name: 'Земфира', profession: 'Певица', image: '🎵' },
+        { name: 'Полина Гагарина', profession: 'Певица', image: '🎶' },
+        { name: 'Дима Билан', profession: 'Певец', image: '🎤' },
+        { name: 'Сергей Лазарев', profession: 'Певец', image: '🎤' },
+        { name: 'Нюша', profession: 'Певица', image: '🎶' },
+        { name: 'Валерия', profession: 'Певица', image: '🎤' },
+        { name: 'Ёлка', profession: 'Певица', image: '🎶' },
+        { name: 'МакSим', profession: 'Певица', image: '🎤' },
+        { name: 'Лолита', profession: 'Певица', image: '🎤' }
+    ],
+
+    ENFP: [
+        // Creative & Media
+        { name: 'Виктор Цой', profession: 'Музыкант', image: '🎸' },
+        { name: 'Сергей Бодров', profession: 'Актер и режиссер', image: '🎬' },
+        { name: 'Юрий Дудь', profession: 'Журналист и интервьюер', image: '🎤' },
+        { name: 'Ксения Собчак', profession: 'ТВ и общественный деятель', image: '📺' },
+        { name: 'Дмитрий Быков', profession: 'Писатель и публицист', image: '🖋️' },
+        { name: 'Оксимирон', profession: 'Рэпер', image: '🎤' },
+        { name: 'Баста', profession: 'Рэпер', image: '🎤' },
+        { name: 'Noize MC', profession: 'Рэпер', image: '🎸' },
+        { name: 'Илья Прусикин', profession: 'Музыкант', image: '🎵' },
+        { name: 'Михаил Зыгарь', profession: 'Журналист', image: '📰' },
+        { name: 'Рената Литвинова', profession: 'Режиссер и актриса', image: '🎬' },
+        { name: 'Гарик Сукачев', profession: 'Музыкант', image: '🎸' }
+    ],
+
+    ENTP: [
+        // Debaters & Innovators
+        { name: 'Илья Варламов', profession: 'Блогер и урбанист', image: '🏙️' },
+        { name: 'Александр Невзоров', profession: 'Журналист', image: '📰' },
+        { name: 'Павел Воля', profession: 'Комик и шоумен', image: '🎤' },
+        { name: 'Леонид Парфенов', profession: 'Журналист', image: '📺' },
+        { name: 'Анатолий Вассерман', profession: 'Публицист', image: '🧠' },
+        { name: 'Данила Поперечный', profession: 'Комик', image: '🎤' },
+        { name: 'Гарик Мартиросян', profession: 'Комик', image: '🎭' },
+        { name: 'Михаил Галустян', profession: 'Комик', image: '🎭' },
+        { name: 'Дмитрий Пучков', profession: 'Публицист', image: '📝' },
+        { name: 'Юрий Хованский', profession: 'Блогер', image: '🎥' },
+        { name: 'Максим Кац', profession: 'Общественный деятель', image: '🏙️' },
+        { name: 'Олег Кашин', profession: 'Журналист', image: '📰' }
     ]
-    ,
-	ESTJ: [
-		// Administrators & Leaders
-		{ name: 'Сергей Шойгу', profession: 'Министр обороны', image: '🛡️' },
-		{ name: 'Герман Греф', profession: 'Глава Сбербанка', image: '🏦' },
-		{ name: 'Алексей Миллер', profession: 'Глава Газпрома', image: '🏭' },
-		{ name: 'Сергей Собянин', profession: 'Мэр Москвы', image: '🏙️' },
-		{ name: 'Елена Батурина', profession: 'Предпринимательница', image: '💼' },
-		{ name: 'Сергей Кириенко', profession: 'Госдеятель', image: '🏛️' }
-	],
-
-	ESFJ: [
-		// TV & Entertainment
-		{ name: 'Иван Ургант', profession: 'Телеведущий', image: '📺' },
-		{ name: 'Максим Галкин', profession: 'Артист', image: '🎭' },
-		{ name: 'Филипп Киркоров', profession: 'Певец', image: '🎤' },
-		{ name: 'Лариса Гузеева', profession: 'Актриса и телеведущая', image: '📺' },
-		{ name: 'Регина Тодоренко', profession: 'Телеведущая', image: '🎤' },
-		{ name: 'Дмитрий Нагиев', profession: 'Актер и телеведущий', image: '🎬' }
-	],
-
-	ENFJ: [
-		// Cinema & Charity
-		{ name: 'Константин Хабенский', profession: 'Актер, благотворитель', image: '🎬' },
-		{ name: 'Чулпан Хаматова', profession: 'Актриса, благотворитель', image: '🎭' },
-		{ name: 'Евгений Миронов', profession: 'Актер', image: '🎬' },
-		{ name: 'Олег Табаков', profession: 'Режиссер и актер', image: '🎭' },
-		{ name: 'Владимир Познер', profession: 'Журналист', image: '📰' }
-	],
-
-	ENTJ: [
-		// Business & Strategy
-		{ name: 'Олег Тиньков', profession: 'Предприниматель', image: '💳' },
-		{ name: 'Татьяна Бакальчук', profession: 'Основательница Wildberries', image: '🛍️' },
-		{ name: 'Игорь Ашурбейли', profession: 'Предприниматель', image: '🏗️' },
-		{ name: 'Анатолий Чубайс', profession: 'Менеджер и реформатор', image: '🧩' },
-		{ name: 'Михаил Прохоров', profession: 'Предприниматель', image: '💼' }
-	],
-
-	ESTP: [
-		// Sport & Show
-		{ name: 'Владимир Жириновский', profession: 'Политик и шоумен', image: '🎤' },
-		{ name: 'Никита Михалков', profession: 'Режиссер и общественный деятель', image: '🎬' },
-		{ name: 'Егор Крид', profession: 'Певец', image: '🎤' },
-		{ name: 'Тимати', profession: 'Рэпер и бизнесмен', image: '🎧' },
-		{ name: 'Моргенштерн', profession: 'Артист', image: '🎵' }
-	],
-
-	ESFP: [
-		// Pop & Stage
-		{ name: 'Алла Пугачева', profession: 'Певица', image: '🎤' },
-		{ name: 'Николай Басков', profession: 'Певец', image: '🎶' },
-		{ name: 'Вера Брежнева', profession: 'Певица', image: '🎤' },
-		{ name: 'Земфира', profession: 'Певица', image: '🎵' },
-		{ name: 'Полина Гагарина', profession: 'Певица', image: '🎶' }
-	],
-
-	ENFP: [
-		// Creative & Media
-		{ name: 'Виктор Цой', profession: 'Музыкант', image: '🎸' },
-		{ name: 'Сергей Бодров', profession: 'Актер и режиссер', image: '🎬' },
-		{ name: 'Юрий Дудь', profession: 'Журналист и интервьюер', image: '🎤' },
-		{ name: 'Ксения Собчак', profession: 'ТВ и общественный деятель', image: '📺' },
-		{ name: 'Дмитрий Быков', profession: 'Писатель и публицист', image: '🖋️' }
-	],
-
-	ENTP: [
-		// Debaters & Innovators
-		{ name: 'Илья Варламов', profession: 'Блогер и урбанист', image: '🏙️' },
-		{ name: 'Александр Невзоров', profession: 'Журналист', image: '📰' },
-		{ name: 'Павел Воля', profession: 'Комик и шоумен', image: '🎤' },
-		{ name: 'Леонид Парфенов', profession: 'Журналист', image: '📺' },
-		{ name: 'Анатолий Вассерман', profession: 'Публицист', image: '🧠' }
-	]
 };
 
 export default RUSSIAN_PERSONALITIES; 
