@@ -503,16 +503,50 @@
             <div class="modal-content premium-modal-content">
                 <span class="close" onclick="closePremiumModal()">&times;</span>
                 <h2>Unlock Premium Features</h2>
-                    <ul class="premium-benefits-list">
-                    <li><i class="fas fa-chart-bar"></i> Advanced personality insights</li>
-                    <li><i class="fas fa-user-tie"></i> Comparison to famous personalities</li>
-                    <li><i class="fas fa-link"></i> Save/share results with a custom link</li>
-                    <li><i class="fas fa-book-open"></i> Full type descriptions</li>
-                    <li><i class="fas fa-chart-pie"></i> Visual analytics (charts/graphs)</li>
-                    <li><i class="fas fa-ban"></i> Ad-free experience</li>
+                <ul class="premium-benefits-list">
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M9 12l2 2 4-4"></path>
+                        </svg>
+                        Advanced personality insights
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="3"></circle>
+                            <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6"></path>
+                        </svg>
+                        Comparison to famous personalities
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 12l-4 4 8 6 8-6-4-4-4 3-4-3zM4 8l8 6 8-6-8-6-8 6z"/></svg>
+                        Save/share results with a custom link
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h16v16H4zM7 7h10v10H7z"/></svg>
+                        Full type descriptions
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="10" width="4" height="10" rx="1"></rect>
+                            <rect x="10" y="6" width="4" height="14" rx="1"></rect>
+                            <rect x="17" y="12" width="4" height="8" rx="1"></rect>
+                        </svg>
+                        Visual analytics (charts/graphs)
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <line x1="5" y1="5" x2="19" y2="19"></line>
+                        </svg>
+                        Ad-free experience
+                    </li>
                 </ul>
                 <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
-                    <i class="fas fa-unlock"></i> Unlock Premium (Demo)
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" style="margin-right:8px">
+                        <path d="M12 2l2.39 4.84 5.34.78-3.86 3.77.91 5.31L12 14.9l-4.78 2.5.91-5.31L4.27 7.62l5.34-.78L12 2z"/>
+                    </svg>
+                    Unlock Premium (Demo)
                 </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
             </div>
