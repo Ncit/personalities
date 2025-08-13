@@ -136,7 +136,8 @@ export class VKUserService {
             
             // Show alert for CORS and network errors
             if (errorType === 'cors_error' || errorType === 'network_error') {
-                alert(`CORS/Network Error: ${errorMessage}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+                const msg = `CORS/Network Error: ${errorMessage}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`;
+                if (window.showAppAlert) { window.showAppAlert(msg, 'Network Error'); } else { alert(msg); }
             }
             
             this.analytics.trackUserDataSave(userInfo.id, false, { 
@@ -549,7 +550,8 @@ export class VKUserService {
             } else {
                 // Log the response for debugging
                 this.logger.warn('Unexpected response format from backend:', data);
-                alert(`Unexpected response format from backend:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nHas Purchase: ${data.has_purchase}\n\nFull Response: ${JSON.stringify(data, null, 2)}`);
+                const msg = `Unexpected response format from backend:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nHas Purchase: ${data.has_purchase}\n\nFull Response: ${JSON.stringify(data, null, 2)}`;
+                if (window.showAppAlert) { window.showAppAlert(msg, 'Backend Response'); } else { alert(msg); }
                 throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
             }
             
@@ -767,7 +769,7 @@ export class VKUserService {
             `Backend URLs:\n${urls.map((url, i) => `${i + 1}. ${url}`).join('\n')}\n\n` +
             `User Agent: ${status.userAgent.substring(0, 100)}...`;
         
-        alert(statusText);
+        if (window.showAppAlert) { window.showAppAlert(statusText, 'CORS Status'); } else { alert(statusText); }
         this.logger.log('CORS Status:', status);
     }
     
@@ -777,7 +779,7 @@ export class VKUserService {
     enableFeaturesForTesting() {
         this.setUserDataSavingEnabled(true);
         this.setPremiumStatusCheckingEnabled(true);
-        alert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.');
+        if (window.showAppAlert) { window.showAppAlert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.', 'Testing Mode'); } else { alert('Both user data saving and premium status checking have been enabled for testing.\n\nThis will trigger network requests and may show CORS errors.'); }
     }
     
     /**
@@ -789,7 +791,7 @@ export class VKUserService {
             VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
         ];
         
-        alert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`);
+        if (window.showAppAlert) { window.showAppAlert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`, 'CORS Test'); } else { alert(`Testing CORS for URLs:\n${urls.join('\n')}\n\nCheck console for results.`); }
         
         urls.forEach((url, index) => {
             this.logger.log(`Testing CORS for URL ${index + 1}: ${url}`);
@@ -818,7 +820,7 @@ export class VKUserService {
                     errorMessage: error.message
                 });
                 
-                alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`);
+                if (window.showAppAlert) { window.showAppAlert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`, 'CORS Test'); } else { alert(`CORS Test ${index + 1} Failed:\n\nURL: ${url}\n\nError: ${error.message}\n\nType: ${error.name}`); }
             });
         });
     }
@@ -828,7 +830,7 @@ export class VKUserService {
      */
     async testCheckPurchase() {
         if (!this.userInfo?.id) {
-            alert('No user ID available for testing check-purchase endpoint');
+            if (window.showAppAlert) { window.showAppAlert('No user ID available for testing check-purchase endpoint', 'Check Purchase'); } else { alert('No user ID available for testing check-purchase endpoint'); }
             return;
         }
         
@@ -839,7 +841,7 @@ export class VKUserService {
             item_id: 'mbti_premium'
         };
         
-        alert(`Testing check-purchase endpoint:\n\nURL: ${url}\n\nRequest Body: ${JSON.stringify(requestBody, null, 2)}\n\nCheck console for response.`);
+        if (window.showAppAlert) { window.showAppAlert(`Testing check-purchase endpoint:\n\nURL: ${url}\n\nRequest Body: ${JSON.stringify(requestBody, null, 2)}\n\nCheck console for response.`, 'Check Purchase'); } else { alert(`Testing check-purchase endpoint:\n\nURL: ${url}\n\nRequest Body: ${JSON.stringify(requestBody, null, 2)}\n\nCheck console for response.`); }
         
         try {
             const response = await fetch(url, {
@@ -859,11 +861,11 @@ export class VKUserService {
                 data: data
             });
             
-            alert(`Check-purchase test completed!\n\nHTTP Status: ${response.status} ${response.statusText}\n\nResponse Data:\n${JSON.stringify(data, null, 2)}`);
+            if (window.showAppAlert) { window.showAppAlert(`Check-purchase test completed!\n\nHTTP Status: ${response.status} ${response.statusText}\n\nResponse Data:\n${JSON.stringify(data, null, 2)}`, 'Check Purchase'); } else { alert(`Check-purchase test completed!\n\nHTTP Status: ${response.status} ${response.statusText}\n\nResponse Data:\n${JSON.stringify(data, null, 2)}`); }
             
         } catch (error) {
             this.logger.error('Check-purchase test failed:', error);
-            alert(`Check-purchase test failed:\n\nError: ${error.message}`);
+            if (window.showAppAlert) { window.showAppAlert(`Check-purchase test failed:\n\nError: ${error.message}`, 'Check Purchase'); } else { alert(`Check-purchase test failed:\n\nError: ${error.message}`); }
         }
     }
 } 

@@ -65,7 +65,11 @@ export class VKBridgeManager {
                 
                 // Check premium status (non-blocking)
                 this.userService.checkPremiumStatus().catch(error => {
-                    alert('Premium status check failed (non-blocking):!');
+                    if (window.showAppAlert) {
+                        window.showAppAlert('Premium status check failed (non-blocking)');
+                    } else {
+                        alert('Premium status check failed (non-blocking)');
+                    }
                     this.logger.warn('Premium status check failed (non-blocking):', error);
                 });
                 
@@ -691,12 +695,12 @@ export class VKBridgeManager {
             testCORS: () => {
                 if (!this.userService) {
                     console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
-                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    if (window.showAppAlert) { window.showAppAlert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); } else { alert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); }
                     return;
                 }
                 if (typeof this.userService.testCORS !== 'function') {
                     console.error('testCORS method not available on userService');
-                    alert('testCORS method not available on userService');
+                    if (window.showAppAlert) { window.showAppAlert('testCORS method not available on userService'); } else { alert('testCORS method not available on userService'); }
                     return;
                 }
                 return this.userService.testCORS();
@@ -704,7 +708,7 @@ export class VKBridgeManager {
             showCORSStatus: () => {
                 if (!this.userService) {
                     console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
-                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    if (window.showAppAlert) { window.showAppAlert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); } else { alert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); }
                     return;
                 }
                 return this.userService.showCORSStatus();
@@ -712,7 +716,7 @@ export class VKBridgeManager {
             enableFeaturesForTesting: () => {
                 if (!this.userService) {
                     console.error('VKUserService not initialized. Please wait for VK Bridge to initialize.');
-                    alert('VKUserService not initialized. Please wait for VK Bridge to initialize.');
+                    if (window.showAppAlert) { window.showAppAlert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); } else { alert('VKUserService not initialized. Please wait for VK Bridge to initialize.'); }
                     return;
                 }
                 return this.userService.enableFeaturesForTesting();
@@ -722,7 +726,7 @@ export class VKBridgeManager {
                 const isReady = !!this.userService;
                 console.log('VKUserService ready status:', isReady);
                 if (!isReady) {
-                    alert('VKUserService is not ready. Please wait for VK Bridge to initialize.');
+                    if (window.showAppAlert) { window.showAppAlert('VKUserService is not ready. Please wait for VK Bridge to initialize.'); } else { alert('VKUserService is not ready. Please wait for VK Bridge to initialize.'); }
                 }
                 return isReady;
             },

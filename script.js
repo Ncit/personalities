@@ -543,6 +543,8 @@ class MBTIQuiz {
             navigator.clipboard.writeText(shareText).then(() => {
                 if (vkBridgeManager) {
                     vkBridgeManager.showNotification('Results copied to clipboard!');
+                } else if (window.showAppAlert) {
+                    window.showAppAlert('Results copied to clipboard!');
                 } else {
                     alert('Results copied to clipboard!');
                 }
@@ -1605,7 +1607,11 @@ function fillPremiumRandomAnswers() {
     
     // Check if user is premium
     if (!isPremium()) {
+    if (window.showAppAlert) {
+        window.showAppAlert('Премиум функции доступны только для премиум пользователей');
+    } else {
         alert('Премиум функции доступны только для премиум пользователей');
+    }
         return;
     }
     
@@ -2090,7 +2096,11 @@ function clearLocalStorage() {
         const confirmed = confirm('Are you sure you want to clear all localStorage data? This will reset the application state.');
         if (confirmed) {
             localStorage.clear();
-            alert('localStorage cleared successfully!');
+    if (window.showAppAlert) {
+        window.showAppAlert('localStorage cleared successfully!');
+    } else {
+        alert('localStorage cleared successfully!');
+    }
             // Refresh the page to reset all state
             location.reload();
         }
@@ -2319,7 +2329,11 @@ function cancelSubscription() {
         setPremium(false);
         updateSubscriptionModal();
         updatePremiumUI();
+    if (window.showAppAlert) {
+        window.showAppAlert('Подписка отменена. Вы вернулись к бесплатной версии.');
+    } else {
         alert('Подписка отменена. Вы вернулись к бесплатной версии.');
+    }
     }
 }
 
@@ -2329,16 +2343,28 @@ function restoreSubscription() {
         setPremium(true);
         updateSubscriptionModal();
         updatePremiumUI();
+    if (window.showAppAlert) {
+        window.showAppAlert('Премиум подписка восстановлена!');
+    } else {
         alert('Премиум подписка восстановлена!');
+    }
     }
 }
 
 function contactSupport() {
-    alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+    if (window.showAppAlert) {
+        window.showAppAlert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+    } else {
+        alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+    }
 }
 
 function viewBillingHistory() {
-    alert('История платежей будет доступна в будущих обновлениях.');
+    if (window.showAppAlert) {
+        window.showAppAlert('История платежей будет доступна в будущих обновлениях.');
+    } else {
+        alert('История платежей будет доступна в будущих обновлениях.');
+    }
 }
 
 // Make subscription functions available globally
@@ -2376,7 +2402,11 @@ async function purchasePremiumSubscription(tier = 'monthly') {
     
     // Check if we're in VK environment
     if (!vkBridgeManager || !vkBridgeManager.isVKEnvironment()) {
+    if (window.showAppAlert) {
+        window.showAppAlert('Premium subscriptions are only available in VK environment');
+    } else {
         alert('Premium subscriptions are only available in VK environment');
+    }
         return;
     }
     
@@ -2430,18 +2460,34 @@ async function purchasePremiumSubscription(tier = 'monthly') {
                 
             } else if (paymentResult.cancelled) {
                 // User cancelled payment
-                alert('Покупка отменена');
+    if (window.showAppAlert) {
+        window.showAppAlert('Покупка отменена');
+    } else {
+        alert('Покупка отменена');
+    }
             } else {
                 // Payment failed
-                alert('Ошибка платежа. Попробуйте еще раз.');
+    if (window.showAppAlert) {
+        window.showAppAlert('Ошибка платежа. Попробуйте еще раз.');
+    } else {
+        alert('Ошибка платежа. Попробуйте еще раз.');
+    }
             }
         } else {
             // Order box failed
-                    alert('Платежная система недоступна');
+    if (window.showAppAlert) {
+        window.showAppAlert('Платежная система недоступна');
+    } else {
+        alert('Платежная система недоступна');
+    }
     }
 } catch (error) {
     logger.error('Error during subscription purchase:', error);
-    alert('Ошибка при обработке платежа');
+    if (window.showAppAlert) {
+        window.showAppAlert('Ошибка при обработке платежа');
+    } else {
+        alert('Ошибка при обработке платежа');
+    }
 }
 }
 
@@ -2619,7 +2665,11 @@ function showHelp(topic) {
 
     const help = helpContent[topic];
     if (!help) {
-        alert('Информация по этому разделу будет добавлена в ближайшее время.');
+        if (window.showAppAlert) {
+            window.showAppAlert('Информация по этому разделу будет добавлена в ближайшее время.');
+        } else {
+            alert('Информация по этому разделу будет добавлена в ближайшее время.');
+        }
         return;
     }
 
@@ -2681,6 +2731,27 @@ function closeHelpModal() {
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
+
+// Generic in-app alert modal using help modal styling
+function showAppAlert(message, title = '') {
+    const content = `
+        <div class="help-modal-content">
+            <span class="close" onclick="closeHelpModal()">&times;</span>
+            <h2>${title}</h2>
+            <div class="help-content">
+                <p>${message}</p>
+            </div>
+            <div class="help-modal-actions">
+                <button class="btn btn-primary" onclick="closeHelpModal()">
+                    <i class="fas fa-check"></i> OK
+                </button>
+            </div>
+        </div>
+    `;
+    showHelpModal(content);
+}
+
+window.showAppAlert = showAppAlert;
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')
