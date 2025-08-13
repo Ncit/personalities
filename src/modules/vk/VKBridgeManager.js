@@ -248,7 +248,7 @@ export class VKBridgeManager {
     /**
      * Share results using VK sharing
      */
-    async shareResults(personalityType, shareText, shareTitle = 'MBTI Personality Quiz Results') {
+    async shareResults(personalityType, shareText, shareTitle = 'MBTI персональные тесты') {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
         
         if (!this.bridge) {

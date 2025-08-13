@@ -653,7 +653,7 @@ class MBTIQuiz {
         
         // Use VK Bridge if available, otherwise fallback to native sharing
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-            vkBridgeManager.shareResults(personalityType, shareText, shareTitle);
+            vkBridgeManager.shareResults(personalityType, "QWEQWEQWE", "123123");
         } else if (navigator.share) {
             navigator.share({
                 title: shareTitle,
