@@ -1517,15 +1517,17 @@ function createTimelineChart(clarityValue = 50) {
     line.setAttribute('stroke-width', '2');
     svg.appendChild(line);
 
-    // Map clarity (0..100) to position from 60..260 where 50 is center ~=160
+    // Fixed equally-spaced anchors for Past, Now, Future
     const minX = 60;
+    const midX = 160;
     const maxX = 260;
-    const presentX = minX + (Math.max(0, Math.min(100, clarityValue)) / 100) * (maxX - minX);
+    // Dynamic user state marker mapped along the same range
+    const stateX = minX + (Math.max(0, Math.min(100, clarityValue)) / 100) * (maxX - minX);
 
     const points = [
-        { x: 60, label: 'Прошлое', color: '#9ca3af' },
-        { x: presentX, label: 'Настоящее', color: '#667eea' },
-        { x: 260, label: 'Будущее', color: '#9ca3af' }
+        { x: minX, label: 'Прошлое', color: '#9ca3af' },
+        { x: midX, label: 'Настоящее', color: '#667eea' },
+        { x: maxX, label: 'Будущее', color: '#9ca3af' }
     ];
 
     points.forEach((p, idx) => {
@@ -1555,6 +1557,40 @@ function createTimelineChart(clarityValue = 50) {
         label.textContent = p.label;
         svg.appendChild(label);
     });
+
+    // Additional dynamic user state marker along the same range
+    const stateLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    stateLine.setAttribute('x1', stateX);
+    stateLine.setAttribute('y1', 67);
+    stateLine.setAttribute('x2', stateX);
+    stateLine.setAttribute('y2', 83);
+    stateLine.setAttribute('stroke', '#667eea');
+    stateLine.setAttribute('stroke-width', '2');
+    svg.appendChild(stateLine);
+
+    const stateDotHalo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    stateDotHalo.setAttribute('cx', stateX);
+    stateDotHalo.setAttribute('cy', 75);
+    stateDotHalo.setAttribute('r', '9');
+    stateDotHalo.setAttribute('fill', 'rgba(102,126,234,0.12)');
+    svg.appendChild(stateDotHalo);
+
+    const stateDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    stateDot.setAttribute('cx', stateX);
+    stateDot.setAttribute('cy', 75);
+    stateDot.setAttribute('r', '5');
+    stateDot.setAttribute('fill', '#ff6b6b');
+    svg.appendChild(stateDot);
+
+    const stateLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    stateLabel.setAttribute('x', stateX);
+    stateLabel.setAttribute('y', 55);
+    stateLabel.setAttribute('text-anchor', 'middle');
+    stateLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+    stateLabel.setAttribute('font-size', '10');
+    stateLabel.setAttribute('fill', '#374151');
+    stateLabel.textContent = 'Текущая позиция';
+    svg.appendChild(stateLabel);
 
     root.appendChild(svg);
 }
