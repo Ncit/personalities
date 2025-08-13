@@ -409,7 +409,7 @@ export class UIManager {
                 <div class="type-stats">
                     <div class="type-stat">
                         <span class="type-stat-value">${this.getTypePercentage(type)}%</span>
-                        <span class="type-stat-label">Население</span>
+                        <span class="type-stat-label">Населения</span>
                     </div>
                     <div class="type-stat">
                         <span class="type-stat-value">${this.getTypeCompatibility(type)}</span>
