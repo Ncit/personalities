@@ -1316,7 +1316,7 @@ function createBalanceChart(e, s, t, j) {
     if (!root) return;
     root.innerHTML = '';
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 360 200');
+    svg.setAttribute('viewBox', '0 0 380 210');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', 'auto');
 
@@ -1327,13 +1327,13 @@ function createBalanceChart(e, s, t, j) {
         { name: 'J/P', leftLabel: 'J', rightLabel: 'P', value: j, leftColor: '#43e97b', rightColor: '#38f9d7' }
     ];
 
-    const barX = 60;
-    const barWidth = 240;
+    const barX = 70;
+    const barWidth = 260;
     const barHeight = 18;
-    const rowGap = 28;
+    const rowGap = 34;
 
     pairs.forEach((pair, index) => {
-        const y = 30 + index * rowGap;
+        const y = 36 + index * rowGap;
         const centerX = barX + barWidth / 2;
         const half = barWidth / 2;
         const leftWidth = half * (pair.value / 100);
@@ -1341,7 +1341,7 @@ function createBalanceChart(e, s, t, j) {
 
         // Pair label (E/I, S/N, ...)
         const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        nameText.setAttribute('x', 10);
+        nameText.setAttribute('x', 12);
         nameText.setAttribute('y', y + barHeight - 2);
         nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         nameText.setAttribute('font-size', '12');
@@ -1358,6 +1358,31 @@ function createBalanceChart(e, s, t, j) {
         track.setAttribute('rx', '9');
         track.setAttribute('fill', '#f3f4f6');
         svg.appendChild(track);
+
+        // Ticks (0,25,50,75,100) and labels for 0,50,100
+        for (let tIdx = 0; tIdx <= 4; tIdx++) {
+            const tx = barX + (tIdx * barWidth) / 4;
+            const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            tick.setAttribute('x1', tx);
+            tick.setAttribute('y1', y - 4);
+            tick.setAttribute('x2', tx);
+            tick.setAttribute('y2', y + barHeight + 4);
+            tick.setAttribute('stroke', '#e5e7eb');
+            tick.setAttribute('stroke-width', '1');
+            svg.appendChild(tick);
+
+            if (tIdx === 0 || tIdx === 2 || tIdx === 4) {
+                const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                lbl.setAttribute('x', tx);
+                lbl.setAttribute('y', y - 8);
+                lbl.setAttribute('text-anchor', tIdx === 0 ? 'start' : tIdx === 4 ? 'end' : 'middle');
+                lbl.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+                lbl.setAttribute('font-size', '10');
+                lbl.setAttribute('fill', '#9ca3af');
+                lbl.textContent = `${tIdx * 25}`;
+                svg.appendChild(lbl);
+            }
+        }
 
         // Center divider
         const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -1395,7 +1420,7 @@ function createBalanceChart(e, s, t, j) {
 
         // Side labels
         const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        leftLabel.setAttribute('x', barX - 12);
+        leftLabel.setAttribute('x', barX - 14);
         leftLabel.setAttribute('y', y + barHeight - 2);
         leftLabel.setAttribute('text-anchor', 'end');
         leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
@@ -1405,7 +1430,7 @@ function createBalanceChart(e, s, t, j) {
         svg.appendChild(leftLabel);
 
         const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        rightLabel.setAttribute('x', barX + barWidth + 12);
+        rightLabel.setAttribute('x', barX + barWidth + 14);
         rightLabel.setAttribute('y', y + barHeight - 2);
         rightLabel.setAttribute('text-anchor', 'start');
         rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
@@ -1414,18 +1439,40 @@ function createBalanceChart(e, s, t, j) {
         rightLabel.textContent = pair.rightLabel;
         svg.appendChild(rightLabel);
 
-        // Center percentage text
-        const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        pctText.setAttribute('x', centerX);
-        pctText.setAttribute('y', y + barHeight - 3);
-        pctText.setAttribute('text-anchor', 'middle');
-        pctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        pctText.setAttribute('font-size', '12');
-        pctText.setAttribute('fill', '#111827');
         const leftPct = Math.round(pair.value);
         const rightPct = 100 - leftPct;
-        pctText.textContent = `${pair.leftLabel} ${leftPct}% | ${pair.rightLabel} ${rightPct}%`;
-        svg.appendChild(pctText);
+
+        // Marker pointer at current balance
+        const indicatorX = centerX - leftWidth + leftWidth + 0; // equals centerX + (leftWidth - 0)
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const mTopY = y - 8;
+        const mBaseY = y - 2;
+        const markerPath = `M ${indicatorX} ${mTopY} L ${indicatorX - 6} ${mBaseY} L ${indicatorX + 6} ${mBaseY} Z`;
+        marker.setAttribute('d', markerPath);
+        marker.setAttribute('fill', '#111827');
+        marker.setAttribute('opacity', '0.9');
+        svg.appendChild(marker);
+
+        // Percent labels near marker
+        const leftPctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftPctText.setAttribute('x', indicatorX - 8);
+        leftPctText.setAttribute('y', y - 10);
+        leftPctText.setAttribute('text-anchor', 'end');
+        leftPctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        leftPctText.setAttribute('font-size', '11');
+        leftPctText.setAttribute('fill', '#1f2937');
+        leftPctText.textContent = `${pair.leftLabel} ${leftPct}%`;
+        svg.appendChild(leftPctText);
+
+        const rightPctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightPctText.setAttribute('x', indicatorX + 8);
+        rightPctText.setAttribute('y', y - 10);
+        rightPctText.setAttribute('text-anchor', 'start');
+        rightPctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        rightPctText.setAttribute('font-size', '11');
+        rightPctText.setAttribute('fill', '#1f2937');
+        rightPctText.textContent = `${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(rightPctText);
     });
 
     root.appendChild(svg);
