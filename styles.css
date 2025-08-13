@@ -1811,7 +1811,8 @@ body {
     font-weight: 600;
 }
 
-.chart-container canvas {
+.chart-container canvas,
+.chart-container svg {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
@@ -1819,7 +1820,8 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.chart-container:hover canvas {
+.chart-container:hover canvas,
+.chart-container:hover svg {
     transform: scale(1.02);
     box-shadow: var(--shadow-lg);
 }
@@ -1837,7 +1839,8 @@ body {
     text-align: center;
 }
 
-.chart-container[data-chart="radar"] canvas {
+.chart-container[data-chart="radar"] canvas,
+.chart-container[data-chart="radar"] svg {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(102, 126, 234, 0.2);
@@ -1859,7 +1862,8 @@ body {
     font-size: 0.95rem;
 }
 
-.chart-container[data-chart="timeline"] canvas {
+.chart-container[data-chart="timeline"] canvas,
+.chart-container[data-chart="timeline"] svg {
     background: transparent;
     border: none;
     box-shadow: none;

@@ -1109,423 +1109,447 @@ function createAnalyticsCharts() {
 
 // Enhanced Radar Chart
 function createRadarChart(e, s, t, j) {
-    const canvas = document.getElementById('radarChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
-    const centerY = 150;
-    const radius = 100;
-    
-    // Set canvas size for better resolution
-    canvas.width = 300;
-    canvas.height = 300;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // // Create gradient background
-    // const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    // gradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
-    // gradient.addColorStop(1, 'rgba(102, 126, 234, 0.05)');
-    // ctx.fillStyle = gradient;
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw enhanced radar grid with multiple levels
+    const root = document.getElementById('radarChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const size = 320; // logical size
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 320');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    const centerX = 160;
+    const centerY = 160;
+    const radius = 110;
+
+    // Grid circles
     const gridLevels = 5;
     for (let level = 1; level <= gridLevels; level++) {
-        const currentRadius = (radius * level) / gridLevels;
-        
-        // Draw concentric circles with gradient opacity
-        ctx.strokeStyle = `rgba(102, 126, 234, ${0.1 + (level * 0.05)})`;
-        ctx.lineWidth = level === gridLevels ? 2 : 1;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, currentRadius, 0, 2 * Math.PI);
-        ctx.stroke();
+        const r = (radius * level) / gridLevels;
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', centerX);
+        circle.setAttribute('cy', centerY);
+        circle.setAttribute('r', r);
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', `rgba(102,126,234,${0.1 + level * 0.05})`);
+        circle.setAttribute('stroke-width', level === gridLevels ? '2' : '1');
+        svg.appendChild(circle);
     }
-    
-    // Enhanced axis lines with better styling
+
     const labels = ['E/I', 'S/N', 'T/F', 'J/P'];
     const values = [e, s, t, j];
-    const descriptions = ['Extraversion/Introversion', 'Sensing/Intuition', 'Thinking/Feeling', 'Judging/Perceiving'];
-    
+    const points = [];
+
     for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2 - Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        
-        // Draw axis line with gradient
-        const lineGradient = ctx.createLinearGradient(centerX, centerY, x, y);
-        lineGradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
-        lineGradient.addColorStop(1, 'rgba(102, 126, 234, 0.3)');
-        ctx.strokeStyle = lineGradient;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        
-        // Enhanced labels with better positioning and styling
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 14px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const labelX = centerX + (radius + 25) * Math.cos(angle);
-        const labelY = centerY + (radius + 25) * Math.sin(angle);
-        
-        // Add label background for better readability
-        const labelText = labels[i];
-        const labelMetrics = ctx.measureText(labelText);
-        const labelPadding = 4;
-        
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(
-            labelX - labelMetrics.width/2 - labelPadding,
-            labelY - 8 - labelPadding,
-            labelMetrics.width + labelPadding * 2,
-            16 + labelPadding * 2
-        );
-        
-        ctx.fillStyle = '#333';
-        ctx.fillText(labelText, labelX, labelY);
-        
-        // Add percentage values
-        ctx.font = '12px Inter';
-        ctx.fillStyle = '#667eea';
-        // const valueX = centerX + (radius + 45) * Math.cos(angle);
-        // const valueY = centerY + (radius + 45) * Math.sin(angle);
-        // ctx.fillText(`${values[i]}%`, valueX, valueY);
-    }
-    
-    // Draw enhanced data polygon with gradient fill
-    const polygonGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    polygonGradient.addColorStop(0, 'rgba(102, 126, 234, 0.6)');
-    polygonGradient.addColorStop(1, 'rgba(102, 126, 234, 0.2)');
-    
-    ctx.fillStyle = polygonGradient;
-    ctx.strokeStyle = '#667eea';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    
-    for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI) / 2 - Math.PI / 2;
+        const axisX = centerX + radius * Math.cos(angle);
+        const axisY = centerY + radius * Math.sin(angle);
+
+        // Axis line
+        const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        axis.setAttribute('x1', centerX);
+        axis.setAttribute('y1', centerY);
+        axis.setAttribute('x2', axisX);
+        axis.setAttribute('y2', axisY);
+        axis.setAttribute('stroke', 'rgba(102,126,234,0.6)');
+        axis.setAttribute('stroke-width', '2');
+        svg.appendChild(axis);
+
+        // Label
+        const labelX = centerX + (radius + 22) * Math.cos(angle);
+        const labelY = centerY + (radius + 22) * Math.sin(angle);
+        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        labelBg.setAttribute('x', labelX - 18);
+        labelBg.setAttribute('y', labelY - 10);
+        labelBg.setAttribute('rx', '4');
+        labelBg.setAttribute('ry', '4');
+        labelBg.setAttribute('width', '36');
+        labelBg.setAttribute('height', '20');
+        labelBg.setAttribute('fill', 'rgba(255,255,255,0.9)');
+        svg.appendChild(labelBg);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', labelX);
+        text.setAttribute('y', labelY + 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('fill', '#333');
+        text.textContent = labels[i];
+        svg.appendChild(text);
+
+        // Data point
         const value = values[i] / 100;
-        const x = centerX + (radius * value) * Math.cos(angle);
-        const y = centerY + (radius * value) * Math.sin(angle);
-        
-        if (i === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
+        const vx = centerX + radius * value * Math.cos(angle);
+        const vy = centerY + radius * value * Math.sin(angle);
+        points.push([vx, vy]);
     }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    
-    // Enhanced data points with glow effect
-    for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI) / 2 - Math.PI / 2;
-        const value = values[i] / 100;
-        const x = centerX + (radius * value) * Math.cos(angle);
-        const y = centerY + (radius * value) * Math.sin(angle);
-        
-        // Draw glow effect
-        ctx.shadowColor = '#667eea';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = '#667eea';
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Draw inner point
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Add hover tooltip functionality
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
-            
-            if (distance < 10) {
-                canvas.style.cursor = 'pointer';
-                // Tooltip would be implemented here
-            } else {
-                canvas.style.cursor = 'default';
-            }
-        });
-    }
-    
-    // Add center point with personality type indicator
-    ctx.fillStyle = '#667eea';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
-    ctx.fill();
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('MBTI', centerX, centerY);
-    
+
+    // Polygon
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.map(p => p.join(',')).join(' '));
+    polygon.setAttribute('fill', 'rgba(102,126,234,0.25)');
+    polygon.setAttribute('stroke', '#667eea');
+    polygon.setAttribute('stroke-width', '2');
+    svg.appendChild(polygon);
+
+    // Points with glow
+    points.forEach(([px, py]) => {
+        const outer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        outer.setAttribute('cx', px);
+        outer.setAttribute('cy', py);
+        outer.setAttribute('r', '6');
+        outer.setAttribute('fill', '#667eea');
+        outer.setAttribute('filter', 'url(#glow)');
+        svg.appendChild(outer);
+
+        const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        inner.setAttribute('cx', px);
+        inner.setAttribute('cy', py);
+        inner.setAttribute('r', '3');
+        inner.setAttribute('fill', '#fff');
+        svg.appendChild(inner);
+    });
+
+    // Center badge
+    const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    center.setAttribute('cx', centerX);
+    center.setAttribute('cy', centerY);
+    center.setAttribute('r', '8');
+    center.setAttribute('fill', '#667eea');
+    svg.appendChild(center);
+
+    const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    centerText.setAttribute('x', centerX);
+    centerText.setAttribute('y', centerY + 4);
+    centerText.setAttribute('text-anchor', 'middle');
+    centerText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+    centerText.setAttribute('font-size', '10');
+    centerText.setAttribute('fill', '#fff');
+    centerText.textContent = 'MBTI';
+    svg.appendChild(centerText);
+
+    // Glow filter
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', 'glow');
+    const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+    feGaussianBlur.setAttribute('stdDeviation', '3');
+    feGaussianBlur.setAttribute('result', 'coloredBlur');
+    const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+    const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+    feMergeNode1.setAttribute('in', 'coloredBlur');
+    const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+    feMergeNode2.setAttribute('in', 'SourceGraphic');
+    feMerge.appendChild(feMergeNode1);
+    feMerge.appendChild(feMergeNode2);
+    filter.appendChild(feGaussianBlur);
+    filter.appendChild(feMerge);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    root.appendChild(svg);
 }
 
 // Bar Chart
 function createBarChart(e, s, t, j) {
-    const canvas = document.getElementById('barChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const barWidth = 40;
-    const barSpacing = 20;
-    const startX = 50;
-    const startY = 150;
-    const maxHeight = 100;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('barChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 360 220');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+
     const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
     const scores = [e, s, t, j];
     const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
-    
+
+    const barWidth = 50;
+    const gap = 30;
+    const startX = 40;
+    const baseY = 170;
+    const maxHeight = 120;
+
+    // Axis line
+    const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    axis.setAttribute('x1', startX - 10);
+    axis.setAttribute('y1', baseY);
+    axis.setAttribute('x2', startX + 4 * (barWidth + gap) - gap + 10);
+    axis.setAttribute('y2', baseY);
+    axis.setAttribute('stroke', 'rgba(0,0,0,0.15)');
+    axis.setAttribute('stroke-width', '2');
+    svg.appendChild(axis);
+
     dimensions.forEach((dim, i) => {
-        const x = startX + i * (barWidth + barSpacing);
+        const x = startX + i * (barWidth + gap);
         const height = (scores[i] / 100) * maxHeight;
-        
-        // Draw bar
-        ctx.fillStyle = colors[i];
-        ctx.fillRect(x, startY - height, barWidth, height);
-        
-        // Draw border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, startY - height, barWidth, height);
-        
-        // Draw percentage text
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 12px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${Math.round(scores[i])}%`, x + barWidth/2, startY - height - 5);
-        
-        // Draw dimension label
-        ctx.fillStyle = '#666';
-        ctx.font = '10px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(dim, x + barWidth/2, startY + 15);
+        const y = baseY - height;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', barWidth);
+        rect.setAttribute('height', height);
+        rect.setAttribute('fill', colors[i]);
+        rect.setAttribute('rx', '6');
+        svg.appendChild(rect);
+
+        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pct.setAttribute('x', x + barWidth / 2);
+        pct.setAttribute('y', y - 6);
+        pct.setAttribute('text-anchor', 'middle');
+        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pct.setAttribute('font-size', '12');
+        pct.setAttribute('fill', '#333');
+        pct.textContent = `${Math.round(scores[i])}%`;
+        svg.appendChild(pct);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x + barWidth / 2);
+        label.setAttribute('y', baseY + 16);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('fill', '#666');
+        label.textContent = dim;
+        svg.appendChild(label);
     });
-    
-    // Draw axis
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(startX - 10, startY);
-    ctx.lineTo(startX + 4 * (barWidth + barSpacing) - barSpacing + 10, startY);
-    ctx.stroke();
+
+    root.appendChild(svg);
 }
 
 // Balance Chart (showing balance between preferences)
 function createBalanceChart(e, s, t, j) {
-    const canvas = document.getElementById('balanceChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
-    const centerY = 100;
-    const radius = 60;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('balanceChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 170');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+
     const pairs = [
         { name: 'E/I', value: e, color1: '#667eea', color2: '#764ba2' },
         { name: 'S/N', value: s, color1: '#f093fb', color2: '#f5576c' },
         { name: 'T/F', value: t, color1: '#4facfe', color2: '#00f2fe' },
         { name: 'J/P', value: j, color1: '#43e97b', color2: '#38f9d7' }
     ];
-    
+
     pairs.forEach((pair, index) => {
-        const y = 30 + index * 35;
-        
-        // Draw balance bar
-        ctx.fillStyle = pair.color1;
-        ctx.fillRect(50, y, 100, 20);
-        ctx.fillStyle = pair.color2;
-        ctx.fillRect(50 + 100, y, 100, 20);
-        
-        // Draw indicator
+        const y = 25 + index * 35;
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', 12);
+        label.setAttribute('y', y + 14);
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.textContent = pair.name;
+        svg.appendChild(label);
+
+        const left = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        left.setAttribute('x', 50);
+        left.setAttribute('y', y);
+        left.setAttribute('width', 100);
+        left.setAttribute('height', 20);
+        left.setAttribute('fill', pair.color1);
+        left.setAttribute('rx', '4');
+        svg.appendChild(left);
+
+        const right = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        right.setAttribute('x', 150);
+        right.setAttribute('y', y);
+        right.setAttribute('width', 100);
+        right.setAttribute('height', 20);
+        right.setAttribute('fill', pair.color2);
+        right.setAttribute('rx', '4');
+        svg.appendChild(right);
+
         const indicatorX = 50 + (pair.value / 100) * 200;
-        // ctx.fillStyle = '#333';
-        // ctx.beginPath();
-        // ctx.arc(indicatorX, y + 10, 6, 0, 2 * Math.PI);
-        // ctx.fill();
-        
-        // Draw label
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(pair.name, 20, y + 15);
-        
-        // Draw percentage
-        ctx.textAlign = 'center';
-        ctx.fillText(`${Math.round(pair.value)}%`, indicatorX, y + 15);
+        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pct.setAttribute('x', indicatorX);
+        pct.setAttribute('y', y + 14);
+        pct.setAttribute('text-anchor', 'middle');
+        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pct.setAttribute('font-size', '12');
+        pct.setAttribute('fill', '#333');
+        pct.textContent = `${Math.round(pair.value)}%`;
+        svg.appendChild(pct);
     });
+
+    root.appendChild(svg);
 }
 
 // Pie Chart (showing preference distribution)
 function createPieChart(e, s, t, j) {
-    const canvas = document.getElementById('pieChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
+    const root = document.getElementById('pieChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 200');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+
+    const centerX = 100;
     const centerY = 100;
-    const radius = 60;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const radius = 70;
     const data = [
         { label: 'E/I', value: e, color: '#667eea' },
         { label: 'S/N', value: s, color: '#764ba2' },
         { label: 'T/F', value: t, color: '#f093fb' },
         { label: 'J/P', value: j, color: '#f5576c' }
     ];
-    
-    const total = data.reduce((sum, item) => sum + item.value, 0);
+    const total = data.reduce((sum, d) => sum + d.value, 0);
+
     let currentAngle = -Math.PI / 2;
-    
-    data.forEach(item => {
-        const sliceAngle = (item.value / total) * 2 * Math.PI;
-        
-        // Draw slice
-        ctx.fillStyle = item.color;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Draw border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
+    data.forEach((d, idx) => {
+        const sliceAngle = (d.value / total) * 2 * Math.PI;
+        const x1 = centerX + radius * Math.cos(currentAngle);
+        const y1 = centerY + radius * Math.sin(currentAngle);
+        const x2 = centerX + radius * Math.cos(currentAngle + sliceAngle);
+        const y2 = centerY + radius * Math.sin(currentAngle + sliceAngle);
+        const largeArc = sliceAngle > Math.PI ? 1 : 0;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const dPath = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        path.setAttribute('d', dPath);
+        path.setAttribute('fill', d.color);
+        svg.appendChild(path);
+
+        const legendY = 30 + idx * 22;
+        const swatch = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        swatch.setAttribute('x', 190);
+        swatch.setAttribute('y', legendY - 10);
+        swatch.setAttribute('width', 12);
+        swatch.setAttribute('height', 12);
+        swatch.setAttribute('fill', d.color);
+        swatch.setAttribute('rx', '2');
+        svg.appendChild(swatch);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', 210);
+        label.setAttribute('y', legendY);
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.textContent = `${d.label}: ${Math.round(d.value)}%`;
+        svg.appendChild(label);
+
         currentAngle += sliceAngle;
     });
-    
-    // Draw labels
-    data.forEach((item, index) => {
-        const y = 180 + index * 20;
-        ctx.fillStyle = item.color;
-        ctx.fillRect(50, y - 8, 12, 12);
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(`${item.label}: ${Math.round(item.value)}%`, 70, y);
-    });
+
+    root.appendChild(svg);
 }
 
 // Minimalistic Timeline Chart
 function createTimelineChart() {
-    const canvas = document.getElementById('timelineChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size for better resolution
-    canvas.width = 300;
-    canvas.height = 150;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw minimal timeline line
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(40, 75);
-    ctx.lineTo(260, 75);
-    ctx.stroke();
-    
-    // Draw timeline points with minimal design
+    const root = document.getElementById('timelineChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 150');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', 40);
+    line.setAttribute('y1', 75);
+    line.setAttribute('x2', 280);
+    line.setAttribute('y2', 75);
+    line.setAttribute('stroke', '#e0e0e0');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+
     const points = [
         { x: 60, label: 'Прошлое', color: '#9ca3af' },
-        { x: 150, label: 'Настоящее', color: '#667eea' },
-        { x: 240, label: 'Будущее', color: '#9ca3af' }
+        { x: 160, label: 'Настоящее', color: '#667eea' },
+        { x: 260, label: 'Будущее', color: '#9ca3af' }
     ];
-    
-    points.forEach((point, index) => {
-        // Draw subtle background circle for present point
-        if (index === 1) {
-            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
-            ctx.beginPath();
-            ctx.arc(point.x, 75, 12, 0, 2 * Math.PI);
-            ctx.fill();
+
+    points.forEach((p, idx) => {
+        if (idx === 1) {
+            const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            halo.setAttribute('cx', p.x);
+            halo.setAttribute('cy', 75);
+            halo.setAttribute('r', '12');
+            halo.setAttribute('fill', 'rgba(102,126,234,0.1)');
+            svg.appendChild(halo);
         }
-        
-        // Draw main point
-        ctx.fillStyle = point.color;
-        ctx.beginPath();
-        ctx.arc(point.x, 75, 6, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Draw subtle label
-        ctx.fillStyle = '#6b7280';
-        ctx.font = '11px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(point.label, point.x, 100);
+
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', 75);
+        dot.setAttribute('r', '6');
+        dot.setAttribute('fill', p.color);
+        svg.appendChild(dot);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', p.x);
+        label.setAttribute('y', 100);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('fill', '#6b7280');
+        label.textContent = p.label;
+        svg.appendChild(label);
     });
-    
-    // Draw minimal title
-    ctx.fillStyle = '#374151';
-    ctx.font = '13px Inter';
-    ctx.textAlign = 'center';
+
+    root.appendChild(svg);
 }
 
 // Strengths Chart (showing personality strengths)
 function createStrengthsChart(e, s, t, j) {
-    const canvas = document.getElementById('strengthsChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('strengthsChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 140');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+
     const strengths = [
         { name: 'Аналитический', value: Math.max(t, 100 - t), color: '#667eea' },
         { name: 'Креативный', value: Math.max(s, 100 - s), color: '#764ba2' },
         { name: 'Социальный', value: Math.max(e, 100 - e), color: '#f093fb' },
         { name: 'Организованный', value: Math.max(j, 100 - j), color: '#f5576c' }
     ];
-    
-    const barHeight = 25;
-    const spacing = 10;
-    const startY = 0;
-    
-    strengths.forEach((strength, index) => {
-        const y = startY + index * (barHeight + spacing);
-        const width = (strength.value / 100) * 200;
-        
-        // Draw bar
-        ctx.fillStyle = strength.color;
-        ctx.fillRect(130, y, width, barHeight);
-        
-        // Draw border
-        // ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        // ctx.lineWidth = 1;
-        // ctx.strokeRect(50, y, width, barHeight);
-        
-        // Draw label
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(strength.name, 10, y + 17);
-        
-        // Draw percentage
-        ctx.textAlign = 'right';
-        ctx.fillText(`${Math.round(strength.value)}%`, 165, y + 17);
+
+    const barHeight = 22;
+    const spacing = 12;
+    strengths.forEach((st, idx) => {
+        const y = 8 + idx * (barHeight + spacing);
+        const width = (st.value / 100) * 180;
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', 10);
+        label.setAttribute('y', y + 16);
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.textContent = st.name;
+        svg.appendChild(label);
+
+        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bar.setAttribute('x', 130);
+        bar.setAttribute('y', y);
+        bar.setAttribute('width', width);
+        bar.setAttribute('height', barHeight);
+        bar.setAttribute('fill', st.color);
+        bar.setAttribute('rx', '6');
+        svg.appendChild(bar);
+
+        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pct.setAttribute('x', 130 + width + 8);
+        pct.setAttribute('y', y + 16);
+        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pct.setAttribute('font-size', '12');
+        pct.setAttribute('fill', '#333');
+        pct.textContent = `${Math.round(st.value)}%`;
+        svg.appendChild(pct);
     });
+
+    root.appendChild(svg);
 }
 
 
