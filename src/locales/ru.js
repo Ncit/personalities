@@ -45,7 +45,7 @@ export const ru = {
     // Success Messages
     success: {
         premiumUnlocked: 'Премиум функции разблокированы!',
-        pdfGenerated: 'PDF успешно создан!',
+        
         resultsCopied: 'Результаты скопированы в буфер обмена!',
         quizCompleted: 'Тест успешно завершен!',
         settingsSaved: 'Настройки успешно сохранены!'

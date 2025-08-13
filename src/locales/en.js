@@ -45,7 +45,7 @@ export const en = {
     // Success Messages
     success: {
         premiumUnlocked: 'Premium features unlocked!',
-        pdfGenerated: 'PDF generated successfully!',
+        
         resultsCopied: 'Results copied to clipboard!',
         quizCompleted: 'Quiz completed successfully!',
         settingsSaved: 'Settings saved successfully!'
