@@ -1220,16 +1220,6 @@ function createRadarChart(e, s, t, j) {
     center.setAttribute('fill', '#667eea');
     svg.appendChild(center);
 
-    const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    centerText.setAttribute('x', centerX);
-    centerText.setAttribute('y', centerY + 4);
-    centerText.setAttribute('text-anchor', 'middle');
-    centerText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-    centerText.setAttribute('font-size', '10');
-    centerText.setAttribute('fill', '#fff');
-    centerText.textContent = 'MBTI';
-    svg.appendChild(centerText);
-
     // Glow filter
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
