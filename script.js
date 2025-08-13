@@ -1316,56 +1316,116 @@ function createBalanceChart(e, s, t, j) {
     if (!root) return;
     root.innerHTML = '';
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 320 170');
+    svg.setAttribute('viewBox', '0 0 360 200');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', 'auto');
 
     const pairs = [
-        { name: 'E/I', value: e, color1: '#667eea', color2: '#764ba2' },
-        { name: 'S/N', value: s, color1: '#f093fb', color2: '#f5576c' },
-        { name: 'T/F', value: t, color1: '#4facfe', color2: '#00f2fe' },
-        { name: 'J/P', value: j, color1: '#43e97b', color2: '#38f9d7' }
+        { name: 'E/I', leftLabel: 'E', rightLabel: 'I', value: e, leftColor: '#667eea', rightColor: '#764ba2' },
+        { name: 'S/N', leftLabel: 'S', rightLabel: 'N', value: s, leftColor: '#f093fb', rightColor: '#f5576c' },
+        { name: 'T/F', leftLabel: 'T', rightLabel: 'F', value: t, leftColor: '#4facfe', rightColor: '#00f2fe' },
+        { name: 'J/P', leftLabel: 'J', rightLabel: 'P', value: j, leftColor: '#43e97b', rightColor: '#38f9d7' }
     ];
 
+    const barX = 60;
+    const barWidth = 240;
+    const barHeight = 18;
+    const rowGap = 28;
+
     pairs.forEach((pair, index) => {
-        const y = 25 + index * 35;
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', 12);
-        label.setAttribute('y', y + 14);
-        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        label.setAttribute('font-size', '12');
-        label.setAttribute('fill', '#333');
-        label.textContent = pair.name;
-        svg.appendChild(label);
+        const y = 30 + index * rowGap;
+        const centerX = barX + barWidth / 2;
+        const half = barWidth / 2;
+        const leftWidth = half * (pair.value / 100);
+        const rightWidth = half * (1 - pair.value / 100);
 
-        const left = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        left.setAttribute('x', 50);
-        left.setAttribute('y', y);
-        left.setAttribute('width', 100);
-        left.setAttribute('height', 20);
-        left.setAttribute('fill', pair.color1);
-        left.setAttribute('rx', '4');
-        svg.appendChild(left);
+        // Pair label (E/I, S/N, ...)
+        const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        nameText.setAttribute('x', 10);
+        nameText.setAttribute('y', y + barHeight - 2);
+        nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        nameText.setAttribute('font-size', '12');
+        nameText.setAttribute('fill', '#374151');
+        nameText.textContent = pair.name;
+        svg.appendChild(nameText);
 
-        const right = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        right.setAttribute('x', 150);
-        right.setAttribute('y', y);
-        right.setAttribute('width', 100);
-        right.setAttribute('height', 20);
-        right.setAttribute('fill', pair.color2);
-        right.setAttribute('rx', '4');
-        svg.appendChild(right);
+        // Track background
+        const track = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        track.setAttribute('x', barX);
+        track.setAttribute('y', y);
+        track.setAttribute('width', barWidth);
+        track.setAttribute('height', barHeight);
+        track.setAttribute('rx', '9');
+        track.setAttribute('fill', '#f3f4f6');
+        svg.appendChild(track);
 
-        const indicatorX = 50 + (pair.value / 100) * 200;
-        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        pct.setAttribute('x', indicatorX);
-        pct.setAttribute('y', y + 14);
-        pct.setAttribute('text-anchor', 'middle');
-        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        pct.setAttribute('font-size', '12');
-        pct.setAttribute('fill', '#333');
-        pct.textContent = `${Math.round(pair.value)}%`;
-        svg.appendChild(pct);
+        // Center divider
+        const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        divider.setAttribute('x1', centerX);
+        divider.setAttribute('y1', y);
+        divider.setAttribute('x2', centerX);
+        divider.setAttribute('y2', y + barHeight);
+        divider.setAttribute('stroke', '#e5e7eb');
+        divider.setAttribute('stroke-width', '2');
+        svg.appendChild(divider);
+
+        // Left segment
+        if (leftWidth > 0.5) {
+            const left = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            left.setAttribute('x', centerX - leftWidth);
+            left.setAttribute('y', y);
+            left.setAttribute('width', leftWidth);
+            left.setAttribute('height', barHeight);
+            left.setAttribute('fill', pair.leftColor);
+            left.setAttribute('rx', '9');
+            svg.appendChild(left);
+        }
+
+        // Right segment
+        if (rightWidth > 0.5) {
+            const right = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            right.setAttribute('x', centerX);
+            right.setAttribute('y', y);
+            right.setAttribute('width', rightWidth);
+            right.setAttribute('height', barHeight);
+            right.setAttribute('fill', pair.rightColor);
+            right.setAttribute('rx', '9');
+            svg.appendChild(right);
+        }
+
+        // Side labels
+        const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftLabel.setAttribute('x', barX - 12);
+        leftLabel.setAttribute('y', y + barHeight - 2);
+        leftLabel.setAttribute('text-anchor', 'end');
+        leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        leftLabel.setAttribute('font-size', '12');
+        leftLabel.setAttribute('fill', '#6b7280');
+        leftLabel.textContent = pair.leftLabel;
+        svg.appendChild(leftLabel);
+
+        const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightLabel.setAttribute('x', barX + barWidth + 12);
+        rightLabel.setAttribute('y', y + barHeight - 2);
+        rightLabel.setAttribute('text-anchor', 'start');
+        rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        rightLabel.setAttribute('font-size', '12');
+        rightLabel.setAttribute('fill', '#6b7280');
+        rightLabel.textContent = pair.rightLabel;
+        svg.appendChild(rightLabel);
+
+        // Center percentage text
+        const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pctText.setAttribute('x', centerX);
+        pctText.setAttribute('y', y + barHeight - 3);
+        pctText.setAttribute('text-anchor', 'middle');
+        pctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pctText.setAttribute('font-size', '12');
+        pctText.setAttribute('fill', '#111827');
+        const leftPct = Math.round(pair.value);
+        const rightPct = 100 - leftPct;
+        pctText.textContent = `${pair.leftLabel} ${leftPct}% | ${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(pctText);
     });
 
     root.appendChild(svg);
