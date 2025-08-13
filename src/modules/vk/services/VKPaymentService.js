@@ -35,6 +35,24 @@ export class VKPaymentService {
         }
         
         try {
+            // On iOS (VK app or Safari), prefer VK Pay for payment
+            const platform = VKConfig.detectPlatform();
+            const isIOS = platform === VKConfig.PLATFORMS.IOS || platform === VKConfig.PLATFORMS.VK_IOS;
+            if (isIOS) {
+                const payConfig = VKConfig.getPaymentConfig(productId);
+                const vkPayParams = payConfig.vkPayParams;
+                if (vkPayParams) {
+                    this.logger.debug('Attempting VK Pay on iOS with params:', vkPayParams);
+                    try {
+                        await this.bridge.send('VKWebAppOpenPayForm', vkPayParams);
+                        this.analytics.trackPayment(productId, true, null, null, { method: 'vkpay' });
+                        return { success: true, method: 'vkpay' };
+                    } catch (vkpayError) {
+                        this.logger.warn('VK Pay failed, falling back to OrderBox:', vkpayError);
+                    }
+                }
+            }
+
             const config = VKConfig.getPaymentConfig(productId);
             const finalProductName = productName || config.name;
             
