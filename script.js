@@ -1889,8 +1889,8 @@ function disablePremiumQuizButtons() {
             lockOverlay.style.cssText = `
                 position: absolute;
                 top: 50%;
+                top: 25px;
                 right: 15px;
-                transform: translateY(-50%);
                 color: #ffd700;
                 font-size: 16px;
                 pointer-events: none;
