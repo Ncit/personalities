@@ -368,26 +368,7 @@
                             </div>
                         </div>
 
-                        <!-- PDF Download -->
-                        <div class="premium-section" id="pdfSection">
-                            <div class="premium-locked" id="pdfLocked">
-                                <h3>Download PDF Report</h3>
-                                <div class="premium-overlay">
-                                    <i class="fas fa-lock lock-icon"></i>
-                                </div>
-                                <p>Get a comprehensive PDF report of your personality analysis to save and share.</p>
-                                <button class="premium-teaser-btn" onclick="openPremiumModal()">
-                                    <i class="fas fa-file-pdf"></i> Unlock PDF Download
-                                </button>
-                            </div>
-                            <div class="premium-content" id="pdfContent" style="display: none;">
-                                <h3><i class="fas fa-file-pdf"></i> Download PDF Report</h3>
-                                <p>Generate a comprehensive report including your personality type, insights, and recommendations.</p>
-                                <button class="btn btn-primary" onclick="generatePDF()">
-                                    <i class="fas fa-download"></i> Download PDF Report
-                                </button>
-                            </div>
-                        </div>
+                        
 
                         <!-- Save/Share Results -->
                         <div class="premium-section" id="shareSection">
@@ -468,9 +449,8 @@
             <div class="modal-content premium-modal-content">
                 <span class="close" onclick="closePremiumModal()">&times;</span>
                 <h2>Unlock Premium Features</h2>
-                <ul class="premium-benefits-list">
+                    <ul class="premium-benefits-list">
                     <li><i class="fas fa-chart-bar"></i> Advanced personality insights</li>
-                    <li><i class="fas fa-file-pdf"></i> Downloadable PDF report</li>
                     <li><i class="fas fa-user-tie"></i> Comparison to famous personalities</li>
                     <li><i class="fas fa-link"></i> Save/share results with a custom link</li>
                     <li><i class="fas fa-book-open"></i> Full type descriptions</li>
@@ -620,6 +600,5 @@
     <!-- Firebase Analytics will be initialized in script.js -->
     
     <script type="module" src="script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html> 

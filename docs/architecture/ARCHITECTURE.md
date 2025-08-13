@@ -165,7 +165,7 @@ mbti-personality-quiz/
 - **Canvas-based Charts**: High-performance custom chart implementations
 - **Multiple Chart Types**: 6 different visualization types
 - **Data Analysis**: Advanced analytics calculations
-- **Export Capabilities**: PDF generation with charts
+- **Export Capabilities**: Chart images and sharing
 - **Responsive Design**: Adaptive chart sizing
 - **Firebase Integration**: Comprehensive event tracking
 - **Performance Optimization**: Efficient rendering with requestAnimationFrame
@@ -282,7 +282,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['jspdf', 'firebase'],
+          vendor: ['firebase'],
           quiz: ['./src/modules/quiz/QuizEngine.js'],
           analytics: ['./src/modules/analytics/AnalyticsEngine.js'],
           vk: ['./src/modules/vk/VKBridgeManager.js']

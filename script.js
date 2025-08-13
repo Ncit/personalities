@@ -1498,107 +1498,7 @@ function createStrengthsChart(e, s, t, j) {
     });
 }
 
-// Function to generate PDF (real PDF with jsPDF)
-function generatePDF() {
-    if (!isPremium()) return;
-    
-    const btn = document.querySelector('#pdfContent .btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-        // Gather data
-        const personalityType = document.getElementById('personalityType').textContent;
-        const title = document.getElementById('personalityTitle').textContent;
-        const subtitle = document.getElementById('personalitySubtitle').textContent;
-        const description = document.getElementById('personalityDescription').textContent;
-        
-        // Advanced insights
-        let strengths = '', weaknesses = '', careers = '', development = '';
-        if (ADVANCED_INSIGHTS[personalityType]) {
-            strengths = ADVANCED_INSIGHTS[personalityType].strengths.join(', ');
-            weaknesses = ADVANCED_INSIGHTS[personalityType].weaknesses.join(', ');
-            careers = ADVANCED_INSIGHTS[personalityType].careers.join(', ');
-            development = ADVANCED_INSIGHTS[personalityType].development.join(', ');
-        }
-        
-        // Famous people
-        let famous = '';
-        if (FAMOUS_PERSONALITIES[personalityType]) {
-            famous = FAMOUS_PERSONALITIES[personalityType].map(p => `${p.name} (${p.profession})`).join(', ');
-        }
-        
-        // Create PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let y = 15;
-        doc.setFontSize(18);
-        doc.text('MBTI Personality Quiz Report', 10, y);
-        y += 10;
-        doc.setFontSize(14);
-        doc.text(`Type: ${personalityType} - ${title}`, 10, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.text(subtitle, 10, y);
-        y += 8;
-        doc.setFontSize(10);
-        doc.text('Description:', 10, y);
-        y += 6;
-        doc.setFontSize(9);
-        doc.text(doc.splitTextToSize(description, 180), 10, y);
-        y += doc.getTextDimensions(doc.splitTextToSize(description, 180)).h + 4;
-        if (strengths) {
-            doc.setFontSize(10);
-            doc.text('Strengths:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(strengths, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(strengths, 180)).h + 4;
-        }
-        if (weaknesses) {
-            doc.setFontSize(10);
-            doc.text('Growth Areas:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(weaknesses, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(weaknesses, 180)).h + 4;
-        }
-        if (careers) {
-            doc.setFontSize(10);
-            doc.text('Career Recommendations:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(careers, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(careers, 180)).h + 4;
-        }
-        if (development) {
-            doc.setFontSize(10);
-            doc.text('Personal Development:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(development, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(development, 180)).h + 4;
-        }
-        if (famous) {
-            doc.setFontSize(10);
-            doc.text('Famous Personalities:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(famous, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(famous, 180)).h + 4;
-        }
-        
-        // Save PDF
-        doc.save(`MBTI_Report_${personalityType}.pdf`);
-        
-        btn.innerHTML = '<i class="fas fa-check"></i> PDF Generated!';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }, 2000);
-    }, 1200);
-}
+// PDF generation has been removed
 
 // Function to copy share link
 function copyShareLink() {
@@ -2152,7 +2052,6 @@ window.viewLastResults = viewLastResults;
 window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.fillPremiumRandomAnswers = fillPremiumRandomAnswers;
-window.generatePDF = generatePDF;
 window.copyShareLink = copyShareLink;
 
 /**

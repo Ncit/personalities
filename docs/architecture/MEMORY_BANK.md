@@ -338,7 +338,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['jspdf'],
+          vendor: [],
           quiz: ['./src/modules/quiz/QuizEngine.js'],
           analytics: ['./src/modules/analytics/AnalyticsEngine.js']
         }

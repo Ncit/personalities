@@ -32,7 +32,7 @@ The MBTI Personality Quiz has evolved from a simple static website into a compre
 #### Advanced Features
 - **15+ Specialized Quizzes**: Premium content for different assessment types
 - **Interactive Analytics**: 6 different chart types for data visualization
-- **PDF Export**: Professional result reports with charts
+ 
 - **Social Sharing**: Integrated sharing functionality
 - **Local Storage**: Persistent user data and preferences
 
@@ -114,7 +114,7 @@ User Interaction → UIManager → StateManager → QuizEngine → AnalyticsEngi
 ### External Services
 - **Firebase**: Analytics, error tracking, and performance monitoring
 - **VK Bridge API**: Platform-specific features and payments
-- **jsPDF**: PDF generation for result reports
+ 
 
 ### Development Tools
 - **ESLint**: Code quality and consistency
@@ -154,7 +154,7 @@ User Interaction → UIManager → StateManager → QuizEngine → AnalyticsEngi
 - **Subscription Management**: Monthly, yearly, and lifetime plans
 - **Payment Processing**: VK payment integration
 - **Advanced Analytics**: Interactive charts and insights
-- **PDF Export**: Professional result reports
+ 
 - **Specialized Content**: Premium quiz types and features
 
 ### Platform Integration

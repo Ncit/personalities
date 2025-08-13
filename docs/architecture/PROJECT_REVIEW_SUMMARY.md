@@ -119,7 +119,7 @@ The project demonstrates exceptional quality across all key areas:
 - **Subscription System**: Monthly, yearly, and lifetime plans
 - **Specialized Quizzes**: 15+ different assessment types
 - **Advanced Analytics**: Interactive charts and insights
-- **PDF Export**: Professional result reports
+ 
 - **Payment Integration**: Seamless VK payment processing
 
 ### **Platform Integration** ⭐⭐⭐⭐⭐

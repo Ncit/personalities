@@ -15,7 +15,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['jspdf'],
           quiz: ['./src/modules/quiz/QuizEngine.js'],
           analytics: ['./src/modules/analytics/AnalyticsEngine.js']
         }
@@ -42,7 +41,5 @@ export default defineConfig({
     port: 4173,
     open: true
   },
-  optimizeDeps: {
-    include: ['jspdf']
-  }
+  optimizeDeps: {}
 }); 

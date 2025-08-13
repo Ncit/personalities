@@ -23,8 +23,7 @@ export const ru = {
         // Results-related errors
         noPreviousResults: 'Предыдущие результаты не найдены.',
         loadLastResultsFailed: 'Не удалось загрузить последние результаты. Пожалуйста, попробуйте снова.',
-        noResultsForPDF: 'Нет результатов для создания PDF.',
-        generatePDFFailed: 'Не удалось создать PDF. Пожалуйста, попробуйте снова.',
+        
         noResultsToShare: 'Нет результатов для обмена.',
         shareResultsFailed: 'Не удалось поделиться результатами. Пожалуйста, попробуйте снова.',
         copyToClipboardFailed: 'Не удалось скопировать результаты в буфер обмена.',
@@ -82,7 +81,7 @@ export const ru = {
         errorRestartingQuiz: 'Ошибка перезапуска теста:',
         errorUnlockingPremium: 'Ошибка разблокировки премиума:',
         errorViewingLastResults: 'Ошибка просмотра последних результатов:',
-        errorGeneratingPDF: 'Ошибка создания PDF:',
+        
         errorSharingResults: 'Ошибка обмена результатами:',
         errorFillingRandomAnswers: 'Ошибка заполнения случайных ответов:',
         errorTogglingAppState: 'Ошибка переключения состояния приложения:',
@@ -107,10 +106,9 @@ export const ru = {
         
         // Results-related
         shareResults: 'Поделиться результатами',
-        downloadPDF: 'Скачать PDF отчет',
+        
         copyLink: 'Копировать ссылку',
-        generatingPDF: 'Создание PDF...',
-        pdfGenerated: 'PDF создан!',
+        
         copied: 'Скопировано!',
         resultsCopiedAlert: 'Результаты скопированы в буфер обмена!',
         
@@ -153,7 +151,7 @@ export const ru = {
         // Premium features
         premiumFeatures: {
             advancedInsights: 'Расширенные анализы личности',
-            pdfReport: 'Скачиваемый PDF отчет',
+            
             famousPersonalities: 'Сравнение с известными личностями',
             saveShare: 'Сохранить/поделиться результатами с уникальной ссылкой',
             fullDescriptions: 'Полные описания типов',
@@ -167,9 +165,7 @@ export const ru = {
         mbtiTypesTitle: 'Типы личности MBTI',
         typesHeader: 'Изучите все 16 типов личности. Полные описания доступны с Премиум.',
         
-        // PDF content
-        pdfTitle: 'Отчет о личности',
-        pdfPersonalDevelopment: 'Личностное развитие:',
+        
         
         // Buttons
         close: 'Закрыть',

@@ -23,8 +23,7 @@ export const en = {
         // Results-related errors
         noPreviousResults: 'No previous results found.',
         loadLastResultsFailed: 'Failed to load last results. Please try again.',
-        noResultsForPDF: 'No results to generate PDF.',
-        generatePDFFailed: 'Failed to generate PDF. Please try again.',
+        
         noResultsToShare: 'No results to share.',
         shareResultsFailed: 'Failed to share results. Please try again.',
         copyToClipboardFailed: 'Failed to copy results to clipboard.',
@@ -82,7 +81,7 @@ export const en = {
         errorRestartingQuiz: 'Error restarting quiz:',
         errorUnlockingPremium: 'Error unlocking premium:',
         errorViewingLastResults: 'Error viewing last results:',
-        errorGeneratingPDF: 'Error generating PDF:',
+        
         errorSharingResults: 'Error sharing results:',
         errorFillingRandomAnswers: 'Error filling random answers:',
         errorTogglingAppState: 'Error toggling app state:',
@@ -107,10 +106,9 @@ export const en = {
         
         // Results-related
         shareResults: 'Share Results',
-        downloadPDF: 'Download PDF Report',
+        
         copyLink: 'Copy Link',
-        generatingPDF: 'Generating PDF...',
-        pdfGenerated: 'PDF Generated!',
+        
         copied: 'Copied!',
         resultsCopiedAlert: 'Results copied to clipboard!',
         
@@ -153,7 +151,7 @@ export const en = {
         // Premium features
         premiumFeatures: {
             advancedInsights: 'Advanced personality insights',
-            pdfReport: 'Downloadable PDF report',
+            
             famousPersonalities: 'Comparison to famous personalities',
             saveShare: 'Save/share results with a custom link',
             fullDescriptions: 'Full type descriptions',
@@ -166,9 +164,7 @@ export const en = {
         mbtiTypesTitle: 'MBTI Personality Types',
         typesHeader: 'Explore all 16 personality types. Full descriptions available with Premium.',
         
-        // PDF content
-        pdfTitle: 'Personality Report',
-        pdfPersonalDevelopment: 'Personal Development:',
+        
         
         // Buttons
         close: 'Close',
