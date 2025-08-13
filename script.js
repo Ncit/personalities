@@ -1039,9 +1039,7 @@ function displayAdvancedInsights(personalityType) {
 // Function to display famous personalities
 function displayFamousPersonalities(personalityType) {
     if (!isPremium()) return;
-    console.log('displayFamousPersonalities() called:', personalityType);
-    const famous = FAMOUS_PERSONALITIES[personalityType];
-    console.log('famous:', famous);
+    const famous = (FAMOUS_PERSONALITIES[personalityType] || []).slice().sort(() => Math.random() - 0.5);
     const famousGrid = document.getElementById('famousGrid');
     if (!famousGrid) return;
     if (!famous || !Array.isArray(famous) || famous.length === 0) {
