@@ -1122,7 +1122,6 @@ function createRadarChart(e, s, t, j) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 320 320');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     const centerX = 160;
@@ -1256,7 +1255,6 @@ function createBarChart(e, s, t, j) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 360 220');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
 
     const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
     const scores = [e, s, t, j];
@@ -1324,7 +1322,6 @@ function createBalanceChart(e, s, t, j) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 360 200');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
 
     const pairs = [
         { name: 'E/I', leftLabel: 'E', rightLabel: 'I', value: e, leftColor: '#667eea', rightColor: '#764ba2' },
@@ -1424,7 +1421,6 @@ function createPieChart(e, s, t, j) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 320 200');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
 
     const centerX = 100;
     const centerY = 100;
@@ -1485,7 +1481,6 @@ function createTimelineChart(clarityValue = 50) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 320 150');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
 
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', 40);
@@ -1582,7 +1577,6 @@ function createStrengthsChart(e, s, t, j) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 320 140');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', 'auto');
 
     const strengths = [
         { name: 'Аналитический', value: Math.max(t, 100 - t), color: '#667eea' },
