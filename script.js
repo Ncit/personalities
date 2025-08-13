@@ -2060,8 +2060,18 @@ function closeExitQuizModal() {
 function confirmExitQuiz() {
     // Close the modal first
     closeExitQuizModal();
-    
-    restartQuiz();
+    // In-app reset without page reload to avoid unnecessary server calls
+    const quizQuestions = document.getElementById('quizQuestions');
+    if (quizQuestions) quizQuestions.style.display = 'none';
+    // Use existing restart flow to show welcome screen and reset state
+    if (typeof restartQuiz === 'function') {
+        restartQuiz();
+    } else if (quiz && typeof quiz.restartQuiz === 'function') {
+        quiz.restartQuiz();
+    } else {
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        if (welcomeScreen) welcomeScreen.style.display = 'block';
+    }
 }
 
 // Make all functions available globally for HTML onclick handlers
