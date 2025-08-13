@@ -604,17 +604,6 @@ class MBTIQuiz {
                 text: shareText,
                 url: window.location.href
             });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(shareText).then(() => {
-                if (vkBridgeManager) {
-                    vkBridgeManager.showNotification('Results copied to clipboard!');
-                } else if (window.showAppAlert) {
-                    window.showAppAlert('Results copied to clipboard!');
-                } else {
-                    alert('Results copied to clipboard!');
-                }
-            });
         }
     }
 }

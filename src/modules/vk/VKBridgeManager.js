@@ -9,6 +9,7 @@ import { VKErrorHandler } from './utils/VKErrorHandler.js';
 import { VKAnalyticsService } from './services/VKAnalyticsService.js';
 import { VKPaymentService } from './services/VKPaymentService.js';
 import { VKUserService } from './services/VKUserService.js';
+import localizationManager from '../../locales/LocalizationManager.js';
 
 export class VKBridgeManager {
     constructor() {
@@ -284,7 +285,8 @@ export class VKBridgeManager {
             });
         } else {
             navigator.clipboard.writeText(shareText).then(() => {
-                this.showNotification('Results copied to clipboard!');
+                const message = localizationManager.get('ui.resultsCopiedAlert');
+                this.showNotification(message);
             });
         }
     }
