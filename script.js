@@ -1320,56 +1320,6 @@ function createBalanceChart(e, s, t, j) {
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', 'auto');
 
-    // Premium look: soft shadow and glossy overlay defs
-    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-    shadow.setAttribute('id', 'softShadow');
-    shadow.setAttribute('x', '-20%');
-    shadow.setAttribute('y', '-20%');
-    shadow.setAttribute('width', '140%');
-    shadow.setAttribute('height', '140%');
-    const blur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-    blur.setAttribute('in', 'SourceAlpha');
-    blur.setAttribute('stdDeviation', '2');
-    blur.setAttribute('result', 'blur');
-    const offset = document.createElementNS('http://www.w3.org/2000/svg', 'feOffset');
-    offset.setAttribute('dx', '0');
-    offset.setAttribute('dy', '1');
-    offset.setAttribute('result', 'offsetBlur');
-    const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
-    const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-    feMergeNode1.setAttribute('in', 'offsetBlur');
-    const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-    feMergeNode2.setAttribute('in', 'SourceGraphic');
-    feMerge.appendChild(feMergeNode1);
-    feMerge.appendChild(feMergeNode2);
-    shadow.appendChild(blur);
-    shadow.appendChild(offset);
-    shadow.appendChild(feMerge);
-
-    const gloss = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-    gloss.setAttribute('id', 'gloss');
-    gloss.setAttribute('x1', '0');
-    gloss.setAttribute('y1', '0');
-    gloss.setAttribute('x2', '0');
-    gloss.setAttribute('y2', '1');
-    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-    stop1.setAttribute('offset', '0%');
-    stop1.setAttribute('stop-color', 'rgba(255,255,255,0.45)');
-    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-    stop2.setAttribute('offset', '40%');
-    stop2.setAttribute('stop-color', 'rgba(255,255,255,0.15)');
-    const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-    stop3.setAttribute('offset', '100%');
-    stop3.setAttribute('stop-color', 'rgba(255,255,255,0)');
-    gloss.appendChild(stop1);
-    gloss.appendChild(stop2);
-    gloss.appendChild(stop3);
-
-    defs.appendChild(shadow);
-    defs.appendChild(gloss);
-    svg.appendChild(defs);
-
     const pairs = [
         { name: 'E/I', leftLabel: 'E', rightLabel: 'I', value: e, leftColor: '#667eea', rightColor: '#764ba2' },
         { name: 'S/N', leftLabel: 'S', rightLabel: 'N', value: s, leftColor: '#f093fb', rightColor: '#f5576c' },
@@ -1389,17 +1339,17 @@ function createBalanceChart(e, s, t, j) {
         const leftWidth = half * (pair.value / 100);
         const rightWidth = half * (1 - pair.value / 100);
 
-        // Pair label (E/I, S/N, ...)
-        const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        nameText.setAttribute('x', 10);
-        nameText.setAttribute('y', y + barHeight - 2);
-        nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        nameText.setAttribute('font-size', '12');
-        nameText.setAttribute('fill', '#374151');
-        nameText.textContent = pair.name;
-        svg.appendChild(nameText);
+        // // Pair label (E/I, S/N, ...)
+        // const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        // nameText.setAttribute('x', 10);
+        // nameText.setAttribute('y', y + barHeight - 2);
+        // nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        // nameText.setAttribute('font-size', '12');
+        // nameText.setAttribute('fill', '#374151');
+        // nameText.textContent = pair.name;
+        // svg.appendChild(nameText);
 
-        // Track background (with subtle border)
+        // Track background
         const track = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         track.setAttribute('x', barX);
         track.setAttribute('y', y);
@@ -1407,8 +1357,6 @@ function createBalanceChart(e, s, t, j) {
         track.setAttribute('height', barHeight);
         track.setAttribute('rx', '9');
         track.setAttribute('fill', '#f3f4f6');
-        track.setAttribute('stroke', '#e5e7eb');
-        track.setAttribute('stroke-width', '1');
         svg.appendChild(track);
 
         // Center divider
@@ -1430,18 +1378,7 @@ function createBalanceChart(e, s, t, j) {
             left.setAttribute('height', barHeight);
             left.setAttribute('fill', pair.leftColor);
             left.setAttribute('rx', '9');
-            left.setAttribute('filter', 'url(#softShadow)');
             svg.appendChild(left);
-
-            // Gloss overlay on left
-            const leftGloss = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            leftGloss.setAttribute('x', centerX - leftWidth);
-            leftGloss.setAttribute('y', y);
-            leftGloss.setAttribute('width', leftWidth);
-            leftGloss.setAttribute('height', barHeight);
-            leftGloss.setAttribute('rx', '9');
-            leftGloss.setAttribute('fill', 'url(#gloss)');
-            svg.appendChild(leftGloss);
         }
 
         // Right segment
@@ -1453,18 +1390,7 @@ function createBalanceChart(e, s, t, j) {
             right.setAttribute('height', barHeight);
             right.setAttribute('fill', pair.rightColor);
             right.setAttribute('rx', '9');
-            right.setAttribute('filter', 'url(#softShadow)');
             svg.appendChild(right);
-
-            // Gloss overlay on right
-            const rightGloss = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rightGloss.setAttribute('x', centerX);
-            rightGloss.setAttribute('y', y);
-            rightGloss.setAttribute('width', rightWidth);
-            rightGloss.setAttribute('height', barHeight);
-            rightGloss.setAttribute('rx', '9');
-            rightGloss.setAttribute('fill', 'url(#gloss)');
-            svg.appendChild(rightGloss);
         }
 
         // Side labels
@@ -1475,7 +1401,10 @@ function createBalanceChart(e, s, t, j) {
         leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         leftLabel.setAttribute('font-size', '12');
         leftLabel.setAttribute('fill', '#6b7280');
-        leftLabel.textContent = pair.leftLabel;
+        // leftLabel.textContent = pair.leftLabel;
+
+        const leftPct = Math.round(pair.value);
+        leftLabel.textContent = `${pair.leftLabel} ${leftPct}%`;
         svg.appendChild(leftLabel);
 
         const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1485,40 +1414,9 @@ function createBalanceChart(e, s, t, j) {
         rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         rightLabel.setAttribute('font-size', '12');
         rightLabel.setAttribute('fill', '#6b7280');
-        rightLabel.textContent = pair.rightLabel;
-        svg.appendChild(rightLabel);
-
-        // Center percentage pill
-        const leftPct = Math.round(pair.value);
         const rightPct = 100 - leftPct;
-        const pctStr = `${pair.leftLabel} ${leftPct}% | ${pair.rightLabel} ${rightPct}%`;
-        const approxCharWidth = 7; // px per char approximation
-        const pillWidth = Math.max(120, pctStr.length * approxCharWidth);
-        const pillHeight = 18;
-        const pillX = centerX - pillWidth / 2;
-        const pillY = y + barHeight + 8;
-
-        const pill = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        pill.setAttribute('x', pillX);
-        pill.setAttribute('y', pillY);
-        pill.setAttribute('width', pillWidth);
-        pill.setAttribute('height', pillHeight);
-        pill.setAttribute('rx', '10');
-        pill.setAttribute('fill', 'rgba(255,255,255,0.85)');
-        pill.setAttribute('stroke', 'rgba(0,0,0,0.06)');
-        pill.setAttribute('stroke-width', '1');
-        pill.setAttribute('filter', 'url(#softShadow)');
-        svg.appendChild(pill);
-
-        const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        pctText.setAttribute('x', centerX);
-        pctText.setAttribute('y', pillY + pillHeight - 4);
-        pctText.setAttribute('text-anchor', 'middle');
-        pctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        pctText.setAttribute('font-size', '11');
-        pctText.setAttribute('fill', '#111827');
-        pctText.textContent = pctStr;
-        svg.appendChild(pctText);
+        rightLabel.textContent = `${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(rightLabel);
     });
 
     root.appendChild(svg);
