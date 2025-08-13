@@ -2279,7 +2279,7 @@ function updateSubscriptionModal() {
             statusIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Премиум активен</span>';
         } else {
             statusIndicator.className = 'status-indicator free';
-            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Бесплатная версия</span>';
+            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Премиум не активен</span>';
         }
     }
     
