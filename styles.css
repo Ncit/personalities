@@ -166,7 +166,7 @@ body {
     
     .header-buttons {
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: 15px;
         width: 100%;
     }
     
@@ -1655,17 +1655,6 @@ body {
 }
 
 /* Animation for type cards */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 .fadeIn {
     animation: fadeIn 0.3s ease-in;
 }
@@ -1713,12 +1702,6 @@ body {
     gap: 12px;
     color: #764ba2;
     font-weight: 500;
-}
-.premium-benefits-list li i,
-.premium-benefits-list li svg {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
 }
 .premium-unlock-msg {
     margin-top: 18px;
@@ -2604,7 +2587,7 @@ body {
 }
 
 .help-content {
-    margin-bottom: 25px;
+    margin: 8px 0 16px 0;
     line-height: 1.6;
 }
 
@@ -2680,13 +2663,12 @@ body {
     
     .help-modal-content h2 {
         font-size: 1.3rem;
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        margin-top: 26px; /* ensure heading sits below close button */
+        margin-bottom: 4px;
+        padding-bottom: 4px;
     }
     
     .help-content {
-        margin-bottom: 20px;
+        margin: 6px 0 4px 0;
         line-height: 1.5;
     }
     
@@ -2697,12 +2679,12 @@ body {
     
     .help-content h4 {
         font-size: 1rem;
-        margin: 12px 0 8px 0;
+        margin: 12px 0 18px 0;
     }
     
     .help-content p {
         font-size: 0.95rem;
-        margin: 8px 0;
+        margin: 4px 0;
     }
     
     .help-content ul, .help-content ol {
@@ -2755,13 +2737,12 @@ body {
     
     .help-modal-content h2 {
         font-size: 1.2rem;
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         padding-bottom: 6px;
-        margin-top: 26px; /* ensure heading sits below close button */
     }
     
     .help-content {
-        margin-bottom: 16px;
+        margin: 4px 0 3px 0;
         line-height: 1.4;
     }
     
@@ -2777,7 +2758,7 @@ body {
     
     .help-content p {
         font-size: 0.9rem;
-        margin: 6px 0;
+        margin: 3px 0;
     }
     
     .help-content ul, .help-content ol {
