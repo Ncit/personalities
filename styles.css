@@ -283,10 +283,6 @@ body {
     transition: transform 0.3s ease;
 }
 
-.dimension:hover {
-    transform: translateY(-5px);
-}
-
 .dimension h3 {
     font-size: 1.1rem;
     margin-bottom: 10px;

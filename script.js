@@ -2820,6 +2820,8 @@ function showHelp(topic) {
     showHelpModal(modalContent);
 }
 
+let helpModalHistoryActive = false;
+
 function showHelpModal(content) {
     // Create modal if it doesn't exist
     let helpModal = document.getElementById('helpModal');
@@ -2843,9 +2845,19 @@ function showHelpModal(content) {
     
     // Prevent background scrolling
     document.body.style.overflow = 'hidden';
+
+    // Push a history state so mobile back-swipe closes the modal first
+    if (!helpModalHistoryActive) {
+        try {
+            history.pushState({ helpModal: true }, '');
+            helpModalHistoryActive = true;
+        } catch (e) {
+            // no-op if history API is unavailable
+        }
+    }
 }
 
-function closeHelpModal() {
+function closeHelpModal(fromPopstate = false) {
     const helpModal = document.getElementById('helpModal');
     if (helpModal) {
         helpModal.style.display = 'none';
@@ -2853,11 +2865,35 @@ function closeHelpModal() {
     
     // Restore background scrolling
     document.body.style.overflow = 'auto';
+
+    // If we pushed a state for the modal and this isn't from a popstate event,
+    // go back once to keep the history stack clean
+    if (helpModalHistoryActive && !fromPopstate) {
+        helpModalHistoryActive = false;
+        try {
+            history.back();
+        } catch (e) {
+            // ignore
+        }
+        return;
+    }
+
+    // Ensure flag is reset when closed via popstate
+    helpModalHistoryActive = false;
 }
 
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
+
+// Close help modal on browser back (e.g., mobile swipe back)
+window.addEventListener('popstate', function() {
+    const helpModal = document.getElementById('helpModal');
+    const isOpen = helpModal && helpModal.style.display !== 'none';
+    if (isOpen && helpModalHistoryActive) {
+        closeHelpModal(true);
+    }
+});
 
 // Generic in-app alert modal using help modal styling
 function showAppAlert(message, title = '') {
