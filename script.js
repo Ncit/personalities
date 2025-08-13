@@ -236,23 +236,35 @@ class MBTIQuiz {
             progressFill.style.width = `${progress}%`;
         }
         
-        // Update navigation buttons
-        if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
-        if (nextBtn) nextBtn.disabled = this.selectedOption === null;
+
+		// Restore previously selected answer for this question (if any)
+		const savedAnswer = this.answers[this.currentQuestion];
+		this.selectedOption = savedAnswer !== undefined ? savedAnswer : null;
+
+		// Update navigation buttons
+		if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
+		if (nextBtn) nextBtn.disabled = this.selectedOption === null;
         
-        // Clear previous selection
-        this.clearOptionSelection();
+		// Clear previous selection
+		this.clearOptionSelection();
+
+		// Re-apply selection styling if answer exists
+		if (this.selectedOption) {
+			document.querySelector(`button[onclick="selectOption(${this.selectedOption})"]`)?.classList.add('selected');
+		}
         
         // Update dev tools visibility
         updateDevToolsVisibility();
     }
 
-    selectOption(optionNumber) {
-        this.clearOptionSelection();
-        this.selectedOption = optionNumber;
-        document.querySelector(`button[onclick="selectOption(${optionNumber})"]`).classList.add('selected');
-        document.getElementById('nextBtn').disabled = false;
-    }
+	selectOption(optionNumber) {
+		this.clearOptionSelection();
+		this.selectedOption = optionNumber;
+		this.answers[this.currentQuestion] = optionNumber;
+		document.querySelector(`button[onclick="selectOption(${optionNumber})"]`).classList.add('selected');
+		document.getElementById('nextBtn').disabled = false;
+		this.recalculateScores();
+	}
 
     clearOptionSelection() {
         document.querySelectorAll('.option-btn').forEach(btn => {
@@ -260,37 +272,43 @@ class MBTIQuiz {
         });
     }
 
-    nextQuestion() {
-        if (this.selectedOption === null) return;
-        
-        // Record answer
-        const question = this.questions[this.currentQuestion];
-        const weight = question.weights[this.selectedOption - 1];
-        
-        if (question.dimension === 'EI') {
-            if (weight > 0) this.scores.I += weight;
-            else if (weight < 0) this.scores.E += Math.abs(weight);
-        } else if (question.dimension === 'SN') {
-            if (weight > 0) this.scores.S += weight;
-            else if (weight < 0) this.scores.N += Math.abs(weight);
-        } else if (question.dimension === 'TF') {
-            if (weight > 0) this.scores.T += weight;
-            else if (weight < 0) this.scores.F += Math.abs(weight);
-        } else if (question.dimension === 'JP') {
-            if (weight > 0) this.scores.J += weight;
-            else if (weight < 0) this.scores.P += Math.abs(weight);
-        }
-        
-        this.answers.push(this.selectedOption);
-        this.selectedOption = null;
-        
-        if (this.currentQuestion < this.questions.length - 1) {
-            this.currentQuestion++;
-            this.displayQuestion();
-        } else {
-            this.showResults();
-        }
-    }
+	// Recalculate scores based on all saved answers
+	recalculateScores() {
+		// Reset scores
+		this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+		for (let i = 0; i < this.questions.length; i++) {
+			const answer = this.answers[i];
+			if (!answer) continue;
+			const q = this.questions[i];
+			const weight = q.weights[answer - 1];
+			if (q.dimension === 'EI') {
+				if (weight > 0) this.scores.I += weight;
+				else if (weight < 0) this.scores.E += Math.abs(weight);
+			} else if (q.dimension === 'SN') {
+				if (weight > 0) this.scores.S += weight;
+				else if (weight < 0) this.scores.N += Math.abs(weight);
+			} else if (q.dimension === 'TF') {
+				if (weight > 0) this.scores.T += weight;
+				else if (weight < 0) this.scores.F += Math.abs(weight);
+			} else if (q.dimension === 'JP') {
+				if (weight > 0) this.scores.J += weight;
+				else if (weight < 0) this.scores.P += Math.abs(weight);
+			}
+		}
+	}
+
+	nextQuestion() {
+		if (this.selectedOption === null) return;
+		// Ensure answer is saved for this question index
+		this.answers[this.currentQuestion] = this.selectedOption;
+		
+		if (this.currentQuestion < this.questions.length - 1) {
+			this.currentQuestion++;
+			this.displayQuestion();
+		} else {
+			this.showResults();
+		}
+	}
 
     previousQuestion() {
         if (this.currentQuestion > 0) {
@@ -304,7 +322,9 @@ class MBTIQuiz {
         }
     }
 
-    showResults() {
+	showResults() {
+		// Always recompute scores from saved answers to ensure consistency
+		this.recalculateScores();
         // Get elements with null checks
         const quizQuestions = document.getElementById('quizQuestions');
         const resultsScreen = document.getElementById('resultsScreen');
@@ -2513,7 +2533,7 @@ function restoreSubscription() {
 
 function contactSupport() {
     if (window.showAppAlert) {
-        window.showAppAlert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+        window.showAppAlert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru', 'Связаться с поддержкой');
     } else {
         alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
     }
