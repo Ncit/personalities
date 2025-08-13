@@ -154,8 +154,7 @@ Welcome to the MBTI Personality Quiz documentation. This directory contains comp
 - **[FIREBASE_DEBUG_TOGGLE.md](./deployment/FIREBASE_DEBUG_TOGGLE.md)** - Firebase debug mode
 
 ### 🛠️ Development Guides
-- **[ERUDA_DEBUG_GUIDE.md](./guides/ERUDA_DEBUG_GUIDE.md)** - Debugging with Eruda
-- **[LOGGER_MANAGER.md](./guides/LOGGER_MANAGER.md)** - Logging system
+ - **[LOGGER_MANAGER.md](./guides/LOGGER_MANAGER.md)** - Logging system
 - **[LOCALSTORAGE_CLEARING_FIX.md](./guides/LOCALSTORAGE_CLEARING_FIX.md)** - LocalStorage management
 - **[LOCALSTORAGE_CLEARING_ISSUE_RESOLVED.md](./guides/LOCALSTORAGE_CLEARING_ISSUE_RESOLVED.md)** - LocalStorage fixes
 - **[UI_UPDATE_ISSUE_RESOLVED.md](./guides/UI_UPDATE_ISSUE_RESOLVED.md)** - UI update fixes
@@ -172,10 +171,9 @@ Welcome to the MBTI Personality Quiz documentation. This directory contains comp
 ## 🎯 Quick Start
 
 1. **New to the project?** Start with [ARCHITECTURE.md](./architecture/ARCHITECTURE.md)
-2. **Setting up development?** Check [ERUDA_DEBUG_GUIDE.md](./guides/ERUDA_DEBUG_GUIDE.md)
-3. **Deploying?** Review [FIREBASE_ANALYTICS_FIX.md](./deployment/FIREBASE_ANALYTICS_FIX.md)
-4. **VK integration?** Read [VK_INTEGRATION_REFACTORING_SUMMARY.md](./api/VK_INTEGRATION_REFACTORING_SUMMARY.md)
-5. **Maintaining organization?** Check [MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md)
+2. **Deploying?** Review [FIREBASE_ANALYTICS_FIX.md](./deployment/FIREBASE_ANALYTICS_FIX.md)
+3. **VK integration?** Read [VK_INTEGRATION_REFACTORING_SUMMARY.md](./api/VK_INTEGRATION_REFACTORING_SUMMARY.md)
+4. **Maintaining organization?** Check [MAINTAINING_ORGANIZATION.md](./MAINTAINING_ORGANIZATION.md)
 
 ## 🔍 Search Documentation
 

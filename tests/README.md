@@ -11,8 +11,7 @@ tests/
 ├── test_cors_removal.html       # CORS removal testing
 ├── test_permissive_cors.html    # Permissive CORS testing
 ├── test_timeout_fix.html        # Timeout error testing
-├── test_vk_user_service.html    # VK user service testing
-└── test-eruda.html              # Eruda debug testing
+└── test_vk_user_service.html    # VK user service testing
 ```
 
 ## 🧪 Test Categories
@@ -27,7 +26,6 @@ tests/
 - **Error Handling**: Tests for error scenarios and fixes
   - `test_timeout_fix.html` - Timeout error resolution
   - `test_vk_user_service.html` - VK user service functionality
-  - `test-eruda.html` - Eruda debugging tool integration
 
 ## 🚀 Running Tests
 
@@ -59,7 +57,6 @@ Current test coverage includes:
 - ✅ CORS configuration and fixes
 - ✅ VK platform integration
 - ✅ Error handling scenarios
-- ✅ Debug tool integration
 - ✅ User service functionality
 
 ## 🛠️ Adding New Tests

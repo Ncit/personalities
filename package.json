@@ -41,7 +41,6 @@
     "vite-bundle-analyzer": "^0.7.0"
   },
   "dependencies": {
-    "eruda": "^3.4.3",
     "firebase": "^12.0.0",
     "jspdf": "^3.0.1"
   },

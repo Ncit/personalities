@@ -215,63 +215,7 @@ class DebugUtils {
         console.groupEnd();
     }
 
-    /**
-     * Test Eruda functionality
-     */
-    testEruda() {
-        console.log('🧪 Testing Eruda functionality...');
-        
-        // Test if Eruda is available
-        const erudaAvailable = typeof eruda !== 'undefined';
-        console.log('Eruda available:', erudaAvailable);
-        
-        if (erudaAvailable) {
-            // Test if Eruda is initialized
-            const erudaInitialized = eruda.get && eruda.get().container;
-            console.log('Eruda initialized:', erudaInitialized);
-            
-            // Test if Eruda is visible
-            const erudaVisible = eruda.get && eruda.get().container && 
-                                eruda.get().container.style.display !== 'none';
-            console.log('Eruda visible:', erudaVisible);
-            
-            // Test Eruda methods
-            try {
-                const methods = Object.keys(eruda);
-                console.log('Eruda methods:', methods);
-                
-                // Test show/hide
-                if (eruda.show && eruda.hide) {
-                    console.log('✅ Eruda show/hide methods available');
-                }
-                
-                // Test plugins
-                if (eruda.get) {
-                    const plugins = ['console', 'elements', 'network', 'resources', 'info', 'snippets'];
-                    plugins.forEach(plugin => {
-                        try {
-                            const pluginInstance = eruda.get(plugin);
-                            console.log(`✅ Plugin ${plugin}:`, !!pluginInstance);
-                        } catch (e) {
-                            console.log(`❌ Plugin ${plugin}:`, false);
-                        }
-                    });
-                }
-                
-            } catch (error) {
-                console.error('❌ Error testing Eruda methods:', error);
-            }
-        } else {
-            console.error('❌ Eruda not available');
-        }
-        
-        return {
-            available: erudaAvailable,
-            initialized: erudaAvailable && eruda.get && eruda.get().container,
-            visible: erudaAvailable && eruda.get && eruda.get().container && 
-                    eruda.get().container.style.display !== 'none'
-        };
-    }
+    
 }
 
 // Create global instance
@@ -297,8 +241,7 @@ window.debug = {
     enable: () => debugUtils.enable(),
     disable: () => debugUtils.disable(),
     setLevel: (level) => debugUtils.setLogLevel(level),
-    info: () => debugUtils.exportDebugInfo(),
-    testEruda: () => debugUtils.testEruda()
+    info: () => debugUtils.exportDebugInfo()
 };
 
 export default debugUtils; 
