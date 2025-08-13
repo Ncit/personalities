@@ -1100,8 +1100,14 @@ function createAnalyticsCharts() {
     // Pie chart
     createPieChart(ePercentage, sPercentage, tPercentage, jPercentage);
     
-    // Timeline chart
-    createTimelineChart();
+    // Timeline chart (dynamic position based on clarity of preferences)
+    const clarity = ((
+        Math.abs(ePercentage - 50) +
+        Math.abs(sPercentage - 50) +
+        Math.abs(tPercentage - 50) +
+        Math.abs(jPercentage - 50)
+    ) / 4) * 2; // 0..100 scale
+    createTimelineChart(clarity);
     
     // Strengths chart
     createStrengthsChart(ePercentage, sPercentage, tPercentage, jPercentage);
@@ -1339,15 +1345,15 @@ function createBalanceChart(e, s, t, j) {
         const leftWidth = half * (pair.value / 100);
         const rightWidth = half * (1 - pair.value / 100);
 
-        // // Pair label (E/I, S/N, ...)
-        // const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        // nameText.setAttribute('x', 10);
-        // nameText.setAttribute('y', y + barHeight - 2);
-        // nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-        // nameText.setAttribute('font-size', '12');
-        // nameText.setAttribute('fill', '#374151');
-        // nameText.textContent = pair.name;
-        // svg.appendChild(nameText);
+        // Pair label (E/I, S/N, ...)
+        const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        nameText.setAttribute('x', 10);
+        nameText.setAttribute('y', y + barHeight - 2);
+        nameText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        nameText.setAttribute('font-size', '12');
+        nameText.setAttribute('fill', '#374151');
+        nameText.textContent = pair.name;
+        svg.appendChild(nameText);
 
         // Track background
         const track = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -1401,10 +1407,7 @@ function createBalanceChart(e, s, t, j) {
         leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         leftLabel.setAttribute('font-size', '12');
         leftLabel.setAttribute('fill', '#6b7280');
-        // leftLabel.textContent = pair.leftLabel;
-
-        const leftPct = Math.round(pair.value);
-        leftLabel.textContent = `${pair.leftLabel} ${leftPct}%`;
+        leftLabel.textContent = pair.leftLabel;
         svg.appendChild(leftLabel);
 
         const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1414,9 +1417,21 @@ function createBalanceChart(e, s, t, j) {
         rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
         rightLabel.setAttribute('font-size', '12');
         rightLabel.setAttribute('fill', '#6b7280');
-        const rightPct = 100 - leftPct;
-        rightLabel.textContent = `${pair.rightLabel} ${rightPct}%`;
+        rightLabel.textContent = pair.rightLabel;
         svg.appendChild(rightLabel);
+
+        // Center percentage text
+        const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pctText.setAttribute('x', centerX);
+        pctText.setAttribute('y', y + barHeight - 3);
+        pctText.setAttribute('text-anchor', 'middle');
+        pctText.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pctText.setAttribute('font-size', '12');
+        pctText.setAttribute('fill', '#111827');
+        const leftPct = Math.round(pair.value);
+        const rightPct = 100 - leftPct;
+        pctText.textContent = `${pair.leftLabel} ${leftPct}% | ${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(pctText);
     });
 
     root.appendChild(svg);
@@ -1484,7 +1499,7 @@ function createPieChart(e, s, t, j) {
 }
 
 // Minimalistic Timeline Chart
-function createTimelineChart() {
+function createTimelineChart(clarityValue = 50) {
     const root = document.getElementById('timelineChart');
     if (!root) return;
     root.innerHTML = '';
@@ -1502,9 +1517,14 @@ function createTimelineChart() {
     line.setAttribute('stroke-width', '2');
     svg.appendChild(line);
 
+    // Map clarity (0..100) to position from 60..260 where 50 is center ~=160
+    const minX = 60;
+    const maxX = 260;
+    const presentX = minX + (Math.max(0, Math.min(100, clarityValue)) / 100) * (maxX - minX);
+
     const points = [
         { x: 60, label: 'Прошлое', color: '#9ca3af' },
-        { x: 160, label: 'Настоящее', color: '#667eea' },
+        { x: presentX, label: 'Настоящее', color: '#667eea' },
         { x: 260, label: 'Будущее', color: '#9ca3af' }
     ];
 
