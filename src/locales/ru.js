@@ -111,6 +111,10 @@ export const ru = {
         shareDetails: 'Мой тип: {type}. Баллы — E:{e}% I:{i}%, S:{s}% N:{n}%, T:{t}% F:{f}%, J:{j}% P:{p}%',
         sharePersonality: 'Личность: {title} ({type})',
         shareFamous: 'Известные люди: {names}',
+
+        // Reset confirmation
+        resetConfirmTitle: 'Начать тест заново?',
+        resetConfirmMessage: 'Вы уверены, что хотите начать текущий тест заново? Все выбранные ответы будут очищены.',
         
         copyLink: 'Копировать ссылку',
         

@@ -187,11 +187,23 @@ class MBTIQuiz {
             onMainPageBtn.style.display = 'none';
         }
         
-        // Hide the subscription button when starting the quiz
+		// Hide the subscription button when starting the quiz
         const subscriptionBtn = document.getElementById('subscriptionBtn');
         if (subscriptionBtn) {
             subscriptionBtn.style.display = 'none';
         }
+
+		// If there are saved results for this quiz type, show them immediately and reveal reset button
+		const saved = this.loadResultsFromStorageByTest();
+		if (saved) {
+			this.scores = saved.scores;
+			this.answers = saved.answers;
+			this.currentQuestion = this.questions.length - 1;
+			this.showResults();
+			const resetBtn = document.getElementById('resetTestBtn');
+			if (resetBtn) resetBtn.style.display = 'inline-block';
+			return;
+		}
         
         // Scroll to top to center the quiz content
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -360,6 +372,10 @@ class MBTIQuiz {
                 showInterstitialAd();
             }, 2000); // Show after 2 seconds
         }
+
+        // Show reset button near home button on results screen
+        const resetBtn = document.getElementById('resetTestBtn');
+        if (resetBtn) resetBtn.style.display = 'inline-block';
         
         // Log to Firebase Analytics
         if (window.firebaseAnalytics) {
@@ -518,7 +534,7 @@ class MBTIQuiz {
         checkAndShowLastResultsButton();
     }
     
-    saveResultsToStorage(personalityType) {
+		saveResultsToStorage(personalityType) {
         const results = {
             personalityType: personalityType,
             scores: this.scores,
@@ -526,24 +542,39 @@ class MBTIQuiz {
             timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString()
         };
-        
-        localStorage.setItem('mbti_last_results', JSON.stringify(results));
+			
+			// Save general last results
+			localStorage.setItem('mbti_last_results', JSON.stringify(results));
+			// Save per-test results using test key
+			const testKey = this.getTestStorageKey();
+			localStorage.setItem(testKey, JSON.stringify(results));
     }
     
-    loadResultsFromStorage() {
+		loadResultsFromStorage() {
         const saved = localStorage.getItem('mbti_last_results');
         if (saved) {
             return JSON.parse(saved);
         }
         return null;
     }
+
+		// Load results for current test type
+		loadResultsFromStorageByTest() {
+			const saved = localStorage.getItem(this.getTestStorageKey());
+			return saved ? JSON.parse(saved) : null;
+		}
     
-    hasPreviousResults() {
+		hasPreviousResults() {
         return localStorage.getItem('mbti_last_results') !== null;
     }
+
+		// Check previous results for current test type
+		hasPreviousResultsForTest() {
+			return localStorage.getItem(this.getTestStorageKey()) !== null;
+		}
     
     displayLastResults() {
-        const results = this.loadResultsFromStorage();
+			const results = this.loadResultsFromStorageByTest() || this.loadResultsFromStorage();
         if (!results) return false;
         
         // Restore scores and answers
@@ -570,6 +601,11 @@ class MBTIQuiz {
         
         return true;
     }
+
+	getTestStorageKey() {
+		const quizType = this.currentQuizType || 'mbti';
+		return `mbti_results_${quizType}`;
+	}
 
     shareResults() {
         const personalityType = this.calculatePersonalityType();
@@ -1911,7 +1947,10 @@ function viewLastResults() {
 // Function to check and show last results button
 function checkAndShowLastResultsButton() {
     const viewLastResultsBtn = document.getElementById('viewLastResultsBtn');
-    if (quiz && quiz.hasPreviousResults()) {
+    if (!viewLastResultsBtn) return;
+    const hasPerTest = quiz && typeof quiz.hasPreviousResultsForTest === 'function' && quiz.hasPreviousResultsForTest();
+    const hasAny = quiz && typeof quiz.hasPreviousResults === 'function' && quiz.hasPreviousResults();
+    if (hasPerTest || hasAny) {
         viewLastResultsBtn.style.display = 'inline-block';
     } else {
         viewLastResultsBtn.style.display = 'none';
@@ -2040,7 +2079,7 @@ function startQuizType(quizType) {
         
         welcomeContent.textContent = quizTypeTitles[quizType] || localizationManager.get('ui.mbtiQuiz');
         
-        // Start the quiz
+        // Start the quiz (will auto-show saved results if present)
         quiz.startQuiz();
         
         // Restore original title when quiz ends
@@ -2179,6 +2218,66 @@ function restartQuiz() {
             }
         }, 2000); // Show after 2 seconds
     }
+
+    // Hide reset button after restart
+    const resetBtn = document.getElementById('resetTestBtn');
+    if (resetBtn) resetBtn.style.display = 'none';
+}
+
+// Reset current test data and start over
+function resetCurrentTest() {
+    if (!quiz) return;
+    // Confirm reset using in-app modal
+    const title = localizationManager.get('ui.resetConfirmTitle');
+    const msg = localizationManager.get('ui.resetConfirmMessage');
+    const content = `
+        <div class="help-modal-content">
+            <span class="close" onclick="closeHelpModal()">&times;</span>
+            <h2>${title}</h2>
+            <div class="help-content">
+                <p>${msg}</p>
+            </div>
+            <div class="help-modal-actions">
+                <button class="btn btn-secondary" onclick="closeHelpModal()">
+                    ${localizationManager.get('ui.cancel') || 'Cancel'}
+                </button>
+                <button class="btn btn-danger" id="confirmResetBtn">
+                    ${localizationManager.get('ui.restartQuiz') || 'Restart'}
+                </button>
+            </div>
+        </div>
+    `;
+    showHelpModal(content);
+    // Attach one-time handler for confirm
+    setTimeout(() => {
+        const btn = document.getElementById('confirmResetBtn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                closeHelpModal();
+                proceedResetCurrentTest();
+            }, { once: true });
+        }
+    }, 0);
+    return;
+
+    function proceedResetCurrentTest() {
+        // Clear saved results for this test
+        try {
+            localStorage.removeItem(quiz.getTestStorageKey());
+        } catch (e) {}
+        // Reset runtime state
+        quiz.currentQuestion = 0;
+        quiz.answers = [];
+        quiz.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        quiz.selectedOption = null;
+        
+        // Start quiz from the beginning
+        if (typeof startQuiz === 'function') {
+            startQuiz();
+        } else if (quiz && typeof quiz.startQuiz === 'function') {
+            quiz.startQuiz();
+        }
+    }
 }
 
 function shareResults() {
@@ -2238,6 +2337,7 @@ window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.fillPremiumRandomAnswers = fillPremiumRandomAnswers;
 window.copyShareLink = copyShareLink;
+window.resetCurrentTest = resetCurrentTest;
 
 /**
  * Update Firebase Analytics debug button appearance

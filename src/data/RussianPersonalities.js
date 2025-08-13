@@ -406,7 +406,6 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Баста', profession: 'Рэпер', image: '🎤' },
         { name: 'Noize MC', profession: 'Рэпер', image: '🎸' },
         { name: 'Илья Прусикин', profession: 'Музыкант', image: '🎵' },
-        { name: 'Михаил Зыгарь', profession: 'Журналист', image: '📰' },
         { name: 'Рената Литвинова', profession: 'Режиссер и актриса', image: '🎬' },
         { name: 'Гарик Сукачев', profession: 'Музыкант', image: '🎸' }
     ],

@@ -111,6 +111,10 @@ export const en = {
         shareDetails: 'My type: {type}. Scores — E:{e}% I:{i}%, S:{s}% N:{n}%, T:{t}% F:{f}%, J:{j}% P:{p}%',
         sharePersonality: 'Personality: {title} ({type})',
         shareFamous: 'Famous people: {names}',
+
+        // Reset confirmation
+        resetConfirmTitle: 'Restart test?',
+        resetConfirmMessage: 'Are you sure you want to restart the current test? All selected answers will be cleared.',
         
         copyLink: 'Copy Link',
         

@@ -26,6 +26,9 @@
                 <button class="btn btn-secondary" id="onMainPageBtn" onclick="restartQuiz()" style="display: none;">
                     <i class="fas fa-home"></i> На главную
                 </button>
+                <button class="btn btn-secondary" id="resetTestBtn" onclick="resetCurrentTest()" style="display: none;">
+                    <i class="fas fa-redo"></i> Начать заново
+                </button>
                 <button class="btn btn-secondary" id="debugToggleBtn" onclick="toggleFirebaseAnalyticsDebug()" style="font-size: 12px; display: none;">
                     <i class="fas fa-bug"></i> Firebase Debug
                 </button>
@@ -65,10 +68,6 @@
                     </button>
                         <button class="btn btn-secondary" onclick="openTypesModal()">
                         <i class="fas fa-book-open"></i> Просмотреть типы
-                    </button>
-                        <button class="btn btn-secondary" id="viewLastResultsBtn" onclick="viewLastResults()" style="display: none;">
-                        <i class="fas fa-history"></i> Посмотреть последние результаты
-                    </button>
                     </div>
                     
                     <!-- Premium Quiz Types -->
