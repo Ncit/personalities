@@ -2061,8 +2061,7 @@ function confirmExitQuiz() {
     // Close the modal first
     closeExitQuizModal();
     
-    // Reload the website
-    location.reload();
+    restartQuiz();
 }
 
 // Make all functions available globally for HTML onclick handlers

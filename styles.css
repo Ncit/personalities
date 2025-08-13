@@ -1118,9 +1118,10 @@ body {
     }
 }
 
+.welcome-screen,
 .quiz-questions,
 .results-screen {
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn 0.1s ease;
 }
 
 /* Loading Animation */
