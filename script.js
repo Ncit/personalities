@@ -658,7 +658,7 @@ class MBTIQuiz {
             navigator.share({
                 title: shareTitle,
                 text: shareText,
-                url: window.location.href
+                url: "https://vk.com/app53942833"
             });
         }
     }

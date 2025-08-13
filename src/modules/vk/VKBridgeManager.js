@@ -258,7 +258,7 @@ export class VKBridgeManager {
 
         try {
             await this.bridge.send('VKWebAppShare', {
-                link: window.location.href,
+                link: "https://vk.com/app53942833",
                 title: shareTitle,
                 text: shareText
             });
