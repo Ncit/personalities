@@ -103,7 +103,6 @@ scripts/
 
 ### External Dependencies
 - **Firebase:** Analytics and error tracking
-- **jsPDF:** PDF generation for results
 
 ### Internal Dependencies
 - **Vite:** Build tool and development server

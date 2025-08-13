@@ -1498,7 +1498,6 @@ function createStrengthsChart(e, s, t, j) {
     });
 }
 
-// PDF generation has been removed
 
 // Function to copy share link
 function copyShareLink() {
