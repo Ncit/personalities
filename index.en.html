@@ -495,6 +495,11 @@
                     </button>
                 </div>
                 <div id="typesList" class="types-grid"></div>
+                <div class="scroll-top-container">
+                    <button class="btn btn-secondary scroll-top-btn" onclick="document.querySelector('#typesModal .types-modal-content').scrollTo({ top: 0, behavior: 'smooth' })">
+                        <i class="fas fa-arrow-up"></i> Scroll to top
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -563,7 +568,7 @@
                         <h3>Subscription Status</h3>
                         <div class="status-indicator" id="subscriptionStatus">
                             <i class="fas fa-times-circle"></i>
-                            <span>Free Version</span>
+                            <span>Premiun is not active</span>
                         </div>
                     </div>
                 </div>
