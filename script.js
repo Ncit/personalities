@@ -430,17 +430,43 @@ class MBTIQuiz {
         const tPercentage = totalT > 0 ? (this.scores.T / totalT) * 100 : 50;
         const jPercentage = totalJ > 0 ? (this.scores.J / totalJ) * 100 : 50;
         
-        // Get elements with null checks
-        const eBar = document.getElementById('eBar');
-        const sBar = document.getElementById('sBar');
-        const tBar = document.getElementById('tBar');
-        const jBar = document.getElementById('jBar');
-        
-        // Set width with null checks
-        if (eBar) eBar.style.width = `${ePercentage}%`;
-        if (sBar) sBar.style.width = `${sPercentage}%`;
-        if (tBar) tBar.style.width = `${tPercentage}%`;
-        if (jBar) jBar.style.width = `${jPercentage}%`;
+        // New dual-sided bars centered around the middle
+        const eLeft = document.getElementById('eLeft');
+        const iRight = document.getElementById('iRight');
+        const sLeft = document.getElementById('sLeft');
+        const nRight = document.getElementById('nRight');
+        const tLeft = document.getElementById('tLeft');
+        const fRight = document.getElementById('fRight');
+        const jLeft = document.getElementById('jLeft');
+        const pRight = document.getElementById('pRight');
+
+        if (eLeft) eLeft.style.width = `${ePercentage}%`;
+        if (iRight) iRight.style.width = `${100 - ePercentage}%`;
+        if (sLeft) sLeft.style.width = `${sPercentage}%`;
+        if (nRight) nRight.style.width = `${100 - sPercentage}%`;
+        if (tLeft) tLeft.style.width = `${tPercentage}%`;
+        if (fRight) fRight.style.width = `${100 - tPercentage}%`;
+        if (jLeft) jLeft.style.width = `${jPercentage}%`;
+        if (pRight) pRight.style.width = `${100 - jPercentage}%`;
+
+        // Update percents text
+        const ePctL = document.getElementById('ePctL');
+        const ePctR = document.getElementById('ePctR');
+        const sPctL = document.getElementById('sPctL');
+        const sPctR = document.getElementById('sPctR');
+        const tPctL = document.getElementById('tPctL');
+        const tPctR = document.getElementById('tPctR');
+        const jPctL = document.getElementById('jPctL');
+        const jPctR = document.getElementById('jPctR');
+
+        if (ePctL) ePctL.textContent = `${Math.round(ePercentage)}%`;
+        if (ePctR) ePctR.textContent = `${Math.round(100 - ePercentage)}%`;
+        if (sPctL) sPctL.textContent = `${Math.round(sPercentage)}%`;
+        if (sPctR) sPctR.textContent = `${Math.round(100 - sPercentage)}%`;
+        if (tPctL) tPctL.textContent = `${Math.round(tPercentage)}%`;
+        if (tPctR) tPctR.textContent = `${Math.round(100 - tPercentage)}%`;
+        if (jPctL) jPctL.textContent = `${Math.round(jPercentage)}%`;
+        if (jPctR) jPctR.textContent = `${Math.round(100 - jPercentage)}%`;
     }
 
     restartQuiz() {

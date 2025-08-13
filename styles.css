@@ -846,12 +846,15 @@ body {
 .dimension-bars {
     display: grid;
     gap: 20px;
+    max-width: 720px;
+    margin: 0 auto;
 }
 
 .dimension-bar {
     display: flex;
     align-items: center;
     gap: 15px;
+    justify-content: center;
 }
 
 .dimension-bar span {
@@ -868,6 +871,8 @@ body {
     border-radius: 10px;
     overflow: hidden;
     position: relative;
+    max-width: 520px;
+    margin: 0 10px;
 }
 
 .bar-fill {
@@ -875,6 +880,32 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 10px;
     transition: width 1s ease;
+}
+
+/* Enhanced dimension breakdown UI */
+.dimension-item { padding: 6px 0; }
+.dimension-header { display: flex; justify-content: space-between; max-width: 680px; margin: 0 auto 6px; }
+.dimension-label { font-weight: 600; color: #333; min-width: 140px; font-size: 0.95rem; }
+.dimension-label.left { text-align: left; }
+.dimension-label.right { text-align: right; }
+
+.dual-bar { display: flex; align-items: center; width: 100%; max-width: 680px; gap: 8px; margin: 0 auto; }
+.bar-segment { flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; position: relative; }
+.bar-segment.left .bar-fill { position: absolute; right: 0; top: 0; height: 100%; }
+.bar-segment.right .bar-fill { position: absolute; left: 0; top: 0; height: 100%; }
+
+.center-marker { width: 2px; height: 24px; background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+.dimension-percents { display: flex; justify-content: space-between; max-width: 680px; margin: 4px auto 0; font-size: 0.85rem; color: #555; }
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .dimension-label { min-width: auto; font-size: 0.9rem; }
+    .dimension-header { gap: 8px; }
+    .dual-bar { gap: 6px; }
+    .bar-segment { height: 16px; }
+    .center-marker { height: 20px; }
+    .dimension-percents { font-size: 0.8rem; }
 }
 
 .action-buttons {
