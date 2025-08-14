@@ -92,7 +92,7 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Анна Политковская', profession: 'Журналист', image: '📰' },
         { name: 'Наталья Эстемирова', profession: 'Правозащитница', image: '✊' },
         { name: 'Людмила Алексеева', profession: 'Правозащитница', image: '✊' },
-        { name: 'Светлана Ганнушкина', profession: 'Правозащитница', image: '✊' }
+        
     ],
 
     INTJ: [
@@ -164,7 +164,6 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Александр Волкановский', profession: 'Боец ММА', image: '🥋' },
         
         // Chess Players
-        { name: 'Гарри Каспаров', profession: 'Шахматист', image: '♟️' },
         { name: 'Анатолий Карпов', profession: 'Шахматист', image: '♟️' },
         { name: 'Владимир Крамник', profession: 'Шахматист', image: '♟️' },
         { name: 'Сергей Карякин', profession: 'Шахматист', image: '♟️' },
@@ -318,7 +317,6 @@ export const RUSSIAN_PERSONALITIES = {
     ESFJ: [
         // TV & Entertainment
         { name: 'Иван Ургант', profession: 'Телеведущий', image: '📺' },
-        { name: 'Максим Галкин', profession: 'Артист', image: '🎭' },
         { name: 'Филипп Киркоров', profession: 'Певец', image: '🎤' },
         { name: 'Лариса Гузеева', profession: 'Актриса и телеведущая', image: '📺' },
         { name: 'Регина Тодоренко', profession: 'Телеведущая', image: '🎤' },
@@ -349,7 +347,6 @@ export const RUSSIAN_PERSONALITIES = {
 
     ENTJ: [
         // Business & Strategy
-        { name: 'Олег Тиньков', profession: 'Предприниматель', image: '💳' },
         { name: 'Татьяна Бакальчук', profession: 'Основательница Wildberries', image: '🛍️' },
         { name: 'Игорь Ашурбейли', profession: 'Предприниматель', image: '🏗️' },
         { name: 'Анатолий Чубайс', profession: 'Менеджер и реформатор', image: '🧩' },
@@ -369,7 +366,6 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Никита Михалков', profession: 'Режиссер и общественный деятель', image: '🎬' },
         { name: 'Егор Крид', profession: 'Певец', image: '🎤' },
         { name: 'Тимати', profession: 'Рэпер и бизнесмен', image: '🎧' },
-        { name: 'Моргенштерн', profession: 'Артист', image: '🎵' },
         { name: 'Александр Емельяненко', profession: 'Боец ММА', image: '🥊' },
         { name: 'Артем Дзюба', profession: 'Футболист', image: '⚽' },
         { name: 'Федор Смолов', profession: 'Футболист', image: '⚽' },
@@ -384,7 +380,6 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Алла Пугачева', profession: 'Певица', image: '🎤' },
         { name: 'Николай Басков', profession: 'Певец', image: '🎶' },
         { name: 'Вера Брежнева', profession: 'Певица', image: '🎤' },
-        { name: 'Земфира', profession: 'Певица', image: '🎵' },
         { name: 'Полина Гагарина', profession: 'Певица', image: '🎶' },
         { name: 'Дима Билан', profession: 'Певец', image: '🎤' },
         { name: 'Сергей Лазарев', profession: 'Певец', image: '🎤' },
@@ -399,31 +394,22 @@ export const RUSSIAN_PERSONALITIES = {
         // Creative & Media
         { name: 'Виктор Цой', profession: 'Музыкант', image: '🎸' },
         { name: 'Сергей Бодров', profession: 'Актер и режиссер', image: '🎬' },
-        { name: 'Юрий Дудь', profession: 'Журналист и интервьюер', image: '🎤' },
         { name: 'Ксения Собчак', profession: 'ТВ и общественный деятель', image: '📺' },
-        { name: 'Дмитрий Быков', profession: 'Писатель и публицист', image: '🖋️' },
-        { name: 'Оксимирон', profession: 'Рэпер', image: '🎤' },
         { name: 'Баста', profession: 'Рэпер', image: '🎤' },
-        { name: 'Noize MC', profession: 'Рэпер', image: '🎸' },
-        { name: 'Илья Прусикин', profession: 'Музыкант', image: '🎵' },
         { name: 'Рената Литвинова', profession: 'Режиссер и актриса', image: '🎬' },
         { name: 'Гарик Сукачев', profession: 'Музыкант', image: '🎸' }
     ],
 
     ENTP: [
         // Debaters & Innovators
-        { name: 'Илья Варламов', profession: 'Блогер и урбанист', image: '🏙️' },
-        { name: 'Александр Невзоров', profession: 'Журналист', image: '📰' },
         { name: 'Павел Воля', profession: 'Комик и шоумен', image: '🎤' },
         { name: 'Леонид Парфенов', profession: 'Журналист', image: '📺' },
         { name: 'Анатолий Вассерман', profession: 'Публицист', image: '🧠' },
-        { name: 'Данила Поперечный', profession: 'Комик', image: '🎤' },
         { name: 'Гарик Мартиросян', profession: 'Комик', image: '🎭' },
         { name: 'Михаил Галустян', profession: 'Комик', image: '🎭' },
         { name: 'Дмитрий Пучков', profession: 'Публицист', image: '📝' },
         { name: 'Юрий Хованский', profession: 'Блогер', image: '🎥' },
-        { name: 'Максим Кац', profession: 'Общественный деятель', image: '🏙️' },
-        { name: 'Олег Кашин', profession: 'Журналист', image: '📰' }
+        
     ]
 };
 
