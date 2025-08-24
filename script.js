@@ -255,7 +255,16 @@ class MBTIQuiz {
 
 		// Update navigation buttons
 		if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
-		if (nextBtn) nextBtn.disabled = this.selectedOption === null;
+		if (nextBtn) {
+			nextBtn.disabled = this.selectedOption === null;
+			
+			// Change button text for last question
+			if (this.currentQuestion === this.questions.length - 1) {
+				nextBtn.innerHTML = 'Показать результаты <i class="fas fa-chart-bar"></i>';
+			} else {
+				nextBtn.innerHTML = 'Следующий <i class="fas fa-arrow-right"></i>';
+			}
+		}
         
 		// Clear previous selection
 		this.clearOptionSelection();
