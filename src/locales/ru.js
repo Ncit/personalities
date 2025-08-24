@@ -148,7 +148,7 @@ export const ru = {
         dimensionSN: 'Сенсорика (S) vs Интуиция (N)',
         dimensionTF: 'Мышление (T) vs Чувство (F)',
         dimensionJP: 'Суждение (J) vs Восприятие (P)',
-        dimensionEIDesc: 'Как вы направляете и получаете энергию',
+        dimensionEIDesc: 'Откуда вы черпаете энергию',
         dimensionSNDesc: 'Как вы воспринимаете информацию',
         dimensionTFDesc: 'Как вы принимаете решения',
         dimensionJPDesc: 'Как вы подходите к внешнему миру',
