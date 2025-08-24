@@ -664,15 +664,6 @@ class MBTIQuiz {
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
             // Create enhanced share text for VK to make results more prominent
             const vkShareText = this.createEnhancedVKShareText(personalityType, shareText, shareTitle);
-            
-            // Debug: Log what we're trying to share
-            console.log('VK Share Debug:', {
-                personalityType,
-                shareText: vkShareText,
-                shareTitle,
-                textLength: vkShareText.length
-            });
-            
             vkBridgeManager.shareResults(personalityType, vkShareText, shareTitle);
         } else if (navigator.share) {
             navigator.share({
@@ -692,31 +683,31 @@ class MBTIQuiz {
         
         if (currentLocale === 'ru') {
             enhancedText = [
-                `Мой результат теста личности MBTI:`,
-                `${personalityType} - ${personalityTitle}`,
+                `🎯 Мой результат теста личности MBTI:`,
+                `✨ ${personalityType} - ${personalityTitle}`,
                 ``,
-                `Мои предпочтения:`,
-                `Экстраверсия (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
-                `Сенсорика (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
-                `Мышление (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
-                `Суждение (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
+                `📊 Мои предпочтения:`,
+                `• Экстраверсия (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
+                `• Сенсорика (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
+                `• Мышление (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
+                `• Суждение (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
                 ``,
-                `Пройди тест и узнай свой тип личности!`,
-                `Ссылка на приложение ниже`
+                `🚀 Пройди тест и узнай свой тип личности!`,
+                `Ссылка на приложение ниже 👇`
             ].join('\n');
         } else {
             enhancedText = [
-                `My MBTI Personality Test Result:`,
-                `${personalityType} - ${personalityTitle}`,
+                `🎯 My MBTI Personality Test Result:`,
+                `✨ ${personalityType} - ${personalityTitle}`,
                 ``,
-                `My Preferences:`,
-                `Extraversion (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
-                `Sensing (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
-                `Thinking (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
-                `Judging (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
+                `📊 My Preferences:`,
+                `• Extraversion (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
+                `• Sensing (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
+                `• Thinking (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
+                `• Judging (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
                 ``,
-                `Take the test and discover your personality type!`,
-                `App link below`
+                `🚀 Take the test and discover your personality type!`,
+                `App link below 👇`
             ].join('\n');
         }
         
