@@ -662,9 +662,7 @@ class MBTIQuiz {
         
         // Use VK Bridge if available, otherwise fallback to native sharing
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-            // Create enhanced share text for VK to make results more prominent
-            const vkShareText = this.createEnhancedVKShareText(personalityType, shareText, shareTitle);
-            vkBridgeManager.shareResults(personalityType, vkShareText, shareTitle);
+            vkBridgeManager.shareResults(personalityType, shareText, shareTitle);
         } else if (navigator.share) {
             navigator.share({
                 title: shareTitle,
@@ -672,46 +670,6 @@ class MBTIQuiz {
                 url: "https://vk.com/app53942833"
             });
         }
-    }
-    
-    createEnhancedVKShareText(personalityType, shareText, shareTitle) {
-        const personalityTitle = (MBTI_TYPES[personalityType] && MBTI_TYPES[personalityType].title) ? MBTI_TYPES[personalityType].title : personalityType;
-        const currentLocale = localizationManager.getCurrentLocale();
-        
-        // Create a more engaging and prominent share text for VK
-        let enhancedText;
-        
-        if (currentLocale === 'ru') {
-            enhancedText = [
-                `🎯 Мой результат теста личности MBTI:`,
-                `✨ ${personalityType} - ${personalityTitle}`,
-                ``,
-                `📊 Мои предпочтения:`,
-                `• Экстраверсия (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
-                `• Сенсорика (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
-                `• Мышление (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
-                `• Суждение (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
-                ``,
-                `🚀 Пройди тест и узнай свой тип личности!`,
-                `Ссылка на приложение ниже 👇`
-            ].join('\n');
-        } else {
-            enhancedText = [
-                `🎯 My MBTI Personality Test Result:`,
-                `✨ ${personalityType} - ${personalityTitle}`,
-                ``,
-                `📊 My Preferences:`,
-                `• Extraversion (E): ${this.scores.E + this.scores.I > 0 ? Math.round((this.scores.E / (this.scores.E + this.scores.I)) * 100) : 50}%`,
-                `• Sensing (S): ${this.scores.S + this.scores.N > 0 ? Math.round((this.scores.S / (this.scores.S + this.scores.N)) * 100) : 50}%`,
-                `• Thinking (T): ${this.scores.T + this.scores.F > 0 ? Math.round((this.scores.T / (this.scores.T + this.scores.F)) * 100) : 50}%`,
-                `• Judging (J): ${this.scores.J + this.scores.P > 0 ? Math.round((this.scores.J / (this.scores.J + this.scores.P)) * 100) : 50}%`,
-                ``,
-                `🚀 Take the test and discover your personality type!`,
-                `App link below 👇`
-            ].join('\n');
-        }
-        
-        return enhancedText;
     }
 }
 
