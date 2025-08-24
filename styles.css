@@ -365,7 +365,6 @@ body {
 
 .btn-secondary:hover {
     background: #e9ecef;
-    transform: translateY(-2px);
 }
 
 /* Button centering and container utilities */
