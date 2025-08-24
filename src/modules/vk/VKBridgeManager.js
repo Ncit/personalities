@@ -256,7 +256,7 @@ export class VKBridgeManager {
             return this.fallbackShare(shareText, shareTitle);
         }
         if (!this.bridge.isWebView()) {
-            const shareUrl = `https://vk.com/app53942833/share.php?url=${encodeURIComponent(shareTitle)}&title=${encodeURIComponent(shareText)}`;
+            const shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(shareTitle)}&title=${encodeURIComponent(shareText)}`;
             window.open(shareUrl, '_blank', 'width=550,height=370');
             return;
         }
