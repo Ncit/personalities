@@ -12,7 +12,6 @@ import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js'
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
-import './src/modules/vk/vk-styles.css';
 
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
@@ -188,11 +187,23 @@ class MBTIQuiz {
             onMainPageBtn.style.display = 'none';
         }
         
-        // Hide the subscription button when starting the quiz
+		// Hide the subscription button when starting the quiz
         const subscriptionBtn = document.getElementById('subscriptionBtn');
         if (subscriptionBtn) {
             subscriptionBtn.style.display = 'none';
         }
+
+		// If there are saved results for this quiz type, show them immediately and reveal reset button
+		const saved = this.loadResultsFromStorageByTest();
+		if (saved) {
+			this.scores = saved.scores;
+			this.answers = saved.answers;
+			this.currentQuestion = this.questions.length - 1;
+			this.showResults();
+			const resetBtn = document.getElementById('resetTestBtn');
+			if (resetBtn) resetBtn.style.display = 'inline-block';
+			return;
+		}
         
         // Scroll to top to center the quiz content
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -237,23 +248,35 @@ class MBTIQuiz {
             progressFill.style.width = `${progress}%`;
         }
         
-        // Update navigation buttons
-        if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
-        if (nextBtn) nextBtn.disabled = this.selectedOption === null;
+
+		// Restore previously selected answer for this question (if any)
+		const savedAnswer = this.answers[this.currentQuestion];
+		this.selectedOption = savedAnswer !== undefined ? savedAnswer : null;
+
+		// Update navigation buttons
+		if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
+		if (nextBtn) nextBtn.disabled = this.selectedOption === null;
         
-        // Clear previous selection
-        this.clearOptionSelection();
+		// Clear previous selection
+		this.clearOptionSelection();
+
+		// Re-apply selection styling if answer exists
+		if (this.selectedOption) {
+			document.querySelector(`button[onclick="selectOption(${this.selectedOption})"]`)?.classList.add('selected');
+		}
         
         // Update dev tools visibility
         updateDevToolsVisibility();
     }
 
-    selectOption(optionNumber) {
-        this.clearOptionSelection();
-        this.selectedOption = optionNumber;
-        document.querySelector(`button[onclick="selectOption(${optionNumber})"]`).classList.add('selected');
-        document.getElementById('nextBtn').disabled = false;
-    }
+	selectOption(optionNumber) {
+		this.clearOptionSelection();
+		this.selectedOption = optionNumber;
+		this.answers[this.currentQuestion] = optionNumber;
+		document.querySelector(`button[onclick="selectOption(${optionNumber})"]`).classList.add('selected');
+		document.getElementById('nextBtn').disabled = false;
+		this.recalculateScores();
+	}
 
     clearOptionSelection() {
         document.querySelectorAll('.option-btn').forEach(btn => {
@@ -261,37 +284,43 @@ class MBTIQuiz {
         });
     }
 
-    nextQuestion() {
-        if (this.selectedOption === null) return;
-        
-        // Record answer
-        const question = this.questions[this.currentQuestion];
-        const weight = question.weights[this.selectedOption - 1];
-        
-        if (question.dimension === 'EI') {
-            if (weight > 0) this.scores.I += weight;
-            else if (weight < 0) this.scores.E += Math.abs(weight);
-        } else if (question.dimension === 'SN') {
-            if (weight > 0) this.scores.S += weight;
-            else if (weight < 0) this.scores.N += Math.abs(weight);
-        } else if (question.dimension === 'TF') {
-            if (weight > 0) this.scores.T += weight;
-            else if (weight < 0) this.scores.F += Math.abs(weight);
-        } else if (question.dimension === 'JP') {
-            if (weight > 0) this.scores.J += weight;
-            else if (weight < 0) this.scores.P += Math.abs(weight);
-        }
-        
-        this.answers.push(this.selectedOption);
-        this.selectedOption = null;
-        
-        if (this.currentQuestion < this.questions.length - 1) {
-            this.currentQuestion++;
-            this.displayQuestion();
-        } else {
-            this.showResults();
-        }
-    }
+	// Recalculate scores based on all saved answers
+	recalculateScores() {
+		// Reset scores
+		this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+		for (let i = 0; i < this.questions.length; i++) {
+			const answer = this.answers[i];
+			if (!answer) continue;
+			const q = this.questions[i];
+			const weight = q.weights[answer - 1];
+			if (q.dimension === 'EI') {
+				if (weight > 0) this.scores.I += weight;
+				else if (weight < 0) this.scores.E += Math.abs(weight);
+			} else if (q.dimension === 'SN') {
+				if (weight > 0) this.scores.S += weight;
+				else if (weight < 0) this.scores.N += Math.abs(weight);
+			} else if (q.dimension === 'TF') {
+				if (weight > 0) this.scores.T += weight;
+				else if (weight < 0) this.scores.F += Math.abs(weight);
+			} else if (q.dimension === 'JP') {
+				if (weight > 0) this.scores.J += weight;
+				else if (weight < 0) this.scores.P += Math.abs(weight);
+			}
+		}
+	}
+
+	nextQuestion() {
+		if (this.selectedOption === null) return;
+		// Ensure answer is saved for this question index
+		this.answers[this.currentQuestion] = this.selectedOption;
+		
+		if (this.currentQuestion < this.questions.length - 1) {
+			this.currentQuestion++;
+			this.displayQuestion();
+		} else {
+			this.showResults();
+		}
+	}
 
     previousQuestion() {
         if (this.currentQuestion > 0) {
@@ -305,7 +334,9 @@ class MBTIQuiz {
         }
     }
 
-    showResults() {
+	showResults() {
+		// Always recompute scores from saved answers to ensure consistency
+		this.recalculateScores();
         // Get elements with null checks
         const quizQuestions = document.getElementById('quizQuestions');
         const resultsScreen = document.getElementById('resultsScreen');
@@ -341,6 +372,10 @@ class MBTIQuiz {
                 showInterstitialAd();
             }, 2000); // Show after 2 seconds
         }
+
+        // Show reset button near home button on results screen
+        const resetBtn = document.getElementById('resetTestBtn');
+        if (resetBtn) resetBtn.style.display = 'inline-block';
         
         // Log to Firebase Analytics
         if (window.firebaseAnalytics) {
@@ -431,17 +466,43 @@ class MBTIQuiz {
         const tPercentage = totalT > 0 ? (this.scores.T / totalT) * 100 : 50;
         const jPercentage = totalJ > 0 ? (this.scores.J / totalJ) * 100 : 50;
         
-        // Get elements with null checks
-        const eBar = document.getElementById('eBar');
-        const sBar = document.getElementById('sBar');
-        const tBar = document.getElementById('tBar');
-        const jBar = document.getElementById('jBar');
-        
-        // Set width with null checks
-        if (eBar) eBar.style.width = `${ePercentage}%`;
-        if (sBar) sBar.style.width = `${sPercentage}%`;
-        if (tBar) tBar.style.width = `${tPercentage}%`;
-        if (jBar) jBar.style.width = `${jPercentage}%`;
+        // New dual-sided bars centered around the middle
+        const eLeft = document.getElementById('eLeft');
+        const iRight = document.getElementById('iRight');
+        const sLeft = document.getElementById('sLeft');
+        const nRight = document.getElementById('nRight');
+        const tLeft = document.getElementById('tLeft');
+        const fRight = document.getElementById('fRight');
+        const jLeft = document.getElementById('jLeft');
+        const pRight = document.getElementById('pRight');
+
+        if (eLeft) eLeft.style.width = `${ePercentage}%`;
+        if (iRight) iRight.style.width = `${100 - ePercentage}%`;
+        if (sLeft) sLeft.style.width = `${sPercentage}%`;
+        if (nRight) nRight.style.width = `${100 - sPercentage}%`;
+        if (tLeft) tLeft.style.width = `${tPercentage}%`;
+        if (fRight) fRight.style.width = `${100 - tPercentage}%`;
+        if (jLeft) jLeft.style.width = `${jPercentage}%`;
+        if (pRight) pRight.style.width = `${100 - jPercentage}%`;
+
+        // Update percents text
+        const ePctL = document.getElementById('ePctL');
+        const ePctR = document.getElementById('ePctR');
+        const sPctL = document.getElementById('sPctL');
+        const sPctR = document.getElementById('sPctR');
+        const tPctL = document.getElementById('tPctL');
+        const tPctR = document.getElementById('tPctR');
+        const jPctL = document.getElementById('jPctL');
+        const jPctR = document.getElementById('jPctR');
+
+        if (ePctL) ePctL.textContent = `${Math.round(ePercentage)}%`;
+        if (ePctR) ePctR.textContent = `${Math.round(100 - ePercentage)}%`;
+        if (sPctL) sPctL.textContent = `${Math.round(sPercentage)}%`;
+        if (sPctR) sPctR.textContent = `${Math.round(100 - sPercentage)}%`;
+        if (tPctL) tPctL.textContent = `${Math.round(tPercentage)}%`;
+        if (tPctR) tPctR.textContent = `${Math.round(100 - tPercentage)}%`;
+        if (jPctL) jPctL.textContent = `${Math.round(jPercentage)}%`;
+        if (jPctR) jPctR.textContent = `${Math.round(100 - jPercentage)}%`;
     }
 
     restartQuiz() {
@@ -473,7 +534,7 @@ class MBTIQuiz {
         checkAndShowLastResultsButton();
     }
     
-    saveResultsToStorage(personalityType) {
+		saveResultsToStorage(personalityType) {
         const results = {
             personalityType: personalityType,
             scores: this.scores,
@@ -481,24 +542,39 @@ class MBTIQuiz {
             timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString()
         };
-        
-        localStorage.setItem('mbti_last_results', JSON.stringify(results));
+			
+			// Save general last results
+			localStorage.setItem('mbti_last_results', JSON.stringify(results));
+			// Save per-test results using test key
+			const testKey = this.getTestStorageKey();
+			localStorage.setItem(testKey, JSON.stringify(results));
     }
     
-    loadResultsFromStorage() {
+		loadResultsFromStorage() {
         const saved = localStorage.getItem('mbti_last_results');
         if (saved) {
             return JSON.parse(saved);
         }
         return null;
     }
+
+		// Load results for current test type
+		loadResultsFromStorageByTest() {
+			const saved = localStorage.getItem(this.getTestStorageKey());
+			return saved ? JSON.parse(saved) : null;
+		}
     
-    hasPreviousResults() {
+		hasPreviousResults() {
         return localStorage.getItem('mbti_last_results') !== null;
     }
+
+		// Check previous results for current test type
+		hasPreviousResultsForTest() {
+			return localStorage.getItem(this.getTestStorageKey()) !== null;
+		}
     
     displayLastResults() {
-        const results = this.loadResultsFromStorage();
+			const results = this.loadResultsFromStorageByTest() || this.loadResultsFromStorage();
         if (!results) return false;
         
         // Restore scores and answers
@@ -526,27 +602,63 @@ class MBTIQuiz {
         return true;
     }
 
+	getTestStorageKey() {
+		const quizType = this.currentQuizType || 'mbti';
+		return `mbti_results_${quizType}`;
+	}
+
     shareResults() {
         const personalityType = this.calculatePersonalityType();
-        const shareText = `I just discovered my MBTI personality type is ${personalityType}! Take the quiz yourself to find yours.`;
+        const totalE = this.scores.E + this.scores.I;
+        const totalS = this.scores.S + this.scores.N;
+        const totalT = this.scores.T + this.scores.F;
+        const totalJ = this.scores.J + this.scores.P;
+        const ePct = totalE > 0 ? Math.round((this.scores.E / totalE) * 100) : 50;
+        const iPct = 100 - ePct;
+        const sPct = totalS > 0 ? Math.round((this.scores.S / totalS) * 100) : 50;
+        const nPct = 100 - sPct;
+        const tPct = totalT > 0 ? Math.round((this.scores.T / totalT) * 100) : 50;
+        const fPct = 100 - tPct;
+        const jPct = totalJ > 0 ? Math.round((this.scores.J / totalJ) * 100) : 50;
+        const pPct = 100 - jPct;
+
+        const baseMessage = localizationManager.get('ui.shareMessage', { type: personalityType });
+        const personalityTitle = (MBTI_TYPES[personalityType] && MBTI_TYPES[personalityType].title) ? MBTI_TYPES[personalityType].title : personalityType;
+        const personalityLine = localizationManager.get('ui.sharePersonality', { title: personalityTitle, type: personalityType });
+
+        // Famous personalities (take first 3 random or top 3)
+        let famousNames = '';
+        try {
+            const famousList = (FAMOUS_PERSONALITIES[personalityType] || []).slice();
+            const three = famousList.slice(0, 3).map(p => p.name).join(', ');
+            if (three) {
+                famousNames = localizationManager.get('ui.shareFamous', { names: three });
+            }
+        } catch (e) {
+            // ignore
+        }
+        const detailsMessage = localizationManager.get('ui.shareDetails', {
+            type: personalityType,
+            e: ePct,
+            i: iPct,
+            s: sPct,
+            n: nPct,
+            t: tPct,
+            f: fPct,
+            j: jPct,
+            p: pPct
+        });
+        const shareText = [baseMessage, personalityLine, detailsMessage, famousNames].filter(Boolean).join('\n');
+        const shareTitle = localizationManager.get('ui.shareTitle');
         
         // Use VK Bridge if available, otherwise fallback to native sharing
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-            vkBridgeManager.shareResults(personalityType, shareText);
+            vkBridgeManager.shareResults(personalityType, shareText, shareTitle);
         } else if (navigator.share) {
             navigator.share({
-                title: 'MBTI Personality Quiz Results',
+                title: shareTitle,
                 text: shareText,
-                url: window.location.href
-            });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(shareText).then(() => {
-                if (vkBridgeManager) {
-                    vkBridgeManager.showNotification('Results copied to clipboard!');
-                } else {
-                    alert('Results copied to clipboard!');
-                }
+                url: "https://vk.com/app53942833"
             });
         }
     }
@@ -582,7 +694,7 @@ function openTypesModal() {
                 <div class="type-stats">
                     <div class="type-stat">
                         <span class="type-stat-value">${getTypePercentage(type)}%</span>
-                        <span class="type-stat-label">Население</span>
+                        <span class="type-stat-label">Населения</span>
                     </div>
                     <div class="type-stat">
                         <span class="type-stat-value">${getTypeCompatibility(type)}</span>
@@ -1012,14 +1124,16 @@ function displayAdvancedInsights(personalityType) {
 // Function to display famous personalities
 function displayFamousPersonalities(personalityType) {
     if (!isPremium()) return;
-    
-    const famous = FAMOUS_PERSONALITIES[personalityType];
-    if (!famous) return;
+    const famous = (FAMOUS_PERSONALITIES[personalityType] || []).slice().sort(() => Math.random() - 0.5);
+    const famousGrid = document.getElementById('famousGrid');
+    if (!famousGrid) return;
+    if (!famous || !Array.isArray(famous) || famous.length === 0) {
+        famousGrid.innerHTML = `<div style="text-align:center; color:#666; padding:12px 0; font-size:0.95rem;">Список пока пуст</div>`;
+        return;
+    }
     
     // Limit to maximum 8 items
     const limitedFamous = famous.slice(0, 8);
-    
-    const famousGrid = document.getElementById('famousGrid');
     famousGrid.innerHTML = limitedFamous.map(person => `
         <div class="famous-person">
             <div style="font-size: 3rem; margin-bottom: 10px;">${person.image}</div>
@@ -1071,8 +1185,14 @@ function createAnalyticsCharts() {
     // Pie chart
     createPieChart(ePercentage, sPercentage, tPercentage, jPercentage);
     
-    // Timeline chart
-    createTimelineChart();
+    // Timeline chart (dynamic position based on clarity of preferences)
+    const clarity = ((
+        Math.abs(ePercentage - 50) +
+        Math.abs(sPercentage - 50) +
+        Math.abs(tPercentage - 50) +
+        Math.abs(jPercentage - 50)
+    ) / 4) * 2; // 0..100 scale
+    createTimelineChart(clarity);
     
     // Strengths chart
     createStrengthsChart(ePercentage, sPercentage, tPercentage, jPercentage);
@@ -1080,526 +1200,513 @@ function createAnalyticsCharts() {
 
 // Enhanced Radar Chart
 function createRadarChart(e, s, t, j) {
-    const canvas = document.getElementById('radarChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
-    const centerY = 150;
-    const radius = 100;
-    
-    // Set canvas size for better resolution
-    canvas.width = 300;
-    canvas.height = 300;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // // Create gradient background
-    // const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    // gradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
-    // gradient.addColorStop(1, 'rgba(102, 126, 234, 0.05)');
-    // ctx.fillStyle = gradient;
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw enhanced radar grid with multiple levels
+    const root = document.getElementById('radarChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const size = 320; // logical size
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 320');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    const centerX = 160;
+    const centerY = 160;
+    const radius = 110;
+
+    // Grid circles
     const gridLevels = 5;
     for (let level = 1; level <= gridLevels; level++) {
-        const currentRadius = (radius * level) / gridLevels;
-        
-        // Draw concentric circles with gradient opacity
-        ctx.strokeStyle = `rgba(102, 126, 234, ${0.1 + (level * 0.05)})`;
-        ctx.lineWidth = level === gridLevels ? 2 : 1;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, currentRadius, 0, 2 * Math.PI);
-        ctx.stroke();
+        const r = (radius * level) / gridLevels;
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', centerX);
+        circle.setAttribute('cy', centerY);
+        circle.setAttribute('r', r);
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', `rgba(102,126,234,${0.1 + level * 0.05})`);
+        circle.setAttribute('stroke-width', level === gridLevels ? '2' : '1');
+        svg.appendChild(circle);
     }
-    
-    // Enhanced axis lines with better styling
+
     const labels = ['E/I', 'S/N', 'T/F', 'J/P'];
     const values = [e, s, t, j];
-    const descriptions = ['Extraversion/Introversion', 'Sensing/Intuition', 'Thinking/Feeling', 'Judging/Perceiving'];
-    
+    const points = [];
+
     for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2 - Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        
-        // Draw axis line with gradient
-        const lineGradient = ctx.createLinearGradient(centerX, centerY, x, y);
-        lineGradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
-        lineGradient.addColorStop(1, 'rgba(102, 126, 234, 0.3)');
-        ctx.strokeStyle = lineGradient;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        
-        // Enhanced labels with better positioning and styling
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 14px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const labelX = centerX + (radius + 25) * Math.cos(angle);
-        const labelY = centerY + (radius + 25) * Math.sin(angle);
-        
-        // Add label background for better readability
-        const labelText = labels[i];
-        const labelMetrics = ctx.measureText(labelText);
-        const labelPadding = 4;
-        
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(
-            labelX - labelMetrics.width/2 - labelPadding,
-            labelY - 8 - labelPadding,
-            labelMetrics.width + labelPadding * 2,
-            16 + labelPadding * 2
-        );
-        
-        ctx.fillStyle = '#333';
-        ctx.fillText(labelText, labelX, labelY);
-        
-        // Add percentage values
-        ctx.font = '12px Inter';
-        ctx.fillStyle = '#667eea';
-        // const valueX = centerX + (radius + 45) * Math.cos(angle);
-        // const valueY = centerY + (radius + 45) * Math.sin(angle);
-        // ctx.fillText(`${values[i]}%`, valueX, valueY);
-    }
-    
-    // Draw enhanced data polygon with gradient fill
-    const polygonGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    polygonGradient.addColorStop(0, 'rgba(102, 126, 234, 0.6)');
-    polygonGradient.addColorStop(1, 'rgba(102, 126, 234, 0.2)');
-    
-    ctx.fillStyle = polygonGradient;
-    ctx.strokeStyle = '#667eea';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    
-    for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI) / 2 - Math.PI / 2;
+        const axisX = centerX + radius * Math.cos(angle);
+        const axisY = centerY + radius * Math.sin(angle);
+
+        // Axis line
+        const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        axis.setAttribute('x1', centerX);
+        axis.setAttribute('y1', centerY);
+        axis.setAttribute('x2', axisX);
+        axis.setAttribute('y2', axisY);
+        axis.setAttribute('stroke', 'rgba(102,126,234,0.6)');
+        axis.setAttribute('stroke-width', '2');
+        svg.appendChild(axis);
+
+        // Label
+        const labelX = centerX + (radius + 22) * Math.cos(angle);
+        const labelY = centerY + (radius + 22) * Math.sin(angle);
+        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        labelBg.setAttribute('x', labelX - 18);
+        labelBg.setAttribute('y', labelY - 10);
+        labelBg.setAttribute('rx', '4');
+        labelBg.setAttribute('ry', '4');
+        labelBg.setAttribute('width', '36');
+        labelBg.setAttribute('height', '20');
+        labelBg.setAttribute('fill', 'rgba(255,255,255,0.9)');
+        svg.appendChild(labelBg);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', labelX);
+        text.setAttribute('y', labelY + 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('fill', '#333');
+        text.textContent = labels[i];
+        svg.appendChild(text);
+
+        // Data point
         const value = values[i] / 100;
-        const x = centerX + (radius * value) * Math.cos(angle);
-        const y = centerY + (radius * value) * Math.sin(angle);
-        
-        if (i === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
+        const vx = centerX + radius * value * Math.cos(angle);
+        const vy = centerY + radius * value * Math.sin(angle);
+        points.push([vx, vy]);
     }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    
-    // Enhanced data points with glow effect
-    for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI) / 2 - Math.PI / 2;
-        const value = values[i] / 100;
-        const x = centerX + (radius * value) * Math.cos(angle);
-        const y = centerY + (radius * value) * Math.sin(angle);
-        
-        // Draw glow effect
-        ctx.shadowColor = '#667eea';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = '#667eea';
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Draw inner point
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Add hover tooltip functionality
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
-            
-            if (distance < 10) {
-                canvas.style.cursor = 'pointer';
-                // Tooltip would be implemented here
-            } else {
-                canvas.style.cursor = 'default';
-            }
-        });
-    }
-    
-    // Add center point with personality type indicator
-    ctx.fillStyle = '#667eea';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
-    ctx.fill();
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('MBTI', centerX, centerY);
-    
+
+    // Polygon
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.map(p => p.join(',')).join(' '));
+    polygon.setAttribute('fill', 'rgba(102,126,234,0.25)');
+    polygon.setAttribute('stroke', '#667eea');
+    polygon.setAttribute('stroke-width', '2');
+    svg.appendChild(polygon);
+
+    // Points with glow
+    points.forEach(([px, py]) => {
+        const outer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        outer.setAttribute('cx', px);
+        outer.setAttribute('cy', py);
+        outer.setAttribute('r', '6');
+        outer.setAttribute('fill', '#667eea');
+        outer.setAttribute('filter', 'url(#glow)');
+        svg.appendChild(outer);
+
+        const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        inner.setAttribute('cx', px);
+        inner.setAttribute('cy', py);
+        inner.setAttribute('r', '3');
+        inner.setAttribute('fill', '#fff');
+        svg.appendChild(inner);
+    });
+
+    // Center badge
+    const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    center.setAttribute('cx', centerX);
+    center.setAttribute('cy', centerY);
+    center.setAttribute('r', '8');
+    center.setAttribute('fill', '#667eea');
+    svg.appendChild(center);
+
+    // Glow filter
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', 'glow');
+    const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+    feGaussianBlur.setAttribute('stdDeviation', '3');
+    feGaussianBlur.setAttribute('result', 'coloredBlur');
+    const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+    const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+    feMergeNode1.setAttribute('in', 'coloredBlur');
+    const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+    feMergeNode2.setAttribute('in', 'SourceGraphic');
+    feMerge.appendChild(feMergeNode1);
+    feMerge.appendChild(feMergeNode2);
+    filter.appendChild(feGaussianBlur);
+    filter.appendChild(feMerge);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    root.appendChild(svg);
 }
 
 // Bar Chart
 function createBarChart(e, s, t, j) {
-    const canvas = document.getElementById('barChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const barWidth = 40;
-    const barSpacing = 20;
-    const startX = 50;
-    const startY = 150;
-    const maxHeight = 100;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('barChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 360 220');
+    svg.setAttribute('width', '100%');
+
     const dimensions = ['E/I', 'S/N', 'T/F', 'J/P'];
     const scores = [e, s, t, j];
     const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
-    
+
+    const barWidth = 50;
+    const gap = 30;
+    const startX = 40;
+    const baseY = 170;
+    const maxHeight = 120;
+
+    // Axis line
+    const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    axis.setAttribute('x1', startX - 10);
+    axis.setAttribute('y1', baseY);
+    axis.setAttribute('x2', startX + 4 * (barWidth + gap) - gap + 10);
+    axis.setAttribute('y2', baseY);
+    axis.setAttribute('stroke', 'rgba(0,0,0,0.15)');
+    axis.setAttribute('stroke-width', '2');
+    svg.appendChild(axis);
+
     dimensions.forEach((dim, i) => {
-        const x = startX + i * (barWidth + barSpacing);
+        const x = startX + i * (barWidth + gap);
         const height = (scores[i] / 100) * maxHeight;
-        
-        // Draw bar
-        ctx.fillStyle = colors[i];
-        ctx.fillRect(x, startY - height, barWidth, height);
-        
-        // Draw border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, startY - height, barWidth, height);
-        
-        // Draw percentage text
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 12px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${Math.round(scores[i])}%`, x + barWidth/2, startY - height - 5);
-        
-        // Draw dimension label
-        ctx.fillStyle = '#666';
-        ctx.font = '10px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(dim, x + barWidth/2, startY + 15);
+        const y = baseY - height;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', barWidth);
+        rect.setAttribute('height', height);
+        rect.setAttribute('fill', colors[i]);
+        rect.setAttribute('rx', '6');
+        svg.appendChild(rect);
+
+        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pct.setAttribute('x', x + barWidth / 2);
+        pct.setAttribute('y', y - 6);
+        pct.setAttribute('text-anchor', 'middle');
+        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pct.setAttribute('font-size', '12');
+        pct.setAttribute('fill', '#333');
+        pct.textContent = `${Math.round(scores[i])}%`;
+        svg.appendChild(pct);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x + barWidth / 2);
+        label.setAttribute('y', baseY + 16);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('fill', '#666');
+        label.textContent = dim;
+        svg.appendChild(label);
     });
-    
-    // Draw axis
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(startX - 10, startY);
-    ctx.lineTo(startX + 4 * (barWidth + barSpacing) - barSpacing + 10, startY);
-    ctx.stroke();
+
+    root.appendChild(svg);
 }
 
 // Balance Chart (showing balance between preferences)
 function createBalanceChart(e, s, t, j) {
-    const canvas = document.getElementById('balanceChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
-    const centerY = 100;
-    const radius = 60;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('balanceChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 360 200');
+    svg.setAttribute('width', '100%');
+
     const pairs = [
-        { name: 'E/I', value: e, color1: '#667eea', color2: '#764ba2' },
-        { name: 'S/N', value: s, color1: '#f093fb', color2: '#f5576c' },
-        { name: 'T/F', value: t, color1: '#4facfe', color2: '#00f2fe' },
-        { name: 'J/P', value: j, color1: '#43e97b', color2: '#38f9d7' }
+        { name: 'E/I', leftLabel: 'E', rightLabel: 'I', value: e, leftColor: '#667eea', rightColor: '#764ba2' },
+        { name: 'S/N', leftLabel: 'S', rightLabel: 'N', value: s, leftColor: '#f093fb', rightColor: '#f5576c' },
+        { name: 'T/F', leftLabel: 'T', rightLabel: 'F', value: t, leftColor: '#4facfe', rightColor: '#00f2fe' },
+        { name: 'J/P', leftLabel: 'J', rightLabel: 'P', value: j, leftColor: '#43e97b', rightColor: '#38f9d7' }
     ];
-    
+
+    const barX = 60;
+    const barWidth = 240;
+    const barHeight = 18;
+    const rowGap = 28;
+
     pairs.forEach((pair, index) => {
-        const y = 30 + index * 35;
-        
-        // Draw balance bar
-        ctx.fillStyle = pair.color1;
-        ctx.fillRect(50, y, 100, 20);
-        ctx.fillStyle = pair.color2;
-        ctx.fillRect(50 + 100, y, 100, 20);
-        
-        // Draw indicator
-        const indicatorX = 50 + (pair.value / 100) * 200;
-        // ctx.fillStyle = '#333';
-        // ctx.beginPath();
-        // ctx.arc(indicatorX, y + 10, 6, 0, 2 * Math.PI);
-        // ctx.fill();
-        
-        // Draw label
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(pair.name, 20, y + 15);
-        
-        // Draw percentage
-        ctx.textAlign = 'center';
-        ctx.fillText(`${Math.round(pair.value)}%`, indicatorX, y + 15);
+        const y = 30 + index * rowGap;
+        const centerX = barX + barWidth / 2;
+        const half = barWidth / 2;
+        const leftWidth = half * (pair.value / 100);
+        const rightWidth = half * (1 - pair.value / 100);
+
+        // Track background
+        const track = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        track.setAttribute('x', barX);
+        track.setAttribute('y', y);
+        track.setAttribute('width', barWidth);
+        track.setAttribute('height', barHeight);
+        track.setAttribute('rx', '9');
+        track.setAttribute('fill', '#f3f4f6');
+        svg.appendChild(track);
+
+        // Center divider
+        const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        divider.setAttribute('x1', centerX);
+        divider.setAttribute('y1', y);
+        divider.setAttribute('x2', centerX);
+        divider.setAttribute('y2', y + barHeight);
+        divider.setAttribute('stroke', '#e5e7eb');
+        divider.setAttribute('stroke-width', '2');
+        svg.appendChild(divider);
+
+        // Left segment
+        if (leftWidth > 0.5) {
+            const left = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            left.setAttribute('x', centerX - leftWidth);
+            left.setAttribute('y', y);
+            left.setAttribute('width', leftWidth);
+            left.setAttribute('height', barHeight);
+            left.setAttribute('fill', pair.leftColor);
+            left.setAttribute('rx', '9');
+            svg.appendChild(left);
+        }
+
+        // Right segment
+        if (rightWidth > 0.5) {
+            const right = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            right.setAttribute('x', centerX);
+            right.setAttribute('y', y);
+            right.setAttribute('width', rightWidth);
+            right.setAttribute('height', barHeight);
+            right.setAttribute('fill', pair.rightColor);
+            right.setAttribute('rx', '9');
+            svg.appendChild(right);
+        }
+
+        // Side labels
+        const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftLabel.setAttribute('x', barX - 12);
+        leftLabel.setAttribute('y', y + barHeight - 2);
+        leftLabel.setAttribute('text-anchor', 'end');
+        leftLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        leftLabel.setAttribute('font-size', '12');
+        leftLabel.setAttribute('fill', '#6b7280');
+        const leftPct = Math.round(pair.value);
+        leftLabel.textContent = `${pair.leftLabel} ${leftPct}%`;
+        svg.appendChild(leftLabel);
+
+        const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightLabel.setAttribute('x', barX + barWidth + 12);
+        rightLabel.setAttribute('y', y + barHeight - 2);
+        rightLabel.setAttribute('text-anchor', 'start');
+        rightLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        rightLabel.setAttribute('font-size', '12');
+        rightLabel.setAttribute('fill', '#6b7280');
+        const rightPct = 100 - leftPct;
+        rightLabel.textContent = `${pair.rightLabel} ${rightPct}%`;
+        svg.appendChild(rightLabel);
     });
+
+    root.appendChild(svg);
 }
 
 // Pie Chart (showing preference distribution)
 function createPieChart(e, s, t, j) {
-    const canvas = document.getElementById('pieChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = 150;
+    const root = document.getElementById('pieChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 200');
+    svg.setAttribute('width', '100%');
+
+    const centerX = 100;
     const centerY = 100;
-    const radius = 60;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const radius = 70;
     const data = [
         { label: 'E/I', value: e, color: '#667eea' },
         { label: 'S/N', value: s, color: '#764ba2' },
         { label: 'T/F', value: t, color: '#f093fb' },
         { label: 'J/P', value: j, color: '#f5576c' }
     ];
-    
-    const total = data.reduce((sum, item) => sum + item.value, 0);
+    const total = data.reduce((sum, d) => sum + d.value, 0);
+
     let currentAngle = -Math.PI / 2;
-    
-    data.forEach(item => {
-        const sliceAngle = (item.value / total) * 2 * Math.PI;
-        
-        // Draw slice
-        ctx.fillStyle = item.color;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Draw border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
+    data.forEach((d, idx) => {
+        const sliceAngle = (d.value / total) * 2 * Math.PI;
+        const x1 = centerX + radius * Math.cos(currentAngle);
+        const y1 = centerY + radius * Math.sin(currentAngle);
+        const x2 = centerX + radius * Math.cos(currentAngle + sliceAngle);
+        const y2 = centerY + radius * Math.sin(currentAngle + sliceAngle);
+        const largeArc = sliceAngle > Math.PI ? 1 : 0;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const dPath = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        path.setAttribute('d', dPath);
+        path.setAttribute('fill', d.color);
+        svg.appendChild(path);
+
+        const legendY = 30 + idx * 22;
+        const swatch = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        swatch.setAttribute('x', 190);
+        swatch.setAttribute('y', legendY - 10);
+        swatch.setAttribute('width', 12);
+        swatch.setAttribute('height', 12);
+        swatch.setAttribute('fill', d.color);
+        swatch.setAttribute('rx', '2');
+        svg.appendChild(swatch);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', 210);
+        label.setAttribute('y', legendY);
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.textContent = `${d.label}: ${Math.round(d.value)}%`;
+        svg.appendChild(label);
+
         currentAngle += sliceAngle;
     });
-    
-    // Draw labels
-    data.forEach((item, index) => {
-        const y = 180 + index * 20;
-        ctx.fillStyle = item.color;
-        ctx.fillRect(50, y - 8, 12, 12);
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(`${item.label}: ${Math.round(item.value)}%`, 70, y);
-    });
+
+    root.appendChild(svg);
 }
 
 // Minimalistic Timeline Chart
-function createTimelineChart() {
-    const canvas = document.getElementById('timelineChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size for better resolution
-    canvas.width = 300;
-    canvas.height = 150;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw minimal timeline line
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(40, 75);
-    ctx.lineTo(260, 75);
-    ctx.stroke();
-    
-    // Draw timeline points with minimal design
+function createTimelineChart(clarityValue = 50) {
+    const root = document.getElementById('timelineChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 150');
+    svg.setAttribute('width', '100%');
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', 40);
+    line.setAttribute('y1', 75);
+    line.setAttribute('x2', 280);
+    line.setAttribute('y2', 75);
+    line.setAttribute('stroke', '#e0e0e0');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+
+    // Fixed equally-spaced anchors for Past, Now, Future
+    const minX = 60;
+    const midX = 160;
+    const maxX = 260;
+    // Dynamic user state marker mapped along the same range
+    const stateX = minX + (Math.max(0, Math.min(100, clarityValue)) / 100) * (maxX - minX);
+
     const points = [
-        { x: 60, label: 'Прошлое', color: '#9ca3af' },
-        { x: 150, label: 'Настоящее', color: '#667eea' },
-        { x: 240, label: 'Будущее', color: '#9ca3af' }
+        { x: minX, label: 'Прошлое', color: '#9ca3af' },
+        { x: midX, label: 'Настоящее', color: '#667eea' },
+        { x: maxX, label: 'Будущее', color: '#9ca3af' }
     ];
-    
-    points.forEach((point, index) => {
-        // Draw subtle background circle for present point
-        if (index === 1) {
-            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
-            ctx.beginPath();
-            ctx.arc(point.x, 75, 12, 0, 2 * Math.PI);
-            ctx.fill();
+
+    points.forEach((p, idx) => {
+        if (idx === 1) {
+            const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            halo.setAttribute('cx', p.x);
+            halo.setAttribute('cy', 75);
+            halo.setAttribute('r', '12');
+            halo.setAttribute('fill', 'rgba(102,126,234,0.1)');
+            svg.appendChild(halo);
         }
-        
-        // Draw main point
-        ctx.fillStyle = point.color;
-        ctx.beginPath();
-        ctx.arc(point.x, 75, 6, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Draw subtle label
-        ctx.fillStyle = '#6b7280';
-        ctx.font = '11px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(point.label, point.x, 100);
+
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', 75);
+        dot.setAttribute('r', '6');
+        dot.setAttribute('fill', p.color);
+        svg.appendChild(dot);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', p.x);
+        label.setAttribute('y', 100);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('fill', '#6b7280');
+        label.textContent = p.label;
+        svg.appendChild(label);
     });
-    
-    // Draw minimal title
-    ctx.fillStyle = '#374151';
-    ctx.font = '13px Inter';
-    ctx.textAlign = 'center';
+
+    // Additional dynamic user state marker along the same range
+    const stateLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    stateLine.setAttribute('x1', stateX);
+    stateLine.setAttribute('y1', 67);
+    stateLine.setAttribute('x2', stateX);
+    stateLine.setAttribute('y2', 83);
+    stateLine.setAttribute('stroke', '#667eea');
+    stateLine.setAttribute('stroke-width', '2');
+    svg.appendChild(stateLine);
+
+    const stateDotHalo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    stateDotHalo.setAttribute('cx', stateX);
+    stateDotHalo.setAttribute('cy', 75);
+    stateDotHalo.setAttribute('r', '9');
+    stateDotHalo.setAttribute('fill', 'rgba(102,126,234,0.12)');
+    svg.appendChild(stateDotHalo);
+
+    const stateDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    stateDot.setAttribute('cx', stateX);
+    stateDot.setAttribute('cy', 75);
+    stateDot.setAttribute('r', '5');
+    stateDot.setAttribute('fill', '#ff6b6b');
+    svg.appendChild(stateDot);
+
+    const stateLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    stateLabel.setAttribute('x', stateX);
+    stateLabel.setAttribute('y', 55);
+    stateLabel.setAttribute('text-anchor', 'middle');
+    stateLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+    stateLabel.setAttribute('font-size', '10');
+    stateLabel.setAttribute('fill', '#374151');
+    stateLabel.textContent = 'Текущая позиция';
+    svg.appendChild(stateLabel);
+
+    root.appendChild(svg);
 }
 
 // Strengths Chart (showing personality strengths)
 function createStrengthsChart(e, s, t, j) {
-    const canvas = document.getElementById('strengthsChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    const root = document.getElementById('strengthsChart');
+    if (!root) return;
+    root.innerHTML = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 320 140');
+    svg.setAttribute('width', '100%');
+
     const strengths = [
         { name: 'Аналитический', value: Math.max(t, 100 - t), color: '#667eea' },
         { name: 'Креативный', value: Math.max(s, 100 - s), color: '#764ba2' },
         { name: 'Социальный', value: Math.max(e, 100 - e), color: '#f093fb' },
         { name: 'Организованный', value: Math.max(j, 100 - j), color: '#f5576c' }
     ];
-    
-    const barHeight = 25;
-    const spacing = 10;
-    const startY = 0;
-    
-    strengths.forEach((strength, index) => {
-        const y = startY + index * (barHeight + spacing);
-        const width = (strength.value / 100) * 200;
-        
-        // Draw bar
-        ctx.fillStyle = strength.color;
-        ctx.fillRect(130, y, width, barHeight);
-        
-        // Draw border
-        // ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        // ctx.lineWidth = 1;
-        // ctx.strokeRect(50, y, width, barHeight);
-        
-        // Draw label
-        ctx.fillStyle = '#333';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(strength.name, 10, y + 17);
-        
-        // Draw percentage
-        ctx.textAlign = 'right';
-        ctx.fillText(`${Math.round(strength.value)}%`, 165, y + 17);
+
+    const barHeight = 22;
+    const spacing = 12;
+    strengths.forEach((st, idx) => {
+        const y = 8 + idx * (barHeight + spacing);
+        const width = (st.value / 100) * 180;
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', 10);
+        label.setAttribute('y', y + 16);
+        label.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.textContent = st.name;
+        svg.appendChild(label);
+
+        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bar.setAttribute('x', 130);
+        bar.setAttribute('y', y);
+        bar.setAttribute('width', width);
+        bar.setAttribute('height', barHeight);
+        bar.setAttribute('fill', st.color);
+        bar.setAttribute('rx', '6');
+        svg.appendChild(bar);
+
+        const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        pct.setAttribute('x', 130 + width + 8);
+        pct.setAttribute('y', y + 16);
+        pct.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+        pct.setAttribute('font-size', '12');
+        pct.setAttribute('fill', '#333');
+        pct.textContent = `${Math.round(st.value)}%`;
+        svg.appendChild(pct);
     });
+
+    root.appendChild(svg);
 }
 
-// Function to generate PDF (real PDF with jsPDF)
-function generatePDF() {
-    if (!isPremium()) return;
-    
-    const btn = document.querySelector('#pdfContent .btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-        // Gather data
-        const personalityType = document.getElementById('personalityType').textContent;
-        const title = document.getElementById('personalityTitle').textContent;
-        const subtitle = document.getElementById('personalitySubtitle').textContent;
-        const description = document.getElementById('personalityDescription').textContent;
-        
-        // Advanced insights
-        let strengths = '', weaknesses = '', careers = '', development = '';
-        if (ADVANCED_INSIGHTS[personalityType]) {
-            strengths = ADVANCED_INSIGHTS[personalityType].strengths.join(', ');
-            weaknesses = ADVANCED_INSIGHTS[personalityType].weaknesses.join(', ');
-            careers = ADVANCED_INSIGHTS[personalityType].careers.join(', ');
-            development = ADVANCED_INSIGHTS[personalityType].development.join(', ');
-        }
-        
-        // Famous people
-        let famous = '';
-        if (FAMOUS_PERSONALITIES[personalityType]) {
-            famous = FAMOUS_PERSONALITIES[personalityType].map(p => `${p.name} (${p.profession})`).join(', ');
-        }
-        
-        // Create PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let y = 15;
-        doc.setFontSize(18);
-        doc.text('MBTI Personality Quiz Report', 10, y);
-        y += 10;
-        doc.setFontSize(14);
-        doc.text(`Type: ${personalityType} - ${title}`, 10, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.text(subtitle, 10, y);
-        y += 8;
-        doc.setFontSize(10);
-        doc.text('Description:', 10, y);
-        y += 6;
-        doc.setFontSize(9);
-        doc.text(doc.splitTextToSize(description, 180), 10, y);
-        y += doc.getTextDimensions(doc.splitTextToSize(description, 180)).h + 4;
-        if (strengths) {
-            doc.setFontSize(10);
-            doc.text('Strengths:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(strengths, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(strengths, 180)).h + 4;
-        }
-        if (weaknesses) {
-            doc.setFontSize(10);
-            doc.text('Growth Areas:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(weaknesses, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(weaknesses, 180)).h + 4;
-        }
-        if (careers) {
-            doc.setFontSize(10);
-            doc.text('Career Recommendations:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(careers, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(careers, 180)).h + 4;
-        }
-        if (development) {
-            doc.setFontSize(10);
-            doc.text('Personal Development:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(development, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(development, 180)).h + 4;
-        }
-        if (famous) {
-            doc.setFontSize(10);
-            doc.text('Famous Personalities:', 10, y);
-            y += 6;
-            doc.setFontSize(9);
-            doc.text(doc.splitTextToSize(famous, 180), 10, y);
-            y += doc.getTextDimensions(doc.splitTextToSize(famous, 180)).h + 4;
-        }
-        
-        // Save PDF
-        doc.save(`MBTI_Report_${personalityType}.pdf`);
-        
-        btn.innerHTML = '<i class="fas fa-check"></i> PDF Generated!';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }, 2000);
-    }, 1200);
-}
 
 // Function to copy share link
 function copyShareLink() {
@@ -1707,7 +1814,11 @@ function fillPremiumRandomAnswers() {
     
     // Check if user is premium
     if (!isPremium()) {
+    if (window.showAppAlert) {
+        window.showAppAlert('Премиум функции доступны только для премиум пользователей');
+    } else {
         alert('Премиум функции доступны только для премиум пользователей');
+    }
         return;
     }
     
@@ -1836,7 +1947,10 @@ function viewLastResults() {
 // Function to check and show last results button
 function checkAndShowLastResultsButton() {
     const viewLastResultsBtn = document.getElementById('viewLastResultsBtn');
-    if (quiz && quiz.hasPreviousResults()) {
+    if (!viewLastResultsBtn) return;
+    const hasPerTest = quiz && typeof quiz.hasPreviousResultsForTest === 'function' && quiz.hasPreviousResultsForTest();
+    const hasAny = quiz && typeof quiz.hasPreviousResults === 'function' && quiz.hasPreviousResults();
+    if (hasPerTest || hasAny) {
         viewLastResultsBtn.style.display = 'inline-block';
     } else {
         viewLastResultsBtn.style.display = 'none';
@@ -1890,8 +2004,8 @@ function disablePremiumQuizButtons() {
             lockOverlay.style.cssText = `
                 position: absolute;
                 top: 50%;
+                top: 25px;
                 right: 15px;
-                transform: translateY(-50%);
                 color: #ffd700;
                 font-size: 16px;
                 pointer-events: none;
@@ -1965,7 +2079,7 @@ function startQuizType(quizType) {
         
         welcomeContent.textContent = quizTypeTitles[quizType] || localizationManager.get('ui.mbtiQuiz');
         
-        // Start the quiz
+        // Start the quiz (will auto-show saved results if present)
         quiz.startQuiz();
         
         // Restore original title when quiz ends
@@ -2104,6 +2218,66 @@ function restartQuiz() {
             }
         }, 2000); // Show after 2 seconds
     }
+
+    // Hide reset button after restart
+    const resetBtn = document.getElementById('resetTestBtn');
+    if (resetBtn) resetBtn.style.display = 'none';
+}
+
+// Reset current test data and start over
+function resetCurrentTest() {
+    if (!quiz) return;
+    // Confirm reset using in-app modal
+    const title = localizationManager.get('ui.resetConfirmTitle');
+    const msg = localizationManager.get('ui.resetConfirmMessage');
+    const content = `
+        <div class="help-modal-content">
+            <span class="close" onclick="closeHelpModal()">&times;</span>
+            <h2>${title}</h2>
+            <div class="help-content">
+                <p>${msg}</p>
+            </div>
+            <div class="help-modal-actions">
+                <button class="btn btn-secondary" onclick="closeHelpModal()">
+                    ${localizationManager.get('ui.cancel') || 'Cancel'}
+                </button>
+                <button class="btn btn-danger" id="confirmResetBtn">
+                    ${localizationManager.get('ui.restartQuiz') || 'Restart'}
+                </button>
+            </div>
+        </div>
+    `;
+    showHelpModal(content);
+    // Attach one-time handler for confirm
+    setTimeout(() => {
+        const btn = document.getElementById('confirmResetBtn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                closeHelpModal();
+                proceedResetCurrentTest();
+            }, { once: true });
+        }
+    }, 0);
+    return;
+
+    function proceedResetCurrentTest() {
+        // Clear saved results for this test
+        try {
+            localStorage.removeItem(quiz.getTestStorageKey());
+        } catch (e) {}
+        // Reset runtime state
+        quiz.currentQuestion = 0;
+        quiz.answers = [];
+        quiz.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        quiz.selectedOption = null;
+        
+        // Start quiz from the beginning
+        if (typeof startQuiz === 'function') {
+            startQuiz();
+        } else if (quiz && typeof quiz.startQuiz === 'function') {
+            quiz.startQuiz();
+        }
+    }
 }
 
 function shareResults() {
@@ -2128,9 +2302,18 @@ function closeExitQuizModal() {
 function confirmExitQuiz() {
     // Close the modal first
     closeExitQuizModal();
-    
-    // Reload the website
-    location.reload();
+    // In-app reset without page reload to avoid unnecessary server calls
+    const quizQuestions = document.getElementById('quizQuestions');
+    if (quizQuestions) quizQuestions.style.display = 'none';
+    // Use existing restart flow to show welcome screen and reset state
+    if (typeof restartQuiz === 'function') {
+        restartQuiz();
+    } else if (quiz && typeof quiz.restartQuiz === 'function') {
+        quiz.restartQuiz();
+    } else {
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        if (welcomeScreen) welcomeScreen.style.display = 'block';
+    }
 }
 
 // Make all functions available globally for HTML onclick handlers
@@ -2153,8 +2336,8 @@ window.viewLastResults = viewLastResults;
 window.startQuizType = startQuizType;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.fillPremiumRandomAnswers = fillPremiumRandomAnswers;
-window.generatePDF = generatePDF;
 window.copyShareLink = copyShareLink;
+window.resetCurrentTest = resetCurrentTest;
 
 /**
  * Update Firebase Analytics debug button appearance
@@ -2193,7 +2376,11 @@ function clearLocalStorage() {
         const confirmed = confirm('Are you sure you want to clear all localStorage data? This will reset the application state.');
         if (confirmed) {
             localStorage.clear();
-            alert('localStorage cleared successfully!');
+    if (window.showAppAlert) {
+        window.showAppAlert('localStorage cleared successfully!');
+    } else {
+        alert('localStorage cleared successfully!');
+    }
             // Refresh the page to reset all state
             location.reload();
         }
@@ -2346,7 +2533,7 @@ function updateSubscriptionModal() {
             statusIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Премиум активен</span>';
         } else {
             statusIndicator.className = 'status-indicator free';
-            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Бесплатная версия</span>';
+            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Премиум не активен</span>';
         }
     }
     
@@ -2422,7 +2609,11 @@ function cancelSubscription() {
         setPremium(false);
         updateSubscriptionModal();
         updatePremiumUI();
+    if (window.showAppAlert) {
+        window.showAppAlert('Подписка отменена. Вы вернулись к бесплатной версии.');
+    } else {
         alert('Подписка отменена. Вы вернулись к бесплатной версии.');
+    }
     }
 }
 
@@ -2432,16 +2623,28 @@ function restoreSubscription() {
         setPremium(true);
         updateSubscriptionModal();
         updatePremiumUI();
+    if (window.showAppAlert) {
+        window.showAppAlert('Премиум подписка восстановлена!');
+    } else {
         alert('Премиум подписка восстановлена!');
+    }
     }
 }
 
 function contactSupport() {
-    alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+    if (window.showAppAlert) {
+        window.showAppAlert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru', 'Связаться с поддержкой');
+    } else {
+        alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+    }
 }
 
 function viewBillingHistory() {
-    alert('История платежей будет доступна в будущих обновлениях.');
+    if (window.showAppAlert) {
+        window.showAppAlert('История платежей будет доступна в будущих обновлениях.');
+    } else {
+        alert('История платежей будет доступна в будущих обновлениях.');
+    }
 }
 
 // Make subscription functions available globally
@@ -2479,7 +2682,11 @@ async function purchasePremiumSubscription(tier = 'monthly') {
     
     // Check if we're in VK environment
     if (!vkBridgeManager || !vkBridgeManager.isVKEnvironment()) {
+    if (window.showAppAlert) {
+        window.showAppAlert('Premium subscriptions are only available in VK environment');
+    } else {
         alert('Premium subscriptions are only available in VK environment');
+    }
         return;
     }
     
@@ -2533,18 +2740,34 @@ async function purchasePremiumSubscription(tier = 'monthly') {
                 
             } else if (paymentResult.cancelled) {
                 // User cancelled payment
-                alert('Покупка отменена');
+    if (window.showAppAlert) {
+        window.showAppAlert('Покупка отменена');
+    } else {
+        alert('Покупка отменена');
+    }
             } else {
                 // Payment failed
-                alert('Ошибка платежа. Попробуйте еще раз.');
+    if (window.showAppAlert) {
+        window.showAppAlert('Ошибка платежа. Попробуйте еще раз.');
+    } else {
+        alert('Ошибка платежа. Попробуйте еще раз.');
+    }
             }
         } else {
             // Order box failed
-                    alert('Платежная система недоступна');
+    if (window.showAppAlert) {
+        window.showAppAlert('Платежная система недоступна');
+    } else {
+        alert('Платежная система недоступна');
+    }
     }
 } catch (error) {
     logger.error('Error during subscription purchase:', error);
-    alert('Ошибка при обработке платежа');
+    if (window.showAppAlert) {
+        window.showAppAlert('Ошибка при обработке платежа');
+    } else {
+        alert('Ошибка при обработке платежа');
+    }
 }
 }
 
@@ -2674,10 +2897,6 @@ function showHelp(topic) {
                     <h4>Какой тест выбрать?</h4>
                     <p>Начните с основного MBTI теста. Специализированные тесты помогут глубже понять отдельные аспекты личности.</p>
                 </div>
-                <div class="faq-item">
-                    <h4>Можно ли отменить премиум подписку?</h4>
-                    <p>Да, подписку можно отменить в любое время через настройки ВКонтакте.</p>
-                </div>
             `
         },
         'about-mbti': {
@@ -2708,7 +2927,7 @@ function showHelp(topic) {
             title: 'Условия использования',
             content: `
                 <h3>📋 Условия использования</h3>
-                <p>Используя наш сервис, вы соглашаетесь с:</p>
+                <p>Используя наш сервис, вы соглашаетесь со следующими пунктами:</p>
                 <ul>
                     <li>Результаты тестов предназначены только для личного использования</li>
                     <li>Не используйте результаты для дискриминации</li>
@@ -2722,7 +2941,11 @@ function showHelp(topic) {
 
     const help = helpContent[topic];
     if (!help) {
-        alert('Информация по этому разделу будет добавлена в ближайшее время.');
+        if (window.showAppAlert) {
+            window.showAppAlert('Информация по этому разделу будет добавлена в ближайшее время.');
+        } else {
+            alert('Информация по этому разделу будет добавлена в ближайшее время.');
+        }
         return;
     }
 
@@ -2745,6 +2968,8 @@ function showHelp(topic) {
     // Show modal
     showHelpModal(modalContent);
 }
+
+let helpModalHistoryActive = false;
 
 function showHelpModal(content) {
     // Create modal if it doesn't exist
@@ -2769,9 +2994,19 @@ function showHelpModal(content) {
     
     // Prevent background scrolling
     document.body.style.overflow = 'hidden';
+
+    // Push a history state so mobile back-swipe closes the modal first
+    if (!helpModalHistoryActive) {
+        try {
+            history.pushState({ helpModal: true }, '');
+            helpModalHistoryActive = true;
+        } catch (e) {
+            // no-op if history API is unavailable
+        }
+    }
 }
 
-function closeHelpModal() {
+function closeHelpModal(fromPopstate = false) {
     const helpModal = document.getElementById('helpModal');
     if (helpModal) {
         helpModal.style.display = 'none';
@@ -2779,11 +3014,56 @@ function closeHelpModal() {
     
     // Restore background scrolling
     document.body.style.overflow = 'auto';
+
+    // If we pushed a state for the modal and this isn't from a popstate event,
+    // go back once to keep the history stack clean
+    if (helpModalHistoryActive && !fromPopstate) {
+        helpModalHistoryActive = false;
+        try {
+            history.back();
+        } catch (e) {
+            // ignore
+        }
+        return;
+    }
+
+    // Ensure flag is reset when closed via popstate
+    helpModalHistoryActive = false;
 }
 
 // Make help functions available globally
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
+
+// Close help modal on browser back (e.g., mobile swipe back)
+window.addEventListener('popstate', function() {
+    const helpModal = document.getElementById('helpModal');
+    const isOpen = helpModal && helpModal.style.display !== 'none';
+    if (isOpen && helpModalHistoryActive) {
+        closeHelpModal(true);
+    }
+});
+
+// Generic in-app alert modal using help modal styling
+function showAppAlert(message, title = '') {
+    const content = `
+        <div class="help-modal-content">
+            <span class="close" onclick="closeHelpModal()">&times;</span>
+            <h2>${title}</h2>
+            <div class="help-content">
+                <p>${message}</p>
+            </div>
+            <div class="help-modal-actions">
+                <button class="btn btn-primary" onclick="closeHelpModal()">
+                    <i class="fas fa-check"></i> OK
+                </button>
+            </div>
+        </div>
+    `;
+    showHelpModal(content);
+}
+
+window.showAppAlert = showAppAlert;
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')
