@@ -284,10 +284,6 @@ export class VKBridgeManager {
                 url: window.location.href
             });
         } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                const message = localizationManager.get('ui.resultsCopiedAlert');
-                this.showNotification(message);
-            });
         }
     }
 
