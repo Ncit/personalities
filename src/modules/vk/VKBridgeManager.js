@@ -249,6 +249,15 @@ export class VKBridgeManager {
      * Share results using VK sharing
      */
     async shareResults(personalityType, shareText, shareTitle = 'MBTI персональные тесты') {
+        // Debug logging
+        console.log('VKBridgeManager.shareResults called with:', {
+            personalityType,
+            shareText,
+            shareTitle,
+            textLength: shareText ? shareText.length : 0,
+            bridgeAvailable: !!this.bridge
+        });
+        
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
         
         if (!this.bridge) {
@@ -257,12 +266,40 @@ export class VKBridgeManager {
         }
 
         try {
+            // Try VKWebAppShowWallPostBox first (more reliable for text content)
+            try {
+                console.log('Trying VKWebAppShowWallPostBox with:', {
+                    message: shareText,
+                    attachments: "https://vk.com/app53942833"
+                });
+                
+                await this.bridge.send('VKWebAppShowWallPostBox', {
+                    message: shareText,
+                    attachments: "https://vk.com/app53942833"
+                });
+                
+                console.log('VKWebAppShowWallPostBox succeeded');
+                this.analytics.trackSharing(personalityType, true);
+                return;
+            } catch (wallPostError) {
+                // Fallback to VKWebAppShare if wall post fails
+                console.log('Wall post failed, trying VKWebAppShare:', wallPostError);
+            }
+            
+            // Fallback to original VKWebAppShare method
+            console.log('Trying VKWebAppShare with:', {
+                link: "https://vk.com/app53942833",
+                title: shareTitle,
+                text: shareText
+            });
+            
             await this.bridge.send('VKWebAppShare', {
                 link: "https://vk.com/app53942833",
                 title: shareTitle,
                 text: shareText
             });
             
+            console.log('VKWebAppShare succeeded');
             this.analytics.trackSharing(personalityType, true);
         } catch (error) {
             const errorResult = this.errorHandler.handleError(error, 'shareResults');
