@@ -1831,8 +1831,9 @@ function fillPremiumRandomAnswers() {
         return;
     }
     
-    // Create quiz instance and generate specialized questions
+    // Create quiz instance and set to leadership test specifically
     quiz = new MBTIQuiz();
+    quiz.currentQuizType = 'leadership';
     quiz.generateSpecializedQuestions();
     
     // Fill all questions with random answers
@@ -1858,6 +1859,9 @@ function fillPremiumRandomAnswers() {
     
     quiz.currentQuestion = quiz.questions.length - 1;
     quiz.selectedOption = quiz.answers[quiz.currentQuestion];
+    
+    // Update quiz title to show leadership test
+    updateQuizTitle('leadership');
     
     // Hide welcome screen and show results
     document.getElementById('welcomeScreen').style.display = 'none';
@@ -2053,6 +2057,24 @@ function enablePremiumQuizButtons() {
     });
 }
 
+// Function to update quiz title based on quiz type
+function updateQuizTitle(quizType) {
+    const quizTitleElement = document.getElementById('currentQuizTitle');
+    if (quizTitleElement) {
+        let title = '';
+        
+        if (quizType === 'mbti') {
+            title = localizationManager.get('quizTypes.mbti.name');
+        } else {
+            // Get the localized name for premium quiz types
+            const quizTypeKey = `quizTypes.${quizType}.name`;
+            title = localizationManager.get(quizTypeKey) || quizType;
+        }
+        
+        quizTitleElement.textContent = title;
+    }
+}
+
 // Function to start different quiz types
 function startQuizType(quizType) {
     if (!isPremium()) {
@@ -2063,44 +2085,11 @@ function startQuizType(quizType) {
     // Set current quiz type
     quiz.currentQuizType = quizType;
     
-    // Update welcome screen to show quiz type
-    const welcomeContent = document.querySelector('.welcome-content h2');
-    if (welcomeContent) {
-        const originalTitle = welcomeContent.textContent;
-        
-        const quizTypeTitles = {
-            'leadership': localizationManager.get('quizTypes.leadership.name'),
-            'communication': localizationManager.get('quizTypes.communication.name'),
-            'stress': localizationManager.get('quizTypes.stress.name'),
-            'learning': localizationManager.get('quizTypes.learning.name'),
-            'relationships': localizationManager.get('quizTypes.relationships.name'),
-            'creativity': localizationManager.get('quizTypes.creativity.name'),
-            'decision': localizationManager.get('quizTypes.decision.name'),
-            'teamwork': localizationManager.get('quizTypes.teamwork.name'),
-            'career': localizationManager.get('quizTypes.career.name'),
-            'conflict': localizationManager.get('quizTypes.conflict.name'),
-            'motivation': localizationManager.get('quizTypes.motivation.name'),
-            'adaptability': localizationManager.get('quizTypes.adaptability.name'),
-            'emotional': localizationManager.get('quizTypes.emotional.name'),
-            'productivity': localizationManager.get('quizTypes.productivity.name'),
-            'social': localizationManager.get('quizTypes.social.name')
-        };
-        
-        welcomeContent.textContent = quizTypeTitles[quizType] || localizationManager.get('ui.mbtiQuiz');
-        
-        // Start the quiz (will auto-show saved results if present)
-        quiz.startQuiz();
-        
-        // Restore original title when quiz ends
-        setTimeout(() => {
-            if (welcomeContent) {
-                welcomeContent.textContent = originalTitle;
-            }
-        }, 100);
-    } else {
-        // If welcome content not found, just start the quiz
-        quiz.startQuiz();
-    }
+    // Update quiz title to show selected test name
+    updateQuizTitle(quizType);
+    
+    // Start the quiz (will auto-show saved results if present)
+    quiz.startQuiz();
     
     // Log to Firebase Analytics
     if (window.firebaseAnalytics) {
@@ -2197,6 +2186,10 @@ let bannerAdTimer = null;
 // Global functions for HTML onclick handlers
 function startQuiz() {
     quiz = new MBTIQuiz();
+    
+    // Set default MBTI quiz title
+    updateQuizTitle('mbti');
+    
     quiz.startQuiz();
     
     // Hide banner ad when starting quiz
@@ -3076,3 +3069,6 @@ window.showAppAlert = showAppAlert;
 
 // Check current localStorage
 localStorage.getItem('mbti_premium')
+
+// Make updateQuizTitle function available globally
+window.updateQuizTitle = updateQuizTitle;
