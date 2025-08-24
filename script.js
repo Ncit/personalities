@@ -657,8 +657,26 @@ class MBTIQuiz {
             j: jPct,
             p: pPct
         });
-        const shareText = [baseMessage, personalityLine, detailsMessage, famousNames].filter(Boolean).join('\n');
+        // Create a simpler, more direct share text that VK might handle better
+        let shareText;
+        if (localizationManager.getCurrentLocale() === 'ru') {
+            shareText = `Мой тип личности MBTI: ${personalityType} (${personalityTitle}). Баллы: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Пройди тест и узнай свой тип!`;
+        } else {
+            shareText = `My MBTI personality type: ${personalityType} (${personalityTitle}). Scores: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Take the test and discover your type!`;
+        }
         const shareTitle = localizationManager.get('ui.shareTitle');
+        
+        // Debug: Log what we're trying to share
+        console.log('Share Debug:', {
+            personalityType,
+            baseMessage,
+            personalityLine,
+            detailsMessage,
+            famousNames,
+            shareText,
+            shareTitle,
+            textLength: shareText.length
+        });
         
         // Use VK Bridge if available, otherwise fallback to native sharing
         if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
