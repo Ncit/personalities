@@ -251,7 +251,7 @@ export class VKBridgeManager {
     async shareResults(personalityType, shareText, shareTitle = 'MBTI персональные тесты') {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
         
-        if (!this.bridge) {
+        if (!this.bridge && !this.bridge.isWebView()) {
             this.analytics.trackSharing(personalityType, false, null, { action: 'fallback_native' });
             return this.fallbackShare(shareText, shareTitle);
         }
