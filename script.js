@@ -2273,11 +2273,11 @@ function resetCurrentTest() {
         quiz.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
         quiz.selectedOption = null;
         
-        // Start quiz from the beginning
-        if (typeof startQuiz === 'function') {
-            startQuiz();
-        } else if (quiz && typeof quiz.startQuiz === 'function') {
+        // Start quiz from the beginning with current quiz type
+        if (quiz && typeof quiz.startQuiz === 'function') {
             quiz.startQuiz();
+        } else if (typeof startQuiz === 'function') {
+            startQuiz();
         }
     }
 }
