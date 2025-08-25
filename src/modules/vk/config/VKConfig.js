@@ -9,11 +9,6 @@ export class VKConfig {
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     static BACKEND_USER_DATA_ENDPOINT = '/admin/api/users';
     
-    // Alternative endpoints for Android VK Mini Apps
-    static ANDROID_BACKEND_BASE_URL = 'https://nikmobdev.ru/goodsshop';
-    static ANDROID_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase-android';
-    static ANDROID_USER_DATA_ENDPOINT = '/admin/api/users-android';
-    
     // VK App configuration
     static VK_APP_ID = '53942833';
     
@@ -157,7 +152,7 @@ export class VKConfig {
      * Get Android-specific backend URL
      */
     static getAndroidBackendUrl(endpoint) {
-        return `${this.ANDROID_BACKEND_BASE_URL}${endpoint}`;
+        return `${this.BACKEND_BASE_URL}${endpoint}`;
     }
     
     /**

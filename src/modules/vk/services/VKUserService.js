@@ -388,12 +388,12 @@ export class VKUserService {
         if (requestType === 'premium_status') {
             if (isAndroid && retryConfig.useAlternativeEndpoints) {
                 // Try Android-specific endpoint first
-                endpoints.push(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT);
+                endpoints.push(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
             }
             endpoints.push(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT);
         } else if (requestType === 'user_data') {
             if (isAndroid && retryConfig.useAlternativeEndpoints) {
-                endpoints.push(VKConfig.ANDROID_USER_DATA_ENDPOINT);
+                endpoints.push(VKConfig.BACKEND_USER_DATA_ENDPOINT);
             }
             endpoints.push(VKConfig.BACKEND_USER_DATA_ENDPOINT);
         }

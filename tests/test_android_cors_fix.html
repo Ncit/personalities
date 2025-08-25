@@ -267,8 +267,8 @@
                     userData: VKConfig.getBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT)
                 },
                 android: {
-                    premium: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT),
-                    userData: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_USER_DATA_ENDPOINT)
+                    premium: VKConfig.getAndroidBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+                    userData: VKConfig.getAndroidBackendUrl(VKConfig.BACKEND_USER_DATA_ENDPOINT)
                 },
                 platformSpecific: {
                     premium: VKConfig.getPlatformBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
@@ -606,7 +606,7 @@
                 platform: platform,
                 isAndroid: isAndroid,
                 standard: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
-                android: VKConfig.getAndroidBackendUrl(VKConfig.ANDROID_CHECK_PURCHASE_ENDPOINT),
+                android: VKConfig.getAndroidBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
                 platformSpecific: VKConfig.getPlatformBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
             };
             
