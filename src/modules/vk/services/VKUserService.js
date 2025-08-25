@@ -474,7 +474,7 @@ export class VKUserService {
                 try {
                     this.logger.debug(`Attempting ${requestType} request (attempt ${attempt}/${retryConfig.maxRetries}) to endpoint: ${endpoint}`);
                     
-                    const result = await this._makeSingleRequest(endpoint, requestBody, attempt);
+                    const result = await this._makeSingleRequest(endpoint, requestBody, attempt, requestType);
                     
                     // If successful, return the result
                     if (result !== null) {
@@ -521,7 +521,7 @@ export class VKUserService {
     /**
      * Make a single network request
      */
-    async _makeSingleRequest(endpoint, requestBody, attempt = 1) {
+    async _makeSingleRequest(endpoint, requestBody, attempt = 1, requestType = 'unknown') {
         const platform = VKConfig.detectPlatform();
         const isAndroid = platform === VKConfig.PLATFORMS.ANDROID || 
                          platform === VKConfig.PLATFORMS.VK_ANDROID;
@@ -598,29 +598,48 @@ export class VKUserService {
             
             const data = await response.json();
             
-            this.logger.debug('Backend premium status response:', data);
+            this.logger.debug(`Backend ${requestType} response:`, data);
             
-            // Handle different response formats
-            if (data.success && typeof data.has_purchase === 'boolean') {
-                return data.has_purchase;
-            } else if (data.status === 0 && typeof data.has_purchase === 'boolean') {
-                // Handle status 0 response format
-                this.logger.debug('Received status 0 response, treating as success');
-                return data.has_purchase;
-            } else if (data.status === 0) {
-                // Status 0 but no has_purchase field - assume no purchase
-                this.logger.debug('Received status 0 response without has_purchase field, assuming no purchase');
-                return false;
-            } else if (typeof data.has_purchase === 'boolean') {
-                // Has purchase field but no success/status - use the value
-                this.logger.debug('Response has has_purchase field, using value:', data.has_purchase);
-                return data.has_purchase;
+            // Handle different response formats based on request type
+            if (requestType === 'premium_status') {
+                // Handle premium status responses
+                if (data.success && typeof data.has_purchase === 'boolean') {
+                    return data.has_purchase;
+                } else if (data.status === 0 && typeof data.has_purchase === 'boolean') {
+                    // Handle status 0 response format
+                    this.logger.debug('Received status 0 response, treating as success');
+                    return data.has_purchase;
+                } else if (data.status === 0) {
+                    // Status 0 but no has_purchase field - assume no purchase
+                    this.logger.debug('Received status 0 response without has_purchase field, assuming no purchase');
+                    return false;
+                } else if (typeof data.has_purchase === 'boolean') {
+                    // Has purchase field but no success/status - use the value
+                    this.logger.debug('Response has has_purchase field, using value:', data.has_purchase);
+                    return data.has_purchase;
+                } else {
+                    // Log the response for debugging
+                    this.logger.warn('Unexpected premium status response format from backend:', data);
+                    const msg = `Unexpected premium status response format from backend:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nHas Purchase: ${data.has_purchase}\n\nFull Response: ${JSON.stringify(data, null, 2)}`;
+                    if (window.showAppAlert) { window.showAppAlert(msg, 'Backend Response'); } else { alert(msg); }
+                    throw new Error(`Invalid premium status response format from backend: ${JSON.stringify(data)}`);
+                }
+            } else if (requestType === 'user_data') {
+                // Handle user data responses
+                if (data.success) {
+                    this.logger.debug('User data saved successfully:', data);
+                    return data;
+                } else {
+                    // Log the response for debugging
+                    this.logger.warn('User data save failed:', data);
+                    const msg = `User data save failed:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nMessage: ${data.message}\n\nFull Response: ${JSON.stringify(data, null, 2)}`;
+                    if (window.showAppAlert) { window.showAppAlert(msg, 'Backend Response'); } else { alert(msg); }
+                    throw new Error(`User data save failed: ${data.message || 'Unknown error'}`);
+                }
             } else {
-                // Log the response for debugging
-                this.logger.warn('Unexpected response format from backend:', data);
-                const msg = `Unexpected response format from backend:\n\nStatus: ${data.status}\nSuccess: ${data.success}\nHas Purchase: ${data.has_purchase}\n\nFull Response: ${JSON.stringify(data, null, 2)}`;
-                if (window.showAppAlert) { window.showAppAlert(msg, 'Backend Response'); } else { alert(msg); }
-                throw new Error(`Invalid response format from backend: ${JSON.stringify(data)}`);
+                // Unknown request type
+                this.logger.warn('Unknown request type:', requestType);
+                return data;
             }
             
         } catch (error) {
@@ -643,23 +662,32 @@ export class VKUserService {
                 errorMessage = 'CORS policy blocked the request';
             }
             
-            this.logger.warn(`Backend premium check failed (${errorType}): ${errorMessage}`, {
-                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT),
+            this.logger.warn(`Backend ${requestType} request failed (${errorType}): ${errorMessage}`, {
+                url: VKConfig.getPlatformBackendUrl(endpoint),
                 user_id: this.userInfo?.id,
                 error: error
             });
             
             // Show alert for CORS and network errors
             if (errorType === 'cors_error' || errorType === 'network_error') {
-                alert(`CORS/Network Error (Premium Check): ${errorMessage}\n\nURL: ${VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`);
+                const alertMsg = `CORS/Network Error (${requestType}): ${errorMessage}\n\nURL: ${VKConfig.getPlatformBackendUrl(endpoint)}\n\nThis is likely due to:\n- CORS policy blocking the request\n- Server being unreachable\n- Network connectivity issues\n\nError Type: ${errorType}`;
+                if (window.showAppAlert) { window.showAppAlert(alertMsg, 'Network Error'); } else { alert(alertMsg); }
             }
             
-            this.analytics.trackPremiumStatus(false, errorType, { 
-                error_message: errorMessage 
-            }, { 
-                user_id: this.userInfo?.id,
-                url: VKConfig.getBackendUrl(VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT)
-            });
+            // Track analytics based on request type
+            if (requestType === 'premium_status') {
+                this.analytics.trackPremiumStatus(false, errorType, { 
+                    error_message: errorMessage 
+                }, { 
+                    user_id: this.userInfo?.id,
+                    url: VKConfig.getPlatformBackendUrl(endpoint)
+                });
+            } else if (requestType === 'user_data') {
+                this.analytics.trackUserDataSave(this.userInfo?.id, false, { 
+                    error_type: errorType,
+                    error_message: errorMessage 
+                });
+            }
             
             return null;
         }

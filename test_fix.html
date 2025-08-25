@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .test-button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Test Fix for Response Format Issue</h1>
+    
+    <div class="test-section">
+        <h3>Test User Data Save (Should not error)</h3>
+        <button class="test-button" onclick="testUserDataSave()">Test User Data Save</button>
+        <div id="userDataResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Premium Status Check</h3>
+        <button class="test-button" onclick="testPremiumCheck()">Test Premium Check</button>
+        <div id="premiumResult" class="result"></div>
+    </div>
+
+    <script type="module">
+        // Import required modules
+        import { VKConfig } from './src/modules/vk/config/VKConfig.js';
+        
+        // Make functions globally available
+        window.testUserDataSave = async function() {
+            const result = document.getElementById('userDataResult');
+            try {
+                result.innerHTML = '<div class="info">Testing user data save...</div>';
+                
+                // Simulate the user data save request
+                const testData = {
+                    vk_user_id: '6582162',
+                    app_id: '53942833',
+                    username: 'test_user',
+                    first_name: 'Test',
+                    last_name: 'User'
+                };
+                
+                const response = await fetch(`${VKConfig.BACKEND_BASE_URL}${VKConfig.BACKEND_USER_DATA_ENDPOINT}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <div class="success">
+                        <strong>User Data Save Response:</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Data:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        };
+        
+        window.testPremiumCheck = async function() {
+            const result = document.getElementById('premiumResult');
+            try {
+                result.innerHTML = '<div class="info">Testing premium status check...</div>';
+                
+                // Simulate the premium status check request
+                const testData = {
+                    user_id: '6582162',
+                    app_id: '53942833',
+                    item_id: 'mbti_premium'
+                };
+                
+                const response = await fetch(`${VKConfig.BACKEND_BASE_URL}${VKConfig.BACKEND_CHECK_PURCHASE_ENDPOINT}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <div class="success">
+                        <strong>Premium Status Response:</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Data:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        };
+    </script>
+</body>
+</html>
