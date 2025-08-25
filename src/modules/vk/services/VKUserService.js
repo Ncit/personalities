@@ -63,11 +63,11 @@ export class VKUserService {
         
         // Check if user data has already been saved
         const userDataSaved = localStorage.getItem(VKConfig.getStorageKey('userDataSaved'));
-        if (userDataSaved === 'true') {
+        // if (userDataSaved === 'true') {
             this.logger.debug('User data already saved to server, skipping');
             this.analytics.trackUserDataSave(userInfo.id, true, null, { reason: 'already_saved' });
-            return;
-        }
+            // return;
+        // }
         
         if (!userInfo || !userInfo.id) {
             this.logger.warn('No valid user info available for saving to server');
