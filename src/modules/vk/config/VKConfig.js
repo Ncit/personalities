@@ -59,7 +59,7 @@ export class VKConfig {
     // Feature flags
     static FEATURES = {
         analytics: true,
-        userDataSaving: false, // Disabled by default to prevent network errors
+        userDataSaving: true, // Disabled by default to prevent network errors
         premiumStatusChecking: false, // Disabled by default to prevent network errors
         payment: true,
         sharing: true,
@@ -70,7 +70,7 @@ export class VKConfig {
     // Android-specific feature flags
     static ANDROID_FEATURES = {
         analytics: true,
-        userDataSaving: false, // Disabled for Android due to CORS issues
+        userDataSaving: true, // Disabled for Android due to CORS issues
         premiumStatusChecking: false, // Disabled for Android due to CORS issues
         payment: true,
         sharing: true,
