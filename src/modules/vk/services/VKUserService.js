@@ -14,6 +14,25 @@ export class VKUserService {
         this.userInfo = null;
         this.isEnabled = VKConfig.isFeatureEnabled('userDataSaving');
         this.isPremiumCheckingEnabled = VKConfig.isFeatureEnabled('premiumStatusChecking');
+        
+        // Premium status caching (in memory only, not localStorage)
+        this.cachedPremiumStatus = null;
+        this.premiumStatusCacheTime = null;
+        this.premiumStatusCacheTTL = 5 * 60 * 1000; // 5 minutes cache TTL
+    }
+    
+    /**
+     * Check if premium status cache is valid
+     */
+    isPremiumStatusCacheValid() {
+        if (this.cachedPremiumStatus === null || this.premiumStatusCacheTime === null) {
+            return false;
+        }
+        
+        const now = Date.now();
+        const cacheAge = now - this.premiumStatusCacheTime;
+        
+        return cacheAge < this.premiumStatusCacheTTL;
     }
     
     /**
@@ -264,37 +283,33 @@ export class VKUserService {
     }
     
     /**
-     * Check premium status from local storage and backend
+     * Check premium status from backend API only (with in-memory caching)
      */
     async checkPremiumStatus() {
         this.logger.log('checkPremiumStatus() called');
         
+        // Check if we have a valid cached premium status
+        if (this.isPremiumStatusCacheValid()) {
+            this.logger.log('Using cached premium status:', this.cachedPremiumStatus);
+            this.analytics.trackPremiumStatus(this.cachedPremiumStatus, 'cache', null, { action: 'cached' });
+            return this.cachedPremiumStatus;
+        }
+        
         this.analytics.trackPremiumStatus(null, 'unknown', null, { action: 'attempted' });
         
         try {
-            // First, check local storage
-            const localPremiumStatus = this.checkLocalPremiumStatus();
-            
-            if (localPremiumStatus !== null) {
-                this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
-                
-                this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage');
-                
-                // Update global premium status
-                this.updateGlobalPremiumStatus(localPremiumStatus);
-                return localPremiumStatus;
-            }
-            
-            this.logger.log('No local premium status found, checking backend...');
-            
-            // Only check backend if no premium status found in localStorage
+            // Check backend for premium status
             if (this.userInfo?.id) {
-
+                this.logger.log('Checking backend for premium status...');
+                
                 const backendPremiumStatus = await this.checkBackendPremiumStatus();
                 
                 if (backendPremiumStatus !== null) {
-                    // Store the result in local storage
-                    this.storePremiumStatus(backendPremiumStatus);
+                    // Cache the premium status in memory
+                    this.cachedPremiumStatus = backendPremiumStatus;
+                    this.premiumStatusCacheTime = Date.now();
+                    
+                    this.logger.log('Premium status cached:', backendPremiumStatus);
                     
                     // Update global premium status
                     this.updateGlobalPremiumStatus(backendPremiumStatus);
@@ -308,12 +323,20 @@ export class VKUserService {
             // If we can't determine premium status, assume not premium
             this.logger.log('Could not determine premium status, defaulting to false');
             
+            // Cache the default status
+            this.cachedPremiumStatus = false;
+            this.premiumStatusCacheTime = Date.now();
+            
             this.analytics.trackPremiumStatus(false, 'unknown', null, { user_id: this.userInfo?.id });
             
             return false;
             
         } catch (error) {
             this.logger.error('Error checking premium status:', error);
+            
+            // Cache the error status
+            this.cachedPremiumStatus = false;
+            this.premiumStatusCacheTime = Date.now();
             
             this.analytics.trackPremiumStatus(false, 'error', error, { user_id: this.userInfo?.id });
             
@@ -322,33 +345,25 @@ export class VKUserService {
     }
     
     /**
-     * Refresh premium status - checks localStorage first, then backend if needed
+     * Refresh premium status - forces backend check and updates cache
      */
     async refreshPremiumStatus() {
         this.logger.log('refreshPremiumStatus() called');
         
-        // First check localStorage
-        const localPremiumStatus = this.checkLocalPremiumStatus();
+        // Clear cache to force backend check
+        this.cachedPremiumStatus = null;
+        this.premiumStatusCacheTime = null;
         
-        if (localPremiumStatus !== null) {
-            this.logger.log('Premium status found in localStorage:', localPremiumStatus, '- skipping backend request');
-            
-            this.analytics.trackPremiumStatus(localPremiumStatus, 'local_storage', null, { action: 'refresh' });
-            
-            // Update global premium status
-            this.updateGlobalPremiumStatus(localPremiumStatus);
-            return localPremiumStatus;
-        }
-        
-        // Only check backend if no premium status found in localStorage
+        // Check backend for premium status
         if (this.userInfo?.id) {
-            this.logger.log('No local premium status found, checking backend...');
+            this.logger.log('Checking backend for premium status...');
             
             const backendPremiumStatus = await this.checkBackendPremiumStatus();
             
             if (backendPremiumStatus !== null) {
-                // Store the result in local storage
-                this.storePremiumStatus(backendPremiumStatus);
+                // Cache the premium status in memory
+                this.cachedPremiumStatus = backendPremiumStatus;
+                this.premiumStatusCacheTime = Date.now();
                 
                 // Update global premium status
                 this.updateGlobalPremiumStatus(backendPremiumStatus);
@@ -365,6 +380,10 @@ export class VKUserService {
         // If we can't determine premium status, assume not premium
         this.logger.log('Could not determine premium status, defaulting to false');
         
+        // Cache the default status
+        this.cachedPremiumStatus = false;
+        this.premiumStatusCacheTime = Date.now();
+        
         this.analytics.trackPremiumStatus(false, 'unknown', null, { 
             action: 'refresh',
             user_id: this.userInfo?.id 
@@ -374,41 +393,12 @@ export class VKUserService {
     }
     
     /**
-     * Check premium status in local storage
+     * Clear premium status cache (useful after payment success)
      */
-    checkLocalPremiumStatus() {
-        try {
-            const premiumFlag = localStorage.getItem(VKConfig.getStorageKey('premiumStatus'));
-            const premiumTimestamp = localStorage.getItem(VKConfig.getStorageKey('premiumTimestamp'));
-            const subscriptionData = localStorage.getItem(VKConfig.getStorageKey('subscriptionData'));
-            
-            this.logger.debug('Checking local premium status:', {
-                mbti_premium: premiumFlag,
-                mbti_premium_timestamp: premiumTimestamp,
-                mbti_subscription_data: subscriptionData
-            });
-            
-            if (premiumFlag === 'true') {
-                this.logger.debug('Premium flag found in localStorage: true');
-                return true;
-            }
-            
-            // Check for subscription data
-            if (subscriptionData) {
-                const subscription = JSON.parse(subscriptionData);
-                if (subscription && subscription.isActive) {
-                    this.logger.debug('Active subscription found in localStorage:', subscription);
-                    return true;
-                }
-            }
-            
-            this.logger.debug('No premium data found in localStorage');
-            return null; // No local data found
-            
-        } catch (error) {
-            this.logger.error('Error reading premium status from localStorage:', error);
-            return null;
-        }
+    clearPremiumStatusCache() {
+        this.logger.log('Clearing premium status cache');
+        this.cachedPremiumStatus = null;
+        this.premiumStatusCacheTime = null;
     }
     
     /**
@@ -693,26 +683,7 @@ export class VKUserService {
         }
     }
     
-    /**
-     * Store premium status in local storage
-     */
-    storePremiumStatus(isPremium) {
-        this.logger.log('storePremiumStatus() called with:', isPremium);
-        try {
-            localStorage.setItem(VKConfig.getStorageKey('premiumStatus'), isPremium.toString());
-            
-            // Also store timestamp for cache invalidation
-            localStorage.setItem(VKConfig.getStorageKey('premiumTimestamp'), Date.now().toString());
-            
-            this.logger.log('Premium status stored in localStorage:', isPremium);
-            this.logger.debug('Current localStorage after storing:', {
-                mbti_premium: localStorage.getItem(VKConfig.getStorageKey('premiumStatus')),
-                mbti_premium_timestamp: localStorage.getItem(VKConfig.getStorageKey('premiumTimestamp'))
-            });
-        } catch (error) {
-            this.logger.error('Error storing premium status:', error);
-        }
-    }
+
     
     /**
      * Update global premium status

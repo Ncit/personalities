@@ -88,7 +88,6 @@ export class StateManager {
     // Premium management
     setPremium(isPremium) {
         this.setState({ isPremium });
-        localStorage.setItem('mbti_premium', isPremium.toString());
     }
 
     // Results management
@@ -154,7 +153,6 @@ export class StateManager {
     saveToStorage() {
         try {
             const dataToSave = {
-                isPremium: this.state.isPremium,
                 theme: this.state.theme,
                 language: this.state.language,
                 lastResults: this.state.lastResults
@@ -171,18 +169,14 @@ export class StateManager {
             if (savedState) {
                 const parsed = JSON.parse(savedState);
                 this.setState({
-                    isPremium: parsed.isPremium || false,
                     theme: parsed.theme || 'light',
                     language: parsed.language || 'en',
                     lastResults: parsed.lastResults || null
                 });
             }
 
-            // Load premium status separately for backward compatibility
-            const premiumStatus = localStorage.getItem('mbti_premium');
-            if (premiumStatus) {
-                this.setState({ isPremium: premiumStatus === 'true' });
-            }
+            // Premium status is now managed by backend API, not localStorage
+            this.setState({ isPremium: false });
         } catch (error) {
             logger.warn('Failed to load state from localStorage:', error);
         }

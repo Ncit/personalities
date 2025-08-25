@@ -937,7 +937,6 @@ async function unlockPremium() {
                 
                 if (paymentResult.success) {
                     // Payment successful - unlock premium
-                    setPremium(true);
                     if (unlockMsg) {
                         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
                         unlockMsg.style.display = 'block';
@@ -2720,7 +2719,6 @@ async function purchasePremiumSubscription(tier = 'monthly') {
             
             if (paymentResult.success) {
                 // Payment successful - unlock premium
-                setPremium(true);
                 
                 // Save subscription data
                 const subscriptionData = {
@@ -2736,7 +2734,7 @@ async function purchasePremiumSubscription(tier = 'monthly') {
                     orderId: paymentResult.order_id
                 };
                 
-                localStorage.setItem('mbti_subscription_data', JSON.stringify(subscriptionData));
+
                 
                 // Show success notification
                 vkBridgeManager.showNotification(`Подписка ${config.name} успешно активирована!`);
