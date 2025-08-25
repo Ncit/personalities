@@ -31,17 +31,20 @@ export class VKUserService {
             const result = await this.bridge.send('VKWebAppGetUserInfo');
             this.userInfo = result;
             
-            this.analytics.trackUserInfo(result, true);
-            this.analytics.setUserProperties(result);
+            // Try to get additional user information if available
+            const enhancedUserInfo = await this.tryGetEnhancedUserInfo(result);
+            
+            this.analytics.trackUserInfo(enhancedUserInfo, true);
+            this.analytics.setUserProperties(enhancedUserInfo);
             
             // Save user data to server (non-blocking)
             if (this.isEnabled) {
-                this.saveUserDataToServer(result).catch(error => {
+                this.saveUserDataToServer(enhancedUserInfo).catch(error => {
                     this.logger.warn('Failed to save user data to server (non-blocking):', error);
                 });
             }
             
-            return result;
+            return enhancedUserInfo;
             
         } catch (error) {
             this.logger.error('Error getting user info:', error);
@@ -49,6 +52,30 @@ export class VKUserService {
             this.analytics.trackUserInfo(null, false, error);
             
             return null;
+        }
+    }
+    
+    /**
+     * Try to get enhanced user information with additional fields
+     */
+    async tryGetEnhancedUserInfo(basicUserInfo) {
+        try {
+            // Try to get additional user information using VK API
+            // Note: Some fields might require additional permissions or might not be available
+            const enhancedInfo = { ...basicUserInfo };
+            
+            // Log what fields we're trying to get
+            this.logger.debug('Attempting to get enhanced user info for fields: bdate, city, country, sex, etc.');
+            
+            // For now, we'll use the basic info and log what's available
+            // In the future, this could be extended to make additional API calls
+            // if the user grants additional permissions
+            
+            return enhancedInfo;
+            
+        } catch (error) {
+            this.logger.warn('Failed to get enhanced user info, using basic info:', error);
+            return basicUserInfo;
         }
     }
     
@@ -87,14 +114,55 @@ export class VKUserService {
         
         this.logger.debug('Saving user data to server with platform:', platform, retryConfig);
         
+        // Log available user info fields for debugging
+        this.logger.debug('Available user info fields:', Object.keys(userInfo));
+        this.logger.debug('User info values:', userInfo);
+        
+        // Check which additional fields are available and their types
+        const availableFields = {
+            bdate: { value: userInfo.bdate, type: typeof userInfo.bdate },
+            bdate_visibility: { value: userInfo.bdate_visibility, type: typeof userInfo.bdate_visibility },
+            city: { value: userInfo.city, type: typeof userInfo.city },
+            country: { value: userInfo.country, type: typeof userInfo.country },
+            sex: { value: userInfo.sex, type: typeof userInfo.sex },
+            can_access_closed: { value: userInfo.can_access_closed, type: typeof userInfo.can_access_closed },
+            is_closed: { value: userInfo.is_closed, type: typeof userInfo.is_closed }
+        };
+        
+        this.logger.debug('Additional fields availability and types:', availableFields);
+        
+        // Handle city and country which might be objects with id and title
+        const cityValue = userInfo.city ? (typeof userInfo.city === 'object' ? userInfo.city.title : userInfo.city) : '';
+        const countryValue = userInfo.country ? (typeof userInfo.country === 'object' ? userInfo.country.title : userInfo.country) : '';
+        
         const userData = {
             vk_user_id: userInfo.id,
             app_id: VKConfig.VK_APP_ID,
             username: userInfo.screen_name || `user_${userInfo.id}`,
             first_name: userInfo.first_name || '',
             last_name: userInfo.last_name || '',
-            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || ''
+            vk_photo: userInfo.photo_100 || userInfo.photo_200 || userInfo.photo_max || '',
+            bdate: userInfo.bdate || '',
+            bdate_visibility: userInfo.bdate_visibility || '',
+            city: cityValue,
+            country: countryValue,
+            sex: userInfo.sex || '',
+            can_access_closed: userInfo.can_access_closed || false,
+            is_closed: userInfo.is_closed || false
         };
+        
+        // Log the data being sent to server
+        this.logger.debug('User data to be saved:', userData);
+        
+        // Validate that we have at least the basic required fields
+        if (!userData.vk_user_id) {
+            this.logger.error('Missing required field: vk_user_id');
+            throw new Error('Missing required field: vk_user_id');
+        }
+        
+        // Log summary of what we're saving
+        const fieldsWithValues = Object.entries(userData).filter(([key, value]) => value !== '' && value !== false && value !== null && value !== undefined);
+        this.logger.info(`Saving user data with ${fieldsWithValues.length} populated fields:`, fieldsWithValues.map(([key, value]) => `${key}: ${value}`));
         
         try {
             const result = await this._makeNetworkRequestWithRetry(
