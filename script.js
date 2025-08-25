@@ -859,15 +859,48 @@ function setupTypeFilters() {
 
 // Premium status logic
 function isPremium() {
+    // Check if VK bridge manager is available and has premium status
+    if (window.vkBridgeManager && window.vkBridgeManager.userService) {
+        try {
+            // Get premium status from VK user service
+            const premiumStatus = window.vkBridgeManager.userService.getPremiumStatus();
+            if (premiumStatus !== null) {
+                return premiumStatus;
+            }
+        } catch (error) {
+            logger.warn('Error getting premium status from VK service:', error);
+        }
+    }
+    
+    // Fallback to localStorage check (for backward compatibility)
     const premiumValue = localStorage.getItem('mbti_premium');
     return premiumValue === '1' || premiumValue === 'true';
 }
 
 function setPremium(val) {
     if (val) {
+        // Store in localStorage for backward compatibility
         localStorage.setItem('mbti_premium', 'true');
+        
+        // Also update VK user service if available
+        if (window.vkBridgeManager && window.vkBridgeManager.userService) {
+            try {
+                window.vkBridgeManager.userService.storePremiumStatus(true);
+            } catch (error) {
+                logger.warn('Error storing premium status in VK service:', error);
+            }
+        }
     } else {
         localStorage.removeItem('mbti_premium');
+        
+        // Also update VK user service if available
+        if (window.vkBridgeManager && window.vkBridgeManager.userService) {
+            try {
+                window.vkBridgeManager.userService.storePremiumStatus(false);
+            } catch (error) {
+                logger.warn('Error storing premium status in VK service:', error);
+            }
+        }
     }
     updatePremiumUI();
 }
@@ -1052,6 +1085,16 @@ async function unlockPremium() {
 
 function completePremiumUnlock() {
     closePremiumModal();
+    
+    // Try to restart the app UI using VK bridge manager
+    if (window.vkBridgeManager && typeof window.vkBridgeManager.restartAppUI === 'function') {
+        logger.log('Premium unlocked, restarting app UI...');
+        window.vkBridgeManager.restartAppUI();
+        return;
+    }
+    
+    // Fallback: manually refresh premium content
+    logger.log('VK bridge manager not available, using fallback premium unlock...');
     
     // Check if we're on the results page and refresh premium content
     const resultsScreen = document.getElementById('resultsScreen');
@@ -3088,3 +3131,45 @@ localStorage.getItem('mbti_premium')
 
 // Make updateQuizTitle function available globally
 window.updateQuizTitle = updateQuizTitle;
+
+// Listen for premium status changes from VK bridge manager
+window.addEventListener('premiumStatusChanged', function(event) {
+    logger.log('Premium status change event received:', event.detail);
+    
+    if (event.detail && event.detail.isPremium !== undefined) {
+        // Update premium status
+        setPremium(event.detail.isPremium);
+        
+        // Force UI update
+        updatePremiumUI();
+        
+        // If this is from a payment success, show success message
+        if (event.detail.source === 'payment_success') {
+            if (window.vkBridgeManager && typeof window.vkBridgeManager.showNotification === 'function') {
+                window.vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+            }
+        }
+        
+        logger.log('Premium status updated from event:', event.detail.isPremium);
+    }
+});
+
+// Initialize premium status check when VK bridge manager is ready
+function initializePremiumStatusListener() {
+    if (window.vkBridgeManager && window.vkBridgeManager.userService) {
+        logger.log('VK bridge manager ready, setting up premium status monitoring...');
+        
+        // Check premium status initially
+        window.vkBridgeManager.userService.checkPremiumStatus().then(() => {
+            updatePremiumUI();
+        }).catch(error => {
+            logger.warn('Initial premium status check failed:', error);
+        });
+    } else {
+        // Retry after a short delay
+        setTimeout(initializePremiumStatusListener, 1000);
+    }
+}
+
+// Start monitoring premium status
+initializePremiumStatusListener();

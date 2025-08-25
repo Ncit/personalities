@@ -108,6 +108,12 @@ export class VKPaymentService {
             // Payment successful
             this.analytics.trackPayment(result.product_id, true, null, result.order_id, { action: 'completed' });
             
+            // Notify bridge manager about successful payment for UI restart
+            if (window.vkBridgeManager && typeof window.vkBridgeManager.restartAppUI === 'function') {
+                this.logger.log('Payment successful, notifying bridge manager to restart UI...');
+                window.vkBridgeManager.restartAppUI();
+            }
+            
             return {
                 success: true,
                 message: 'Payment successful! Premium access activated.',

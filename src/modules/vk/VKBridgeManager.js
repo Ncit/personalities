@@ -164,6 +164,12 @@ export class VKBridgeManager {
                     order_id: data.order_id,
                     request_id: data.request_id
                 });
+                
+                // If payment was successful, restart the app UI to reflect premium status
+                if (data.success && data.order_id) {
+                    this.logger.log('Payment successful, restarting app UI...');
+                    this.restartAppUI();
+                }
                 break;
             default:
                 this.analytics.trackVKEvent('unhandled_bridge_event', {
@@ -825,6 +831,134 @@ export class VKBridgeManager {
 
     getVKAnalyticsData() {
         return this.analytics.getAnalyticsData();
+    }
+
+    /**
+     * Restart the app UI to reflect premium status
+     */
+    async restartAppUI() {
+        if (this.bridge && this.isVKPlatform) {
+            try {
+                // Try to use VK's restart method first
+                await this.bridge.send('VKWebAppRestart');
+                this.logger.log('App UI restarted successfully using VK restart.');
+            } catch (error) {
+                this.logger.warn('VK restart failed, using fallback method:', error);
+                // Fallback: manually refresh premium status and UI
+                await this.fallbackRestartUI();
+            }
+        } else {
+            this.logger.warn('Cannot restart app UI: bridge not available or not in VK environment.');
+            // Use fallback method for non-VK environments
+            await this.fallbackRestartUI();
+        }
+    }
+
+    /**
+     * Fallback method to restart UI when VK restart is not available
+     */
+    async fallbackRestartUI() {
+        try {
+            this.logger.log('Using fallback UI restart method...');
+            
+            // Clear premium status cache and force refresh
+            if (this.userService) {
+                await this.userService.clearPremiumStatusCache();
+                await this.userService.checkPremiumStatus();
+            }
+            
+            // Update global premium status
+            if (typeof window.setPremium === 'function' && typeof window.updatePremiumUI === 'function') {
+                const isPremium = await this.userService?.checkPremiumStatus();
+                if (isPremium) {
+                    window.setPremium(true);
+                    window.updatePremiumUI();
+                    this.logger.log('Premium status updated via fallback method');
+                }
+            }
+            
+            // Force UI refresh by triggering a custom event
+            window.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
+                detail: { isPremium: true, source: 'payment_success' } 
+            }));
+            
+            this.logger.log('Fallback UI restart completed');
+            
+        } catch (error) {
+            this.logger.error('Error in fallback UI restart:', error);
+        }
+    }
+
+    /**
+     * Show notification to user
+     */
+    showNotification(message, type = 'info') {
+        try {
+            if (this.bridge && this.isVKPlatform) {
+                // Try to use VK's notification system
+                this.bridge.send('VKWebAppShowNotification', {
+                    text: message,
+                    type: type
+                }).catch(error => {
+                    this.logger.warn('VK notification failed, using fallback:', error);
+                    this.showFallbackNotification(message, type);
+                });
+            } else {
+                // Use fallback notification
+                this.showFallbackNotification(message, type);
+            }
+        } catch (error) {
+            this.logger.error('Error showing notification:', error);
+            this.showFallbackNotification(message, type);
+        }
+    }
+
+    /**
+     * Fallback notification method
+     */
+    showFallbackNotification(message, type) {
+        try {
+            // Create a simple notification element
+            const notification = document.createElement('div');
+            notification.className = `vk-notification vk-notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 14px;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+            
+            // Allow manual dismissal
+            notification.addEventListener('click', () => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            });
+            
+        } catch (error) {
+            this.logger.error('Error showing fallback notification:', error);
+            // Last resort: use alert
+            alert(message);
+        }
     }
 }
 

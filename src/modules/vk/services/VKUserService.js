@@ -935,4 +935,48 @@ export class VKUserService {
             if (window.showAppAlert) { window.showAppAlert(`Check-purchase test failed:\n\nError: ${error.message}`, 'Check Purchase'); } else { alert(`Check-purchase test failed:\n\nError: ${error.message}`); }
         }
     }
+
+    /**
+     * Get current premium status from cache or backend
+     */
+    getPremiumStatus() {
+        try {
+            // First check localStorage cache
+            const cachedStatus = localStorage.getItem(VKConfig.getStorageKey('premiumStatus'));
+            if (cachedStatus !== null) {
+                return cachedStatus === 'true';
+            }
+            
+            // Check backend if no cache
+            return null;
+        } catch (error) {
+            this.logger.warn('Error getting premium status:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Store premium status in cache
+     */
+    storePremiumStatus(isPremium) {
+        try {
+            if (isPremium) {
+                localStorage.setItem(VKConfig.getStorageKey('premiumStatus'), 'true');
+                localStorage.setItem(VKConfig.getStorageKey('premiumTimestamp'), Date.now().toString());
+            } else {
+                localStorage.removeItem(VKConfig.getStorageKey('premiumStatus'));
+                localStorage.removeItem(VKConfig.getStorageKey('premiumTimestamp'));
+            }
+            
+            this.logger.log('Premium status stored:', isPremium);
+            
+            // Trigger premium status change event
+            window.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
+                detail: { isPremium: isPremium, source: 'manual_update' } 
+            }));
+            
+        } catch (error) {
+            this.logger.error('Error storing premium status:', error);
+        }
+    }
 } 
