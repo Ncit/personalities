@@ -386,16 +386,6 @@ class MBTIQuiz {
         const resetBtn = document.getElementById('resetTestBtn');
         if (resetBtn) resetBtn.style.display = 'inline-block';
         
-        // Log to Firebase Analytics
-        if (window.firebaseAnalytics) {
-            window.firebaseAnalytics.logEvent('quiz_completed', {
-                personality_type: personalityType,
-                quiz_type: this.currentQuizType,
-                question_count: this.questions.length,
-                is_premium: isPremium()
-            });
-        }
-        
         // Track VK-specific quiz completion
         if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
             window.vkBridgeManager.trackVKQuizEvent('completed', {
