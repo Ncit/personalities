@@ -388,7 +388,7 @@ class MBTIQuiz {
         
         // Track VK-specific quiz completion
         if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-            window.vkBridgeManager.trackVKQuizEvent('completed', {
+            window.vkBridgeManager.trackVKQuizEvent('quiz_completed', {
                 personality_type: personalityType,
                 quiz_type: this.currentQuizType,
                 question_count: this.questions.length,
