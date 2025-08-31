@@ -1,10 +1,9 @@
 /**
- * Enhanced Quiz Engine - Core Quiz Logic with Adaptive Assessment
- * Handles quiz flow, question management, scoring algorithms, and adaptive features
+ * Quiz Engine - Core Quiz Logic and Management
+ * Handles quiz flow, question management, and scoring algorithms
  */
 import { stateManager } from '../core/StateManager.js';
 import { QUIZ_TYPES } from '../../data/QuizData.js';
-import { AdaptiveEngine } from '../adaptive/index.js';
 
 export class QuizEngine {
     constructor() {
@@ -15,55 +14,20 @@ export class QuizEngine {
         this.selectedOption = null;
         this.quizType = 'mbti';
         
-        // Adaptive assessment system
-        this.adaptiveEngine = null;
-        this.isAdaptiveMode = false;
-        this.adaptiveConfig = {
-            enabled: true,
-            minQuestions: 20,
-            maxQuestions: 60,
-            confidenceThreshold: 0.85
-        };
-        
         this.initializeQuiz();
     }
 
     initializeQuiz() {
         this.quizType = stateManager.getCurrentQuizType();
         this.questions = this.generateQuestions();
-        
-        // Initialize adaptive engine if enabled
-        if (this.adaptiveConfig.enabled && this.quizType === 'mbti') {
-            this.initializeAdaptiveEngine();
-        }
-        
         this.resetQuiz();
-    }
-
-    /**
-     * Initialize adaptive assessment engine
-     */
-    initializeAdaptiveEngine() {
-        try {
-            this.adaptiveEngine = new AdaptiveEngine(this.questions);
-            this.isAdaptiveMode = true;
-            console.log('Adaptive assessment engine initialized');
-        } catch (error) {
-            console.warn('Failed to initialize adaptive engine, falling back to standard mode:', error);
-            this.isAdaptiveMode = false;
-        }
     }
 
     resetQuiz() {
         this.currentQuestionIndex = 0;
         this.answers = [];
-        this.scores = { E: 0, I: 0, S: 0, N: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
         this.selectedOption = null;
-        
-        // Reset adaptive engine if available
-        if (this.adaptiveEngine) {
-            this.adaptiveEngine.reset();
-        }
         
         stateManager.resetQuiz();
     }
@@ -83,27 +47,11 @@ export class QuizEngine {
             return null;
         }
         
-        const question = this.questions[this.currentQuestionIndex];
-        
         return {
-            ...question,
+            ...this.questions[this.currentQuestionIndex],
             questionNumber: this.currentQuestionIndex + 1,
-            totalQuestions: this.questions.length,
-            isAdaptive: this.isAdaptiveMode,
-            confidence: this.getCurrentConfidence()
+            totalQuestions: this.questions.length
         };
-    }
-
-    /**
-     * Get current confidence level for adaptive mode
-     */
-    getCurrentConfidence() {
-        if (!this.adaptiveEngine || !this.isAdaptiveMode) {
-            return null;
-        }
-        
-        const state = this.adaptiveEngine.getState();
-        return state.confidenceScores;
     }
 
     selectOption(optionIndex) {
@@ -111,33 +59,22 @@ export class QuizEngine {
         stateManager.set('selectedOption', optionIndex);
     }
 
-    async nextQuestion() {
+    nextQuestion() {
         if (this.selectedOption === null) {
             throw new Error('No option selected');
         }
 
-        // Save current answer with enhanced data
+        // Save current answer
         const currentQuestion = this.questions[this.currentQuestionIndex];
-        const responseData = {
+        this.answers.push({
             questionIndex: this.currentQuestionIndex,
             selectedOption: this.selectedOption,
             dimension: currentQuestion.dimension,
-            weights: currentQuestion.weights,
-            responseTime: this.calculateResponseTime(),
-            questionType: currentQuestion.type || 'behavioral',
-            difficulty: currentQuestion.difficulty || 'medium',
-            questionId: currentQuestion.id || `q_${this.currentQuestionIndex}`
-        };
-
-        this.answers.push(responseData);
+            weights: currentQuestion.weights
+        });
 
         // Update scores
         this.updateScores(currentQuestion, this.selectedOption);
-
-        // Update adaptive engine if available
-        if (this.adaptiveEngine && this.isAdaptiveMode) {
-            await this.updateAdaptiveEngine(responseData);
-        }
 
         // Update state
         stateManager.updateQuizProgress(
@@ -149,73 +86,11 @@ export class QuizEngine {
         this.currentQuestionIndex++;
         this.selectedOption = null;
 
-        // Check if quiz should complete early (adaptive mode)
-        if (this.isAdaptiveMode && this.adaptiveEngine) {
-            const shouldComplete = await this.checkEarlyCompletion();
-            if (shouldComplete) {
-                return this.completeQuiz();
-            }
-        }
-
-        // Check if we've reached the end
         if (this.currentQuestionIndex >= this.questions.length) {
             return this.completeQuiz();
         }
 
         return this.getCurrentQuestion();
-    }
-
-    /**
-     * Update adaptive engine with new response
-     */
-    async updateAdaptiveEngine(responseData) {
-        try {
-            if (this.adaptiveEngine) {
-                this.adaptiveEngine.updateAssessmentState(responseData);
-            }
-        } catch (error) {
-            console.warn('Failed to update adaptive engine:', error);
-        }
-    }
-
-    /**
-     * Check if quiz should complete early based on confidence
-     */
-    async checkEarlyCompletion() {
-        try {
-            if (!this.adaptiveEngine) return false;
-            
-            const state = this.adaptiveEngine.getState();
-            const answeredCount = state.answeredQuestions.length;
-            
-            // Check minimum questions requirement
-            if (answeredCount < this.adaptiveConfig.minQuestions) {
-                return false;
-            }
-            
-            // Check confidence threshold
-            const dimensions = ['EI', 'SN', 'TF', 'JP'];
-            const highConfidenceCount = dimensions.filter(dimension => {
-                const confidence = state.confidenceScores[dimension] || 0;
-                return confidence >= this.adaptiveConfig.confidenceThreshold;
-            }).length;
-            
-            // Complete if all dimensions have high confidence
-            return highConfidenceCount >= dimensions.length;
-            
-        } catch (error) {
-            console.warn('Error checking early completion:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Calculate response time for current question
-     */
-    calculateResponseTime() {
-        // This would integrate with your existing timing system
-        // For now, return a default value
-        return 5000; // 5 seconds default
     }
 
     previousQuestion() {
@@ -226,15 +101,6 @@ export class QuizEngine {
             if (this.answers.length > 0) {
                 const lastAnswer = this.answers.pop();
                 this.recalculateScores();
-                
-                // Update adaptive engine if available
-                if (this.adaptiveEngine && this.isAdaptiveMode) {
-                    this.adaptiveEngine.reset();
-                    // Replay all answers except the last one
-                    this.answers.forEach(answer => {
-                        this.adaptiveEngine.updateAssessmentState(answer);
-                    });
-                }
             }
             
             stateManager.set('currentQuestion', this.currentQuestionIndex);
@@ -274,58 +140,12 @@ export class QuizEngine {
 
     completeQuiz() {
         const results = this.calculateResults();
-        
-        // Get adaptive analytics if available
-        if (this.adaptiveEngine && this.isAdaptiveMode) {
-            results.adaptiveAnalytics = this.getAdaptiveAnalytics();
-        }
-        
         stateManager.setState({
             currentScreen: 'results',
             lastResults: results
         });
         
         return results;
-    }
-
-    /**
-     * Get adaptive assessment analytics
-     */
-    getAdaptiveAnalytics() {
-        if (!this.adaptiveEngine || !this.isAdaptiveMode) {
-            return null;
-        }
-        
-        try {
-            const state = this.adaptiveEngine.getState();
-            const userProfile = this.adaptiveEngine.getUserProfile();
-            
-            return {
-                confidenceScores: state.confidenceScores,
-                adaptationHistory: state.adaptationHistory,
-                performanceMetrics: state.performanceMetrics,
-                personalizationData: state.personalizationData,
-                userProfile: userProfile,
-                questionsSaved: this.questions.length - state.answeredQuestions.length,
-                assessmentEfficiency: this.calculateAssessmentEfficiency(state)
-            };
-        } catch (error) {
-            console.warn('Failed to get adaptive analytics:', error);
-            return null;
-        }
-    }
-
-    /**
-     * Calculate assessment efficiency
-     */
-    calculateAssessmentEfficiency(state) {
-        const totalQuestions = this.questions.length;
-        const answeredQuestions = state.answeredQuestions.length;
-        const questionsSaved = totalQuestions - answeredQuestions;
-        
-        if (totalQuestions === 0) return 0;
-        
-        return (questionsSaved / totalQuestions) * 100;
     }
 
     calculateResults() {
@@ -338,10 +158,7 @@ export class QuizEngine {
             scores: { ...this.scores },
             answers: [...this.answers],
             quizType: this.quizType,
-            timestamp: new Date().toISOString(),
-            isAdaptive: this.isAdaptiveMode,
-            totalQuestions: this.questions.length,
-            answeredQuestions: this.answers.length
+            timestamp: new Date().toISOString()
         };
     }
 
@@ -418,9 +235,7 @@ export class QuizEngine {
         return {
             current: this.currentQuestionIndex + 1,
             total: this.questions.length,
-            percentage: ((this.currentQuestionIndex + 1) / this.questions.length) * 100,
-            isAdaptive: this.isAdaptiveMode,
-            confidence: this.getCurrentConfidence()
+            percentage: ((this.currentQuestionIndex + 1) / this.questions.length) * 100
         };
     }
 
@@ -434,32 +249,6 @@ export class QuizEngine {
 
     getQuizInfo() {
         return QUIZ_TYPES[this.quizType] || QUIZ_TYPES.mbti;
-    }
-
-    /**
-     * Toggle adaptive mode
-     */
-    toggleAdaptiveMode() {
-        if (this.adaptiveConfig.enabled) {
-            this.isAdaptiveMode = !this.isAdaptiveMode;
-            if (this.isAdaptiveMode && !this.adaptiveEngine) {
-                this.initializeAdaptiveEngine();
-            }
-            console.log('Adaptive mode:', this.isAdaptiveMode ? 'enabled' : 'disabled');
-        }
-        return this.isAdaptiveMode;
-    }
-
-    /**
-     * Get adaptive mode status
-     */
-    getAdaptiveModeStatus() {
-        return {
-            enabled: this.adaptiveConfig.enabled,
-            active: this.isAdaptiveMode,
-            engineAvailable: !!this.adaptiveEngine,
-            config: this.adaptiveConfig
-        };
     }
 
     // Development tools
@@ -491,4 +280,4 @@ export class QuizEngine {
 }
 
 // Export singleton instance
-export const quizEngine = new QuizEngine();
+export const quizEngine = new QuizEngine(); 

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Confidence Integration Test - MBTI Quiz</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quiz-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+        
+        .question-display {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option-button {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .option-button:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .option-button.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .quiz-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .control-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .control-button.secondary {
+            background: #6c757d;
+        }
+        
+        .control-button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .control-button.success {
+            background: #28a745;
+        }
+        
+        .control-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .progress-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .confidence-display {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .confidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .confidence-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .confidence-label {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .confidence-text {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .results-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .personality-type {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+        
+        .scores-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .score-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .analysis-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .test-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .test-info h3 {
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+        
+        .test-info p {
+            color: #0056b3;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-brain"></i> Real Confidence Integration Test</h1>
+            <p>Test confidence levels with actual MBTIQuiz class and real quiz data</p>
+        </div>
+
+        <div class="test-info">
+            <h3><i class="fas fa-info-circle"></i> Test Instructions</h3>
+            <p><strong>Step 1:</strong> Click "Start Quiz" to begin a new quiz session</p>
+            <p><strong>Step 2:</strong> Answer questions by clicking on options (observe confidence changes)</p>
+            <p><strong>Step 3:</strong> Use "Previous Question" to go back and change answers</p>
+            <p><strong>Step 4:</strong> Complete the quiz to see final results and confidence correlation</p>
+            <p><strong>Step 5:</strong> Check the analysis output for detailed confidence vs results correlation</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-question-circle"></i>
+                Quiz Interface
+            </div>
+            
+            <div class="quiz-container">
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Question 0 of 0</div>
+                </div>
+                
+                <div class="question-display" id="questionDisplay">
+                    <div class="question-text">Click "Start Quiz" to begin...</div>
+                    <div class="options-container" id="optionsContainer">
+                        <!-- Options will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="quiz-controls">
+                    <button class="control-button" onclick="startQuiz()">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                    <button class="control-button secondary" onclick="previousQuestion()" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="control-button secondary" onclick="nextQuestion()" id="nextBtn" disabled>
+                        <i class="fas fa-arrow-right"></i> Next
+                    </button>
+                    <button class="control-button success" onclick="finishQuiz()" id="finishBtn" disabled>
+                        <i class="fas fa-check"></i> Finish Quiz
+                    </button>
+                    <button class="control-button secondary" onclick="resetQuiz()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-chart-line"></i>
+                Live Confidence Indicators
+            </div>
+            
+            <div class="confidence-display">
+                <div class="confidence-grid">
+                    <div class="confidence-item">
+                        <div class="confidence-label">E/I Confidence</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceEI" style="width: 0%"></div>
+                        </div>
+                        <div class="confidence-text" id="confidenceEIText">0%</div>
+                    </div>
+                    <div class="confidence-item">
+                        <div class="confidence-label">S/N Confidence</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceSN" style="width: 0%"></div>
+                        </div>
+                        <div class="confidence-text" id="confidenceSNText">0%</div>
+                    </div>
+                    <div class="confidence-item">
+                        <div class="confidence-label">T/F Confidence</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceTF" style="width: 0%"></div>
+                        </div>
+                        <div class="confidence-text" id="confidenceTFText">0%</div>
+                    </div>
+                    <div class="confidence-item">
+                        <div class="confidence-label">J/P Confidence</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceJP" style="width: 0%"></div>
+                        </div>
+                        <div class="confidence-text" id="confidenceJPText">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section" id="resultsSection" style="display: none;">
+            <div class="test-title">
+                <i class="fas fa-trophy"></i>
+                Final Results & Confidence Correlation
+            </div>
+            
+            <div class="results-section">
+                <div class="personality-type" id="personalityType">-</div>
+                
+                <div class="scores-display">
+                    <div class="score-item">
+                        <div class="score-value" id="scoreE">0</div>
+                        <div class="score-label">Extraversion (E)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreI">0</div>
+                        <div class="score-label">Introversion (I)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreS">0</div>
+                        <div class="score-label">Sensing (S)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreN">0</div>
+                        <div class="score-label">Intuition (N)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreT">0</div>
+                        <div class="score-label">Thinking (T)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreF">0</div>
+                        <div class="score-label">Feeling (F)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreJ">0</div>
+                        <div class="score-label">Judging (J)</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreP">0</div>
+                        <div class="score-label">Perceiving (P)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-search"></i>
+                Confidence Analysis Output
+            </div>
+            
+            <div class="analysis-output" id="analysisOutput">
+                Complete the quiz to see confidence correlation analysis...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock quiz data for testing
+        const MOCK_QUESTIONS = [
+            {
+                id: 1,
+                question: "When you're in a group, do you prefer to:",
+                options: ["Speak up and share your thoughts", "Listen and observe others"],
+                dimension: "EI"
+            },
+            {
+                id: 2,
+                question: "When making decisions, do you rely more on:",
+                options: ["Concrete facts and details", "Intuition and possibilities"],
+                dimension: "SN"
+            },
+            {
+                id: 3,
+                question: "In conflicts, do you tend to:",
+                options: ["Focus on logic and fairness", "Consider people's feelings"],
+                dimension: "TF"
+            },
+            {
+                id: 4,
+                question: "Do you prefer to:",
+                options: ["Plan and organize ahead", "Keep options open and flexible"],
+                dimension: "JP"
+            },
+            {
+                id: 5,
+                question: "At parties, do you usually:",
+                options: ["Meet new people and socialize", "Spend time with close friends"],
+                dimension: "EI"
+            },
+            {
+                id: 6,
+                question: "When learning something new, do you prefer:",
+                options: ["Step-by-step instructions", "Big picture overview first"],
+                dimension: "SN"
+            },
+            {
+                id: 7,
+                question: "When someone is upset, do you:",
+                options: ["Try to solve their problem", "Listen and offer emotional support"],
+                dimension: "TF"
+            },
+            {
+                id: 8,
+                question: "Do you prefer to:",
+                options: ["Finish tasks before deadlines", "Work under pressure near deadlines"],
+                dimension: "JP"
+            },
+            {
+                id: 9,
+                question: "In your free time, do you prefer:",
+                options: ["Going out with friends", "Staying home alone"],
+                dimension: "EI"
+            },
+            {
+                id: 10,
+                question: "When reading, do you prefer:",
+                options: ["Stories with clear plots", "Stories that make you think"],
+                dimension: "SN"
+            },
+            {
+                id: 11,
+                question: "When someone disagrees with you, do you:",
+                options: ["Debate the issue logically", "Try to find common ground"],
+                dimension: "TF"
+            },
+            {
+                id: 12,
+                question: "Do you prefer to:",
+                options: ["Have a daily routine", "Keep your schedule flexible"],
+                dimension: "JP"
+            }
+        ];
+
+        // Mock MBTIQuiz class for testing
+        class MockMBTIQuiz {
+            constructor() {
+                this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+                this.answers = [];
+                this.questions = MOCK_QUESTIONS;
+                this.currentQuestion = 0;
+                this.selectedOption = null;
+            }
+
+            startQuiz() {
+                this.currentQuestion = 0;
+                this.answers = [];
+                this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+                this.selectedOption = null;
+                this.displayQuestion();
+                this.updateProgress();
+                this.updateConfidenceBars();
+            }
+
+            displayQuestion() {
+                const question = this.questions[this.currentQuestion];
+                if (!question) return;
+
+                document.getElementById('questionDisplay').innerHTML = `
+                    <div class="question-text">${question.question}</div>
+                    <div class="options-container">
+                        ${question.options.map((option, index) => `
+                            <button class="option-button ${this.selectedOption === index ? 'selected' : ''}" 
+                                    onclick="selectOption(${index})">
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            selectOption(optionNumber) {
+                this.selectedOption = optionNumber;
+                this.displayQuestion();
+                
+                // Update answers array
+                const currentQuestion = this.questions[this.currentQuestion];
+                this.answers[this.currentQuestion] = {
+                    option: optionNumber,
+                    dimension: currentQuestion.dimension,
+                    questionId: currentQuestion.id
+                };
+                
+                // Update scores
+                this.updateScores();
+                this.updateConfidenceBars();
+            }
+
+            updateScores() {
+                // Reset scores
+                this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+                
+                // Calculate scores from answers
+                this.answers.forEach(answer => {
+                    if (answer && answer.dimension) {
+                        const [pref1, pref2] = answer.dimension.split('');
+                        if (answer.option === 0) {
+                            this.scores[pref1] += 3;
+                        } else {
+                            this.scores[pref2] += 3;
+                        }
+                    }
+                });
+            }
+
+            calculateCurrentConfidence() {
+                const confidence = { EI: 0, SN: 0, TF: 0, JP: 0 };
+                const dimensions = ['EI', 'SN', 'TF', 'JP'];
+                
+                dimensions.forEach(dimension => {
+                    const [pref1, pref2] = dimension.split('');
+                    const score1 = this.scores[pref1] || 0;
+                    const score2 = this.scores[pref2] || 0;
+                    
+                    const answeredForDimension = this.answers.filter(a => a && a.dimension === dimension).length;
+                    
+                    let dimensionConfidence = 0;
+                    
+                    if (answeredForDimension > 0) {
+                        const totalPossibleScore = answeredForDimension * 3;
+                        const totalScore = score1 + score2;
+                        const scoreDifference = Math.abs(score1 - score2);
+                        
+                        const utilizationRatio = totalScore / totalPossibleScore;
+                        const preferenceStrength = scoreDifference / totalPossibleScore;
+                        
+                        dimensionConfidence = (utilizationRatio * 0.4) + (preferenceStrength * 0.6);
+                        dimensionConfidence = Math.max(0, Math.min(1, dimensionConfidence));
+                        dimensionConfidence = Math.max(0.1, dimensionConfidence);
+                    } else {
+                        dimensionConfidence = 0.1;
+                    }
+                    
+                    confidence[dimension] = dimensionConfidence;
+                });
+                
+                return confidence;
+            }
+
+            calculatePersonalityType() {
+                const type = [];
+                type.push(this.scores.E > this.scores.I ? 'E' : 'I');
+                type.push(this.scores.S > this.scores.N ? 'S' : 'N');
+                type.push(this.scores.T > this.scores.F ? 'T' : 'F');
+                type.push(this.scores.J > this.scores.P ? 'J' : 'P');
+                return type.join('');
+            }
+
+            analyzeConfidenceResultsCorrelation() {
+                const confidenceScores = this.calculateCurrentConfidence();
+                const finalType = this.calculatePersonalityType();
+                
+                let output = '🔍 ANALYZING CONFIDENCE vs FINAL RESULTS CORRELATION\n';
+                output += '==================================================\n\n';
+                
+                output += '📊 FINAL RESULTS:\n';
+                output += `   Personality Type: ${finalType}\n`;
+                output += `   Scores: ${JSON.stringify(this.scores, null, 2)}\n`;
+                output += `   Total Answers: ${this.answers.filter(a => a).length}\n\n`;
+                
+                output += '🧠 CONFIDENCE LEVELS:\n';
+                output += `   ${JSON.stringify(confidenceScores, null, 2)}\n\n`;
+                
+                // Analyze each dimension
+                const dimensions = ['EI', 'SN', 'TF', 'JP'];
+                let totalCorrelation = 0;
+                let correlationCount = 0;
+                
+                dimensions.forEach(dimension => {
+                    const [pref1, pref2] = dimension.split('');
+                    const score1 = this.scores[pref1] || 0;
+                    const score2 = this.scores[pref2] || 0;
+                    const confidence = confidenceScores[dimension] || 0;
+                    const finalChoice = score1 > score2 ? pref1 : pref2;
+                    const scoreDifference = Math.abs(score1 - score2);
+                    const totalScore = score1 + score2;
+                    
+                    const clarity = totalScore > 0 ? (scoreDifference / totalScore) : 0;
+                    const confidenceMatchesClarity = Math.abs(confidence - clarity) < 0.2;
+                    
+                    if (totalScore > 0) {
+                        totalCorrelation += Math.abs(confidence - clarity);
+                        correlationCount++;
+                    }
+                    
+                    output += `📈 ${dimension} DIMENSION ANALYSIS:\n`;
+                    output += `   Final Choice: ${finalChoice} (${score1} vs ${score2})\n`;
+                    output += `   Score Difference: ${scoreDifference}\n`;
+                    output += `   Total Score: ${totalScore}\n`;
+                    output += `   Clarity: ${(clarity * 100).toFixed(1)}%\n`;
+                    output += `   Confidence: ${(confidence * 100).toFixed(1)}%\n`;
+                    output += `   Match Quality: ${confidenceMatchesClarity ? '✅ GOOD' : '⚠️  NEEDS IMPROVEMENT'}\n\n`;
+                });
+                
+                // Overall correlation analysis
+                const avgConfidence = Object.values(confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(confidenceScores).length;
+                const avgCorrelation = correlationCount > 0 ? (1 - (totalCorrelation / correlationCount)) : 0;
+                
+                output += '🎯 OVERALL CORRELATION ANALYSIS:\n';
+                output += `   Average Confidence: ${(avgConfidence * 100).toFixed(1)}%\n`;
+                output += `   Correlation Score: ${(avgCorrelation * 100).toFixed(1)}%\n`;
+                output += `   Final Type: ${finalType}\n`;
+                
+                // Determine system status
+                let systemStatus = 'POOR';
+                if (avgConfidence > 0.6 && avgCorrelation > 0.7) {
+                    systemStatus = 'EXCELLENT';
+                } else if (avgConfidence > 0.4 && avgCorrelation > 0.5) {
+                    systemStatus = 'GOOD';
+                } else if (avgConfidence > 0.2 && avgCorrelation > 0.3) {
+                    systemStatus = 'FAIR';
+                }
+                
+                output += `   System Status: ${systemStatus}\n\n`;
+                
+                output += '💡 RECOMMENDATIONS:\n';
+                if (avgCorrelation < 0.5) {
+                    output += '   - Confidence calculation needs significant improvement\n';
+                    output += '   - Review formula weights and scoring system\n';
+                } else if (avgCorrelation < 0.7) {
+                    output += '   - Confidence calculation could be improved\n';
+                    output += '   - Consider adjusting calculation parameters\n';
+                } else {
+                    output += '   - Confidence calculation is working well\n';
+                    output += '   - System is providing reliable feedback\n';
+                }
+                
+                output += '==================================================\n';
+                
+                return output;
+            }
+
+            updateProgress() {
+                const progress = this.questions.length > 0 ? ((this.currentQuestion + 1) / this.questions.length) * 100 : 0;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = `Question ${this.currentQuestion + 1} of ${this.questions.length}`;
+            }
+
+            updateConfidenceBars() {
+                const confidenceScores = this.calculateCurrentConfidence();
+                
+                Object.entries(confidenceScores).forEach(([dimension, confidence]) => {
+                    const bar = document.getElementById(`confidence${dimension}`);
+                    const text = document.getElementById(`confidence${dimension}Text`);
+                    if (bar && text) {
+                        bar.style.width = `${confidence * 100}%`;
+                        text.textContent = `${(confidence * 100).toFixed(1)}%`;
+                    }
+                });
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion < this.questions.length - 1) {
+                    this.currentQuestion++;
+                    this.selectedOption = null;
+                    this.displayQuestion();
+                    this.updateProgress();
+                    this.updateConfidenceBars();
+                }
+                this.updateButtonStates();
+            }
+
+            previousQuestion() {
+                if (this.currentQuestion > 0) {
+                    this.currentQuestion--;
+                    this.selectedOption = this.answers[this.currentQuestion] ? this.answers[this.currentQuestion].option : null;
+                    this.displayQuestion();
+                    this.updateProgress();
+                    this.updateConfidenceBars();
+                }
+                this.updateButtonStates();
+            }
+
+            updateButtonStates() {
+                document.getElementById('prevBtn').disabled = this.currentQuestion === 0;
+                document.getElementById('nextBtn').disabled = this.currentQuestion === this.questions.length - 1;
+                document.getElementById('finishBtn').disabled = this.answers.filter(a => a).length < this.questions.length;
+            }
+
+            finishQuiz() {
+                if (this.answers.filter(a => a).length === this.questions.length) {
+                    this.showResults();
+                }
+            }
+
+            showResults() {
+                // Update scores display
+                Object.entries(this.scores).forEach(([pref, score]) => {
+                    const element = document.getElementById(`score${pref}`);
+                    if (element) element.textContent = score;
+                });
+
+                // Show personality type
+                const personalityType = this.calculatePersonalityType();
+                document.getElementById('personalityType').textContent = personalityType;
+
+                // Show results section
+                document.getElementById('resultsSection').style.display = 'block';
+
+                // Run analysis
+                const analysis = this.analyzeConfidenceResultsCorrelation();
+                document.getElementById('analysisOutput').textContent = analysis;
+
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            resetQuiz() {
+                this.startQuiz();
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('analysisOutput').textContent = 'Complete the quiz to see confidence correlation analysis...';
+            }
+        }
+
+        // Global quiz instance
+        let quiz = new MockMBTIQuiz();
+
+        // Global functions for button clicks
+        function startQuiz() {
+            quiz.startQuiz();
+            quiz.updateButtonStates();
+        }
+
+        function selectOption(optionNumber) {
+            quiz.selectOption(optionNumber);
+            quiz.updateButtonStates();
+        }
+
+        function nextQuestion() {
+            quiz.nextQuestion();
+        }
+
+        function previousQuestion() {
+            quiz.previousQuestion();
+        }
+
+        function finishQuiz() {
+            quiz.finishQuiz();
+        }
+
+        function resetQuiz() {
+            quiz.resetQuiz();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Real Confidence Integration Test Page Loaded');
+            console.log('This test uses the actual confidence calculation logic from MBTIQuiz');
+            quiz.updateButtonStates();
+        });
+    </script>
+</body>
+</html>

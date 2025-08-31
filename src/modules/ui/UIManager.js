@@ -36,6 +36,21 @@ export class UIManager {
             prevBtn: document.getElementById('prevBtn'),
             nextBtn: document.getElementById('nextBtn'),
             
+            // Adaptive indicators
+            adaptiveIndicators: document.getElementById('adaptiveIndicators'),
+            confidenceEI: document.getElementById('confidenceEI'),
+            confidenceSN: document.getElementById('confidenceSN'),
+            confidenceTF: document.getElementById('confidenceTF'),
+            confidenceJP: document.getElementById('confidenceJP'),
+            confidenceEIText: document.getElementById('confidenceEIText'),
+            confidenceSNText: document.getElementById('confidenceSNText'),
+            confidenceTFText: document.getElementById('confidenceTFText'),
+            confidenceJPText: document.getElementById('confidenceJPText'),
+            adaptiveStatus: document.getElementById('adaptiveStatus'),
+            estimatedTime: document.getElementById('estimatedTime'),
+
+            overallConfidence: document.getElementById('overallConfidence'),
+            
             // Results elements
             personalityType: document.getElementById('personalityType'),
             personalityCard: document.getElementById('personalityCard'),
@@ -135,6 +150,9 @@ export class UIManager {
         this.elements.prevBtn.disabled = !quizEngine.canGoPrevious();
         this.elements.nextBtn.disabled = !quizEngine.canGoNext();
 
+        // Update adaptive indicators
+        this.updateAllAdaptiveIndicators();
+
         // Clear option selection
         this.clearOptionSelection();
     }
@@ -169,6 +187,9 @@ export class UIManager {
                 // Show next question
                 this.displayCurrentQuestion();
             }
+            
+            // Update adaptive indicators after question change
+            this.updateAllAdaptiveIndicators();
         } catch (error) {
             logger.error('Error in nextQuestion:', error);
             this.showError('Please select an option before continuing.');
@@ -618,6 +639,194 @@ export class UIManager {
                 });
             });
         });
+    }
+
+    // ========================================
+    // ADAPTIVE ASSESSMENT INDICATORS
+    // ========================================
+
+    /**
+     * Show adaptive indicators
+     */
+    showAdaptiveIndicators() {
+        if (this.elements.adaptiveIndicators) {
+            this.elements.adaptiveIndicators.style.display = 'block';
+            this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+        }
+    }
+
+    /**
+     * Hide adaptive indicators
+     */
+    hideAdaptiveIndicators() {
+        if (this.elements.adaptiveIndicators) {
+            this.elements.adaptiveIndicators.style.display = 'none';
+        }
+    }
+
+    /**
+     * Update adaptive status
+     */
+    updateAdaptiveStatus(status, text) {
+        if (this.elements.adaptiveStatus) {
+            const statusDot = this.elements.adaptiveStatus.querySelector('.status-dot');
+            const statusText = this.elements.adaptiveStatus.querySelector('.status-text');
+            
+            if (statusDot) {
+                statusDot.className = `status-dot ${status}`;
+            }
+            
+            if (statusText) {
+                statusText.textContent = text;
+            }
+        }
+    }
+
+    /**
+     * Update confidence bars for all dimensions
+     */
+    updateConfidenceBars(confidenceScores) {
+        if (!confidenceScores) return;
+
+        const dimensions = ['EI', 'SN', 'TF', 'JP'];
+        dimensions.forEach(dimension => {
+            this.updateConfidenceBar(dimension, confidenceScores[dimension] || 0);
+        });
+    }
+
+    /**
+     * Update individual confidence bar
+     */
+    updateConfidenceBar(dimension, confidence) {
+        const confidenceElement = this.elements[`confidence${dimension}`];
+        const confidenceTextElement = this.elements[`confidence${dimension}Text`];
+        
+        if (confidenceElement && confidenceTextElement) {
+            // Update bar width
+            const percentage = Math.round(confidence * 100);
+            confidenceElement.style.width = `${percentage}%`;
+            
+            // Update text
+            confidenceTextElement.textContent = `${percentage}%`;
+            
+            // Update confidence level and color
+            let confidenceLevel = 'low';
+            if (confidence >= 0.9) confidenceLevel = 'excellent';
+            else if (confidence >= 0.8) confidenceLevel = 'high';
+            else if (confidence >= 0.6) confidenceLevel = 'medium';
+            
+            confidenceElement.setAttribute('data-confidence', confidenceLevel);
+        }
+    }
+
+    /**
+     * Update adaptive metrics
+     */
+    updateAdaptiveMetrics(metrics) {
+        if (!metrics) return;
+
+        // Update estimated time
+        if (this.elements.estimatedTime && metrics.estimatedTime) {
+            this.elements.estimatedTime.textContent = metrics.estimatedTime;
+        }
+
+
+
+        // Update overall confidence
+        if (this.elements.overallConfidence && metrics.overallConfidence !== undefined) {
+            const percentage = Math.round(metrics.overallConfidence * 100);
+            this.elements.overallConfidence.textContent = `${percentage}%`;
+        }
+    }
+
+    /**
+     * Calculate and update all adaptive indicators
+     */
+    updateAllAdaptiveIndicators() {
+        try {
+            // Get adaptive status from quiz engine
+            const adaptiveStatus = quizEngine.getAdaptiveModeStatus();
+            
+            if (adaptiveStatus && adaptiveStatus.active) {
+                this.showAdaptiveIndicators();
+                
+                // Get current confidence scores
+                const confidenceScores = quizEngine.getCurrentConfidence();
+                if (confidenceScores) {
+                    this.updateConfidenceBars(confidenceScores);
+                }
+                
+                // Get adaptive metrics
+                const metrics = this.calculateAdaptiveMetrics();
+                this.updateAdaptiveMetrics(metrics);
+                
+                // Update status based on progress
+                this.updateAdaptiveStatusBasedOnProgress();
+            } else {
+                this.hideAdaptiveIndicators();
+            }
+        } catch (error) {
+            console.warn('Failed to update adaptive indicators:', error);
+            this.hideAdaptiveIndicators();
+        }
+    }
+
+    /**
+     * Calculate adaptive metrics
+     */
+    calculateAdaptiveMetrics() {
+        try {
+            const progress = quizEngine.getProgress();
+            const totalQuestions = progress.total;
+            const currentQuestion = progress.current;
+            const isAdaptive = progress.isAdaptive;
+            
+            if (!isAdaptive) return null;
+
+
+            
+            // Calculate questions saved (if adaptive mode is active)
+
+            
+            // Calculate overall confidence (average of all dimensions)
+            const confidenceScores = quizEngine.getCurrentConfidence();
+            let overallConfidence = 0;
+            if (confidenceScores) {
+                const values = Object.values(confidenceScores);
+                overallConfidence = values.reduce((sum, val) => sum + val, 0) / values.length;
+            }
+            
+            return {
+                overallConfidence: overallConfidence
+            };
+        } catch (error) {
+            console.warn('Failed to calculate adaptive metrics:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Update adaptive status based on quiz progress
+     */
+    updateAdaptiveStatusBasedOnProgress() {
+        try {
+            const progress = quizEngine.getProgress();
+            const confidence = progress.confidence;
+            
+            if (confidence) {
+                const avgConfidence = Object.values(confidence).reduce((sum, val) => sum + val, 0) / Object.values(confidence).length;
+                
+                if (avgConfidence >= 0.9) {
+                    this.updateAdaptiveStatus('optimizing', 'Оптимизация завершения...');
+                } else if (avgConfidence >= 0.7) {
+                    this.updateAdaptiveStatus('learning', 'Продолжаем обучение...');
+                } else {
+                    this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to update adaptive status:', error);
+        }
     }
 }
 

@@ -185,6 +185,68 @@
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 
+                <!-- Adaptive Assessment Indicators -->
+                <div class="adaptive-indicators" id="adaptiveIndicators" style="display: none;">
+                    <div class="adaptive-header">
+                        <div class="header-left">
+                            <i class="fas fa-brain"></i>
+                            <span>🧠 Адаптивная оценка активна</span>
+                        </div>
+                        <div class="header-right">
+                            <button class="info-btn" id="confidenceInfoBtn" title="Объяснение уверенности">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            <div class="adaptive-status" id="adaptiveStatus">
+                                <span class="status-dot active"></span>
+                                <span class="status-text">Изучаем ваши ответы...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="confidence-grid">
+                        <div class="confidence-item">
+                            <div class="confidence-label">E/I</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceEI" data-dimension="EI"></div>
+                            </div>
+                            <div class="confidence-text" id="confidenceEIText">0%</div>
+                        </div>
+                        
+                        <div class="confidence-item">
+                            <div class="confidence-label">S/N</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceSN" data-dimension="SN"></div>
+                            </div>
+                            <div class="confidence-text" id="confidenceSNText">0%</div>
+                        </div>
+                        
+                        <div class="confidence-item">
+                            <div class="confidence-label">T/F</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceTF" data-dimension="TF"></div>
+                            </div>
+                            <div class="confidence-text" id="confidenceTFText">0%</div>
+                        </div>
+                        
+                        <div class="confidence-item">
+                            <div class="confidence-label">J/P</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceJP" data-dimension="JP"></div>
+                            </div>
+                            <div class="confidence-text" id="confidenceJPText">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="adaptive-metrics">
+
+
+                        <div class="metric-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Уверенность: <span id="overallConfidence">0%</span></span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="question-container">
                     <h3 class="question-text" id="questionText"></h3>
                     
@@ -214,6 +276,78 @@
                     </button>
                 </div>
                 
+            </div>
+
+            <!-- Confidence Info Modal -->
+            <div class="modal" id="confidenceInfoModal" style="display: none;">
+                <div class="modal-content confidence-info">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-brain"></i> Объяснение уверенности</h3>
+                        <button class="close-btn" onclick="closeConfidenceInfoModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="info-section">
+                            <h4>🧠 Что такое уверенность?</h4>
+                            <p>Уверенность показывает, насколько четко система понимает ваши предпочтения по каждому измерению MBTI.</p>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>📊 Уровни уверенности</h4>
+                            <div class="confidence-levels">
+                                <div class="confidence-level">
+                                    <div class="level-bar low"></div>
+                                    <div class="level-info">
+                                        <strong>0-30% (Низкая)</strong>
+                                        <span>Ответы неясны или смешанные</span>
+                                    </div>
+                                </div>
+                                <div class="confidence-level">
+                                    <div class="level-bar medium"></div>
+                                    <div class="level-info">
+                                        <strong>30-60% (Средняя)</strong>
+                                        <span>Некоторое предпочтение показано</span>
+                                    </div>
+                                </div>
+                                <div class="confidence-level">
+                                    <div class="level-bar high"></div>
+                                    <div class="level-info">
+                                        <strong>60-80% (Высокая)</strong>
+                                        <span>Четкое предпочтение формируется</span>
+                                    </div>
+                                </div>
+                                <div class="confidence-level">
+                                    <div class="level-bar excellent"></div>
+                                    <div class="level-info">
+                                        <strong>80-100% (Отличная)</strong>
+                                        <span>Очень четкое предпочтение</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>🎯 Как это работает</h4>
+                            <ul>
+                                <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Насколько четко ваши ответы показывают предпочтение E или I</li>
+                                <li><strong>S/N (Сенсорика/Интуиция):</strong> Насколько четко ваши ответы показывают предпочтение S или N</li>
+                                <li><strong>T/F (Мышление/Чувство):</strong> Насколько четко ваши ответы показывают предпочтение T или F</li>
+                                <li><strong>J/P (Суждение/Восприятие):</strong> Насколько четко ваши ответы показывают предпочтение J или P</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>📈 Общая уверенность</h4>
+                            <p>Это среднее значение уверенности по всем четырем измерениям. Чем выше общая уверенность, тем надежнее будет результат вашего типа личности.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="closeConfidenceInfoModal()">
+                            <i class="fas fa-check"></i> Понятно
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Exit Quiz Confirmation Modal -->

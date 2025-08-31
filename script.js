@@ -160,9 +160,180 @@ class MBTIQuiz {
             return this.generateSpecializedQuestions();
         }
         
+        // For MBTI quiz, implement adaptive question selection
+        if (this.currentQuizType === 'mbti') {
+            return this.generateAdaptiveMBTIQuestions();
+        }
+        
         // Return the appropriate questions based on current locale
         // const currentLocale = localizationManager.getCurrentLocale();
         return MBTI_QUESTIONS_RU; //currentLocale === 'ru' ? MBTI_QUESTIONS_RU : MBTI_QUESTIONS;
+    }
+
+    /**
+     * Generate adaptive MBTI questions with intelligent selection
+     */
+    generateAdaptiveMBTIQuestions() {
+        try {
+            // Get all available questions
+            const allQuestions = MBTI_QUESTIONS_RU;
+            
+            // Initialize adaptive state (no early termination)
+            this.adaptiveState = {
+                questionPool: [...allQuestions],
+                selectedQuestions: [],
+                dimensionBalance: { EI: 0, SN: 0, TF: 0, JP: 0 },
+                confidenceScores: { EI: 0, SN: 0, TF: 0, JP: 0 },
+                maxQuestions: 60
+            };
+            
+            // Select initial questions for balanced start
+            const initialQuestions = this.selectInitialQuestions(allQuestions);
+            
+            log('Adaptive questions generated', { 
+                total: initialQuestions.length, 
+                dimensions: this.adaptiveState.dimensionBalance 
+            });
+            
+            return initialQuestions;
+            
+        } catch (error) {
+            console.warn('Failed to generate adaptive questions, falling back to standard:', error);
+            return MBTI_QUESTIONS_RU;
+        }
+    }
+
+    /**
+     * Select all questions for full test completion
+     */
+    selectInitialQuestions(allQuestions) {
+        // Use all available questions for complete assessment
+        const allQuestionsShuffled = this.shuffleArray([...allQuestions]);
+        
+        // Count questions per dimension for logging
+        const dimensions = ['EI', 'SN', 'TF', 'JP'];
+        dimensions.forEach(dimension => {
+            this.adaptiveState.dimensionBalance[dimension] = allQuestions.filter(q => q.dimension === dimension).length;
+        });
+        
+        log('All questions selected for full test', { 
+            total: allQuestionsShuffled.length, 
+            dimensions: this.adaptiveState.dimensionBalance 
+        });
+        
+        return allQuestionsShuffled;
+    }
+
+    /**
+     * Shuffle array using Fisher-Yates algorithm
+     */
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    /**
+     * Early termination is disabled - users complete the full test
+     */
+    getNextAdaptiveQuestion() {
+        // Always return null - no additional questions needed
+        return null;
+    }
+
+    /**
+     * Calculate current confidence for all dimensions
+     */
+    calculateCurrentConfidence() {
+        const confidence = { EI: 0, SN: 0, TF: 0, JP: 0 };
+        const dimensions = ['EI', 'SN', 'TF', 'JP'];
+        
+        // Debug logging
+        console.log('calculateCurrentConfidence - Debug:', {
+            scores: this.scores,
+            answers: this.answers,
+            currentQuestion: this.currentQuestion,
+            questions: this.questions.length
+        });
+        
+        dimensions.forEach(dimension => {
+            const [pref1, pref2] = dimension.split('');
+            const score1 = this.scores[pref1] || 0;
+            const score2 = this.scores[pref2] || 0;
+            
+            // Handle both old format (number) and new format (object)
+            const answeredForDimension = this.answers.filter(a => {
+                if (typeof a === 'object') {
+                    return a.dimension === dimension;
+                } else {
+                    // Fallback for old format - check question dimension
+                    const questionIndex = this.answers.indexOf(a);
+                    return questionIndex >= 0 && this.questions[questionIndex] && this.questions[questionIndex].dimension === dimension;
+                }
+            }).length;
+            
+            // Improved confidence calculation
+            let dimensionConfidence = 0;
+            
+            if (answeredForDimension > 0) {
+                // Calculate total possible score for this dimension
+                const totalPossibleScore = answeredForDimension * 3; // Assuming max 3 points per question
+                
+                // Calculate the strength of preference
+                const totalScore = score1 + score2;
+                const scoreDifference = Math.abs(score1 - score2);
+                
+                // Base confidence: how much of the total possible score was used
+                const utilizationRatio = totalScore / totalPossibleScore;
+                
+                // Preference strength: how clearly one preference dominates
+                const preferenceStrength = scoreDifference / totalPossibleScore;
+                
+                // Combined confidence calculation
+                dimensionConfidence = (utilizationRatio * 0.4) + (preferenceStrength * 0.6);
+                
+                // Ensure confidence is between 0 and 1
+                dimensionConfidence = Math.max(0, Math.min(1, dimensionConfidence));
+                
+                // Add minimum confidence for having answered questions
+                dimensionConfidence = Math.max(0.1, dimensionConfidence);
+            } else {
+                dimensionConfidence = 0.1; // Minimum confidence when no questions answered
+            }
+            
+            confidence[dimension] = dimensionConfidence;
+            
+            // Debug logging for each dimension
+            console.log(`Dimension ${dimension}:`, {
+                score1, score2, scoreDifference: Math.abs(score1 - score2),
+                answeredForDimension, totalPossibleScore: answeredForDimension * 3,
+                utilizationRatio: (score1 + score2) / (answeredForDimension * 3),
+                preferenceStrength: Math.abs(score1 - score2) / (answeredForDimension * 3),
+                confidence: dimensionConfidence
+            });
+        });
+        
+        console.log('Final confidence scores:', confidence);
+        return confidence;
+    }
+
+    /**
+     * Early termination is disabled - users complete the full test
+     */
+    shouldTerminateEarly(currentConfidence) {
+        // Always return false - no early termination
+        return false;
+    }
+
+    /**
+     * Early termination is disabled - users complete the full test
+     */
+    selectNextQuestionByConfidence(remainingQuestions, currentConfidence) {
+        // Always return null - no additional questions needed
+        return null;
     }
     
     generateSpecializedQuestions() {
@@ -180,6 +351,11 @@ class MBTIQuiz {
         this.selectedOption = null;
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'flex';
+        
+        // Show adaptive indicators for MBTI quiz
+        if (this.currentQuizType === 'mbti') {
+            this.showAdaptiveIndicators();
+        }
         
         // Hide the "На главную" button when starting the quiz
         const onMainPageBtn = document.getElementById('onMainPageBtn');
@@ -253,7 +429,7 @@ class MBTIQuiz {
 		const savedAnswer = this.answers[this.currentQuestion];
 		this.selectedOption = savedAnswer !== undefined ? savedAnswer : null;
 
-		// Update navigation buttons
+		        // Update navigation buttons
 		if (prevBtn) prevBtn.disabled = this.currentQuestion === 0;
 		if (nextBtn) {
 			nextBtn.disabled = this.selectedOption === null;
@@ -265,6 +441,9 @@ class MBTIQuiz {
 				nextBtn.innerHTML = 'Следующий <i class="fas fa-arrow-right"></i>';
 			}
 		}
+        
+        // Update adaptive indicators
+        this.updateAllAdaptiveIndicators();
         
 		// Clear previous selection
 		this.clearOptionSelection();
@@ -281,10 +460,21 @@ class MBTIQuiz {
 	selectOption(optionNumber) {
 		this.clearOptionSelection();
 		this.selectedOption = optionNumber;
-		this.answers[this.currentQuestion] = optionNumber;
+		
+		// Store both option number and dimension for confidence calculation
+		const currentQuestion = this.questions[this.currentQuestion];
+		this.answers[this.currentQuestion] = {
+			option: optionNumber,
+			dimension: currentQuestion.dimension,
+			questionId: currentQuestion.id || this.currentQuestion
+		};
+		
 		document.querySelector(`button[onclick="selectOption(${optionNumber})"]`).classList.add('selected');
 		document.getElementById('nextBtn').disabled = false;
 		this.recalculateScores();
+		
+		// Update adaptive indicators after option selection
+		this.updateAllAdaptiveIndicators();
 	}
 
     clearOptionSelection() {
@@ -300,8 +490,12 @@ class MBTIQuiz {
 		for (let i = 0; i < this.questions.length; i++) {
 			const answer = this.answers[i];
 			if (!answer) continue;
+			
 			const q = this.questions[i];
-			const weight = q.weights[answer - 1];
+			// Handle both old format (number) and new format (object)
+			const optionNumber = typeof answer === 'object' ? answer.option : answer;
+			const weight = q.weights[optionNumber - 1];
+			
 			if (q.dimension === 'EI') {
 				if (weight > 0) this.scores.I += weight;
 				else if (weight < 0) this.scores.E += Math.abs(weight);
@@ -316,13 +510,31 @@ class MBTIQuiz {
 				else if (weight < 0) this.scores.P += Math.abs(weight);
 			}
 		}
+		
+		// Debug logging for score calculation
+		console.log('Scores recalculated:', this.scores);
+		console.log('Answers processed:', this.answers.length);
 	}
 
 	nextQuestion() {
 		if (this.selectedOption === null) return;
-		// Ensure answer is saved for this question index
-		this.answers[this.currentQuestion] = this.selectedOption;
 		
+		// Ensure answer is saved for this question index (already done in selectOption)
+		// this.answers[this.currentQuestion] is already set with dimension info
+		
+		// Update adaptive indicators after answer
+		this.updateAllAdaptiveIndicators();
+		
+		// For adaptive MBTI quiz, continue with standard flow
+		if (this.currentQuizType === 'mbti' && this.adaptiveState) {
+			log('Processing adaptive question flow', { 
+                currentQuestion: this.currentQuestion, 
+                totalQuestions: this.questions.length,
+                answersCount: this.answers.length
+            });
+		}
+		
+		// Standard quiz flow - no early termination
 		if (this.currentQuestion < this.questions.length - 1) {
 			this.currentQuestion++;
 			this.displayQuestion();
@@ -334,11 +546,15 @@ class MBTIQuiz {
     previousQuestion() {
         if (this.currentQuestion > 0) {
             this.currentQuestion--;
-            this.selectedOption = this.answers[this.currentQuestion];
-            this.displayQuestion();
-            if (this.selectedOption) {
-                document.querySelector(`button[onclick="selectOption(${this.selectedOption})"]`).classList.add('selected');
-                document.getElementById('nextBtn').disabled = false;
+            const answer = this.answers[this.currentQuestion];
+            if (answer) {
+                // Handle both old format (number) and new format (object)
+                this.selectedOption = typeof answer === 'object' ? answer.option : answer;
+                this.displayQuestion();
+                if (this.selectedOption) {
+                    document.querySelector(`button[onclick="selectOption(${this.selectedOption})"]`).classList.add('selected');
+                    document.getElementById('nextBtn').disabled = false;
+                }
             }
         }
     }
@@ -464,6 +680,9 @@ class MBTIQuiz {
         const sPercentage = totalS > 0 ? (this.scores.S / totalS) * 100 : 50;
         const tPercentage = totalT > 0 ? (this.scores.T / totalT) * 100 : 50;
         const jPercentage = totalJ > 0 ? (this.scores.J / totalJ) * 100 : 50;
+        
+        // Analyze confidence vs final results correlation
+        this.analyzeConfidenceResultsCorrelation();
         
         // New dual-sided bars centered around the middle
         const eLeft = document.getElementById('eLeft');
@@ -678,6 +897,397 @@ class MBTIQuiz {
                 url: "https://vk.com/app53942833"
             });
         }
+    }
+
+    // ========================================
+    // ADAPTIVE ASSESSMENT INDICATORS
+    // ========================================
+
+    /**
+     * Show adaptive indicators
+     */
+    showAdaptiveIndicators() {
+        const adaptiveIndicators = document.getElementById('adaptiveIndicators');
+        if (adaptiveIndicators) {
+            adaptiveIndicators.style.display = 'block';
+            this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+        }
+    }
+
+    /**
+     * Hide adaptive indicators
+     */
+    hideAdaptiveIndicators() {
+        const adaptiveIndicators = document.getElementById('adaptiveIndicators');
+        if (adaptiveIndicators) {
+            adaptiveIndicators.style.display = 'none';
+        }
+    }
+
+    /**
+     * Update adaptive status
+     */
+    updateAdaptiveStatus(status, text) {
+        const adaptiveStatus = document.getElementById('adaptiveStatus');
+        if (adaptiveStatus) {
+            const statusDot = adaptiveStatus.querySelector('.status-dot');
+            const statusText = adaptiveStatus.querySelector('.status-text');
+            
+            if (statusDot) {
+                statusDot.className = `status-dot ${status}`;
+            }
+            
+            if (statusText) {
+                statusText.textContent = text;
+            }
+        }
+    }
+
+    /**
+     * Update confidence bars for all dimensions
+     */
+    updateConfidenceBars() {
+        console.log('updateConfidenceBars called');
+        const confidenceScores = this.calculateConfidenceScores();
+        console.log('Confidence scores received:', confidenceScores);
+        
+        if (!confidenceScores) {
+            console.warn('No confidence scores available');
+            return;
+        }
+
+        const dimensions = ['EI', 'SN', 'TF', 'JP'];
+        dimensions.forEach(dimension => {
+            const confidence = confidenceScores[dimension] || 0;
+            console.log(`Updating confidence bar for ${dimension}:`, confidence);
+            this.updateConfidenceBar(dimension, confidence);
+        });
+    }
+
+    /**
+     * Update individual confidence bar
+     */
+    updateConfidenceBar(dimension, confidence) {
+        console.log(`updateConfidenceBar called for ${dimension} with confidence ${confidence}`);
+        
+        const confidenceElement = document.getElementById(`confidence${dimension}`);
+        const confidenceTextElement = document.getElementById(`confidence${dimension}Text`);
+        
+        console.log(`Elements found:`, {
+            confidenceElement: !!confidenceElement,
+            confidenceTextElement: !!confidenceTextElement,
+            dimension
+        });
+        
+        if (confidenceElement && confidenceTextElement) {
+            // Update bar width
+            const percentage = Math.round(confidence * 100);
+            confidenceElement.style.width = `${percentage}%`;
+            
+            // Update text
+            confidenceTextElement.textContent = `${percentage}%`;
+            
+            // Update confidence level and color
+            let confidenceLevel = 'low';
+            if (confidence >= 0.9) confidenceLevel = 'excellent';
+            else if (confidence >= 0.8) confidenceLevel = 'high';
+            else if (confidence >= 0.6) confidenceLevel = 'medium';
+            
+            confidenceElement.setAttribute('data-confidence', confidenceLevel);
+            
+            console.log(`Updated ${dimension} confidence bar:`, {
+                percentage,
+                confidenceLevel,
+                width: confidenceElement.style.width
+            });
+        } else {
+            console.warn(`Missing elements for ${dimension}:`, {
+                confidenceElement: !!confidenceElement,
+                confidenceTextElement: !!confidenceTextElement
+            });
+        }
+    }
+
+    /**
+     * Calculate confidence scores for all dimensions
+     */
+    calculateConfidenceScores() {
+        try {
+            // Use the adaptive state if available, otherwise fall back to standard calculation
+            if (this.adaptiveState && this.currentQuizType === 'mbti') {
+                return this.calculateCurrentConfidence();
+            }
+            
+            // Standard confidence calculation
+            const dimensions = ['EI', 'SN', 'TF', 'JP'];
+            const confidenceScores = {};
+            
+            dimensions.forEach(dimension => {
+                const [pref1, pref2] = dimension.split('');
+                const score1 = this.scores[pref1] || 0;
+                const score2 = this.scores[pref2] || 0;
+                
+                // Handle both old format (number) and new format (object)
+                const totalQuestionsForDim = this.answers.filter(a => {
+                    if (typeof a === 'object') {
+                        return a.dimension === dimension;
+                    } else {
+                        // Fallback for old format - check question dimension
+                        const questionIndex = this.answers.indexOf(a);
+                        return questionIndex >= 0 && this.questions[questionIndex] && this.questions[questionIndex].dimension === dimension;
+                    }
+                }).length;
+                
+                // Improved confidence calculation (same as calculateCurrentConfidence)
+                let dimensionConfidence = 0;
+                
+                if (totalQuestionsForDim > 0) {
+                    // Calculate total possible score for this dimension
+                    const totalPossibleScore = totalQuestionsForDim * 3; // Assuming max 3 points per question
+                    
+                    // Calculate the strength of preference
+                    const totalScore = score1 + score2;
+                    const scoreDifference = Math.abs(score1 - score2);
+                    
+                    // Base confidence: how much of the total possible score was used
+                    const utilizationRatio = totalScore / totalPossibleScore;
+                    
+                    // Preference strength: how clearly one preference dominates
+                    const preferenceStrength = scoreDifference / totalPossibleScore;
+                    
+                    // Combined confidence calculation
+                    dimensionConfidence = (utilizationRatio * 0.4) + (preferenceStrength * 0.6);
+                    
+                    // Ensure confidence is between 0 and 1
+                    dimensionConfidence = Math.max(0, Math.min(1, dimensionConfidence));
+                    
+                    // Add minimum confidence for having answered questions
+                    dimensionConfidence = Math.max(0.1, dimensionConfidence);
+                } else {
+                    dimensionConfidence = 0.1; // Minimum confidence when no questions answered
+                }
+                
+                confidenceScores[dimension] = dimensionConfidence;
+            });
+            
+            return confidenceScores;
+        } catch (error) {
+            console.warn('Failed to calculate confidence scores:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Update adaptive metrics
+     */
+    updateAdaptiveMetrics() {
+        const metrics = this.calculateAdaptiveMetrics();
+        if (!metrics) return;
+
+
+
+
+
+        // Update overall confidence
+        const overallConfidence = document.getElementById('overallConfidence');
+        if (overallConfidence && metrics.overallConfidence !== undefined) {
+            const percentage = Math.round(metrics.overallConfidence * 100);
+            overallConfidence.textContent = `${percentage}%`;
+        }
+    }
+
+    /**
+     * Calculate adaptive metrics
+     */
+    calculateAdaptiveMetrics() {
+        try {
+            const totalQuestions = this.questions.length;
+            const currentQuestion = this.currentQuestion;
+            const isAdaptive = this.currentQuizType === 'mbti';
+            
+            if (!isAdaptive) return null;
+
+                        // Calculate overall confidence (average of all dimensions)
+            const confidenceScores = this.calculateConfidenceScores();
+            let overallConfidence = 0;
+            if (confidenceScores) {
+                const values = Object.values(confidenceScores);
+                overallConfidence = values.reduce((sum, val) => sum + val, 0) / values.length;
+            }
+            
+            return {
+                overallConfidence: overallConfidence
+            };
+        } catch (error) {
+            console.warn('Failed to calculate adaptive metrics:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Update all adaptive indicators
+     */
+    updateAllAdaptiveIndicators() {
+        console.log('updateAllAdaptiveIndicators called');
+        try {
+            if (this.currentQuizType === 'mbti') {
+                console.log('MBTI quiz detected, updating adaptive indicators');
+                this.showAdaptiveIndicators();
+                
+                // Get current confidence scores
+                const confidenceScores = this.calculateConfidenceScores();
+                console.log('Confidence scores calculated:', confidenceScores);
+                
+                if (confidenceScores) {
+                    console.log('Calling updateConfidenceBars');
+                    this.updateConfidenceBars();
+                } else {
+                    console.warn('No confidence scores available');
+                }
+                
+                // Get adaptive metrics
+                console.log('Calling updateAdaptiveMetrics');
+                this.updateAdaptiveMetrics();
+                
+                // Update status based on progress
+                console.log('Calling updateAdaptiveStatusBasedOnProgress');
+                this.updateAdaptiveStatusBasedOnProgress();
+            } else {
+                console.log('Not MBTI quiz, hiding adaptive indicators');
+                this.hideAdaptiveIndicators();
+            }
+        } catch (error) {
+            console.warn('Failed to update adaptive indicators:', error);
+            this.hideAdaptiveIndicators();
+        }
+    }
+
+    /**
+     * Update adaptive status based on quiz progress
+     */
+    updateAdaptiveStatusBasedOnProgress() {
+        try {
+            const confidenceScores = this.calculateConfidenceScores();
+            
+            if (confidenceScores) {
+                const avgConfidence = Object.values(confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(confidenceScores).length;
+                
+                if (avgConfidence >= 0.9) {
+                    this.updateAdaptiveStatus('optimizing', 'Оптимизация завершения...');
+                } else if (avgConfidence >= 0.7) {
+                    this.updateAdaptiveStatus('learning', 'Продолжаем обучение...');
+                } else {
+                    this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to update adaptive status:', error);
+        }
+    }
+
+    /**
+     * Analyze how well confidence levels correlate with final results
+     */
+    analyzeConfidenceResultsCorrelation() {
+        console.log('🔍 ANALYZING CONFIDENCE vs FINAL RESULTS CORRELATION');
+        console.log('==================================================');
+        
+        // Get current confidence levels
+        const confidenceScores = this.calculateCurrentConfidence();
+        const finalType = this.calculatePersonalityType();
+        
+        console.log('📊 FINAL RESULTS:', {
+            personalityType: finalType,
+            scores: this.scores,
+            totalAnswers: this.answers.length
+        });
+        
+        console.log('🧠 CONFIDENCE LEVELS:', confidenceScores);
+        
+        // Analyze each dimension
+        const dimensions = ['EI', 'SN', 'TF', 'JP'];
+        dimensions.forEach(dimension => {
+            const [pref1, pref2] = dimension.split('');
+            const score1 = this.scores[pref1] || 0;
+            const score2 = this.scores[pref2] || 0;
+            const confidence = confidenceScores[dimension] || 0;
+            const finalChoice = score1 > score2 ? pref1 : pref2;
+            const scoreDifference = Math.abs(score1 - score2);
+            const totalScore = score1 + score2;
+            
+            // Calculate how "clear" the final choice is
+            const clarity = totalScore > 0 ? (scoreDifference / totalScore) : 0;
+            
+            // Determine if confidence matches clarity
+            const confidenceMatchesClarity = Math.abs(confidence - clarity) < 0.2; // Within 20%
+            
+            console.log(`\n📈 ${dimension} DIMENSION ANALYSIS:`);
+            console.log(`   Final Choice: ${finalChoice} (${score1} vs ${score2})`);
+            console.log(`   Score Difference: ${scoreDifference}`);
+            console.log(`   Total Score: ${totalScore}`);
+            console.log(`   Clarity: ${(clarity * 100).toFixed(1)}%`);
+            console.log(`   Confidence: ${(confidence * 100).toFixed(1)}%`);
+            console.log(`   Match Quality: ${confidenceMatchesClarity ? '✅ GOOD' : '⚠️  NEEDS IMPROVEMENT'}`);
+            
+            if (!confidenceMatchesClarity) {
+                console.log(`   💡 Suggestion: Confidence calculation may need adjustment for ${dimension}`);
+            }
+        });
+        
+        // Overall correlation analysis
+        const avgConfidence = Object.values(confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(confidenceScores).length;
+        const totalQuestions = this.questions.length;
+        const answeredQuestions = this.answers.length;
+        const completionRate = answeredQuestions / totalQuestions;
+        
+        console.log('\n🎯 OVERALL CORRELATION ANALYSIS:');
+        console.log(`   Questions Completed: ${answeredQuestions}/${totalQuestions} (${(completionRate * 100).toFixed(1)}%)`);
+        console.log(`   Average Confidence: ${(avgConfidence * 100).toFixed(1)}%`);
+        console.log(`   Final Type: ${finalType}`);
+        
+        // Determine if the system is working well
+        if (avgConfidence > 0.6 && completionRate > 0.8) {
+            console.log('   🎉 SYSTEM STATUS: EXCELLENT - High confidence with good completion');
+        } else if (avgConfidence > 0.4 && completionRate > 0.6) {
+            console.log('   ✅ SYSTEM STATUS: GOOD - Reasonable confidence and completion');
+        } else if (avgConfidence > 0.2 && completionRate > 0.4) {
+            console.log('   ⚠️  SYSTEM STATUS: FAIR - Low confidence or incomplete quiz');
+        } else {
+            console.log('   ❌ SYSTEM STATUS: POOR - Very low confidence or incomplete quiz');
+        }
+        
+        console.log('\n💡 RECOMMENDATIONS:');
+        if (avgConfidence < 0.4) {
+            console.log('   - Consider adjusting confidence calculation weights');
+            console.log('   - Review question scoring system');
+            console.log('   - Check if questions are properly balanced');
+        }
+        if (completionRate < 0.8) {
+            console.log('   - Quiz may be too long for users');
+            console.log('   - Consider adaptive question selection');
+        }
+        
+        console.log('==================================================');
+    }
+}
+
+function openConfidenceInfoModal() {
+    const modal = document.getElementById('confidenceInfoModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Add click outside to close
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeConfidenceInfoModal();
+            }
+        });
+    }
+}
+
+function closeConfidenceInfoModal() {
+    const modal = document.getElementById('confidenceInfoModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
 }
 
@@ -2229,6 +2839,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize the quiz
 let quiz;
 
+// Utility function for logging
+function log(message, data = null) {
+    if (data) {
+        console.log(`[Adaptive] ${message}`, data);
+    } else {
+        console.log(`[Adaptive] ${message}`);
+    }
+}
+
 // Banner ad management
 let bannerAdShown = false;
 let bannerAdTimer = null;
@@ -3086,6 +3705,10 @@ function closeHelpModal(fromPopstate = false) {
 window.showHelp = showHelp;
 window.closeHelpModal = closeHelpModal;
 
+// Make confidence info functions available globally
+window.openConfidenceInfoModal = openConfidenceInfoModal;
+window.closeConfidenceInfoModal = closeConfidenceInfoModal;
+
 // Close help modal on browser back (e.g., mobile swipe back)
 window.addEventListener('popstate', function() {
     const helpModal = document.getElementById('helpModal');
@@ -3163,3 +3786,46 @@ function initializePremiumStatusListener() {
 
 // Start monitoring premium status
 initializePremiumStatusListener();
+
+// Add event listener for confidence info button
+document.addEventListener('DOMContentLoaded', function() {
+    const confidenceInfoBtn = document.getElementById('confidenceInfoBtn');
+    if (confidenceInfoBtn) {
+        confidenceInfoBtn.addEventListener('click', openConfidenceInfoModal);
+    }
+    
+    // Test confidence calculation with sample data
+    console.log('Testing confidence calculation...');
+    const testScores = { E: 5, I: 2, S: 3, N: 4, T: 6, F: 1, J: 4, P: 3 };
+    const testAnswers = [
+        { option: 1, dimension: 'EI' },
+        { option: 2, dimension: 'SN' },
+        { option: 3, dimension: 'TF' },
+        { option: 4, dimension: 'JP' }
+    ];
+    
+    // Simulate the confidence calculation
+    const dimensions = ['EI', 'SN', 'TF', 'JP'];
+    dimensions.forEach(dimension => {
+        const [pref1, pref2] = dimension.split('');
+        const score1 = testScores[pref1] || 0;
+        const score2 = testScores[pref2] || 0;
+        const answeredForDimension = testAnswers.filter(a => a.dimension === dimension).length;
+        
+        if (answeredForDimension > 0) {
+            const totalPossibleScore = answeredForDimension * 3;
+            const totalScore = score1 + score2;
+            const scoreDifference = Math.abs(score1 - score2);
+            const utilizationRatio = totalScore / totalPossibleScore;
+            const preferenceStrength = scoreDifference / totalPossibleScore;
+            const dimensionConfidence = (utilizationRatio * 0.4) + (preferenceStrength * 0.6);
+            
+            console.log(`Test ${dimension}:`, {
+                score1, score2, scoreDifference,
+                answeredForDimension, totalPossibleScore,
+                utilizationRatio, preferenceStrength,
+                confidence: Math.max(0.1, Math.min(1, dimensionConfidence))
+            });
+        }
+    });
+});

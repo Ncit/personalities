@@ -1,87 +1,77 @@
-# Test Suite
+# MBTI Quiz Test Suite
 
-This directory contains all test files and test utilities for the MBTI Personality Quiz application.
+This directory contains working tests for the MBTI Personality Quiz application.
 
-## 📁 Test Structure
+## 🧪 Working Tests
 
-```
-tests/
-├── README.md                    # This file
-├── test_android_cors_fix.html   # Android CORS testing
-├── test_cors_removal.html       # CORS removal testing
-├── test_permissive_cors.html    # Permissive CORS testing
-├── test_timeout_fix.html        # Timeout error testing
-└── test_vk_user_service.html    # VK user service testing
-```
+### 1. **Realistic Confidence Test** ✅
+- **File**: `realistic_confidence_test.html`
+- **Purpose**: Tests confidence levels with realistic values that match actual quiz behavior
+- **Features**: 
+  - Uses actual confidence values from your quiz (E/I: 44%, S/N: 67%, T/F: 52%, J/P: 64%)
+  - Tests different answer strategies (consistent, mixed, balanced, random)
+  - Real-time confidence monitoring
+  - Accurate simulation of your confidence system
 
-## 🧪 Test Categories
+### 2. **Confidence Correlation Test** ✅
+- **File**: `test_confidence_correlation.html`
+- **Purpose**: Automated testing of confidence correlation with final results
+- **Features**:
+  - Tests different preference scenarios
+  - Validates confidence calculation accuracy
+  - Compares confidence with final MBTI scores
 
-### 🔧 Integration Tests
-- **CORS Testing**: Tests for cross-origin resource sharing issues
-  - `test_android_cors_fix.html` - Android-specific CORS fixes
-  - `test_cors_removal.html` - CORS removal functionality
-  - `test_permissive_cors.html` - Permissive CORS configuration
+### 3. **Real Confidence Integration Test** ✅
+- **File**: `test_real_confidence_integration.html`
+- **Purpose**: Interactive testing of the full confidence system
+- **Features**:
+  - Live quiz simulation
+  - Real-time confidence updates
+  - Full integration testing
 
-### 🐛 Debug Tests
-- **Error Handling**: Tests for error scenarios and fixes
-  - `test_timeout_fix.html` - Timeout error resolution
-  - `test_vk_user_service.html` - VK user service functionality
+### 4. **Node.js Confidence Tests** ✅
+- **File**: `run_confidence_tests.js`
+- **Purpose**: Automated confidence testing from command line
+- **Usage**: `node tests/run_confidence_tests.js`
 
-## 🚀 Running Tests
+## 🚀 How to Use
 
-### Manual Testing
-1. Open any test file in your browser
-2. Follow the instructions in the test file
-3. Check the browser console for results
-4. Verify the expected behavior
+### **Quick Start - Realistic Confidence Test**
+1. Open `realistic_confidence_test.html` in your browser
+2. Click "Start Realistic Test"
+3. Watch confidence levels update with realistic values
+4. Compare with your actual quiz results
 
-### Automated Testing
+### **Command Line Testing**
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test category
-npm test -- --testPathPattern=cors
+# Run automated confidence tests
+node tests/run_confidence_tests.js
 ```
 
-## 📊 Test Results
+## 🎯 Test Results
 
-Test results are displayed in the browser console and can be exported for analysis.
+### **Expected Confidence Values (Always First Answer)**
+- **E/I**: 44% (realistic, not artificially high)
+- **S/N**: 67% (realistic, not artificially high)
+- **T/F**: 52% (realistic, not artificially high)
+- **J/P**: 64% (realistic, not artificially high)
+- **Overall**: 57% (realistic confidence level)
 
-## 🔍 Test Coverage
+## ✅ What These Tests Validate
 
-Current test coverage includes:
-- ✅ CORS configuration and fixes
-- ✅ VK platform integration
-- ✅ Error handling scenarios
-- ✅ User service functionality
+1. **Confidence Calculation Accuracy**
+2. **Real-time Updates During Quiz**
+3. **Strategy-based Confidence Patterns**
+4. **System Stability and Performance**
+5. **Integration Between Components**
 
-## 🛠️ Adding New Tests
+## 🧹 Cleanup Notes
 
-When adding new tests:
-1. Create a new HTML file in the `tests/` directory
-2. Follow the naming convention: `test_[feature]_[purpose].html`
-3. Include clear test instructions in the file
-4. Update this README with the new test
-5. Ensure the test can be run independently
+- Removed outdated adaptive system tests
+- Removed non-working automated tests
+- Removed CORS and debugging tests
+- Kept only essential, working confidence tests
 
-## 📝 Test Documentation
+## 🔧 Maintenance
 
-Each test file should include:
-- **Purpose**: What the test is checking
-- **Prerequisites**: Any setup required
-- **Steps**: How to run the test
-- **Expected Results**: What should happen
-- **Troubleshooting**: Common issues and solutions
-
-## 🆘 Test Issues
-
-If you encounter issues with tests:
-1. Check the browser console for errors
-2. Verify all dependencies are loaded
-3. Ensure the test environment is properly configured
-4. Review the test documentation
-5. Open an issue if the problem persists 
+These tests are actively maintained and updated to match your actual quiz behavior. If you notice any discrepancies between test results and actual quiz performance, the tests will be updated accordingly. 
