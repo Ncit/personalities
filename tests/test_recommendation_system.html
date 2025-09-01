@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendation System Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .test-section h2 {
+            color: #2d3748;
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .results-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-item h3 {
+            color: #2d3748;
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .result-item p {
+            margin: 5px 0;
+            color: #4a5568;
+        }
+
+        .priority-high { border-left: 4px solid #e53e3e; }
+        .priority-medium { border-left: 4px solid #d69e2e; }
+        .priority-low { border-left: 4px solid #38a169; }
+
+        .confidence-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e53e3e, #d69e2e, #38a169);
+            transition: width 0.3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4299e1;
+        }
+
+        .stat-label {
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #c6f6d5;
+            border: 1px solid #9ae6b4;
+            color: #2f855a;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Recommendation System Test</h1>
+        
+        <div class="test-section">
+            <h2>🚀 System Initialization</h2>
+            <div class="test-controls">
+                <button onclick="initializeSystem()">Initialize System</button>
+                <button onclick="getSystemStats()" class="btn-secondary">Get System Stats</button>
+                <button onclick="clearCaches()" class="btn-warning">Clear Caches</button>
+            </div>
+            <div id="initResults" class="results-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Mock Quiz Data Generation</h2>
+            <div class="test-controls">
+                <button onclick="generateMockQuizData()">Generate Mock Data</button>
+                <button onclick="generateLowConfidenceData()" class="btn-warning">Low Confidence Data</button>
+                <button onclick="generateHighConfidenceData()" class="btn-success">High Confidence Data</button>
+            </div>
+            <div id="mockDataResults" class="results-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Response Analysis</h2>
+            <div class="test-controls">
+                <button onclick="analyzeResponses()">Analyze Responses</button>
+                <button onclick="showAnalysisDetails()" class="btn-secondary">Show Details</button>
+            </div>
+            <div id="analysisResults" class="results-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>💡 Recommendation Generation</h2>
+            <div class="test-controls">
+                <button onclick="generateRecommendations()">Generate Recommendations</button>
+                <button onclick="showRecommendationSummary()" class="btn-secondary">Show Summary</button>
+            </div>
+            <div id="recommendationResults" class="results-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>👤 User Profile Management</h2>
+            <div class="test-controls">
+                <button onclick="createUserProfile()">Create Profile</button>
+                <button onclick="updateUserProfile()" class="btn-secondary">Update Profile</button>
+                <button onclick="getUserProfile()" class="btn-success">Get Profile</button>
+            </div>
+            <div id="profileResults" class="results-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📚 Content Management</h2>
+            <div class="test-controls">
+                <button onclick="searchContent()">Search Content</button>
+                <button onclick="getContentRecommendations()" class="btn-secondary">Get Content Recs</button>
+                <button onclick="getContentStats()" class="btn-success">Content Stats</button>
+            </div>
+            <div id="contentResults" class="results-container"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import recommendation system components
+        import { ResponseAnalyzer } from '../src/modules/recommendations/ResponseAnalyzer.js';
+        import { RecommendationEngine } from '../src/modules/recommendations/RecommendationEngine.js';
+        import { ContentManager } from '../src/modules/content/ContentManager.js';
+        import { UserProfileManager } from '../src/modules/profiles/UserProfileManager.js';
+
+        // Global variables for testing
+        let responseAnalyzer, recommendationEngine, contentManager, userProfileManager;
+        let mockQuizData = null;
+        let currentUserId = 'test_user_001';
+
+        // Initialize the recommendation system
+        window.initializeSystem = async function() {
+            try {
+                showLoading('initResults', 'Initializing recommendation system...');
+                
+                // Initialize components
+                responseAnalyzer = new ResponseAnalyzer();
+                recommendationEngine = new RecommendationEngine();
+                contentManager = new ContentManager();
+                userProfileManager = new UserProfileManager();
+                
+                // Initialize profile manager
+                await userProfileManager.initialize();
+                userProfileManager.setCurrentUser(currentUserId);
+                
+                // Connect components
+                recommendationEngine.setContentManager(contentManager);
+                
+                showSuccess('initResults', '✅ Recommendation system initialized successfully!', {
+                    components: ['ResponseAnalyzer', 'RecommendationEngine', 'ContentManager', 'UserProfileManager'],
+                    currentUser: currentUserId,
+                    timestamp: new Date().toLocaleString()
+                });
+                
+            } catch (error) {
+                showError('initResults', '❌ Failed to initialize system', error);
+            }
+        };
+
+        // Generate mock quiz data
+        window.generateMockQuizData = function() {
+            mockQuizData = {
+                personalityType: 'INTJ',
+                dimensions: {
+                    EI: { score: 0.3, confidence: 0.75 },
+                    SN: { score: 0.7, confidence: 0.45 },
+                    TF: { score: 0.2, confidence: 0.85 },
+                    JP: { score: 0.8, confidence: 0.35 }
+                },
+                responses: Array.from({ length: 20 }, (_, i) => ({
+                    questionId: i + 1,
+                    selectedOption: Math.floor(Math.random() * 4) + 1,
+                    dimension: ['EI', 'SN', 'TF', 'JP'][i % 4],
+                    responseTime: 2000 + Math.random() * 6000,
+                    confidence: 0.5 + Math.random() * 0.5
+                })),
+                totalQuestions: 61,
+                totalTime: 120000,
+                timestamp: Date.now()
+            };
+            
+            showSuccess('mockDataResults', '✅ Mock quiz data generated!', mockQuizData);
+        };
+
+        // Generate low confidence data
+        window.generateLowConfidenceData = function() {
+            mockQuizData = {
+                personalityType: 'ENFP',
+                dimensions: {
+                    EI: { score: 0.6, confidence: 0.25 },
+                    SN: { score: 0.4, confidence: 0.30 },
+                    TF: { score: 0.5, confidence: 0.20 },
+                    JP: { score: 0.5, confidence: 0.35 }
+                },
+                responses: Array.from({ length: 25 }, (_, i) => ({
+                    questionId: i + 1,
+                    selectedOption: Math.floor(Math.random() * 4) + 1,
+                    dimension: ['EI', 'SN', 'TF', 'JP'][i % 4],
+                    responseTime: 8000 + Math.random() * 8000,
+                    confidence: 0.1 + Math.random() * 0.4
+                })),
+                totalQuestions: 61,
+                totalTime: 300000,
+                timestamp: Date.now()
+            };
+            
+            showSuccess('mockDataResults', '⚠️ Low confidence quiz data generated!', mockQuizData);
+        };
+
+        // Generate high confidence data
+        window.generateHighConfidenceData = function() {
+            mockQuizData = {
+                personalityType: 'ISTJ',
+                dimensions: {
+                    EI: { score: 0.2, confidence: 0.90 },
+                    SN: { score: 0.8, confidence: 0.85 },
+                    TF: { score: 0.1, confidence: 0.95 },
+                    JP: { score: 0.9, confidence: 0.88 }
+                },
+                responses: Array.from({ length: 30 }, (_, i) => ({
+                    questionId: i + 1,
+                    selectedOption: Math.floor(Math.random() * 4) + 1,
+                    dimension: ['EI', 'SN', 'TF', 'JP'][i % 4],
+                    responseTime: 1500 + Math.random() * 3000,
+                    confidence: 0.7 + Math.random() * 0.3
+                })),
+                totalQuestions: 61,
+                totalTime: 90000,
+                timestamp: Date.now()
+            };
+            
+            showSuccess('mockDataResults', '🎯 High confidence quiz data generated!', mockQuizData);
+        };
+
+        // Analyze quiz responses
+        window.analyzeResponses = function() {
+            if (!mockQuizData) {
+                showError('analysisResults', '❌ Please generate mock quiz data first');
+                return;
+            }
+            
+            if (!responseAnalyzer) {
+                showError('analysisResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            try {
+                const analysis = responseAnalyzer.analyzeUserResponses(mockQuizData);
+                showSuccess('analysisResults', '✅ Response analysis completed!', analysis);
+            } catch (error) {
+                showError('analysisResults', '❌ Analysis failed', error);
+            }
+        };
+
+        // Show analysis details
+        window.showAnalysisDetails = function() {
+            if (!mockQuizData || !responseAnalyzer) {
+                showError('analysisResults', '❌ Please generate data and initialize system first');
+                return;
+            }
+            
+            const analysis = responseAnalyzer.analyzeUserResponses(mockQuizData);
+            const details = {
+                confidencePatterns: analysis.confidencePatterns,
+                responsePatterns: analysis.responsePatterns,
+                behavioralPatterns: analysis.behavioralPatterns,
+                learningStyle: analysis.learningStyle,
+                developmentAreas: analysis.developmentAreas
+            };
+            
+            showSuccess('analysisResults', '📊 Detailed analysis results:', details);
+        };
+
+        // Generate recommendations
+        window.generateRecommendations = function() {
+            if (!mockQuizData || !recommendationEngine) {
+                showError('recommendationResults', '❌ Please generate data and initialize system first');
+                return;
+            }
+            
+            try {
+                const userProfile = {
+                    mbtiType: mockQuizData.personalityType,
+                    goals: ['personal_development', 'career_advancement'],
+                    interests: ['psychology', 'productivity', 'leadership']
+                };
+                
+                const recommendations = recommendationEngine.generateRecommendations(mockQuizData, userProfile);
+                showSuccess('recommendationResults', '💡 Recommendations generated!', recommendations);
+            } catch (error) {
+                showError('recommendationResults', '❌ Recommendation generation failed', error);
+            }
+        };
+
+        // Show recommendation summary
+        window.showRecommendationSummary = function() {
+            if (!mockQuizData || !recommendationEngine) {
+                showError('recommendationResults', '❌ Please generate data and initialize system first');
+                return;
+            }
+            
+            const userProfile = {
+                mbtiType: mockQuizData.personalityType,
+                goals: ['personal_development']
+            };
+            
+            const recommendations = recommendationEngine.generateRecommendations(mockQuizData, userProfile);
+            const summary = recommendations.summary;
+            
+            showSuccess('recommendationResults', '📋 Recommendation Summary:', summary);
+        };
+
+        // Create user profile
+        window.createUserProfile = function() {
+            if (!userProfileManager) {
+                showError('profileResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const profile = userProfileManager.getProfile(currentUserId);
+            showSuccess('profileResults', '✅ User profile created/retrieved!', profile);
+        };
+
+        // Update user profile
+        window.updateUserProfile = function() {
+            if (!userProfileManager) {
+                showError('profileResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const updates = {
+                preferences: {
+                    learningStyle: 'rapid_learner',
+                    preferredDifficulty: 'intermediate'
+                },
+                goals: ['skill_development', 'stress_management'],
+                interests: ['mindfulness', 'productivity']
+            };
+            
+            const updatedProfile = userProfileManager.updateProfile(currentUserId, updates);
+            showSuccess('profileResults', '✅ User profile updated!', updatedProfile);
+        };
+
+        // Get user profile
+        window.getUserProfile = function() {
+            if (!userProfileManager) {
+                showError('profileResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const profile = userProfileManager.getProfile(currentUserId);
+            const progress = userProfileManager.getDevelopmentProgress(currentUserId);
+            
+            showSuccess('profileResults', '👤 User profile and progress:', {
+                profile: profile,
+                progress: progress
+            });
+        };
+
+        // Search content
+        window.searchContent = function() {
+            if (!contentManager) {
+                showError('contentResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const searchResults = contentManager.searchContent('confidence building', ['books', 'courses']);
+            showSuccess('contentResults', '🔍 Content search results:', searchResults);
+        };
+
+        // Get content recommendations
+        window.getContentRecommendations = function() {
+            if (!contentManager) {
+                showError('contentResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const userProfile = {
+                mbtiType: 'INTJ',
+                preferredDifficulty: 'intermediate'
+            };
+            
+            const recommendations = contentManager.getContentRecommendations(userProfile, ['books', 'courses'], 5);
+            showSuccess('contentResults', '📚 Content recommendations:', recommendations);
+        };
+
+        // Get content stats
+        window.getContentStats = function() {
+            if (!contentManager) {
+                showError('contentResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const stats = contentManager.getContentStats();
+            showSuccess('contentResults', '📊 Content statistics:', stats);
+        };
+
+        // Get system stats
+        window.getSystemStats = function() {
+            if (!recommendationEngine || !contentManager || !userProfileManager) {
+                showError('initResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            const stats = {
+                recommendations: recommendationEngine.getStats(),
+                content: contentManager.getContentStats(),
+                profiles: userProfileManager.getStats()
+            };
+            
+            showSuccess('initResults', '📊 System statistics:', stats);
+        };
+
+        // Clear caches
+        window.clearCaches = function() {
+            if (!responseAnalyzer || !contentManager || !userProfileManager) {
+                showError('initResults', '❌ Please initialize the system first');
+                return;
+            }
+            
+            responseAnalyzer.clearCache();
+            contentManager.clearCache();
+            userProfileManager.clearCache();
+            
+            showSuccess('initResults', '🧹 All caches cleared successfully!');
+        };
+
+        // Utility functions
+        function showLoading(containerId, message) {
+            document.getElementById(containerId).innerHTML = `<div class="loading">⏳ ${message}</div>`;
+        }
+
+        function showSuccess(containerId, message, data = null) {
+            let html = `<div class="success">${message}</div>`;
+            if (data) {
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        function showError(containerId, message, error = null) {
+            let html = `<div class="error">${message}</div>`;
+            if (error) {
+                html += `<pre>${error.message || error}</pre>`;
+            }
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        // Auto-initialize on page load
+        window.addEventListener('load', () => {
+            console.log('🎯 Recommendation System Test Page Loaded');
+            console.log('Click "Initialize System" to begin testing');
+        });
+    </script>
+</body>
+</html>
