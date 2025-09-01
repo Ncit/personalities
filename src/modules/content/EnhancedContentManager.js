@@ -826,11 +826,19 @@ class EnhancedContentManager {
         const recommendations = [];
         const allContent = this.getAllContent();
 
+        console.log('🔍 getContentRecommendations debug:', {
+            userProfile,
+            options,
+            allContentLength: allContent.length,
+            allContent: allContent.slice(0, 3) // Show first 3 items
+        });
+
         // MBTI-based recommendations
         if (userProfile.mbtiType) {
             const mbtiContent = allContent.filter(item => 
                 item.mbti_relevance && item.mbti_relevance.includes(userProfile.mbtiType)
             );
+            console.log('🔍 MBTI content:', mbtiContent.length, mbtiContent);
             recommendations.push(...mbtiContent);
         }
 
@@ -841,6 +849,7 @@ class EnhancedContentManager {
                     item.tags.some(tag => tag.includes(interest))
                 )
             );
+            console.log('🔍 Interest content:', interestContent.length, interestContent);
             recommendations.push(...interestContent);
         }
 
@@ -851,12 +860,25 @@ class EnhancedContentManager {
                     item.category.includes(goal)
                 )
             );
+            console.log('🔍 Goal content:', goalContent.length, goalContent);
             recommendations.push(...goalContent);
+        }
+
+        // If no specific recommendations found, return general content
+        if (recommendations.length === 0) {
+            console.log('🔍 No specific recommendations, returning general content');
+            recommendations.push(...allContent);
         }
 
         // Remove duplicates and apply options
         const uniqueRecommendations = this.removeDuplicates(recommendations);
         const filtered = this.applyFilters(uniqueRecommendations, options);
+        
+        console.log('🔍 Final recommendations:', {
+            uniqueCount: uniqueRecommendations.length,
+            filteredCount: filtered.length,
+            filtered: filtered
+        });
         
         // Sort by rating and relevance
         return filtered

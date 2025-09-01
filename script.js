@@ -4152,6 +4152,13 @@ function showContentTab(contentType) {
             category: contentType
         });
         
+        console.log('🔍 Content tab debug:', {
+            contentType,
+            basicProfile,
+            contentLength: content ? content.length : 0,
+            content: content
+        });
+        
         const display = document.getElementById('contentDisplay');
         if (display) {
             if (content && content.length > 0) {
