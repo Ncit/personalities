@@ -623,6 +623,46 @@ class MBTIQuiz {
         if (subscriptionBtn) {
             subscriptionBtn.style.display = 'none';
         }
+        
+        // Generate Phase 2 Enhanced Recommendations
+        setTimeout(async () => {
+            try {
+                const quizData = {
+                    results: {
+                        personalityType: personalityType,
+                        EI: this.scores.E,
+                        SN: this.scores.S,
+                        TF: this.scores.T,
+                        JP: this.scores.J
+                    },
+                    responses: this.answers,
+                    dimensions: {
+                        EI: { confidence: this.calculateCurrentConfidence('EI'), score: this.scores.E },
+                        SN: { confidence: this.calculateCurrentConfidence('SN'), score: this.scores.S },
+                        TF: { confidence: this.calculateCurrentConfidence('TF'), score: this.scores.T },
+                        JP: { confidence: this.calculateCurrentConfidence('JP'), score: this.scores.J }
+                    },
+                    confidence: {
+                        EI: this.calculateCurrentConfidence('EI'),
+                        SN: this.calculateCurrentConfidence('SN'),
+                        TF: this.calculateCurrentConfidence('TF'),
+                        JP: this.calculateCurrentConfidence('JP')
+                    },
+                    totalTime: Date.now() - this.startTime,
+                    questionCount: this.questions.length,
+                    completed: true
+                };
+                
+                // Store quiz data globally for Phase 2
+                window.currentQuizData = quizData;
+                
+                // Generate Phase 2 recommendations
+                await generatePhase2Recommendations(quizData);
+                
+            } catch (error) {
+                console.error('Failed to generate Phase 2 recommendations:', error);
+            }
+        }, 1000); // Delay to ensure UI is fully loaded
     }
 
     calculatePersonalityType() {
@@ -3794,6 +3834,9 @@ document.addEventListener('DOMContentLoaded', function() {
         confidenceInfoBtn.addEventListener('click', openConfidenceInfoModal);
     }
     
+    // Initialize Phase 2 system
+    initializePhase2System();
+    
     // Test confidence calculation with sample data
     console.log('Testing confidence calculation...');
     const testScores = { E: 5, I: 2, S: 3, N: 4, T: 6, F: 1, J: 4, P: 3 };
@@ -3829,3 +3872,428 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ============================================================================
+// PHASE 2: Enhanced Recommendation System Integration
+// ============================================================================
+
+// Global Phase 2 manager instance
+let phase2Manager = null;
+let currentPhase2Language = 'ru';
+
+// Initialize Phase 2 Enhanced Recommendation System
+async function initializePhase2System() {
+    try {
+        console.log('🚀 Initializing Phase 2 Enhanced Recommendation System...');
+        
+        // Import Phase 2 modules
+        await importPhase2Modules();
+        
+        // Check if all required modules are available
+        console.log('🔍 Checking available modules:', {
+            ResponseAnalyzer: typeof window.ResponseAnalyzer,
+            RecommendationEngine: typeof window.RecommendationEngine,
+            ContentManager: typeof window.ContentManager,
+            UserProfileManager: typeof window.UserProfileManager,
+            GoalTracker: typeof window.GoalTracker,
+            EnhancedResponseAnalyzer: typeof window.EnhancedResponseAnalyzer,
+            EnhancedContentManager: typeof window.EnhancedContentManager,
+            EnhancedRecommendationsManager: typeof window.EnhancedRecommendationsManager
+        });
+        
+        if (typeof window.EnhancedRecommendationsManager === 'undefined') {
+            throw new Error('EnhancedRecommendationsManager not available after module loading');
+        }
+        
+        // Initialize the enhanced recommendations manager
+        phase2Manager = new window.EnhancedRecommendationsManager();
+        await phase2Manager.initialize({
+            language: currentPhase2Language,
+            userId: 'user_' + Date.now()
+        });
+        
+        console.log('✅ Phase 2 system initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize Phase 2 system:', error);
+    }
+}
+
+// Import Phase 2 modules dynamically
+async function importPhase2Modules() {
+    try {
+        console.log('📚 Loading Phase 2 modules...');
+        
+        // Load modules in the correct order (dependencies first)
+        const modulesToLoad = [
+            'src/modules/recommendations/ResponseAnalyzer.js',
+            'src/modules/recommendations/RecommendationEngine.js',
+            'src/modules/content/ContentManager.js',
+            'src/modules/profiles/UserProfileManager.js',
+            'src/modules/profiles/GoalTracker.js',
+            'src/modules/recommendations/EnhancedResponseAnalyzer.js',
+            'src/modules/content/EnhancedContentManager.js',
+            'src/modules/recommendations/EnhancedRecommendationsManager.js'
+        ];
+        
+        for (const modulePath of modulesToLoad) {
+            await loadScript(modulePath);
+        }
+        
+        // Wait a moment for all modules to be available
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('✅ Phase 2 modules loaded successfully');
+        
+    } catch (error) {
+        console.error('❌ Failed to load Phase 2 modules:', error);
+        throw error;
+    }
+}
+
+// Load individual script files
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        const existingScript = document.querySelector(`script[src="${src}"]`);
+        if (existingScript) {
+            console.log(`Script already loaded: ${src}`);
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => {
+            console.log(`Script loaded: ${src}`);
+            resolve();
+        };
+        script.onerror = (error) => {
+            console.error(`Failed to load script: ${src}`, error);
+            reject(error);
+        };
+        document.head.appendChild(script);
+    });
+}
+
+// Generate Phase 2 recommendations after quiz completion
+async function generatePhase2Recommendations(quizData) {
+    if (!phase2Manager) {
+        console.warn('Phase 2 manager not initialized');
+        return null;
+    }
+    
+    try {
+        console.log('🎯 Generating Phase 2 recommendations...');
+        
+        const recommendations = await phase2Manager.generateEnhancedRecommendations(quizData);
+        
+        // Display recommendations in the UI
+        displayPhase2Recommendations(recommendations);
+        
+        console.log('✅ Phase 2 recommendations generated successfully');
+        return recommendations;
+        
+    } catch (error) {
+        console.error('❌ Failed to generate Phase 2 recommendations:', error);
+        return null;
+    }
+}
+
+// Display Phase 2 recommendations in the UI
+function displayPhase2Recommendations(recommendations) {
+    if (!recommendations) return;
+    
+    // Display immediate actions
+    displayImmediateActions(recommendations.immediateActions || []);
+    
+    // Display short-term goals
+    displayShortTermGoals(recommendations.shortTermGoals || []);
+    
+    // Display long-term development
+    displayLongTermDevelopment(recommendations.longTermDevelopment || []);
+    
+    // Display goal recommendations
+    displayGoalRecommendations(recommendations.goalRecommendations || []);
+    
+    // Display content recommendations
+    displayContentRecommendations(recommendations.contentRecommendations || {});
+    
+    // Show the Phase 2 section
+    const phase2Section = document.getElementById('phase2Recommendations');
+    if (phase2Section) {
+        phase2Section.style.display = 'block';
+    }
+}
+
+// Display immediate actions
+function displayImmediateActions(actions) {
+    const grid = document.getElementById('immediateActionsGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = actions.map(action => `
+        <div class="action-card">
+            <h5>${action.title}</h5>
+            <p>${action.description}</p>
+            <div class="action-meta">
+                <span>⏱️ ${action.estimatedTime}</span>
+                <span>📊 ${action.difficulty}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Display short-term goals
+function displayShortTermGoals(goals) {
+    const grid = document.getElementById('shortTermGoalsGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = goals.map(goal => `
+        <div class="goal-card">
+            <h5>${goal.title}</h5>
+            <p>${goal.description}</p>
+            <div class="goal-meta">
+                <span>⏱️ ${goal.estimatedTime}</span>
+                <span>📊 ${goal.difficulty}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Display long-term development
+function displayLongTermDevelopment(development) {
+    const grid = document.getElementById('longTermDevelopmentGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = development.map(plan => `
+        <div class="development-card">
+            <h5>${plan.title}</h5>
+            <p>${plan.description}</p>
+            <div class="development-meta">
+                <span>⏱️ ${plan.estimatedTime}</span>
+                <span>📊 ${plan.difficulty}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Display goal recommendations
+function displayGoalRecommendations(goals) {
+    const container = document.getElementById('activeGoals');
+    if (!container) return;
+    
+    container.innerHTML = goals.map(goal => `
+        <div class="goal-item">
+            <h5>${goal.title}</h5>
+            <p>${goal.description}</p>
+            <div class="goal-progress">
+                <div class="goal-progress-fill" style="width: ${goal.progress || 0}%"></div>
+            </div>
+            <small>Прогресс: ${goal.progress || 0}%</small>
+        </div>
+    `).join('');
+}
+
+// Display content recommendations
+function displayContentRecommendations(content) {
+    const display = document.getElementById('contentDisplay');
+    if (!display) return;
+    
+    // Default to books if no content specified
+    const contentType = 'books';
+    const items = content[contentType] || [];
+    
+    display.innerHTML = items.map(item => `
+        <div class="content-item">
+            <h5>${item.title}</h5>
+            <p>${item.description}</p>
+            <div class="content-meta">
+                <span>📚 ${item.type}</span>
+                <span>⏱️ ${item.estimatedTime}</span>
+                <span>📊 ${item.difficulty}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Content tab switching
+function showContentTab(contentType) {
+    // Update active tab
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Load content for selected type
+    if (phase2Manager && phase2Manager.enhancedContentManager) {
+        const content = phase2Manager.enhancedContentManager.getContentRecommendations({}, {
+            limit: 5,
+            category: contentType
+        });
+        
+        const display = document.getElementById('contentDisplay');
+        if (display) {
+            display.innerHTML = content.map(item => `
+                <div class="content-item">
+                    <h5>${item.title}</h5>
+                    <p>${item.description}</p>
+                    <div class="content-meta">
+                        <span>📚 ${item.type}</span>
+                        <span>⏱️ ${item.estimatedTime}</span>
+                        <span>📊 ${item.difficulty}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+// Create new goal
+function createNewGoal() {
+    if (!phase2Manager || !phase2Manager.goalTracker) {
+        alert('Система отслеживания целей не инициализирована');
+        return;
+    }
+    
+    const goalTitle = prompt('Введите название цели:');
+    if (!goalTitle) return;
+    
+    const goalDescription = prompt('Введите описание цели:');
+    if (!goalTitle) return;
+    
+    try {
+        const newGoal = phase2Manager.goalTracker.createGoal({
+            title: goalTitle,
+            description: goalDescription,
+            category: 'personal_development',
+            priority: 'medium',
+            difficulty: 'intermediate'
+        });
+        
+        // Refresh goal display
+        displayGoalRecommendations(phase2Manager.goalTracker.getUserGoals('user_' + Date.now()));
+        
+        alert('Цель успешно создана!');
+        
+    } catch (error) {
+        console.error('Failed to create goal:', error);
+        alert('Ошибка при создании цели');
+    }
+}
+
+// Switch Phase 2 language
+function switchPhase2Language(language) {
+    if (!phase2Manager) return;
+    
+    currentPhase2Language = language;
+    phase2Manager.setLanguage(language);
+    
+    // Update UI language
+    updatePhase2UILanguage(language);
+    
+    // Regenerate recommendations in new language
+    if (window.currentQuizData) {
+        generatePhase2Recommendations(window.currentQuizData);
+    }
+}
+
+// Update Phase 2 UI language
+function updatePhase2UILanguage(language) {
+    const isRussian = language === 'ru';
+    
+    // Update section headers
+    const headers = {
+        'immediateActionsSection': isRussian ? 'Действия прямо сейчас (5 минут)' : 'Immediate Actions (5 minutes)',
+        'shortTermGoalsSection': isRussian ? 'Краткосрочные цели (2-4 недели)' : 'Short-Term Goals (2-4 weeks)',
+        'longTermDevelopmentSection': isRussian ? 'Долгосрочное развитие (3-6 месяцев)' : 'Long-Term Development (3-6 months)',
+        'goalTrackingSection': isRussian ? 'Отслеживание целей' : 'Goal Tracking',
+        'contentLibrarySection': isRussian ? 'Рекомендуемые ресурсы' : 'Recommended Resources'
+    };
+    
+    Object.entries(headers).forEach(([id, text]) => {
+        const element = document.querySelector(`#${id} h4`);
+        if (element) {
+            element.innerHTML = element.innerHTML.replace(/<i.*?<\/i>/, '') + `<i class="fas fa-${getIconForSection(id)}"></i> ${text}`;
+        }
+    });
+}
+
+// Get icon for section
+function getIconForSection(sectionId) {
+    const icons = {
+        'immediateActionsSection': 'bolt',
+        'shortTermGoalsSection': 'target',
+        'longTermDevelopmentSection': 'chart-line',
+        'goalTrackingSection': 'flag-checkered',
+        'contentLibrarySection': 'book-open'
+    };
+    return icons[sectionId] || 'info-circle';
+}
+
+// Make Phase 2 functions globally available
+window.generatePhase2Recommendations = generatePhase2Recommendations;
+window.createNewGoal = createNewGoal;
+window.showContentTab = showContentTab;
+window.switchPhase2Language = switchPhase2Language;
+
+// Test Phase 2 integration
+window.testPhase2Integration = async function() {
+    try {
+        console.log('🧪 Testing Phase 2 integration...');
+        
+        // Check if Phase 2 manager is initialized
+        if (!phase2Manager) {
+            console.log('Phase 2 manager not initialized, initializing...');
+            await initializePhase2System();
+        }
+        
+        // Create test quiz data
+        const testQuizData = {
+            results: {
+                personalityType: 'INTJ',
+                EI: 75,
+                SN: 60,
+                TF: 80,
+                JP: 70
+            },
+            responses: [
+                { questionId: 1, selectedOption: 3, dimension: 'EI', responseTime: 2500 },
+                { questionId: 2, selectedOption: 2, dimension: 'SN', responseTime: 1800 },
+                { questionId: 3, selectedOption: 4, dimension: 'TF', responseTime: 3200 },
+                { questionId: 4, selectedOption: 1, dimension: 'JP', responseTime: 2100 },
+                { questionId: 5, selectedOption: 3, dimension: 'EI', responseTime: 1900 }
+            ],
+            dimensions: {
+                EI: { confidence: 0.75, score: 75 },
+                SN: { confidence: 0.60, score: 60 },
+                TF: { confidence: 0.80, score: 80 },
+                JP: { confidence: 0.70, score: 70 }
+            },
+            confidence: {
+                EI: 0.75,
+                SN: 0.60,
+                TF: 0.80,
+                JP: 0.70
+            },
+            totalTime: 13500,
+            questionCount: 5,
+            completed: true
+        };
+        
+        // Store test data globally
+        window.currentQuizData = testQuizData;
+        
+        // Generate recommendations
+        const recommendations = await generatePhase2Recommendations(testQuizData);
+        
+        if (recommendations) {
+            console.log('✅ Phase 2 test successful!', recommendations);
+            alert('Phase 2 integration test successful! Check the results page.');
+        } else {
+            console.log('❌ Phase 2 test failed - no recommendations generated');
+            alert('Phase 2 test failed - check console for details');
+        }
+        
+    } catch (error) {
+        console.error('❌ Phase 2 test error:', error);
+        alert('Phase 2 test error: ' + error.message);
+    }
+};

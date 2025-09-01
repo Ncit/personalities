@@ -8,6 +8,16 @@ class UserProfileManager {
         this.defaultProfile = this.createDefaultProfile();
         this.storageKey = 'mbti_user_profiles';
         this.currentUserId = null;
+        this.currentLanguage = 'en'; // Default language
+    }
+
+    /**
+     * Set the current language for user profiles
+     * @param {String} language - Language code ('en' or 'ru')
+     */
+    setLanguage(language) {
+        this.currentLanguage = language;
+        console.log(`🌍 UserProfileManager language set to: ${language}`);
     }
 
     /**

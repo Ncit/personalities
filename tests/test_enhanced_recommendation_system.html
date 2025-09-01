@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Recommendation System Test - Phase 2B</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .language-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .language-indicator {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .recommendation-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-description {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Enhanced Recommendation System</h1>
+            <p>Phase 2B: Advanced Pattern Recognition & Goal Tracking</p>
+            <div class="language-switcher">
+                <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+                <button class="lang-btn" onclick="setLanguage('ru')">Русский</button>
+                <span class="language-indicator" id="currentLanguage">EN</span>
+            </div>
+        </div>
+
+        <div class="content">
+                    <!-- System Initialization -->
+        <div class="section">
+            <h2>🔧 System Initialization</h2>
+            <div class="button-group">
+                <button class="btn" onclick="initializeSystem()">Initialize Enhanced System</button>
+                <button class="btn secondary" onclick="loadMockUser()">Load Mock User Data</button>
+                <button class="btn success" onclick="getSystemStats()">Get System Statistics</button>
+            </div>
+            <div id="initStatus" class="status hidden"></div>
+            <div id="loadingStatus" class="status info">
+                <span class="loading"></span> Loading modules... Please wait
+            </div>
+        </div>
+
+            <!-- Enhanced Analysis Testing -->
+            <div class="section">
+                <h2>🧠 Enhanced Analysis Testing</h2>
+                <div class="button-group">
+                    <button class="btn" onclick="testEnhancedAnalysis()">Run Enhanced Analysis</button>
+                    <button class="btn secondary" onclick="testPatternRecognition()">Test Pattern Recognition</button>
+                    <button class="btn success" onclick="testPersonalityInsights()">Generate Personality Insights</button>
+                </div>
+                <div id="analysisResults" class="results hidden"></div>
+            </div>
+
+            <!-- Goal Management Testing -->
+            <div class="section">
+                <h2>🎯 Goal Management Testing</h2>
+                <div class="button-group">
+                    <button class="btn" onclick="testGoalCreation()">Create Sample Goals</button>
+                    <button class="btn secondary" onclick="testGoalProgress()">Update Goal Progress</button>
+                    <button class="btn success" onclick="testGoalRecommendations()">Get Goal Recommendations</button>
+                    <button class="btn warning" onclick="getGoalStats()">Get Goal Statistics</button>
+                </div>
+                <div id="goalResults" class="results hidden"></div>
+            </div>
+
+            <!-- Enhanced Content Testing -->
+            <div class="section">
+                <h2>📚 Enhanced Content Testing</h2>
+                <div class="button-group">
+                    <button class="btn" onclick="testContentSearch()">Search Enhanced Content</button>
+                    <button class="btn secondary" onclick="testContentRecommendations()">Get Content Recommendations</button>
+                    <button class="btn success" onclick="testContentStats()">Get Content Statistics</button>
+                </div>
+                <div id="contentResults" class="results hidden"></div>
+            </div>
+
+            <!-- Comprehensive Recommendations -->
+            <div class="section">
+                <h2>🌟 Comprehensive Recommendations</h2>
+                <div class="button-group">
+                    <button class="btn" onclick="generateComprehensiveRecommendations()">Generate All Recommendations</button>
+                    <button class="btn secondary" onclick="testLanguageSwitching()">Test Language Switching</button>
+                    <button class="btn success" onclick="exportUserData()">Export User Data</button>
+                </div>
+                <div id="comprehensiveResults" class="results hidden"></div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="section">
+                <h2>📊 Performance Metrics</h2>
+                <div id="performanceMetrics" class="metric-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load all required modules -->
+    <script>
+        // Global variables for all components
+        let ResponseAnalyzer, RecommendationEngine, ContentManager, UserProfileManager;
+        let GoalTracker, EnhancedResponseAnalyzer, EnhancedContentManager, EnhancedRecommendationsManager;
+
+        // Global variables
+        let enhancedManager = null;
+        let currentLanguage = 'en';
+        let mockQuizData = null;
+
+        // Initialize mock quiz data
+        function initializeMockQuizData() {
+            mockQuizData = {
+                results: {
+                    personalityType: 'INTJ',
+                    EI: 75,
+                    SN: 60,
+                    TF: 80,
+                    JP: 70
+                },
+                responses: [
+                    { questionId: 1, selectedOption: 3, dimension: 'EI', responseTime: 2500 },
+                    { questionId: 2, selectedOption: 2, dimension: 'SN', responseTime: 1800 },
+                    { questionId: 3, selectedOption: 4, dimension: 'TF', responseTime: 3200 },
+                    { questionId: 4, selectedOption: 1, dimension: 'JP', responseTime: 2100 },
+                    { questionId: 5, selectedOption: 3, dimension: 'EI', responseTime: 1900 }
+                ],
+                dimensions: {
+                    EI: { confidence: 0.75, score: 75 },
+                    SN: { confidence: 0.60, score: 60 },
+                    TF: { confidence: 0.80, score: 80 },
+                    JP: { confidence: 0.70, score: 70 }
+                },
+                confidence: {
+                    EI: 0.75,
+                    SN: 0.60,
+                    TF: 0.80,
+                    JP: 0.70
+                },
+                totalTime: 13500, // Total response time in milliseconds
+                questionCount: 5,
+                completed: true
+            };
+        }
+
+        // Initialize the enhanced system
+        window.initializeSystem = async function() {
+            try {
+                showStatus('initStatus', 'Initializing enhanced recommendation system...', 'info');
+                
+                enhancedManager = new EnhancedRecommendationsManager();
+                await enhancedManager.initialize({
+                    language: currentLanguage,
+                    userId: 'test_user_001'
+                });
+                
+                initializeMockQuizData();
+                
+                showStatus('initStatus', '✅ Enhanced system initialized successfully!', 'success');
+                updatePerformanceMetrics();
+                
+            } catch (error) {
+                showStatus('initStatus', `❌ Initialization failed: ${error.message}`, 'error');
+                console.error('Initialization error:', error);
+            }
+        };
+
+        // Load mock user data
+        window.loadMockUser = async function() {
+            try {
+                if (!enhancedManager) {
+                    showStatus('initStatus', 'Please initialize the system first', 'error');
+                    return;
+                }
+                
+                showStatus('initStatus', 'Loading mock user data...', 'info');
+                
+                // Create mock user profile
+                const mockProfile = {
+                    mbtiType: 'INTJ',
+                    interests: ['technology', 'leadership', 'personal-development'],
+                    goals: ['career-advancement', 'personal-development'],
+                    preferences: {
+                        learningStyle: 'visual',
+                        communicationStyle: 'direct',
+                        workStyle: 'independent'
+                    }
+                };
+                
+                await enhancedManager.updateUserProfile(mockProfile);
+                
+                showStatus('initStatus', '✅ Mock user data loaded successfully!', 'success');
+                
+            } catch (error) {
+                showStatus('initStatus', `❌ Failed to load mock user: ${error.message}`, 'error');
+                console.error('Mock user error:', error);
+            }
+        };
+
+        // Get system statistics
+        window.getSystemStats = function() {
+            if (!enhancedManager) {
+                showStatus('initStatus', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            const stats = enhancedManager.getSystemStats();
+            displayResults('initStatus', 'System Statistics', stats);
+        };
+
+        // Test enhanced analysis
+        window.testEnhancedAnalysis = async function() {
+            if (!enhancedManager || !mockQuizData) {
+                showStatus('analysisResults', 'Please initialize the system and load mock data first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('analysisResults', 'Running enhanced analysis...', 'info');
+                
+                const analysis = enhancedManager.enhancedResponseAnalyzer.analyzeUserResponses(mockQuizData);
+                
+                displayResults('analysisResults', 'Enhanced Analysis Results', {
+                    advancedPatterns: analysis.advancedPatterns,
+                    personalityInsights: analysis.personalityInsights,
+                    growthOpportunities: analysis.growthOpportunities,
+                    communicationStyle: analysis.communicationStyle,
+                    leadershipPotential: analysis.leadershipPotential
+                });
+                
+            } catch (error) {
+                showStatus('analysisResults', `❌ Analysis failed: ${error.message}`, 'error');
+                console.error('Analysis error:', error);
+            }
+        };
+
+        // Test pattern recognition
+        window.testPatternRecognition = async function() {
+            if (!enhancedManager || !mockQuizData) {
+                showStatus('analysisResults', 'Please initialize the system and load mock data first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('analysisResults', 'Testing pattern recognition...', 'info');
+                
+                const analysis = enhancedManager.enhancedResponseAnalyzer.analyzeUserResponses(mockQuizData);
+                const patterns = analysis.advancedPatterns;
+                
+                displayResults('analysisResults', 'Pattern Recognition Results', {
+                    responseConsistency: patterns.responseConsistency,
+                    decisionSpeed: patterns.decisionSpeed,
+                    riskTolerance: patterns.riskTolerance,
+                    adaptability: patterns.adaptability,
+                    persistence: patterns.persistence,
+                    socialOrientation: patterns.socialOrientation,
+                    detailOrientation: patterns.detailOrientation,
+                    innovationTendency: patterns.innovationTendency
+                });
+                
+            } catch (error) {
+                showStatus('analysisResults', `❌ Pattern recognition failed: ${error.message}`, 'error');
+                console.error('Pattern recognition error:', error);
+            }
+        };
+
+        // Test personality insights
+        window.testPersonalityInsights = async function() {
+            if (!enhancedManager || !mockQuizData) {
+                showStatus('analysisResults', 'Please initialize the system and load mock data first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('analysisResults', 'Generating personality insights...', 'info');
+                
+                const analysis = enhancedManager.enhancedResponseAnalyzer.analyzeUserResponses(mockQuizData);
+                const insights = analysis.personalityInsights;
+                
+                displayResults('analysisResults', 'Personality Insights', {
+                    coreStrengths: insights.coreStrengths,
+                    potentialChallenges: insights.potentialChallenges,
+                    communicationPreferences: insights.communicationPreferences,
+                    workStyle: insights.workStyle,
+                    learningPreferences: insights.learningPreferences,
+                    motivationDrivers: insights.motivationDrivers
+                });
+                
+            } catch (error) {
+                showStatus('analysisResults', `❌ Personality insights failed: ${error.message}`, 'error');
+                console.error('Personality insights error:', error);
+            }
+        };
+
+        // Test goal creation
+        window.testGoalCreation = async function() {
+            if (!enhancedManager) {
+                showStatus('goalResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('goalResults', 'Creating sample goals...', 'info');
+                
+                const sampleGoals = [
+                    {
+                        title: currentLanguage === 'ru' ? 'Развить эмоциональный интеллект' : 'Develop Emotional Intelligence',
+                        description: currentLanguage === 'ru' ? 'Практиковать активное слушание и эмпатию' : 'Practice active listening and empathy',
+                        category: 'personal_development',
+                        priority: 'high',
+                        difficulty: 'intermediate',
+                        timeframe: '6 weeks'
+                    },
+                    {
+                        title: currentLanguage === 'ru' ? 'Улучшить управление временем' : 'Improve Time Management',
+                        description: currentLanguage === 'ru' ? 'Внедрить структурированное планирование' : 'Implement structured scheduling',
+                        category: 'productivity',
+                        priority: 'medium',
+                        difficulty: 'beginner',
+                        timeframe: '4 weeks'
+                    }
+                ];
+                
+                const createdGoals = [];
+                for (const goalData of sampleGoals) {
+                    const goal = enhancedManager.createGoal(goalData);
+                    createdGoals.push(goal);
+                }
+                
+                displayResults('goalResults', 'Created Goals', createdGoals);
+                
+            } catch (error) {
+                showStatus('goalResults', `❌ Goal creation failed: ${error.message}`, 'error');
+                console.error('Goal creation error:', error);
+            }
+        };
+
+        // Test goal progress
+        window.testGoalProgress = async function() {
+            if (!enhancedManager) {
+                showStatus('goalResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('goalResults', 'Updating goal progress...', 'info');
+                
+                const goals = enhancedManager.getUserGoals();
+                if (goals.length === 0) {
+                    showStatus('goalResults', 'No goals found. Please create goals first.', 'error');
+                    return;
+                }
+                
+                const updatedGoals = [];
+                for (const goal of goals.slice(0, 2)) {
+                    const progress = Math.floor(Math.random() * 50) + 25; // 25-75%
+                    const updatedGoal = enhancedManager.updateGoalProgress(
+                        goal.id, 
+                        progress, 
+                        currentLanguage === 'ru' ? 'Прогресс обновлен' : 'Progress updated'
+                    );
+                    updatedGoals.push(updatedGoal);
+                }
+                
+                displayResults('goalResults', 'Updated Goals', updatedGoals);
+                
+            } catch (error) {
+                showStatus('goalResults', `❌ Goal progress update failed: ${error.message}`, 'error');
+                console.error('Goal progress error:', error);
+            }
+        };
+
+        // Test goal recommendations
+        window.testGoalRecommendations = async function() {
+            if (!enhancedManager) {
+                showStatus('goalResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('goalResults', 'Getting goal recommendations...', 'info');
+                
+                const userProfile = enhancedManager.getUserProfile();
+                const recommendations = enhancedManager.goalTracker.generateGoalRecommendations('test_user_001', userProfile);
+                
+                displayResults('goalResults', 'Goal Recommendations', recommendations);
+                
+            } catch (error) {
+                showStatus('goalResults', `❌ Goal recommendations failed: ${error.message}`, 'error');
+                console.error('Goal recommendations error:', error);
+            }
+        };
+
+        // Get goal statistics
+        window.getGoalStats = function() {
+            if (!enhancedManager) {
+                showStatus('goalResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            const stats = enhancedManager.getUserDevelopmentStats();
+            displayResults('goalResults', 'Goal Statistics', stats);
+        };
+
+        // Test content search
+        window.testContentSearch = async function() {
+            if (!enhancedManager) {
+                showStatus('contentResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('contentResults', 'Searching enhanced content...', 'info');
+                
+                const searchResults = enhancedManager.searchContent('leadership', {
+                    category: 'books',
+                    minRating: 4.0
+                });
+                
+                displayResults('contentResults', 'Content Search Results', searchResults);
+                
+            } catch (error) {
+                showStatus('contentResults', `❌ Content search failed: ${error.message}`, 'error');
+                console.error('Content search error:', error);
+            }
+        };
+
+        // Test content recommendations
+        window.testContentRecommendations = async function() {
+            if (!enhancedManager) {
+                showStatus('contentResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('contentResults', 'Getting content recommendations...', 'info');
+                
+                const userProfile = enhancedManager.getUserProfile();
+                const recommendations = enhancedManager.enhancedContentManager.getContentRecommendations(userProfile, {
+                    limit: 5,
+                    mbtiType: 'INTJ'
+                });
+                
+                displayResults('contentResults', 'Content Recommendations', recommendations);
+                
+            } catch (error) {
+                showStatus('contentResults', `❌ Content recommendations failed: ${error.message}`, 'error');
+                console.error('Content recommendations error:', error);
+            }
+        };
+
+        // Test content statistics
+        window.testContentStats = function() {
+            if (!enhancedManager) {
+                showStatus('contentResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            const stats = enhancedManager.getContentStats();
+            displayResults('contentResults', 'Content Statistics', stats);
+        };
+
+        // Generate comprehensive recommendations
+        window.generateComprehensiveRecommendations = async function() {
+            if (!enhancedManager || !mockQuizData) {
+                showStatus('comprehensiveResults', 'Please initialize the system and load mock data first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('comprehensiveResults', 'Generating comprehensive recommendations...', 'info');
+                
+                const recommendations = await enhancedManager.generateEnhancedRecommendations(mockQuizData, {
+                    includeGoals: true,
+                    includeContent: true,
+                    includeInsights: true
+                });
+                
+                displayResults('comprehensiveResults', 'Comprehensive Recommendations', recommendations);
+                updatePerformanceMetrics();
+                
+            } catch (error) {
+                showStatus('comprehensiveResults', `❌ Comprehensive recommendations failed: ${error.message}`, 'error');
+                console.error('Comprehensive recommendations error:', error);
+            }
+        };
+
+        // Test language switching
+        window.testLanguageSwitching = async function() {
+            if (!enhancedManager) {
+                showStatus('comprehensiveResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('comprehensiveResults', 'Testing language switching...', 'info');
+                
+                // Switch to Russian
+                enhancedManager.setLanguage('ru');
+                const ruRecommendations = await enhancedManager.generateEnhancedRecommendations(mockQuizData);
+                
+                // Switch back to English
+                enhancedManager.setLanguage('en');
+                const enRecommendations = await enhancedManager.generateEnhancedRecommendations(mockQuizData);
+                
+                displayResults('comprehensiveResults', 'Language Switching Test', {
+                    russianRecommendations: ruRecommendations,
+                    englishRecommendations: enRecommendations,
+                    languageSwitchSuccessful: true
+                });
+                
+            } catch (error) {
+                showStatus('comprehensiveResults', `❌ Language switching failed: ${error.message}`, 'error');
+                console.error('Language switching error:', error);
+            }
+        };
+
+        // Export user data
+        window.exportUserData = function() {
+            if (!enhancedManager) {
+                showStatus('comprehensiveResults', 'Please initialize the system first', 'error');
+                return;
+            }
+            
+            const userData = enhancedManager.exportUserData('test_user_001');
+            displayResults('comprehensiveResults', 'Exported User Data', userData);
+        };
+
+        // Set language
+        window.setLanguage = function(language) {
+            currentLanguage = language;
+            
+            // Update UI
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('currentLanguage').textContent = language.toUpperCase();
+            
+            // Update system language if initialized
+            if (enhancedManager) {
+                enhancedManager.setLanguage(language);
+            }
+        };
+
+        // Utility functions
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.classList.remove('hidden');
+        }
+
+        function displayResults(elementId, title, data) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            element.classList.remove('hidden');
+            element.classList.add('fade-in');
+        }
+
+        function updatePerformanceMetrics() {
+            if (!enhancedManager) return;
+            
+            const stats = enhancedManager.getSystemStats();
+            const metricsContainer = document.getElementById('performanceMetrics');
+            
+            metricsContainer.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">${stats.performance.totalRecommendationsGenerated}</div>
+                    <div class="metric-label">Total Recommendations</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${stats.performance.recommendationGenerationTime.toFixed(2)}ms</div>
+                    <div class="metric-label">Generation Time</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${stats.content.totalItems}</div>
+                    <div class="metric-label">Content Items</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${stats.goals.totalGoals}</div>
+                    <div class="metric-label">Total Goals</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${stats.goals.activeGoals}</div>
+                    <div class="metric-label">Active Goals</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${stats.analysis.cacheSize}</div>
+                    <div class="metric-label">Cache Entries</div>
+                </div>
+            `;
+        }
+
+                // Check if modules are already available globally
+        function checkExistingModules() {
+            const existingModules = {
+                ResponseAnalyzer: window.ResponseAnalyzer,
+                RecommendationEngine: window.RecommendationEngine,
+                ContentManager: window.ContentManager,
+                UserProfileManager: window.UserProfileManager,
+                GoalTracker: window.GoalTracker,
+                EnhancedResponseAnalyzer: window.EnhancedResponseAnalyzer,
+                EnhancedContentManager: window.EnhancedContentManager,
+                EnhancedRecommendationsManager: window.EnhancedRecommendationsManager
+            };
+            
+            console.log('Checking existing modules...');
+            Object.entries(existingModules).forEach(([name, module]) => {
+                const isAvailable = !!module;
+                const isConstructor = isAvailable && typeof module === 'function';
+                console.log(`${name}:`, isAvailable, isConstructor ? '(constructor)' : '(not constructor)');
+            });
+            
+            return existingModules;
+        }
+
+        // Check if modules are valid constructors
+        function validateModules(modules) {
+            const validModules = {};
+            Object.entries(modules).forEach(([name, module]) => {
+                if (module && typeof module === 'function') {
+                    validModules[name] = module;
+                } else {
+                    console.warn(`Module ${name} is not a valid constructor`);
+                }
+            });
+            return validModules;
+        }
+
+        // Create isolated test environment using iframe
+        async function createIsolatedTestEnvironment() {
+            try {
+                console.log('🔒 Creating isolated test environment...');
+                
+                // Create iframe to isolate modules
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'test_isolated_modules.html';
+                document.body.appendChild(iframe);
+                
+                // Wait for iframe to load
+                await new Promise((resolve, reject) => {
+                    iframe.onload = resolve;
+                    iframe.onerror = reject;
+                    setTimeout(() => reject(new Error('Iframe load timeout')), 10000);
+                });
+                
+                console.log('✅ Isolated test environment created');
+                
+                // Try to access modules from iframe
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    
+                    // Check if modules are available in iframe
+                    if (iframeWindow.ResponseAnalyzer && iframeWindow.RecommendationEngine && iframeWindow.ContentManager) {
+                        console.log('✅ Modules found in isolated environment');
+                        
+                        // Copy modules to current window (isolated)
+                        ResponseAnalyzer = iframeWindow.ResponseAnalyzer;
+                        RecommendationEngine = iframeWindow.RecommendationEngine;
+                        ContentManager = iframeWindow.ContentManager;
+                        UserProfileManager = iframeWindow.UserProfileManager;
+                        GoalTracker = iframeWindow.GoalTracker;
+                        EnhancedResponseAnalyzer = iframeWindow.EnhancedResponseAnalyzer;
+                        EnhancedContentManager = iframeWindow.EnhancedContentManager;
+                        EnhancedRecommendationsManager = iframeWindow.EnhancedRecommendationsManager;
+                        
+                        // Hide loading status
+                        document.getElementById('loadingStatus').classList.add('hidden');
+                        
+                        // Enable all buttons
+                        enableAllButtons();
+                        
+                        return;
+                    }
+                } catch (iframeError) {
+                    console.log('Iframe access failed, trying alternative approach...');
+                }
+                
+                // Fallback: Try to use existing modules if they're actually working
+                console.log('🔄 Trying to use existing modules...');
+                
+                // Check if modules are actually working despite the errors
+                const workingModules = await checkWorkingModules();
+                
+                if (workingModules.ResponseAnalyzer && workingModules.RecommendationEngine && workingModules.ContentManager) {
+                    console.log('✅ Found working modules despite errors');
+                    
+                    ResponseAnalyzer = workingModules.ResponseAnalyzer;
+                    RecommendationEngine = workingModules.RecommendationEngine;
+                    ContentManager = workingModules.ContentManager;
+                    UserProfileManager = workingModules.UserProfileManager;
+                    GoalTracker = workingModules.GoalTracker;
+                    EnhancedResponseAnalyzer = workingModules.EnhancedResponseAnalyzer;
+                    EnhancedContentManager = workingModules.EnhancedContentManager;
+                    EnhancedRecommendationsManager = workingModules.EnhancedRecommendationsManager;
+                    
+                    // Hide loading status
+                    document.getElementById('loadingStatus').classList.add('hidden');
+                    
+                    // Enable all buttons
+                    enableAllButtons();
+                    
+                } else {
+                    throw new Error('No working modules found');
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to create isolated environment:', error);
+                showStatus('initStatus', `Failed to create isolated environment: ${error.message}`, 'error');
+                
+                // Show helpful error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'status error';
+                errorDiv.innerHTML = `
+                    <h3>Module Loading Failed</h3>
+                    <p>Error: ${error.message}</p>
+                    <p>The modules are conflicting with existing code. Try:</p>
+                    <ul>
+                        <li>Opening the test page in a new incognito/private window</li>
+                        <li>Clearing browser cache and cookies</li>
+                        <li>Using the <a href="test_module_availability.html">Module Availability Test</a> first</li>
+                    </ul>
+                `;
+                document.getElementById('initStatus').appendChild(errorDiv);
+            }
+        }
+
+        // Check if modules are actually working despite errors
+        async function checkWorkingModules() {
+            const modules = {};
+            
+            try {
+                // Try to instantiate each module
+                if (window.ResponseAnalyzer && typeof window.ResponseAnalyzer === 'function') {
+                    try {
+                        const instance = new window.ResponseAnalyzer();
+                        modules.ResponseAnalyzer = window.ResponseAnalyzer;
+                        console.log('✅ ResponseAnalyzer is working');
+                    } catch (e) {
+                        console.log('❌ ResponseAnalyzer instantiation failed');
+                    }
+                }
+                
+                if (window.RecommendationEngine && typeof window.RecommendationEngine === 'function') {
+                    try {
+                        const instance = new window.RecommendationEngine();
+                        modules.RecommendationEngine = window.RecommendationEngine;
+                        console.log('✅ RecommendationEngine is working');
+                    } catch (e) {
+                        console.log('❌ RecommendationEngine instantiation failed');
+                    }
+                }
+                
+                if (window.ContentManager && typeof window.ContentManager === 'function') {
+                    try {
+                        const instance = new window.ContentManager();
+                        modules.ContentManager = window.ContentManager;
+                        console.log('✅ ContentManager is working');
+                    } catch (e) {
+                        console.log('❌ ContentManager instantiation failed');
+                    }
+                }
+                
+                if (window.UserProfileManager && typeof window.UserProfileManager === 'function') {
+                    try {
+                        const instance = new window.UserProfileManager();
+                        modules.UserProfileManager = window.UserProfileManager;
+                        console.log('✅ UserProfileManager is working');
+                    } catch (e) {
+                        console.log('❌ UserProfileManager instantiation failed');
+                    }
+                }
+                
+                if (window.GoalTracker && typeof window.GoalTracker === 'function') {
+                    try {
+                        const instance = new window.GoalTracker();
+                        modules.GoalTracker = window.GoalTracker;
+                        console.log('✅ GoalTracker is working');
+                    } catch (e) {
+                        console.log('❌ GoalTracker instantiation failed');
+                    }
+                }
+                
+                if (window.EnhancedResponseAnalyzer && typeof window.EnhancedResponseAnalyzer === 'function') {
+                    try {
+                        const instance = new window.EnhancedResponseAnalyzer();
+                        modules.EnhancedResponseAnalyzer = window.EnhancedResponseAnalyzer;
+                        console.log('✅ EnhancedResponseAnalyzer is working');
+                    } catch (e) {
+                        console.log('❌ EnhancedResponseAnalyzer instantiation failed');
+                    }
+                }
+                
+                if (window.EnhancedContentManager && typeof window.EnhancedContentManager === 'function') {
+                    try {
+                        const instance = new window.EnhancedContentManager();
+                        modules.EnhancedContentManager = window.EnhancedContentManager;
+                        console.log('✅ EnhancedContentManager is working');
+                    } catch (e) {
+                        console.log('❌ EnhancedContentManager instantiation failed');
+                    }
+                }
+                
+                if (window.EnhancedRecommendationsManager && typeof window.EnhancedRecommendationsManager === 'function') {
+                    try {
+                        const instance = new window.EnhancedRecommendationsManager();
+                        modules.EnhancedRecommendationsManager = window.EnhancedRecommendationsManager;
+                        console.log('✅ EnhancedRecommendationsManager is working');
+                    } catch (e) {
+                        console.log('❌ EnhancedRecommendationsManager instantiation failed');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error checking working modules:', error);
+            }
+            
+            return modules;
+        }
+
+        // Helper function to load scripts
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                // Check if script is already loaded
+                const existingScript = document.querySelector(`script[src="${src}"]`);
+                if (existingScript) {
+                    console.log(`Script already loaded: ${src}`);
+                    resolve();
+                    return;
+                }
+                
+                // Check if the module is already available globally
+                const moduleName = getModuleNameFromPath(src);
+                if (window[moduleName]) {
+                    console.log(`Module ${moduleName} already available globally`);
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    console.log(`Script loaded: ${src}`);
+                    resolve();
+                };
+                script.onerror = (error) => {
+                    console.error(`Failed to load script: ${src}`, error);
+                    reject(error);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Helper function to get module name from path
+        function getModuleNameFromPath(path) {
+            const filename = path.split('/').pop().replace('.js', '');
+            return filename;
+        }
+
+        // Enable all buttons after modules are loaded
+        function enableAllButtons() {
+            // Test that modules are working before enabling buttons
+            try {
+                console.log('🧪 Testing module functionality...');
+                
+                // Test basic instantiation
+                if (ResponseAnalyzer) {
+                    const analyzer = new ResponseAnalyzer();
+                    console.log('✅ ResponseAnalyzer test passed');
+                }
+                
+                if (ContentManager) {
+                    const contentManager = new ContentManager();
+                    console.log('✅ ContentManager test passed');
+                }
+                
+                if (UserProfileManager) {
+                    const profileManager = new UserProfileManager();
+                    console.log('✅ UserProfileManager test passed');
+                }
+                
+                console.log('🎉 All module tests passed!');
+                
+                // Enable buttons
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                });
+                
+            } catch (error) {
+                console.error('❌ Module test failed:', error);
+                showStatus('initStatus', `Module test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Disable all buttons initially
+        function disableAllButtons() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Enhanced Recommendation System Test Page Loaded');
+            disableAllButtons();
+            
+            // Wait a moment for any existing modules to be available
+            setTimeout(() => {
+                createIsolatedTestEnvironment();
+            }, 1000);
+            
+            updatePerformanceMetrics();
+        });
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'modulesLoaded') {
+                if (event.data.success) {
+                    console.log('✅ Modules loaded successfully in iframe');
+                    // The iframe approach worked, modules should be available
+                } else {
+                    console.error('❌ Modules failed to load in iframe:', event.data.error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

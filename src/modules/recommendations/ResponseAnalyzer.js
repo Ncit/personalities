@@ -11,6 +11,16 @@ class ResponseAnalyzer {
             timing: 0.2,
             behavior: 0.1
         };
+        this.currentLanguage = 'en'; // Default language
+    }
+
+    /**
+     * Set the current language for analysis
+     * @param {String} language - Language code ('en' or 'ru')
+     */
+    setLanguage(language) {
+        this.currentLanguage = language;
+        console.log(`🌍 ResponseAnalyzer language set to: ${language}`);
     }
 
     /**

@@ -68,6 +68,10 @@
                     </button>
                         <button class="btn btn-secondary" onclick="openTypesModal()">
                         <i class="fas fa-book-open"></i> Просмотреть типы
+                        </button>
+                        <button class="btn btn-dev" onclick="testPhase2Integration()">
+                            <i class="fas fa-flask"></i> Test Phase 2
+                        </button>
                     </div>
                     
                     <!-- Premium Quiz Types -->
@@ -464,6 +468,72 @@
                                     <span id="jPctR">50%</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2: Enhanced Recommendations & Goal Tracking -->
+                    <div class="phase2-recommendations" id="phase2Recommendations" style="display: none;">
+                        <h3><i class="fas fa-lightbulb"></i> Персональные рекомендации по развитию</h3>
+                        
+                        <!-- Immediate Actions Section -->
+                        <div class="recommendation-section" id="immediateActionsSection">
+                            <h4><i class="fas fa-bolt"></i> Действия прямо сейчас (5 минут)</h4>
+                            <div class="actions-grid" id="immediateActionsGrid">
+                                <!-- Actions will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Short-Term Goals Section -->
+                        <div class="recommendation-section" id="shortTermGoalsSection">
+                            <h4><i class="fas fa-target"></i> Краткосрочные цели (2-4 недели)</h4>
+                            <div class="goals-grid" id="shortTermGoalsGrid">
+                                <!-- Goals will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Long-Term Development Section -->
+                        <div class="recommendation-section" id="longTermDevelopmentSection">
+                            <h4><i class="fas fa-chart-line"></i> Долгосрочное развитие (3-6 месяцев)</h4>
+                            <div class="development-grid" id="longTermDevelopmentGrid">
+                                <!-- Development plans will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Goal Tracking Section -->
+                        <div class="recommendation-section" id="goalTrackingSection">
+                            <h4><i class="fas fa-flag-checkered"></i> Отслеживание целей</h4>
+                            <div class="goal-tracking-interface">
+                                <button class="btn btn-primary" onclick="createNewGoal()">
+                                    <i class="fas fa-plus"></i> Создать новую цель
+                                </button>
+                                <div class="active-goals" id="activeGoals">
+                                    <!-- Active goals will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Content Library Section -->
+                        <div class="recommendation-section" id="contentLibrarySection">
+                            <h4><i class="fas fa-book-open"></i> Рекомендуемые ресурсы</h4>
+                            <div class="content-tabs">
+                                <button class="tab-btn active" onclick="showContentTab('books')">📚 Книги</button>
+                                <button class="tab-btn" onclick="showContentTab('courses')">🎓 Курсы</button>
+                                <button class="tab-btn" onclick="showContentTab('activities')">🎯 Активности</button>
+                                <button class="tab-btn" onclick="showContentTab('tools')">🛠️ Инструменты</button>
+                            </div>
+                            <div class="content-display" id="contentDisplay">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Language Switcher for Phase 2 -->
+                        <div class="phase2-language-switcher">
+                            <button class="btn btn-secondary" onclick="switchPhase2Language('ru')">
+                                🇷🇺 Русский
+                            </button>
+                            <button class="btn btn-secondary" onclick="switchPhase2Language('en')">
+                                🇺🇸 English
+                            </button>
                         </div>
                     </div>
 

@@ -243,6 +243,16 @@
             </div>
             <div id="contentResults" class="results-container"></div>
         </div>
+
+        <div class="test-section">
+            <h2>🇷🇺 Russian Localization Demo</h2>
+            <div class="test-controls">
+                <button onclick="demoRussianLocalization()" class="btn-success">Show Russian Content</button>
+                <button onclick="demoLanguageSwitch()" class="btn-success">Switch Languages</button>
+                <button onclick="compareLanguages()" class="btn-secondary">Compare Languages</button>
+            </div>
+            <div id="localizationResults" class="results-container"></div>
+        </div>
     </div>
 
     <script type="module">
@@ -552,6 +562,111 @@
             userProfileManager.clearCache();
             
             showSuccess('initResults', '🧹 All caches cleared successfully!');
+        };
+
+        // Russian Localization Demo Functions
+        window.demoRussianLocalization = function() {
+            if (!contentManager) {
+                showError('localizationResults', '❌ Please initialize the system first');
+                return;
+            }
+
+            try {
+                // Set language to Russian
+                contentManager.setLanguage('ru');
+                
+                // Get some Russian content
+                const russianBooks = contentManager.getContentRecommendations({}, 'books');
+                const russianCourses = contentManager.getContentRecommendations({}, 'courses');
+                
+                const demo = {
+                    language: 'Russian (Русский)',
+                    books: russianBooks.slice(0, 3),
+                    courses: russianCourses.slice(0, 2),
+                    message: 'Демонстрация русской локализации'
+                };
+                
+                showSuccess('localizationResults', '🇷🇺 Russian Localization Demo:', demo);
+                
+                // Reset to English
+                contentManager.setLanguage('en');
+                
+            } catch (error) {
+                showError('localizationResults', '❌ Russian localization demo failed', error);
+            }
+        };
+
+        window.demoLanguageSwitch = function() {
+            if (!contentManager) {
+                showError('localizationResults', '❌ Please initialize the system first');
+                return;
+            }
+
+            try {
+                const demo = {
+                    english: {
+                        language: 'English',
+                        sample: contentManager.getContentRecommendations({}, 'books').slice(0, 1)
+                    },
+                    russian: {
+                        language: 'Русский',
+                        sample: (() => {
+                            contentManager.setLanguage('ru');
+                            const result = contentManager.getContentRecommendations({}, 'books').slice(0, 1);
+                            contentManager.setLanguage('en');
+                            return result;
+                        })()
+                    }
+                };
+                
+                showSuccess('localizationResults', '🔄 Language Switch Demo:', demo);
+                
+            } catch (error) {
+                showError('localizationResults', '❌ Language switch demo failed', error);
+            }
+        };
+
+        window.compareLanguages = function() {
+            if (!contentManager) {
+                showError('localizationResults', '❌ Please initialize the system first');
+                return;
+            }
+
+            try {
+                // Get content stats for both languages
+                const englishStats = contentManager.getContentStats();
+                contentManager.setLanguage('ru');
+                const russianStats = contentManager.getContentStats();
+                contentManager.setLanguage('en'); // Reset to English
+                
+                const comparison = {
+                    english: {
+                        totalItems: englishStats.totalItems,
+                        byLanguage: englishStats.byLanguage,
+                        sample: contentManager.getContentRecommendations({}, 'books').slice(0, 1)
+                    },
+                    russian: {
+                        totalItems: russianStats.totalItems,
+                        byLanguage: russianStats.byLanguage,
+                        sample: (() => {
+                            contentManager.setLanguage('ru');
+                            const result = contentManager.getContentRecommendations({}, 'books').slice(0, 1);
+                            contentManager.setLanguage('en');
+                            return result;
+                        })()
+                    },
+                    analysis: {
+                        englishAvailable: englishStats.byLanguage.en,
+                        russianAvailable: russianStats.byLanguage.ru,
+                        coverage: `${Math.round((russianStats.byLanguage.ru / englishStats.byLanguage.en) * 100)}%`
+                    }
+                };
+                
+                showSuccess('localizationResults', '📊 Language Comparison:', comparison);
+                
+            } catch (error) {
+                showError('localizationResults', '❌ Language comparison failed', error);
+            }
         };
 
         // Utility functions
