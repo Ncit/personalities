@@ -893,6 +893,46 @@ class EnhancedContentManager {
     }
 
     /**
+     * Apply filters to content recommendations
+     * @param {Array} content - Content array
+     * @param {Object} filters - Filter options
+     * @returns {Array} Filtered content
+     */
+    applyFilters(content, filters = {}) {
+        let filtered = [...content];
+
+        // Filter by category
+        if (filters.category) {
+            filtered = filtered.filter(item => 
+                item.category === filters.category || 
+                item.type === filters.category
+            );
+        }
+
+        // Filter by difficulty
+        if (filters.difficulty) {
+            filtered = filtered.filter(item => 
+                item.difficulty === filters.difficulty
+            );
+        }
+
+        // Filter by MBTI type
+        if (filters.mbtiType) {
+            filtered = filtered.filter(item => 
+                !item.mbti_relevance || 
+                item.mbti_relevance.includes(filters.mbtiType)
+            );
+        }
+
+        // Apply limit
+        if (filters.limit) {
+            filtered = filtered.slice(0, filters.limit);
+        }
+
+        return filtered;
+    }
+
+    /**
      * Get content statistics
      * @returns {Object} Content statistics
      */
@@ -941,6 +981,28 @@ class EnhancedContentManager {
         }
 
         return stats;
+    }
+
+    /**
+     * Get all content for comprehensive search
+     * @returns {Array} All content items
+     */
+    getAllContent() {
+        const allContent = [];
+        
+        Object.values(this.contentDatabase).forEach(contentType => {
+            if (Array.isArray(contentType)) {
+                allContent.push(...contentType);
+            } else if (typeof contentType === 'object') {
+                Object.values(contentType).forEach(categoryContent => {
+                    if (Array.isArray(categoryContent)) {
+                        allContent.push(...categoryContent);
+                    }
+                });
+            }
+        });
+
+        return allContent;
     }
 
     /**

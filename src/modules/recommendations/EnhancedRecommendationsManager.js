@@ -143,10 +143,10 @@ class EnhancedRecommendationsManager {
                 // Enhanced analysis results
                 analysis: enhancedAnalysis,
                 
-                // Traditional recommendations
-                immediateActions: traditionalRecommendations.immediateActions || [],
-                shortTermGoals: traditionalRecommendations.shortTermGoals || [],
-                longTermDevelopment: traditionalRecommendations.longTermDevelopment || [],
+                // Traditional recommendations - fix the mapping
+                immediateActions: traditionalRecommendations.recommendations?.immediate || [],
+                shortTermGoals: traditionalRecommendations.recommendations?.shortTerm || [],
+                longTermDevelopment: traditionalRecommendations.recommendations?.longTerm || [],
                 
                 // Enhanced recommendations
                 goalRecommendations: goalRecommendations,

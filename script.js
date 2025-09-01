@@ -247,7 +247,7 @@ class MBTIQuiz {
     /**
      * Calculate current confidence for all dimensions
      */
-    calculateCurrentConfidence() {
+    calculateCurrentConfidence(dimension = null) {
         const confidence = { EI: 0, SN: 0, TF: 0, JP: 0 };
         const dimensions = ['EI', 'SN', 'TF', 'JP'];
         
@@ -256,22 +256,23 @@ class MBTIQuiz {
             scores: this.scores,
             answers: this.answers,
             currentQuestion: this.currentQuestion,
-            questions: this.questions.length
+            questions: this.questions.length,
+            requestedDimension: dimension
         });
         
-        dimensions.forEach(dimension => {
-            const [pref1, pref2] = dimension.split('');
+        dimensions.forEach(dim => {
+            const [pref1, pref2] = dim.split('');
             const score1 = this.scores[pref1] || 0;
             const score2 = this.scores[pref2] || 0;
             
             // Handle both old format (number) and new format (object)
             const answeredForDimension = this.answers.filter(a => {
                 if (typeof a === 'object') {
-                    return a.dimension === dimension;
+                    return a.dimension === dim;
                 } else {
                     // Fallback for old format - check question dimension
                     const questionIndex = this.answers.indexOf(a);
-                    return questionIndex >= 0 && this.questions[questionIndex] && this.questions[questionIndex].dimension === dimension;
+                    return questionIndex >= 0 && this.questions[questionIndex] && this.questions[questionIndex].dimension === dim;
                 }
             }).length;
             
@@ -304,10 +305,10 @@ class MBTIQuiz {
                 dimensionConfidence = 0.1; // Minimum confidence when no questions answered
             }
             
-            confidence[dimension] = dimensionConfidence;
+            confidence[dim] = dimensionConfidence;
             
             // Debug logging for each dimension
-            console.log(`Dimension ${dimension}:`, {
+            console.log(`Dimension ${dim}:`, {
                 score1, score2, scoreDifference: Math.abs(score1 - score2),
                 answeredForDimension, totalPossibleScore: answeredForDimension * 3,
                 utilizationRatio: (score1 + score2) / (answeredForDimension * 3),
@@ -317,6 +318,13 @@ class MBTIQuiz {
         });
         
         console.log('Final confidence scores:', confidence);
+        
+        // If a specific dimension was requested, return just that value
+        if (dimension && confidence.hasOwnProperty(dimension)) {
+            return confidence[dimension];
+        }
+        
+        // Otherwise return the full confidence object
         return confidence;
     }
 
@@ -3978,15 +3986,18 @@ function loadScript(src) {
 
 // Generate Phase 2 recommendations after quiz completion
 async function generatePhase2Recommendations(quizData) {
-    if (!phase2Manager) {
-        console.warn('Phase 2 manager not initialized');
-        return null;
-    }
-    
     try {
-        console.log('🎯 Generating Phase 2 recommendations...');
+        if (!phase2Manager) {
+            console.log('❌ Phase 2 manager not initialized');
+            return null;
+        }
         
         const recommendations = await phase2Manager.generateEnhancedRecommendations(quizData);
+        
+        if (!recommendations) {
+            console.log('⚠️ No recommendations returned from manager');
+            return null;
+        }
         
         // Display recommendations in the UI
         displayPhase2Recommendations(recommendations);
@@ -3996,13 +4007,17 @@ async function generatePhase2Recommendations(quizData) {
         
     } catch (error) {
         console.error('❌ Failed to generate Phase 2 recommendations:', error);
+        console.error('Error stack:', error.stack);
         return null;
     }
 }
 
 // Display Phase 2 recommendations in the UI
 function displayPhase2Recommendations(recommendations) {
-    if (!recommendations) return;
+    if (!recommendations) {
+        console.log('❌ No recommendations provided');
+        return;
+    }
     
     // Display immediate actions
     displayImmediateActions(recommendations.immediateActions || []);
@@ -4023,6 +4038,7 @@ function displayPhase2Recommendations(recommendations) {
     const phase2Section = document.getElementById('phase2Recommendations');
     if (phase2Section) {
         phase2Section.style.display = 'block';
+        console.log('✅ Phase 2 recommendations displayed');
     }
 }
 
@@ -4124,24 +4140,65 @@ function showContentTab(contentType) {
     
     // Load content for selected type
     if (phase2Manager && phase2Manager.enhancedContentManager) {
-        const content = phase2Manager.enhancedContentManager.getContentRecommendations({}, {
+        // Try to get content with basic user profile
+        const basicProfile = {
+            mbtiType: 'INTJ', // Default MBTI type for testing
+            interests: ['personal_development', 'psychology'],
+            goals: ['skill_development', 'self_improvement']
+        };
+        
+        const content = phase2Manager.enhancedContentManager.getContentRecommendations(basicProfile, {
             limit: 5,
             category: contentType
         });
         
         const display = document.getElementById('contentDisplay');
         if (display) {
-            display.innerHTML = content.map(item => `
+            if (content && content.length > 0) {
+                display.innerHTML = content.map(item => {
+                    const localizedItem = phase2Manager.enhancedContentManager.getLocalizedContent(item);
+                    return `
+                        <div class="content-item">
+                            <h5>${localizedItem.title || item.title}</h5>
+                            <p>${localizedItem.description || item.description}</p>
+                            <div class="content-meta">
+                                <span>📚 ${item.type || contentType}</span>
+                                <span>⏱️ ${item.estimatedTime || 'N/A'}</span>
+                                <span>📊 ${item.difficulty || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                // Show fallback content if no recommendations found
+                display.innerHTML = `
+                    <div class="content-item">
+                        <h5>Содержание загружается...</h5>
+                        <p>Рекомендации для категории "${contentType}" будут доступны в ближайшее время.</p>
+                        <div class="content-meta">
+                            <span>📚 ${contentType}</span>
+                            <span>⏱️ Скоро</span>
+                            <span>📊 Обновление</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    } else {
+        // Fallback if Phase 2 manager is not available
+        const display = document.getElementById('contentDisplay');
+        if (display) {
+            display.innerHTML = `
                 <div class="content-item">
-                    <h5>${item.title}</h5>
-                    <p>${item.description}</p>
+                    <h5>Система рекомендаций недоступна</h5>
+                    <p>Пожалуйста, перезагрузите страницу и попробуйте снова.</p>
                     <div class="content-meta">
-                        <span>📚 ${item.type}</span>
-                        <span>⏱️ ${item.estimatedTime}</span>
-                        <span>📊 ${item.difficulty}</span>
+                        <span>📚 ${contentType}</span>
+                        <span>⏱️ Ошибка</span>
+                        <span>📊 N/A</span>
                     </div>
                 </div>
-            `).join('');
+            `;
         }
     }
 }
@@ -4179,42 +4236,7 @@ function createNewGoal() {
     }
 }
 
-// Switch Phase 2 language
-function switchPhase2Language(language) {
-    if (!phase2Manager) return;
-    
-    currentPhase2Language = language;
-    phase2Manager.setLanguage(language);
-    
-    // Update UI language
-    updatePhase2UILanguage(language);
-    
-    // Regenerate recommendations in new language
-    if (window.currentQuizData) {
-        generatePhase2Recommendations(window.currentQuizData);
-    }
-}
 
-// Update Phase 2 UI language
-function updatePhase2UILanguage(language) {
-    const isRussian = language === 'ru';
-    
-    // Update section headers
-    const headers = {
-        'immediateActionsSection': isRussian ? 'Действия прямо сейчас (5 минут)' : 'Immediate Actions (5 minutes)',
-        'shortTermGoalsSection': isRussian ? 'Краткосрочные цели (2-4 недели)' : 'Short-Term Goals (2-4 weeks)',
-        'longTermDevelopmentSection': isRussian ? 'Долгосрочное развитие (3-6 месяцев)' : 'Long-Term Development (3-6 months)',
-        'goalTrackingSection': isRussian ? 'Отслеживание целей' : 'Goal Tracking',
-        'contentLibrarySection': isRussian ? 'Рекомендуемые ресурсы' : 'Recommended Resources'
-    };
-    
-    Object.entries(headers).forEach(([id, text]) => {
-        const element = document.querySelector(`#${id} h4`);
-        if (element) {
-            element.innerHTML = element.innerHTML.replace(/<i.*?<\/i>/, '') + `<i class="fas fa-${getIconForSection(id)}"></i> ${text}`;
-        }
-    });
-}
 
 // Get icon for section
 function getIconForSection(sectionId) {
@@ -4232,7 +4254,6 @@ function getIconForSection(sectionId) {
 window.generatePhase2Recommendations = generatePhase2Recommendations;
 window.createNewGoal = createNewGoal;
 window.showContentTab = showContentTab;
-window.switchPhase2Language = switchPhase2Language;
 
 // Test Phase 2 integration
 window.testPhase2Integration = async function() {
@@ -4244,6 +4265,22 @@ window.testPhase2Integration = async function() {
             console.log('Phase 2 manager not initialized, initializing...');
             await initializePhase2System();
         }
+        
+        // Check what's available
+        console.log('🔍 Current Phase 2 state:', {
+            phase2Manager: !!phase2Manager,
+            phase2ManagerType: phase2Manager ? typeof phase2Manager : 'undefined',
+            windowModules: {
+                ResponseAnalyzer: typeof window.ResponseAnalyzer,
+                RecommendationEngine: typeof window.RecommendationEngine,
+                ContentManager: typeof window.ContentManager,
+                UserProfileManager: typeof window.UserProfileManager,
+                GoalTracker: typeof window.GoalTracker,
+                EnhancedResponseAnalyzer: typeof window.EnhancedResponseAnalyzer,
+                EnhancedContentManager: typeof window.EnhancedContentManager,
+                EnhancedRecommendationsManager: typeof window.EnhancedRecommendationsManager
+            }
+        });
         
         // Create test quiz data
         const testQuizData = {

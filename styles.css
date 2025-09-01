@@ -1923,21 +1923,7 @@ body {
     color: #888;
 }
 
-.phase2-language-switcher {
-    text-align: center;
-    margin-top: 20px;
-}
 
-.phase2-language-switcher button {
-    margin: 0 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-}
-
-.phase2-language-switcher button:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
 
 /* Premium Features Sections */
 .premium-features {

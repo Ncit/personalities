@@ -98,25 +98,30 @@ class RecommendationEngine {
         const actions = [];
         const { confidencePatterns, behavioralPatterns, stressIndicators } = analysis;
 
-        // Confidence-building actions
-        confidencePatterns.confidenceGaps.forEach(gap => {
+        // Generate diverse immediate actions based on different criteria
+        let actionCount = 0;
+        const maxActions = 3; // Limit to 3 diverse actions
+
+        // 1. Confidence-building action (only for the most critical gap)
+        if (confidencePatterns.confidenceGaps.length > 0 && actionCount < maxActions) {
+            const mostCriticalGap = confidencePatterns.confidenceGaps[0]; // Take only the first/most critical
             const actionText = {
                 en: {
-                    title: `Build ${gap.developmentArea} Confidence`,
-                    description: `Take a moment to reflect on your ${gap.developmentArea} strengths`,
-                    action: `Write down 3 things you're good at in ${gap.developmentArea}`
+                    title: `Build ${mostCriticalGap.developmentArea} Confidence`,
+                    description: `Take a moment to reflect on your ${mostCriticalGap.developmentArea} strengths`,
+                    action: `Write down 3 things you're good at in ${mostCriticalGap.developmentArea}`
                 },
                 ru: {
-                    title: `Развивайте уверенность в ${this.getRussianDevelopmentArea(gap.developmentArea)}`,
-                    description: `Уделите время размышлениям о ваших сильных сторонах в ${this.getRussianDevelopmentArea(gap.developmentArea)}`,
-                    action: `Запишите 3 вещи, в которых вы хороши в ${this.getRussianDevelopmentArea(gap.developmentArea)}`
+                    title: `Развивайте уверенность в ${this.getRussianDevelopmentArea(mostCriticalGap.developmentArea)}`,
+                    description: `Уделите время размышлениям о ваших сильных сторонах в ${this.getRussianDevelopmentArea(mostCriticalGap.developmentArea)}`,
+                    action: `Запишите 3 вещи, в которых вы хороши в ${this.getRussianDevelopmentArea(mostCriticalGap.developmentArea)}`
                 }
             };
 
             actions.push({
                 type: 'confidence_building',
-                dimension: gap.dimension,
-                priority: gap.priority,
+                dimension: mostCriticalGap.dimension,
+                priority: mostCriticalGap.priority,
                 title: this.getLocalizedText(actionText).title,
                 description: this.getLocalizedText(actionText).description,
                 action: this.getLocalizedText(actionText).action,
@@ -124,10 +129,11 @@ class RecommendationEngine {
                 difficulty: this.currentLanguage === 'ru' ? 'очень легко' : 'very_easy',
                 category: 'immediate_reflection'
             });
-        });
+            actionCount++;
+        }
 
         // Stress management actions
-        if (stressIndicators.overallLevel > 0.5) {
+        if (stressIndicators.overallLevel > 0.5 && actionCount < maxActions) {
             const stressActionText = {
                 en: {
                     title: 'Quick Stress Relief',
@@ -151,11 +157,68 @@ class RecommendationEngine {
                 difficulty: this.currentLanguage === 'ru' ? 'очень легко' : 'very_easy',
                 category: 'wellness'
             });
+            actionCount++;
         }
 
-        // Learning style actions
+        // 2. Quick self-reflection action
+        if (actionCount < maxActions) {
+            const reflectionActionText = {
+                en: {
+                    title: 'Quick Self-Assessment',
+                    description: 'Reflect on your recent decisions and their outcomes',
+                    action: 'Think about one decision you made this week and how it turned out'
+                },
+                ru: {
+                    title: 'Быстрая самооценка',
+                    description: 'Подумайте о ваших недавних решениях и их результатах',
+                    action: 'Вспомните одно решение, которое вы приняли на этой неделе, и как оно обернулось'
+                }
+            };
+
+            actions.push({
+                type: 'self_reflection',
+                priority: 'medium',
+                title: this.getLocalizedText(reflectionActionText).title,
+                description: this.getLocalizedText(reflectionActionText).description,
+                action: this.getLocalizedText(reflectionActionText).action,
+                estimatedTime: this.currentLanguage === 'ru' ? '3 минуты' : '3 minutes',
+                difficulty: this.currentLanguage === 'ru' ? 'легко' : 'easy',
+                category: 'self_awareness'
+            });
+            actionCount++;
+        }
+
+        // 3. Environment optimization action
+        if (actionCount < maxActions) {
+            const environmentActionText = {
+                en: {
+                    title: 'Optimize Your Environment',
+                    description: 'Make a small change to improve your focus',
+                    action: 'Remove one distraction from your current workspace'
+                },
+                ru: {
+                    title: 'Оптимизируйте ваше окружение',
+                    description: 'Внесите небольшое изменение для улучшения концентрации',
+                    action: 'Уберите один отвлекающий фактор из вашего рабочего места'
+                }
+            };
+
+            actions.push({
+                type: 'environment_optimization',
+                priority: 'medium',
+                title: this.getLocalizedText(environmentActionText).title,
+                description: this.getLocalizedText(environmentActionText).description,
+                action: this.getLocalizedText(environmentActionText).action,
+                estimatedTime: this.currentLanguage === 'ru' ? '2 минуты' : '2 minutes',
+                difficulty: this.currentLanguage === 'ru' ? 'очень легко' : 'very_easy',
+                category: 'productivity'
+            });
+            actionCount++;
+        }
+
+        // Learning style actions (only if we have space)
         const learningStyle = analysis.learningStyle;
-        if (learningStyle === 'rapid_learner') {
+        if (learningStyle === 'rapid_learner' && actionCount < maxActions) {
             const learningActionText = {
                 en: {
                     title: 'Challenge Yourself',
@@ -179,6 +242,7 @@ class RecommendationEngine {
                 difficulty: this.currentLanguage === 'ru' ? 'легко' : 'easy',
                 category: 'goal_setting'
             });
+            actionCount++;
         }
 
         return this.rankActionsByPriority(actions);
