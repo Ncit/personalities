@@ -759,14 +759,26 @@ class MBTIQuiz {
     }
     
 		saveResultsToStorage(personalityType) {
+        // Calculate confidence scores
+        const confidenceScores = this.calculateConfidenceScores();
+        let confidenceScore = 0;
+
+        if (confidenceScores) {
+            // Calculate overall confidence as average of all dimensions
+            const values = Object.values(confidenceScores);
+            const averageConfidence = values.reduce((sum, val) => sum + val, 0) / values.length;
+            confidenceScore = Math.round(averageConfidence * 100); // Convert to percentage
+        }
+
         const results = {
             personalityType: personalityType,
             scores: this.scores,
             answers: this.answers,
+            confidenceScore: confidenceScore,
             timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString()
         };
-			
+
 			// Save general last results
 			localStorage.setItem('mbti_last_results', JSON.stringify(results));
 			// Save per-test results using test key
@@ -3839,3 +3851,569 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ===== CLIENT CABINET FUNCTIONS =====
+
+/**
+ * Get all available quiz types dynamically
+ */
+function getAvailableQuizTypes() {
+    const quizTypes = [
+        {
+            id: 'mbti',
+            name: 'Основной тест MBTI',
+            description: 'Классический тест на 16 типов личности',
+            isPremium: false
+        }
+    ];
+
+    // Try to get specialized quizzes dynamically
+    try {
+        // Check if specialized quiz data is available
+        if (typeof MBTI_SPECIALIZED_QUESTIONS !== 'undefined') {
+            const specializedQuizzes = MBTI_SPECIALIZED_QUESTIONS;
+
+            // Get quiz names/descriptions mapping
+            const quizInfo = {
+                'leadership': { name: 'Тест на лидерство', description: 'Определите свой стиль лидерства' },
+                'communication': { name: 'Тест на коммуникацию', description: 'Как вы общаетесь с окружающими' },
+                'stress': { name: 'Тест на стрессоустойчивость', description: 'Как вы справляетесь со стрессом' },
+                'learning': { name: 'Тест на стиль обучения', description: 'Как вы лучше усваиваете информацию' },
+                'relationships': { name: 'Тест на отношения', description: 'Ваши особенности в отношениях' },
+                'creativity': { name: 'Тест на креативность', description: 'Ваша творческая сторона' },
+                'decision': { name: 'Тест на принятие решений', description: 'Как вы принимаете решения' },
+                'teamwork': { name: 'Тест на работу в команде', description: 'Ваши командные навыки' },
+                'career': { name: 'Карьерный тест', description: 'Подходящие карьерные пути' },
+                'conflict': { name: 'Тест на разрешение конфликтов', description: 'Как вы справляетесь с конфликтами' },
+                'motivation': { name: 'Тест на мотивацию', description: 'Что вас мотивирует' },
+                'adaptability': { name: 'Тест на адаптивность', description: 'Как вы адаптируетесь к изменениям' },
+                'emotional': { name: 'Эмоциональный интеллект', description: 'Ваша эмоциональная осведомленность' },
+                'productivity': { name: 'Тест на продуктивность', description: 'Как вы управляете временем' },
+                'social': { name: 'Социальный тест', description: 'Ваши социальные особенности' }
+            };
+
+            // Add all available specialized quizzes
+            Object.keys(specializedQuizzes).forEach(quizId => {
+                if (specializedQuizzes[quizId] && specializedQuizzes[quizId].length > 0) {
+                    const info = quizInfo[quizId] || {
+                        name: `Специализированный тест: ${quizId}`,
+                        description: `Тест по теме ${quizId}`
+                    };
+
+                    quizTypes.push({
+                        id: quizId,
+                        name: info.name,
+                        description: info.description,
+                        isPremium: true
+                    });
+                }
+            });
+        }
+    } catch (error) {
+        console.warn('Could not load specialized quizzes:', error);
+    }
+
+    return quizTypes;
+}
+
+// ===== CLIENT CABINET FUNCTIONS =====
+
+/**
+ * Open client cabinet modal
+ */
+function openClientCabinetModal() {
+    const modal = document.getElementById('clientCabinetModal');
+    if (modal) {
+        modal.style.display = 'block';
+        loadClientCabinetData();
+    }
+}
+
+/**
+ * Close client cabinet modal
+ */
+function closeClientCabinetModal() {
+    const modal = document.getElementById('clientCabinetModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
+ * Load and display client cabinet data
+ */
+function loadClientCabinetData() {
+    updateUserStatistics();
+    updateTestProgress();
+    updateRecentResults();
+    updateAchievements();
+}
+
+/**
+ * Update user statistics section
+ */
+function updateUserStatistics() {
+    const availableTests = getAvailableQuizTypes().map(test => test.id);
+    let totalTests = 0;
+    let completedTests = 0;
+    let totalScore = 0;
+    let scoreCount = 0;
+
+    availableTests.forEach(testType => {
+        const testKey = `mbti_results_${testType}`;
+        const savedResults = localStorage.getItem(testKey);
+
+        if (savedResults) {
+            totalTests++;
+            try {
+                const results = JSON.parse(savedResults);
+                if (results && results.personalityType) {
+                    completedTests++;
+                    if (results.confidenceScore !== undefined) {
+                        totalScore += results.confidenceScore;
+                        scoreCount++;
+                    }
+                }
+            } catch (e) {
+                // Skip invalid results
+            }
+        }
+    });
+
+    // Update statistics display
+    document.getElementById('totalTests').textContent = totalTests;
+    document.getElementById('completedTests').textContent = completedTests;
+
+    if (scoreCount > 0) {
+        const avgScore = Math.round(totalScore / scoreCount);
+        document.getElementById('avgScore').textContent = avgScore + '%';
+    } else {
+        document.getElementById('avgScore').textContent = '0%';
+    }
+}
+
+/**
+ * Update test progress section
+ */
+function updateTestProgress() {
+    const availableTests = getAvailableQuizTypes();
+    const testsList = document.getElementById('testsProgress');
+
+    // Clear existing content
+    testsList.innerHTML = '';
+
+    // Show initial batch of tests (first 5)
+    const initialBatch = 5;
+    const showInitialTests = availableTests.slice(0, initialBatch);
+    const remainingTests = availableTests.slice(initialBatch);
+
+    // Add initial test items
+    showInitialTests.forEach(test => {
+        const testItem = createTestItem(test);
+        testsList.appendChild(testItem);
+    });
+
+    // Add expand/collapse functionality if there are more tests
+    if (remainingTests.length > 0) {
+        // Create container for additional tests
+        const additionalTestsContainer = document.createElement('div');
+        additionalTestsContainer.id = 'additionalTests';
+        additionalTestsContainer.className = 'additional-tests collapsed';
+
+        // Add remaining test items to the container
+        remainingTests.forEach(test => {
+            const testItem = createTestItem(test);
+            additionalTestsContainer.appendChild(testItem);
+        });
+
+        // Add expand/collapse button
+        const expandButton = document.createElement('button');
+        expandButton.id = 'expandTestsBtn';
+        expandButton.className = 'btn btn-secondary expand-btn';
+        expandButton.innerHTML = `<i class="fas fa-chevron-down"></i> Показать еще ${remainingTests.length} тестов`;
+        expandButton.onclick = toggleTestExpansion;
+
+        // Append elements
+        testsList.appendChild(additionalTestsContainer);
+        testsList.appendChild(expandButton);
+    }
+}
+
+/**
+ * Create a test item element
+ */
+function createTestItem(test) {
+    const testKey = `mbti_results_${test.id}`;
+    const savedResults = localStorage.getItem(testKey);
+    let status = 'not-started';
+    let statusText = 'Не пройден';
+    let statusClass = 'not-started';
+
+    if (savedResults) {
+        try {
+            const results = JSON.parse(savedResults);
+            if (results && results.personalityType) {
+                status = 'completed';
+                statusText = 'Пройден';
+                statusClass = 'completed';
+            } else {
+                status = 'in-progress';
+                statusText = 'В процессе';
+                statusClass = 'in-progress';
+            }
+        } catch (e) {
+            status = 'in-progress';
+            statusText = 'В процессе';
+            statusClass = 'in-progress';
+        }
+    }
+
+    const testItem = document.createElement('div');
+    testItem.className = 'test-item';
+    testItem.innerHTML = `
+        <div class="test-info">
+            <div class="test-name">${test.name}</div>
+            <div class="test-description">${test.description}</div>
+        </div>
+        <div class="test-status status-${statusClass}">
+            <i class="fas ${getStatusIcon(status)}"></i>
+            ${statusText}
+        </div>
+    `;
+
+    return testItem;
+}
+
+/**
+ * Toggle test expansion
+ */
+function toggleTestExpansion() {
+    const additionalTests = document.getElementById('additionalTests');
+    const expandBtn = document.getElementById('expandTestsBtn');
+
+    if (additionalTests.classList.contains('collapsed')) {
+        // Expand
+        additionalTests.classList.remove('collapsed');
+        additionalTests.classList.add('expanded');
+        expandBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Скрыть тесты';
+        expandBtn.classList.add('expanded');
+    } else {
+        // Collapse
+        additionalTests.classList.remove('expanded');
+        additionalTests.classList.add('collapsed');
+        const remainingCount = additionalTests.children.length;
+        expandBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Показать еще ${remainingCount} тестов`;
+        expandBtn.classList.remove('expanded');
+    }
+}
+
+/**
+ * Get appropriate icon for test status
+ */
+function getStatusIcon(status) {
+    switch (status) {
+        case 'completed': return 'fa-check-circle';
+        case 'in-progress': return 'fa-clock';
+        default: return 'fa-circle';
+    }
+}
+
+/**
+ * Update recent results section
+ */
+function updateRecentResults() {
+    const availableTests = getAvailableQuizTypes().map(test => test.id);
+    const resultsContainer = document.getElementById('recentResults');
+    const results = [];
+
+    availableTests.forEach(testType => {
+        const testKey = `mbti_results_${testType}`;
+        const savedResults = localStorage.getItem(testKey);
+
+        if (savedResults) {
+            try {
+                const parsedResults = JSON.parse(savedResults);
+                if (parsedResults && parsedResults.personalityType && parsedResults.timestamp) {
+                    results.push({
+                        testType,
+                        ...parsedResults
+                    });
+                }
+            } catch (e) {
+                // Skip invalid results
+            }
+        }
+    });
+
+    // Sort by timestamp (most recent first)
+    results.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<p class="no-results">Результаты не найдены</p>';
+        return;
+    }
+
+    resultsContainer.innerHTML = '';
+    results.slice(0, 3).forEach(result => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'result-item';
+
+        const testInfo = getAvailableQuizTypes().find(test => test.id === result.testType);
+        const testName = testInfo ? testInfo.name : `Тест: ${result.testType}`;
+        const date = result.timestamp ? new Date(result.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно';
+
+        resultItem.innerHTML = `
+            <div class="result-header">
+                <div class="result-type">${testName}</div>
+                <div class="result-date">${date}</div>
+            </div>
+            <div class="result-personality">
+                <strong>${result.personalityType}</strong>
+                ${result.confidenceScore ? `<span class="confidence-score">(${result.confidenceScore}%)</span>` : ''}
+            </div>
+        `;
+
+        resultsContainer.appendChild(resultItem);
+    });
+}
+
+/**
+ * Update achievements section
+ */
+function updateAchievements() {
+    const availableTests = getAvailableQuizTypes();
+    const testIds = availableTests.map(test => test.id);
+
+    let completedTests = 0;
+    let totalTests = testIds.length;
+    let totalScore = 0;
+    let scoreCount = 0;
+    let completedTestTypes = new Set();
+    let premiumCompleted = 0;
+    let totalPremium = 0;
+
+    // Gather completion data
+    testIds.forEach(testType => {
+        const testKey = `mbti_results_${testType}`;
+        const savedResults = localStorage.getItem(testKey);
+
+        if (savedResults) {
+            try {
+                const results = JSON.parse(savedResults);
+                if (results && results.personalityType) {
+                    completedTests++;
+                    completedTestTypes.add(testType);
+
+                    if (results.confidenceScore !== undefined) {
+                        totalScore += results.confidenceScore;
+                        scoreCount++;
+                    }
+                }
+            } catch (e) {
+                // Skip invalid results
+            }
+        }
+
+        // Count premium tests
+        const testInfo = availableTests.find(t => t.id === testType);
+        if (testInfo && testInfo.isPremium) {
+            totalPremium++;
+            const testKey = `mbti_results_${testType}`;
+            const savedResults = localStorage.getItem(testKey);
+            if (savedResults) {
+                try {
+                    const results = JSON.parse(savedResults);
+                    if (results && results.personalityType) {
+                        premiumCompleted++;
+                    }
+                } catch (e) {
+                    // Skip invalid results
+                }
+            }
+        }
+    });
+
+    // Calculate average score
+    const averageScore = scoreCount > 0 ? totalScore / scoreCount : 0;
+
+    // Update all achievements
+    updateMasterAchievement(completedTests, totalTests);
+    updateFirstTestAchievement(completedTests);
+    updateHighPerformerAchievement(averageScore);
+    updateExplorerAchievement(completedTestTypes.size);
+    updateStreakAchievement(); // Will need test timestamps for this
+    updateSpecialistAchievement(premiumCompleted, totalPremium);
+}
+
+/**
+ * Update Master Achievement (All Tests Completed)
+ */
+function updateMasterAchievement(completedTests, totalTests) {
+    const achievementItem = document.getElementById('allTestsCompleted');
+    const completionStatus = document.getElementById('completionStatus');
+
+    if (completedTests === totalTests) {
+        achievementItem.classList.add('completed');
+        completionStatus.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${completedTests}/${totalTests})`;
+    } else {
+        achievementItem.classList.remove('completed');
+        completionStatus.textContent = `Не достигнуто (${completedTests}/${totalTests})`;
+    }
+}
+
+/**
+ * Update First Test Achievement
+ */
+function updateFirstTestAchievement(completedTests) {
+    const achievementItem = document.getElementById('firstTestAchievement');
+    const status = document.getElementById('firstTestStatus');
+
+    if (completedTests >= 1) {
+        achievementItem.classList.add('completed');
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто!`;
+    } else {
+        achievementItem.classList.remove('completed');
+        status.textContent = 'Не достигнуто';
+    }
+}
+
+/**
+ * Update High Performer Achievement
+ */
+function updateHighPerformerAchievement(averageScore) {
+    const achievementItem = document.getElementById('highPerformerAchievement');
+    const status = document.getElementById('highPerformerStatus');
+
+    if (averageScore >= 80) {
+        achievementItem.classList.add('completed');
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${Math.round(averageScore)}%)`;
+    } else {
+        achievementItem.classList.remove('completed');
+        status.textContent = averageScore > 0 ? `Прогресс: ${Math.round(averageScore)}%` : 'Не достигнуто';
+    }
+}
+
+/**
+ * Update Explorer Achievement
+ */
+function updateExplorerAchievement(uniqueTestTypes) {
+    const achievementItem = document.getElementById('explorerAchievement');
+    const status = document.getElementById('explorerStatus');
+
+    if (uniqueTestTypes >= 5) {
+        achievementItem.classList.add('completed');
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${uniqueTestTypes} типов)`;
+    } else {
+        achievementItem.classList.remove('completed');
+        status.textContent = `Прогресс: ${uniqueTestTypes}/5 типов`;
+    }
+}
+
+/**
+ * Update Streak Achievement (3 tests in a row)
+ */
+function updateStreakAchievement() {
+    const achievementItem = document.getElementById('streakAchievement');
+    const status = document.getElementById('streakStatus');
+
+    // For now, we'll check if user has completed at least 3 tests
+    // In a more advanced version, we could check timestamps for consecutive days
+    const availableTests = getAvailableQuizTypes().map(test => test.id);
+    let completedCount = 0;
+
+    availableTests.forEach(testType => {
+        const testKey = `mbti_results_${testType}`;
+        const savedResults = localStorage.getItem(testKey);
+        if (savedResults) {
+            try {
+                const results = JSON.parse(savedResults);
+                if (results && results.personalityType) {
+                    completedCount++;
+                }
+            } catch (e) {
+                // Skip invalid results
+            }
+        }
+    });
+
+    if (completedCount >= 3) {
+        achievementItem.classList.add('completed');
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто!`;
+    } else {
+        achievementItem.classList.remove('completed');
+        status.textContent = `Прогресс: ${completedCount}/3 тестов`;
+    }
+}
+
+/**
+ * Update Specialist Achievement (All Premium Tests)
+ */
+function updateSpecialistAchievement(premiumCompleted, totalPremium) {
+    const achievementItem = document.getElementById('specialistAchievement');
+    const status = document.getElementById('specialistStatus');
+
+    if (totalPremium > 0 && premiumCompleted === totalPremium) {
+        achievementItem.classList.add('completed');
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${premiumCompleted}/${totalPremium})`;
+    } else if (totalPremium > 0) {
+        achievementItem.classList.remove('completed');
+        status.textContent = `Прогресс: ${premiumCompleted}/${totalPremium} премиум`;
+    } else {
+        achievementItem.classList.remove('completed');
+        status.textContent = 'Премиум-тесты недоступны';
+    }
+}
+
+/**
+ * Clear all user data
+ */
+function clearAllUserData() {
+    if (confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
+        // Clear all test results
+        const availableTests = getAvailableQuizTypes().map(test => test.id);
+        availableTests.forEach(testType => {
+            const testKey = `mbti_results_${testType}`;
+            localStorage.removeItem(testKey);
+        });
+
+        // Clear other user data
+        localStorage.removeItem('mbti_last_results');
+        localStorage.removeItem('mbti_premium');
+
+        // Reload the cabinet data
+        loadClientCabinetData();
+
+        alert('Все данные успешно удалены.');
+    }
+}
+
+/**
+ * Check if all tests are completed (helper function)
+ */
+function areAllTestsCompleted() {
+    const availableTests = getAvailableQuizTypes().map(test => test.id);
+    let completedTests = 0;
+
+    availableTests.forEach(testType => {
+        const testKey = `mbti_results_${testType}`;
+        const savedResults = localStorage.getItem(testKey);
+
+        if (savedResults) {
+            try {
+                const results = JSON.parse(savedResults);
+                if (results && results.personalityType) {
+                    completedTests++;
+                }
+            } catch (e) {
+                // Skip invalid results
+            }
+        }
+    });
+
+    return completedTests === availableTests.length;
+}
+
+// Make functions globally available
+window.openClientCabinetModal = openClientCabinetModal;
+window.closeClientCabinetModal = closeClientCabinetModal;
+window.clearAllUserData = clearAllUserData;

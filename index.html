@@ -17,6 +17,9 @@
             <h1><i class="fas fa-brain"></i> Тест личности MBTI</h1>
             <p>Откройте свой тип личности с помощью комплексного тестирования 16 типов личности</p>
             <div class="header-buttons">
+            <button class="btn btn-cabinet" id="clientCabinetBtn" onclick="openClientCabinetModal()">
+                <i class="fas fa-user"></i> Личный кабинет
+            </button>
             <button class="btn btn-premium" id="headerPremiumBtn" onclick="openPremiumModal()">
                 Открыть премиум доступ
             </button>
@@ -193,7 +196,7 @@
                             <span>🧠 Адаптивная оценка активна</span>
                         </div>
                         <div class="header-right">
-                            <button class="info-btn" id="confidenceInfoBtn" title="Объяснение концетрации">
+                            <button class="info-btn" id="confidenceInfoBtn" title="Объяснение точности">
                                 <i class="fas fa-info-circle"></i>
                             </button>
                             <div class="adaptive-status" id="adaptiveStatus">
@@ -335,7 +338,7 @@
                         
                         <div class="info-section">
                             <h4>📈 Общая концентрация</h4>
-                            <p>Это среднее значение концетрации по всем четырем измерениям. Чем выше общая концетрация, тем выше уровень преобладания одного измерения над другими.</p>
+                            <p>Это среднее значение точности по всем четырем измерениям. Чем выше общая точность, тем выше уровень преобладания одного измерения над другими.</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -757,6 +760,141 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Cabinet Modal -->
+    <div id="clientCabinetModal" class="modal" style="display:none;">
+        <div class="modal-content client-cabinet-modal">
+            <span class="close" onclick="closeClientCabinetModal()">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> Личный кабинет</h2>
+                <p>Ваша статистика и прогресс прохождения тестов</p>
+            </div>
+
+            <div class="modal-body">
+                <!-- User Statistics -->
+                <div class="cabinet-section">
+                    <h3><i class="fas fa-chart-bar"></i> Статистика</h3>
+                    <div class="stats-grid" id="userStats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalTests">0</div>
+                            <div class="stat-label">Всего тестов пройдено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="completedTests">0</div>
+                            <div class="stat-label">Завершено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="avgScore">0%</div>
+                            <div class="stat-label">Средний балл</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Progress -->
+                <div class="cabinet-section">
+                    <h3><i class="fas fa-tasks"></i> Прогресс по тестам</h3>
+                    <div class="tests-list" id="testsProgress">
+                        <!-- Tests will be populated here by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Recent Results -->
+                <div class="cabinet-section">
+                    <h3><i class="fas fa-history"></i> Последние результаты</h3>
+                    <div class="recent-results" id="recentResults">
+                        <p class="no-results">Результаты не найдены</p>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="cabinet-section">
+                    <h3><i class="fas fa-trophy"></i> Достижения</h3>
+                    <div class="achievement-section" id="achievementSection">
+                        <!-- All Tests Completed -->
+                        <div class="achievement-item" id="allTestsCompleted">
+                            <div class="achievement-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">Мастер тестов</div>
+                                <div class="achievement-description">Пройдены все доступные тесты</div>
+                                <div class="achievement-status" id="completionStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+
+                        <!-- First Test Achievement -->
+                        <div class="achievement-item" id="firstTestAchievement">
+                            <div class="achievement-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">Первый шаг</div>
+                                <div class="achievement-description">Пройден первый тест</div>
+                                <div class="achievement-status" id="firstTestStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+
+                        <!-- High Performer Achievement -->
+                        <div class="achievement-item" id="highPerformerAchievement">
+                            <div class="achievement-icon">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">Высокая точность</div>
+                                <div class="achievement-description">Средний балл точности выше 80%</div>
+                                <div class="achievement-status" id="highPerformerStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+
+                        <!-- Explorer Achievement -->
+                        <div class="achievement-item" id="explorerAchievement">
+                            <div class="achievement-icon">
+                                <i class="fas fa-compass"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">Исследователь</div>
+                                <div class="achievement-description">Пройдено 5 разных типов тестов</div>
+                                <div class="achievement-status" id="explorerStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+
+                        <!-- Streak Achievement -->
+                        <div class="achievement-item" id="streakAchievement">
+                            <div class="achievement-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">В огне</div>
+                                <div class="achievement-description">Пройдено 3 теста подряд</div>
+                                <div class="achievement-status" id="streakStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+
+                        <!-- Specialist Achievement -->
+                        <div class="achievement-item" id="specialistAchievement">
+                            <div class="achievement-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">Специалист</div>
+                                <div class="achievement-description">Завершены все премиум-тесты</div>
+                                <div class="achievement-status" id="specialistStatus">Не достигнуто</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeClientCabinetModal()">
+                    <i class="fas fa-check"></i> Закрыть
+                </button>
+                <button class="btn btn-secondary" onclick="clearAllUserData()">
+                    <i class="fas fa-trash"></i> Очистить данные
+                </button>
             </div>
         </div>
     </div>
