@@ -445,7 +445,7 @@ export class PersonalizationEngine {
             ((currentAvg * (totalAssessments - 1)) + newTime) / totalAssessments;
         
         // Update preferred times
-        const hour = new Date().get Date().getHours();
+        const hour = new Date().getHours();
         userProfile.history.preferredTimes.push(hour);
         
         // Keep only last 100 preferred times
