@@ -193,7 +193,7 @@
                             <span>🧠 Адаптивная оценка активна</span>
                         </div>
                         <div class="header-right">
-                            <button class="info-btn" id="confidenceInfoBtn" title="Объяснение уверенности">
+                            <button class="info-btn" id="confidenceInfoBtn" title="Объяснение концетрации">
                                 <i class="fas fa-info-circle"></i>
                             </button>
                             <div class="adaptive-status" id="adaptiveStatus">
@@ -242,7 +242,7 @@
 
                         <div class="metric-item">
                             <i class="fas fa-chart-line"></i>
-                            <span>Уверенность: <span id="overallConfidence">0%</span></span>
+                            <span>Концентрация: <span id="overallConfidence">0%</span></span>
                         </div>
                     </div>
                 </div>
@@ -281,16 +281,11 @@
             <!-- Confidence Info Modal -->
             <div class="modal" id="confidenceInfoModal" style="display: none;">
                 <div class="modal-content confidence-info">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-brain"></i> Объяснение уверенности</h3>
-                        <button class="close-btn" onclick="closeConfidenceInfoModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+                    <span class="close" onclick="closeConfidenceInfoModal()">&times;</span>
                     <div class="modal-body">
                         <div class="info-section">
-                            <h4>🧠 Что такое уверенность?</h4>
-                            <p>Уверенность показывает, насколько четко система понимает ваши предпочтения по каждому измерению MBTI.</p>
+                            <h4>🧠 Что такое концентрация?</h4>
+                            <p>Концентрация показывает, насколько четко система понимает ваши предпочтения по каждому измерению MBTI.</p>
                         </div>
                         
                         <div class="info-section">
@@ -328,18 +323,19 @@
                         </div>
                         
                         <div class="info-section">
-                            <h4>🎯 Как это работает</h4>
+                            <h4>🎯 Как рассчитывается концентрация</h4>
                             <ul>
-                                <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Насколько четко ваши ответы показывают предпочтение E или I</li>
-                                <li><strong>S/N (Сенсорика/Интуиция):</strong> Насколько четко ваши ответы показывают предпочтение S или N</li>
-                                <li><strong>T/F (Мышление/Чувство):</strong> Насколько четко ваши ответы показывают предпочтение T или F</li>
-                                <li><strong>J/P (Суждение/Восприятие):</strong> Насколько четко ваши ответы показывают предпочтение J или P</li>
+                                <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Процент ответов, которые однозначно указывают на экстраверсию или интроверсию</li>
+                                <li><strong>S/N (Сенсорика/Интуиция):</strong> Процент ответов, которые четко показывают предпочтение сенсорики или интуиции</li>
+                                <li><strong>T/F (Мышление/Чувство):</strong> Процент ответов, которые явно демонстрируют мышление или чувство</li>
+                                <li><strong>J/P (Суждение/Восприятие):</strong> Процент ответов, которые определенно указывают на суждение или восприятие</li>
                             </ul>
+                            <p class="note">Чем выше процент, тем увереннее система в определении вашего типа по данному измерению.</p>
                         </div>
                         
                         <div class="info-section">
-                            <h4>📈 Общая уверенность</h4>
-                            <p>Это среднее значение уверенности по всем четырем измерениям. Чем выше общая уверенность, тем надежнее будет результат вашего типа личности.</p>
+                            <h4>📈 Общая концентрация</h4>
+                            <p>Это среднее значение концетрации по всем четырем измерениям. Чем выше общая концетрация, тем выше уровень преобладания одного измерения над другими.</p>
                         </div>
                     </div>
                     <div class="modal-footer">

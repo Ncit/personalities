@@ -444,6 +444,12 @@ class MBTIQuiz {
         
         // Update adaptive indicators
         this.updateAllAdaptiveIndicators();
+
+        // Show reset button during test (if not already visible)
+        const resetBtn = document.getElementById('resetTestBtn');
+        if (resetBtn && resetBtn.style.display === 'none') {
+            resetBtn.style.display = 'inline-block';
+        }
         
 		// Clear previous selection
 		this.clearOptionSelection();
@@ -3486,7 +3492,7 @@ function startBannerAdTimer() {
         if (!isPremium() && vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
             showBannerAd();
         }
-    }, 30000); // 30 seconds
+    }, 3000); // 3 seconds
 }
 
 // Stop banner ad timer
@@ -3748,21 +3754,25 @@ window.updateQuizTitle = updateQuizTitle;
 // Listen for premium status changes from VK bridge manager
 window.addEventListener('premiumStatusChanged', function(event) {
     logger.log('Premium status change event received:', event.detail);
-    
+
     if (event.detail && event.detail.isPremium !== undefined) {
-        // Update premium status
-        setPremium(event.detail.isPremium);
-        
+        // Only update premium status if this is not from a manual update
+        // to prevent infinite recursion between setPremium and storePremiumStatus
+        if (event.detail.source !== 'manual_update') {
+            // Update premium status
+            setPremium(event.detail.isPremium);
+        }
+
         // Force UI update
         updatePremiumUI();
-        
+
         // If this is from a payment success, show success message
         if (event.detail.source === 'payment_success') {
             if (window.vkBridgeManager && typeof window.vkBridgeManager.showNotification === 'function') {
                 window.vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
             }
         }
-        
+
         logger.log('Premium status updated from event:', event.detail.isPremium);
     }
 });
