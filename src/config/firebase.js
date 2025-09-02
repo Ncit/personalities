@@ -1,7 +1,7 @@
-// Firebase Configuration
-import { initializeApp } from 'firebase/app';
-import { getAnalytics, logEvent, setUserId, setUserProperties } from 'firebase/analytics';
-import { getPerformance } from 'firebase/performance';
+// Firebase Configuration - Using CDN imports for consistency
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAnalytics, logEvent, setUserId, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
 import { LoggerManager } from '../modules/core/LoggerManager.js';
 
 // Initialize logger for this module
@@ -25,8 +25,13 @@ const app = initializeApp(firebaseConfig);
 let analytics = null;
 try {
   analytics = getAnalytics(app);
+  logger.info('Firebase Analytics initialized successfully');
   } catch (error) {
   logger.warn('Firebase Analytics initialization failed:', error);
+  // Try to log error to console as fallback
+  if (typeof console !== 'undefined' && console.warn) {
+    console.warn('Firebase Analytics failed to initialize:', error.message);
+  }
 }
 
 // Initialize Performance Monitoring
@@ -44,8 +49,18 @@ export const firebaseAnalytics = {
     if (analytics) {
       try {
         logEvent(analytics, eventName, parameters);
+        logger.debug(`Firebase event logged: ${eventName}`);
         } catch (error) {
         logger.warn('Failed to log analytics event:', error);
+        // Fallback: log to console
+        if (typeof console !== 'undefined' && console.log) {
+          console.log(`Analytics Event: ${eventName}`, parameters);
+        }
+      }
+    } else {
+      // Fallback when Firebase is not available
+      if (typeof console !== 'undefined' && console.log) {
+        console.log(`Analytics Event (Firebase unavailable): ${eventName}`, parameters);
       }
     }
   },
@@ -55,8 +70,18 @@ export const firebaseAnalytics = {
     if (analytics) {
       try {
         setUserId(analytics, userId);
+        logger.debug(`Firebase user ID set: ${userId}`);
         } catch (error) {
         logger.warn('Failed to set analytics user ID:', error);
+        // Fallback: log to console
+        if (typeof console !== 'undefined' && console.log) {
+          console.log(`User ID set (Firebase unavailable): ${userId}`);
+        }
+      }
+    } else {
+      // Fallback when Firebase is not available
+      if (typeof console !== 'undefined' && console.log) {
+        console.log(`User ID set (Firebase unavailable): ${userId}`);
       }
     }
   },
@@ -92,25 +117,52 @@ export const firebaseAnalytics = {
 
   // Log quiz events
   logQuizEvent: (action, quizType = null, questionNumber = null) => {
-    const parameters = {};
-    if (quizType) parameters.quiz_type = quizType;
-    if (questionNumber) parameters.question_number = questionNumber;
-    
-    this.logEvent(`quiz_${action}`, parameters);
+    try {
+      const parameters = {};
+      if (quizType) parameters.quiz_type = quizType;
+      if (questionNumber) parameters.question_number = questionNumber;
+
+      this.logEvent(`quiz_${action}`, parameters);
+      logger.debug(`Quiz event logged: ${action}`, parameters);
+    } catch (error) {
+      logger.warn('Failed to log quiz event:', error);
+      // Fallback to console
+      if (typeof console !== 'undefined' && console.log) {
+        console.log(`Quiz Event: ${action}`, { quizType, questionNumber });
+      }
+    }
   },
 
   // Log error events
   logError: (error, context = {}) => {
-    this.logEvent('app_error', {
-      error_message: error.message || error.toString(),
-      error_stack: error.stack,
-      ...context
-    });
+    try {
+      this.logEvent('app_error', {
+        error_message: error.message || error.toString(),
+        error_stack: error.stack,
+        ...context
+      });
+      logger.debug('Error event logged to Firebase');
+    } catch (err) {
+      logger.warn('Failed to log error event:', err);
+      // Fallback to console
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('App Error:', error, context);
+      }
+    }
   },
 
   // Log page views
   logPageView: (pageName) => {
-    this.logEvent('page_view', { page_name: pageName });
+    try {
+      this.logEvent('page_view', { page_name: pageName });
+      logger.debug(`Page view logged: ${pageName}`);
+    } catch (error) {
+      logger.warn('Failed to log page view:', error);
+      // Fallback to console
+      if (typeof console !== 'undefined' && console.log) {
+        console.log(`Page View: ${pageName}`);
+      }
+    }
   }
 };
 
@@ -128,6 +180,56 @@ export const firebasePerformance = {
         logger.warn('Failed to log performance event:', error);
       }
     }
+  }
+};
+
+// Offline analytics fallback
+const offlineAnalyticsQueue = [];
+let offlineMode = false;
+
+if (!analytics) {
+  offlineMode = true;
+  logger.warn('Firebase Analytics unavailable, switching to offline mode');
+
+  // Override analytics functions to store events locally
+  Object.keys(firebaseAnalytics).forEach(key => {
+    if (typeof firebaseAnalytics[key] === 'function') {
+      const originalFn = firebaseAnalytics[key];
+      firebaseAnalytics[key] = function(...args) {
+        // Store event locally for later sync
+        offlineAnalyticsQueue.push({
+          function: key,
+          args: args,
+          timestamp: Date.now()
+        });
+
+        // Keep only last 50 offline events
+        if (offlineAnalyticsQueue.length > 50) {
+          offlineAnalyticsQueue.shift();
+        }
+
+        // Try original function (will fallback to console)
+        return originalFn.apply(this, args);
+      };
+    }
+  });
+}
+
+// Function to sync offline events when Firebase becomes available
+export const syncOfflineAnalytics = () => {
+  if (!offlineMode && offlineAnalyticsQueue.length > 0) {
+    logger.info(`Syncing ${offlineAnalyticsQueue.length} offline analytics events`);
+
+    offlineAnalyticsQueue.forEach(event => {
+      try {
+        firebaseAnalytics[event.function].apply(firebaseAnalytics, event.args);
+      } catch (error) {
+        logger.warn('Failed to sync offline event:', error);
+      }
+    });
+
+    offlineAnalyticsQueue.length = 0;
+    offlineMode = false;
   }
 };
 

@@ -9,6 +9,356 @@ import { LoggerManager } from '../core/LoggerManager.js';
 // Initialize logger for this module
 const logger = new LoggerManager().createModuleLogger('AnalyticsEngine');
 
+/**
+ * Product Analytics - Comprehensive user behavior tracking
+ * Integrates with Firebase Analytics for detailed insights
+ */
+export class ProductAnalytics {
+    constructor() {
+        this.sessionId = this.generateSessionId();
+        this.sessionStartTime = Date.now();
+        this.userJourney = [];
+        this.userSegments = new Set();
+        this.conversionEvents = [];
+        this.featureUsage = new Map();
+        this.dropOffPoints = new Map();
+
+        // Initialize user properties
+        this.setUserProperties();
+
+        // Track session start
+        this.trackEvent('session_start', {
+            referrer: document.referrer,
+            user_agent: navigator.userAgent,
+            screen_resolution: `${screen.width}x${screen.height}`,
+            language: navigator.language
+        });
+
+        // Track page visibility changes
+        this.trackPageVisibility();
+
+        logger.info('ProductAnalytics initialized', { sessionId: this.sessionId });
+    }
+
+    /**
+     * Generate unique session ID
+     */
+    generateSessionId() {
+        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    /**
+     * Set initial user properties
+     */
+    setUserProperties() {
+        const properties = {
+            first_visit: this.isFirstVisit(),
+            returning_user: this.isReturningUser(),
+            device_type: this.getDeviceType(),
+            browser: this.getBrowserInfo(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            quiz_completed_count: this.getCompletedQuizCount()
+        };
+
+        // Set Firebase user properties
+        firebaseAnalytics.setUserProperties(properties);
+
+        // Store in localStorage for persistence
+        localStorage.setItem('user_properties', JSON.stringify(properties));
+    }
+
+    /**
+     * Track user events with enhanced data
+     */
+    trackEvent(eventName, parameters = {}) {
+        const enhancedParameters = {
+            ...parameters,
+            session_id: this.sessionId,
+            session_duration: Math.floor((Date.now() - this.sessionStartTime) / 1000),
+            journey_step: this.userJourney.length + 1,
+            timestamp: new Date().toISOString(),
+            page_url: window.location.pathname,
+            user_segment: this.determineUserSegment()
+        };
+
+        // Add to user journey
+        this.userJourney.push({
+            event: eventName,
+            parameters: enhancedParameters,
+            timestamp: Date.now()
+        });
+
+        // Track conversion events
+        if (this.isConversionEvent(eventName)) {
+            this.conversionEvents.push({
+                event: eventName,
+                timestamp: Date.now(),
+                parameters: enhancedParameters
+            });
+        }
+
+        // Track feature usage
+        if (parameters.feature) {
+            this.trackFeatureUsage(parameters.feature);
+        }
+
+        // Send to Firebase Analytics
+        firebaseAnalytics.logEvent(eventName, enhancedParameters);
+
+        // Store journey in localStorage (keep last 50 events)
+        if (this.userJourney.length > 50) {
+            this.userJourney = this.userJourney.slice(-50);
+        }
+        localStorage.setItem('user_journey', JSON.stringify(this.userJourney));
+
+        logger.debug(`Event tracked: ${eventName}`, enhancedParameters);
+    }
+
+    /**
+     * Track specific user actions
+     */
+    trackUserAction(action, details = {}) {
+        const eventName = `user_${action}`;
+        this.trackEvent(eventName, {
+            action,
+            ...details,
+            feature: details.feature || action
+        });
+    }
+
+    /**
+     * Track quiz-related events
+     */
+    trackQuizEvent(action, quizData = {}) {
+        const eventName = `quiz_${action}`;
+        this.trackEvent(eventName, {
+            ...quizData,
+            quiz_type: stateManager.getCurrentQuizType(),
+            feature: 'quiz'
+        });
+
+        // Update user segments based on quiz progress
+        this.updateUserSegments(quizData);
+    }
+
+    /**
+     * Track feature usage
+     */
+    trackFeatureUsage(featureName) {
+        const current = this.featureUsage.get(featureName) || 0;
+        this.featureUsage.set(featureName, current + 1);
+        localStorage.setItem('feature_usage', JSON.stringify(Object.fromEntries(this.featureUsage)));
+    }
+
+    /**
+     * Track drop-off points
+     */
+    trackDropOff(step, reason = null) {
+        const key = `${step}_${reason || 'unknown'}`;
+        const current = this.dropOffPoints.get(key) || 0;
+        this.dropOffPoints.set(key, current + 1);
+        localStorage.setItem('drop_off_points', JSON.stringify(Object.fromEntries(this.dropOffPoints)));
+    }
+
+    /**
+     * Determine user segment based on behavior
+     */
+    determineUserSegment() {
+        const completedQuizzes = this.getCompletedQuizCount();
+        const sessionTime = (Date.now() - this.sessionStartTime) / 1000 / 60; // minutes
+
+        if (completedQuizzes >= 5) return 'power_user';
+        if (completedQuizzes >= 2) return 'engaged_user';
+        if (sessionTime > 10) return 'explorer';
+        if (this.conversionEvents.length > 0) return 'converter';
+        return 'visitor';
+    }
+
+    /**
+     * Update user segments
+     */
+    updateUserSegments(quizData) {
+        if (quizData.personality_type) {
+            this.userSegments.add('quiz_completer');
+        }
+        if (quizData.quiz_type && quizData.quiz_type !== 'mbti') {
+            this.userSegments.add('premium_user');
+        }
+        if (this.userJourney.length > 10) {
+            this.userSegments.add('engaged_user');
+        }
+    }
+
+    /**
+     * Check if event is a conversion event
+     */
+    isConversionEvent(eventName) {
+        const conversionEvents = [
+            'quiz_completed',
+            'premium_purchased',
+            'results_shared',
+            'profile_created',
+            'feedback_submitted'
+        ];
+        return conversionEvents.includes(eventName);
+    }
+
+    /**
+     * Track page visibility changes
+     */
+    trackPageVisibility() {
+        document.addEventListener('visibilitychange', () => {
+            this.trackEvent('page_visibility_change', {
+                hidden: document.hidden,
+                session_duration: Math.floor((Date.now() - this.sessionStartTime) / 1000)
+            });
+
+            if (document.hidden) {
+                // Track time away
+                this.pageHiddenTime = Date.now();
+            } else if (this.pageHiddenTime) {
+                // Track return time
+                const timeAway = Date.now() - this.pageHiddenTime;
+                this.trackEvent('page_return', {
+                    time_away_seconds: Math.floor(timeAway / 1000)
+                });
+            }
+        });
+    }
+
+    /**
+     * Get session duration in milliseconds
+     */
+    getSessionDuration() {
+        return Date.now() - this.sessionStartTime;
+    }
+
+    /**
+     * Get conversion rate
+     */
+    getConversionRate() {
+        const totalActions = this.userJourney.length;
+        if (totalActions === 0) return 0;
+
+        const conversionActions = this.userJourney.filter(event =>
+            this.isConversionEvent(event.event)
+        ).length;
+
+        return Math.round((conversionActions / totalActions) * 100);
+    }
+
+    /**
+     * Get top used features
+     */
+    getTopUsedFeatures(limit = 10) {
+        return Array.from(this.featureUsage.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, limit);
+    }
+
+    /**
+     * Get user journey steps
+     */
+    getUserJourney(limit = 20) {
+        return this.userJourney.slice(-limit).map(step => ({
+            step: step.event,
+            timestamp: step.timestamp,
+            details: step.parameters
+        }));
+    }
+
+    /**
+     * Export comprehensive analytics report
+     */
+    exportAnalyticsReport() {
+        return {
+            sessionId: this.sessionId,
+            sessionDuration: this.getSessionDuration(),
+            userJourney: this.getUserJourney(),
+            conversionEvents: this.conversionEvents,
+            userSegments: Array.from(this.userSegments),
+            featureUsage: Object.fromEntries(this.featureUsage),
+            dropOffPoints: Object.fromEntries(this.dropOffPoints),
+            conversionRate: this.getConversionRate(),
+            completedQuizzes: this.getCompletedQuizCount(),
+            topFeatures: this.getTopUsedFeatures(),
+            userProperties: JSON.parse(localStorage.getItem('user_properties') || '{}'),
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * Helper methods
+     */
+    isFirstVisit() {
+        return !localStorage.getItem('user_properties');
+    }
+
+    isReturningUser() {
+        const properties = localStorage.getItem('user_properties');
+        return properties ? JSON.parse(properties).returning_user : false;
+    }
+
+    getDeviceType() {
+        if (window.innerWidth <= 768) return 'mobile';
+        if (window.innerWidth <= 1024) return 'tablet';
+        return 'desktop';
+    }
+
+    getBrowserInfo() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Chrome')) return 'Chrome';
+        if (ua.includes('Firefox')) return 'Firefox';
+        if (ua.includes('Safari')) return 'Safari';
+        if (ua.includes('Edge')) return 'Edge';
+        return 'Other';
+    }
+
+    getCompletedQuizCount() {
+        let count = 0;
+        const quizTypes = ['mbti', 'leadership', 'communication', 'stress', 'learning',
+                          'relationships', 'creativity', 'decision', 'teamwork',
+                          'career', 'conflict', 'motivation', 'adaptability',
+                          'emotional', 'productivity', 'social'];
+
+        quizTypes.forEach(type => {
+            const key = `mbti_results_${type}`;
+            if (localStorage.getItem(key)) {
+                count++;
+            }
+        });
+
+        return count;
+    }
+
+    /**
+     * Load persisted data
+     */
+    loadPersistedData() {
+        try {
+            const journey = localStorage.getItem('user_journey');
+            if (journey) {
+                this.userJourney = JSON.parse(journey);
+            }
+
+            const features = localStorage.getItem('feature_usage');
+            if (features) {
+                this.featureUsage = new Map(Object.entries(JSON.parse(features)));
+            }
+
+            const dropOffs = localStorage.getItem('drop_off_points');
+            if (dropOffs) {
+                this.dropOffPoints = new Map(Object.entries(JSON.parse(dropOffs)));
+            }
+        } catch (error) {
+            logger.warn('Failed to load persisted analytics data:', error);
+        }
+    }
+}
+
+// Create singleton instance
+export const productAnalytics = new ProductAnalytics();
+
 export class AnalyticsEngine {
     constructor() {
         this.charts = new Map();

@@ -12,6 +12,7 @@ import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js'
 import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
+import { productAnalytics } from './src/modules/analytics/AnalyticsEngine.js';
 
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
@@ -571,15 +572,15 @@ class MBTIQuiz {
         // Get elements with null checks
         const quizQuestions = document.getElementById('quizQuestions');
         const resultsScreen = document.getElementById('resultsScreen');
-        
+
         if (quizQuestions) quizQuestions.style.display = 'none';
         if (resultsScreen) resultsScreen.style.display = 'block';
-        
+
         const personalityType = this.calculatePersonalityType();
-        
+
         // Save results to localStorage
         this.saveResultsToStorage(personalityType);
-        
+
         this.displayPersonalityResults(personalityType);
         this.displayDimensionBreakdown();
         
@@ -2866,6 +2867,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize the quiz
 let quiz;
 
+// Load persisted analytics data
+productAnalytics.loadPersistedData();
+
 // Utility function for logging
 function log(message, data = null) {
     if (data) {
@@ -2882,23 +2886,49 @@ let bannerAdTimer = null;
 // Global functions for HTML onclick handlers
 function startQuiz() {
     quiz = new MBTIQuiz();
-    
+
     // Set default MBTI quiz title
     updateQuizTitle('mbti');
-    
+
     quiz.startQuiz();
-    
+
+    // Track quiz start
+    productAnalytics.trackQuizEvent('start', {
+        quiz_type: 'mbti',
+        feature: 'quiz'
+    });
+
     // Hide banner ad when starting quiz
     hideBannerAd();
     stopBannerAdTimer();
 }
 
 function selectOption(optionNumber) {
-    if (quiz) quiz.selectOption(optionNumber);
+    if (quiz) {
+        quiz.selectOption(optionNumber);
+
+        // Track answer selection
+        productAnalytics.trackEvent('quiz_answer_selected', {
+            question_number: quiz.currentQuestion + 1,
+            option_selected: optionNumber,
+            quiz_type: quiz.currentQuizType || 'mbti',
+            feature: 'quiz'
+        });
+    }
 }
 
 function nextQuestion() {
-    if (quiz) quiz.nextQuestion();
+    if (quiz) {
+        quiz.nextQuestion();
+
+        // Track question progression
+        productAnalytics.trackEvent('quiz_question_progressed', {
+            from_question: quiz.currentQuestion,
+            to_question: quiz.currentQuestion + 1,
+            quiz_type: quiz.currentQuizType || 'mbti',
+            feature: 'quiz'
+        });
+    }
 }
 
 function previousQuestion() {
@@ -3935,6 +3965,11 @@ function openClientCabinetModal() {
     if (modal) {
         modal.style.display = 'block';
         loadClientCabinetData();
+
+        // Track cabinet open
+        productAnalytics.trackUserAction('open_cabinet', {
+            feature: 'cabinet'
+        });
     }
 }
 
@@ -4378,6 +4413,11 @@ function updateSpecialistAchievement(premiumCompleted, totalPremium) {
  */
 function clearAllUserData() {
     if (confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
+        // Track data clear action
+        productAnalytics.trackUserAction('clear_data', {
+            feature: 'cabinet'
+        });
+
         // Clear all test results
         const availableTests = getAvailableQuizTypes().map(test => test.id);
         availableTests.forEach(testType => {
