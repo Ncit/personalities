@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест личности MBTI - 16 типов личности</title>
+    <title>Тест личности - 16 типов характера</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="src/modules/vk/vk-styles.css">
@@ -25,7 +25,7 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1><i class="fas fa-brain"></i> Тест личности MBTI</h1>
+            <h1><i class="fas fa-brain"></i> Тест личности</h1>
             <p>Откройте свой тип личности с помощью комплексного тестирования 16 типов личности</p>
             <div class="header-buttons">
             <button class="btn btn-cabinet" id="clientCabinetBtn" onclick="openClientCabinetModal()">
@@ -54,8 +54,8 @@
             <!-- Welcome Screen -->
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-content">
-                    <h2>Добро пожаловать в тест личности MBTI</h2>
-                    <p id="quizDescription">Этот тест поможет вам определить ваш тип личности по индикатору Майерс-Бриггс (MBTI). Оценка состоит из <span id="questionCount">61</span> вопроса, которые оценивают ваши предпочтения по четырем измерениям:</p>
+                    <h2>Добро пожаловать в тест личности</h2>
+                    <p id="quizDescription">Этот тест поможет вам определить ваш тип личности. Оценка состоит из <span id="questionCount">61</span> вопроса, которые оценивают ваши предпочтения по четырем измерениям:</p>
                     
                     <div class="dimensions">
                         <div class="dimension">
@@ -188,7 +188,7 @@
             <div class="quiz-questions" id="quizQuestions" style="display: none;">
                 <div class="quiz-header">
                     <div class="quiz-title" id="quizTitle">
-                        <h2 id="currentQuizTitle">Тест личности MBTI</h2>
+                        <h2 id="currentQuizTitle">Тест личности</h2>
                     </div>
                     <button class="btn btn-back" onclick="exitQuiz()">
                     Выйти из теста
@@ -299,7 +299,7 @@
                     <div class="modal-body">
                         <div class="info-section">
                             <h4>🧠 Что такое концентрация?</h4>
-                            <p>Концентрация показывает, насколько четко система понимает ваши предпочтения по каждому измерению MBTI.</p>
+                            <p>Концентрация показывает, насколько четко система понимает ваши предпочтения по каждому измерению личности.</p>
                         </div>
                         
                         <div class="info-section">
@@ -609,7 +609,7 @@
                         О проекте
                     </h4>
                     <ul>
-                        <li><a href="#" onclick="showHelp('about-mbti')">О MBTI</a></li>
+                        <li><a href="#" onclick="showHelp('about-personality')">О типах личности</a></li>
                         <li><a href="#" onclick="showHelp('privacy')">Конфиденциальность</a></li>
                         <li><a href="#" onclick="showHelp('terms')">Условия использования</a></li>
                     </ul>
@@ -625,16 +625,16 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Тест личности MBTI. На основе индикатора типа Майерс-Бриггс.</p>
+                <p>&copy; 2025 Тест личности. Основано на исследованиях психологии личности.</p>
             </div>
         </footer>
 
-        <!-- MBTI Types Modal -->
+        <!-- Personality Types Modal -->
         <div id="typesModal" class="modal" style="display:none;">
             <div class="modal-content types-modal-content">
                 <span class="close" onclick="closeTypesModal()">&times;</span>
                 <div class="types-header">
-                    <h2><i class="fas fa-brain"></i> 16 типов личности MBTI</h2>
+                    <h2><i class="fas fa-brain"></i> 16 типов характера</h2>
                     <p>Изучите различные типы личности и их характеристики</p>
                 </div>
                 <div class="types-filter">
@@ -731,7 +731,7 @@
                                 <div class="tier-price">Бесплатно</div>
                             </div>
                             <ul class="tier-features">
-                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Полный тест личности (61 вопрос)</li>
                                 <li><i class="fas fa-check"></i> Основные результаты</li>
                                 <li><i class="fas fa-check"></i> Описание типа личности</li>
                                 <li><i class="fas fa-times"></i> Расширенная аналитика</li>
@@ -745,11 +745,11 @@
         
                         <div class="tier-card premium-tier">
                             <div class="tier-header">
-                                <h4><i class="fas fa-star"></i>Премиум MBTI</h4>
+                                <h4><i class="fas fa-star"></i>Премиум доступ</h4>
                                 <div class="tier-price">40 голосов</div>
                             </div>
                             <ul class="tier-features">
-                                <li><i class="fas fa-check"></i> Полный тест MBTI (61 вопрос)</li>
+                                <li><i class="fas fa-check"></i> Полный тест личности (61 вопрос)</li>
                                 <li><i class="fas fa-check"></i> Расширенная аналитика</li>
                                 <li><i class="fas fa-check"></i> Премиум тесты (12 типов)</li>
                                 <li><i class="fas fa-check"></i> Сравнение с известными личностями</li>

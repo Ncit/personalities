@@ -4,12 +4,12 @@ import { getAnalytics, logEvent, setUserId, setUserProperties } from 'https://ww
 import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
 
 // Import data from QuizData.js
-import { MBTI_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
+import { MBTI_TYPES as PERSONALITY_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
 import localizationManager from './src/locales/LocalizationManager.js';
-import { MBTI_QUESTIONS } from './src/data/MainQuiz.js';
-import { MBTI_SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
-import { MBTI_SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
-import { MBTI_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
+import { MBTI_QUESTIONS as PERSONALITY_QUESTIONS } from './src/data/MainQuiz.js';
+import { MBTI_SPECIALIZED_QUESTIONS as SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
+import { MBTI_SPECIALIZED_QUESTIONS_RU as SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
+import { MBTI_QUESTIONS_RU as PERSONALITY_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
 import { productAnalytics } from './src/modules/analytics/AnalyticsEngine.js';
@@ -136,8 +136,8 @@ if (firebaseAnalytics) {
     });
 }
 
-// MBTI Quiz Application
-class MBTIQuiz {
+// Personality Quiz Application
+class PersonalityQuiz {
     constructor() {
         this.currentQuestion = 0;
         this.answers = [];
@@ -157,27 +157,27 @@ class MBTIQuiz {
         const isPremiumUser = isPremium();
         
         // Handle different quiz types for premium users
-        if (isPremiumUser && this.currentQuizType !== 'mbti') {
+        if (isPremiumUser && this.currentQuizType !== 'personality') {
             return this.generateSpecializedQuestions();
         }
         
-        // For MBTI quiz, implement adaptive question selection
-        if (this.currentQuizType === 'mbti') {
-            return this.generateAdaptiveMBTIQuestions();
+        // For personality quiz, implement adaptive question selection
+        if (this.currentQuizType === 'personality') {
+            return this.generateAdaptivePersonalityQuestions();
         }
         
         // Return the appropriate questions based on current locale
         // const currentLocale = localizationManager.getCurrentLocale();
-        return MBTI_QUESTIONS_RU; //currentLocale === 'ru' ? MBTI_QUESTIONS_RU : MBTI_QUESTIONS;
+        return PERSONALITY_QUESTIONS_RU; //currentLocale === 'ru' ? PERSONALITY_QUESTIONS_RU : PERSONALITY_QUESTIONS;
     }
 
     /**
-     * Generate adaptive MBTI questions with intelligent selection
+     * Generate adaptive personality questions with intelligent selection
      */
-    generateAdaptiveMBTIQuestions() {
+    generateAdaptivePersonalityQuestions() {
         try {
             // Get all available questions
-            const allQuestions = MBTI_QUESTIONS_RU;
+            const allQuestions = PERSONALITY_QUESTIONS_RU;
             
             // Initialize adaptive state (no early termination)
             this.adaptiveState = {
@@ -200,7 +200,7 @@ class MBTIQuiz {
             
         } catch (error) {
             console.warn('Failed to generate adaptive questions, falling back to standard:', error);
-            return MBTI_QUESTIONS_RU;
+            return PERSONALITY_QUESTIONS_RU;
         }
     }
 
@@ -340,7 +340,7 @@ class MBTIQuiz {
     generateSpecializedQuestions() {
         // Each specialized quiz now has 20+ questions
         const currentLocale = localizationManager.getCurrentLocale();
-        const questions = currentLocale === 'ru' ? MBTI_SPECIALIZED_QUESTIONS_RU : MBTI_SPECIALIZED_QUESTIONS;
+        const questions = currentLocale === 'ru' ? SPECIALIZED_QUESTIONS_RU : SPECIALIZED_QUESTIONS;
         return questions[this.currentQuizType] || questions['leadership'];
     }
 
@@ -353,8 +353,8 @@ class MBTIQuiz {
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'flex';
         
-        // Show adaptive indicators for MBTI quiz
-        if (this.currentQuizType === 'mbti') {
+        // Show adaptive indicators for personality quiz
+        if (this.currentQuizType === 'personality') {
             this.showAdaptiveIndicators();
         }
         
@@ -532,8 +532,8 @@ class MBTIQuiz {
 		// Update adaptive indicators after answer
 		this.updateAllAdaptiveIndicators();
 		
-		// For adaptive MBTI quiz, continue with standard flow
-		if (this.currentQuizType === 'mbti' && this.adaptiveState) {
+		// For adaptive personality quiz, continue with standard flow
+		if (this.currentQuizType === 'personality' && this.adaptiveState) {
 			log('Processing adaptive question flow', { 
                 currentQuestion: this.currentQuestion, 
                 totalQuestions: this.questions.length,
@@ -651,7 +651,7 @@ class MBTIQuiz {
     }
 
     displayPersonalityResults(type) {
-        const personality = MBTI_TYPES[type];
+        const personality = PERSONALITY_TYPES[type];
         
         // Get elements with null checks
         const personalityType = document.getElementById('personalityType');
@@ -860,7 +860,7 @@ class MBTIQuiz {
         const pPct = 100 - jPct;
 
         const baseMessage = localizationManager.get('ui.shareMessage', { type: personalityType });
-        const personalityTitle = (MBTI_TYPES[personalityType] && MBTI_TYPES[personalityType].title) ? MBTI_TYPES[personalityType].title : personalityType;
+        const personalityTitle = (PERSONALITY_TYPES[personalityType] && PERSONALITY_TYPES[personalityType].title) ? PERSONALITY_TYPES[personalityType].title : personalityType;
         const personalityLine = localizationManager.get('ui.sharePersonality', { title: personalityTitle, type: personalityType });
 
         // Famous personalities (take first 3 random or top 3)
@@ -888,9 +888,9 @@ class MBTIQuiz {
         // Create a simpler, more direct share text that VK might handle better
         let shareText;
         if (localizationManager.getCurrentLocale() === 'ru') {
-            shareText = `Мой тип личности MBTI: ${personalityType} (${personalityTitle}). Баллы: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Пройди тест и узнай свой тип!`;
+            shareText = `Мой тип характера: ${personalityType} (${personalityTitle}). Баллы: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Пройди тест и узнай свой тип!`;
         } else {
-            shareText = `My MBTI personality type: ${personalityType} (${personalityTitle}). Scores: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Take the test and discover your type!`;
+            shareText = `My personality type: ${personalityType} (${personalityTitle}). Scores: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Take the test and discover your type!`;
         }
         const shareTitle = localizationManager.get('ui.shareTitle');
         
@@ -1149,8 +1149,8 @@ class MBTIQuiz {
     updateAllAdaptiveIndicators() {
         devLog('updateAllAdaptiveIndicators called');
         try {
-            if (this.currentQuizType === 'mbti') {
-                devLog('MBTI quiz detected, updating adaptive indicators');
+            if (this.currentQuizType === 'personality') {
+                devLog('Personality quiz detected, updating adaptive indicators');
                 this.showAdaptiveIndicators();
 
                 // Get current confidence scores
@@ -1172,7 +1172,7 @@ class MBTIQuiz {
                 devLog('Calling updateAdaptiveStatusBasedOnProgress');
                 this.updateAdaptiveStatusBasedOnProgress();
             } else {
-                devLog('Not MBTI quiz, hiding adaptive indicators');
+                devLog('Not personality quiz, hiding adaptive indicators');
                 this.hideAdaptiveIndicators();
             }
         } catch (error) {
@@ -1319,7 +1319,7 @@ function openTypesModal() {
         typesList.innerHTML = '';
         
         // Add each personality type with enhanced structure
-        Object.entries(MBTI_TYPES).forEach(([type, data]) => {
+        Object.entries(PERSONALITY_TYPES).forEach(([type, data]) => {
             const typeCard = document.createElement('div');
             typeCard.className = `type-card ${getTypeCategory(type)}`;
             typeCard.innerHTML = `
@@ -2475,7 +2475,7 @@ function updateDevToolsWelcomeVisibility() {
 function fillAllRandomAnswersFromWelcome() {
     if (getCurrentAppState() !== 'development') return;
     // Start quiz and fill all answers randomly
-    quiz = new MBTIQuiz();
+    quiz = new PersonalityQuiz();
     for (let i = 0; i < quiz.questions.length; i++) {
         const randomAnswer = Math.floor(Math.random() * 4) + 1;
         quiz.answers[i] = randomAnswer;
@@ -2520,7 +2520,7 @@ function fillPremiumRandomAnswers() {
     }
     
     // Create quiz instance and set to leadership test specifically
-    quiz = new MBTIQuiz();
+    quiz = new PersonalityQuiz();
     quiz.currentQuizType = 'leadership';
     quiz.generateSpecializedQuestions();
     
@@ -2846,7 +2846,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Initialize the quiz
-    quiz = new MBTIQuiz();
+    quiz = new PersonalityQuiz();
     
     updatePremiumUI();
     updateDevToolsAll();
@@ -2885,9 +2885,9 @@ let bannerAdTimer = null;
 
 // Global functions for HTML onclick handlers
 function startQuiz() {
-    quiz = new MBTIQuiz();
+    quiz = new PersonalityQuiz();
 
-    // Set default MBTI quiz title
+    // Set default personality quiz title
     updateQuizTitle('mbti');
 
     quiz.startQuiz();
@@ -3572,7 +3572,7 @@ function showHelp(topic) {
             content: `
                 <h3>📝 Пошаговая инструкция</h3>
                 <ol>
-                    <li><strong>Выберите тип теста:</strong> MBTI (61 вопрос) или специализированный тест</li>
+                    <li><strong>Выберите тип теста:</strong> Основной тест (61 вопрос) или специализированный тест</li>
                     <li><strong>Отвечайте честно:</strong> Выбирайте тот вариант, который больше соответствует вашему поведению</li>
                     <li><strong>Не задумывайтесь долго:</strong> Первая реакция обычно самая точная</li>
                     <li><strong>Завершите тест:</strong> Пройдите все вопросы до конца</li>
@@ -3585,7 +3585,7 @@ function showHelp(topic) {
             title: 'Понимание результатов',
             content: `
                 <h3>🧠 Что означают результаты</h3>
-                <p>MBTI определяет 4 основные дихотомии:</p>
+                <p>Тест определяет 4 основные дихотомии личности:</p>
                 <ul>
                     <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Откуда вы черпаете энергию</li>
                     <li><strong>S/N (Сенсорика/Интуиция):</strong> Как вы воспринимаете информацию</li>
@@ -3622,17 +3622,17 @@ function showHelp(topic) {
                 </div>
                 <div class="faq-item">
                     <h4>Какой тест выбрать?</h4>
-                    <p>Начните с основного MBTI теста. Специализированные тесты помогут глубже понять отдельные аспекты личности.</p>
+                    <p>Начните с основного теста личности. Специализированные тесты помогут глубже понять отдельные аспекты характера.</p>
                 </div>
             `
         },
-        'about-mbti': {
-            title: 'О MBTI',
+        'about-personality': {
+            title: 'О типах личности',
             content: `
-                <h3>📚 Что такое MBTI</h3>
-                <p>MBTI (Myers-Briggs Type Indicator) — это психологический инструмент, основанный на теории типов личности Карла Юнга.</p>
-                <p><strong>История:</strong> Разработан Изабель Бриггс Майерс и Кэтрин Бриггс в 1940-х годах.</p>
-                <p><strong>Научная основа:</strong> Основан на теории психологических типов Юнга и адаптирован для практического применения.</p>
+                <h3>📚 Что такое типы личности</h3>
+                <p>Типы личности — это психологическая модель, основанная на теории психологических типов Карла Юнга.</p>
+                <p><strong>История:</strong> Разработана на основе исследований психологических типов и адаптирована для практического применения.</p>
+                <p><strong>Научная основа:</strong> Основана на теории психологических типов и исследованиях в области психологии личности.</p>
                 <p><strong>Применение:</strong> Используется в образовании, бизнесе, карьерном консультировании и личностном развитии.</p>
             `
         },
@@ -3900,7 +3900,7 @@ function getAvailableQuizTypes() {
     const quizTypes = [
         {
             id: 'mbti',
-            name: 'Основной тест MBTI',
+            name: 'Основной тест личности',
             description: 'Классический тест на 16 типов личности',
             isPremium: false
         }
@@ -3909,8 +3909,8 @@ function getAvailableQuizTypes() {
     // Try to get specialized quizzes dynamically
     try {
         // Check if specialized quiz data is available
-        if (typeof MBTI_SPECIALIZED_QUESTIONS !== 'undefined') {
-            const specializedQuizzes = MBTI_SPECIALIZED_QUESTIONS;
+        if (typeof SPECIALIZED_QUESTIONS !== 'undefined') {
+            const specializedQuizzes = SPECIALIZED_QUESTIONS;
 
             // Get quiz names/descriptions mapping
             const quizInfo = {

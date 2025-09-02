@@ -577,7 +577,7 @@ export class AnalyticsEngine {
         ctx.font = 'bold 12px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('MBTI', centerX, centerY);
+        ctx.fillText('Типы личности', centerX, centerY);
         
         // Add chart title
         ctx.fillStyle = '#333';

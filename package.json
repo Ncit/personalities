@@ -1,7 +1,7 @@
 {
-  "name": "mbti-personality-quiz",
+  "name": "personality-types-quiz",
   "version": "2.0.0",
-  "description": "A comprehensive MBTI personality assessment platform with multiple specialized quizzes",
+  "description": "A comprehensive personality assessment platform with multiple specialized quizzes",
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
@@ -15,15 +15,16 @@
     "analyze": "npm run build && npx vite-bundle-analyzer dist"
   },
   "keywords": [
-    "mbti",
     "personality",
     "quiz",
     "assessment",
     "psychology",
+    "character",
+    "types",
     "typescript",
     "vite"
   ],
-  "author": "MBTI Quiz Team",
+  "author": "Personality Quiz Team",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.0",
