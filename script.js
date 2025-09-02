@@ -252,7 +252,7 @@ class MBTIQuiz {
         const dimensions = ['EI', 'SN', 'TF', 'JP'];
         
         // Debug logging
-        console.log('calculateCurrentConfidence - Debug:', {
+        devLog('calculateCurrentConfidence - Debug:', {
             scores: this.scores,
             answers: this.answers,
             currentQuestion: this.currentQuestion,
@@ -307,7 +307,7 @@ class MBTIQuiz {
             confidence[dimension] = dimensionConfidence;
             
             // Debug logging for each dimension
-            console.log(`Dimension ${dimension}:`, {
+            devLog(`Dimension ${dimension}:`, {
                 score1, score2, scoreDifference: Math.abs(score1 - score2),
                 answeredForDimension, totalPossibleScore: answeredForDimension * 3,
                 utilizationRatio: (score1 + score2) / (answeredForDimension * 3),
@@ -316,7 +316,7 @@ class MBTIQuiz {
             });
         });
         
-        console.log('Final confidence scores:', confidence);
+        devLog('Final confidence scores:', confidence);
         return confidence;
     }
 
@@ -518,8 +518,8 @@ class MBTIQuiz {
 		}
 		
 		// Debug logging for score calculation
-		console.log('Scores recalculated:', this.scores);
-		console.log('Answers processed:', this.answers.length);
+		devLog('Scores recalculated:', this.scores);
+		devLog('Answers processed:', this.answers.length);
 	}
 
 	nextQuestion() {
@@ -894,7 +894,7 @@ class MBTIQuiz {
         const shareTitle = localizationManager.get('ui.shareTitle');
         
         // Debug: Log what we're trying to share
-        console.log('Share Debug:', {
+        devLog('Share Debug:', {
             personalityType,
             baseMessage,
             personalityLine,
@@ -965,19 +965,19 @@ class MBTIQuiz {
      * Update confidence bars for all dimensions
      */
     updateConfidenceBars() {
-        console.log('updateConfidenceBars called');
+        devLog('updateConfidenceBars called');
         const confidenceScores = this.calculateConfidenceScores();
-        console.log('Confidence scores received:', confidenceScores);
-        
+        devLog('Confidence scores received:', confidenceScores);
+
         if (!confidenceScores) {
-            console.warn('No confidence scores available');
+            devLog('No confidence scores available');
             return;
         }
 
         const dimensions = ['EI', 'SN', 'TF', 'JP'];
         dimensions.forEach(dimension => {
             const confidence = confidenceScores[dimension] || 0;
-            console.log(`Updating confidence bar for ${dimension}:`, confidence);
+            devLog(`Updating confidence bar for ${dimension}:`, confidence);
             this.updateConfidenceBar(dimension, confidence);
         });
     }
@@ -986,12 +986,12 @@ class MBTIQuiz {
      * Update individual confidence bar
      */
     updateConfidenceBar(dimension, confidence) {
-        console.log(`updateConfidenceBar called for ${dimension} with confidence ${confidence}`);
-        
+        devLog(`updateConfidenceBar called for ${dimension} with confidence ${confidence}`);
+
         const confidenceElement = document.getElementById(`confidence${dimension}`);
         const confidenceTextElement = document.getElementById(`confidence${dimension}Text`);
-        
-        console.log(`Elements found:`, {
+
+        devLog(`Elements found:`, {
             confidenceElement: !!confidenceElement,
             confidenceTextElement: !!confidenceTextElement,
             dimension
@@ -1013,13 +1013,13 @@ class MBTIQuiz {
             
             confidenceElement.setAttribute('data-confidence', confidenceLevel);
             
-            console.log(`Updated ${dimension} confidence bar:`, {
+            devLog(`Updated ${dimension} confidence bar:`, {
                 percentage,
                 confidenceLevel,
                 width: confidenceElement.style.width
             });
         } else {
-            console.warn(`Missing elements for ${dimension}:`, {
+            devLog(`Missing elements for ${dimension}:`, {
                 confidenceElement: !!confidenceElement,
                 confidenceTextElement: !!confidenceTextElement
             });
@@ -1146,36 +1146,36 @@ class MBTIQuiz {
      * Update all adaptive indicators
      */
     updateAllAdaptiveIndicators() {
-        console.log('updateAllAdaptiveIndicators called');
+        devLog('updateAllAdaptiveIndicators called');
         try {
             if (this.currentQuizType === 'mbti') {
-                console.log('MBTI quiz detected, updating adaptive indicators');
+                devLog('MBTI quiz detected, updating adaptive indicators');
                 this.showAdaptiveIndicators();
-                
+
                 // Get current confidence scores
                 const confidenceScores = this.calculateConfidenceScores();
-                console.log('Confidence scores calculated:', confidenceScores);
-                
+                devLog('Confidence scores calculated:', confidenceScores);
+
                 if (confidenceScores) {
-                    console.log('Calling updateConfidenceBars');
+                    devLog('Calling updateConfidenceBars');
                     this.updateConfidenceBars();
                 } else {
-                    console.warn('No confidence scores available');
+                    devLog('No confidence scores available');
                 }
-                
+
                 // Get adaptive metrics
-                console.log('Calling updateAdaptiveMetrics');
+                devLog('Calling updateAdaptiveMetrics');
                 this.updateAdaptiveMetrics();
-                
+
                 // Update status based on progress
-                console.log('Calling updateAdaptiveStatusBasedOnProgress');
+                devLog('Calling updateAdaptiveStatusBasedOnProgress');
                 this.updateAdaptiveStatusBasedOnProgress();
             } else {
-                console.log('Not MBTI quiz, hiding adaptive indicators');
+                devLog('Not MBTI quiz, hiding adaptive indicators');
                 this.hideAdaptiveIndicators();
             }
         } catch (error) {
-            console.warn('Failed to update adaptive indicators:', error);
+            devLog('Failed to update adaptive indicators:', error);
             this.hideAdaptiveIndicators();
         }
     }
@@ -1207,20 +1207,20 @@ class MBTIQuiz {
      * Analyze how well confidence levels correlate with final results
      */
     analyzeConfidenceResultsCorrelation() {
-        console.log('🔍 ANALYZING CONFIDENCE vs FINAL RESULTS CORRELATION');
-        console.log('==================================================');
-        
+        devLog('🔍 ANALYZING CONFIDENCE vs FINAL RESULTS CORRELATION');
+        devLog('==================================================');
+
         // Get current confidence levels
         const confidenceScores = this.calculateCurrentConfidence();
         const finalType = this.calculatePersonalityType();
-        
-        console.log('📊 FINAL RESULTS:', {
+
+        devLog('📊 FINAL RESULTS:', {
             personalityType: finalType,
             scores: this.scores,
             totalAnswers: this.answers.length
         });
         
-        console.log('🧠 CONFIDENCE LEVELS:', confidenceScores);
+        devLog('🧠 CONFIDENCE LEVELS:', confidenceScores);
         
         // Analyze each dimension
         const dimensions = ['EI', 'SN', 'TF', 'JP'];
@@ -1239,16 +1239,16 @@ class MBTIQuiz {
             // Determine if confidence matches clarity
             const confidenceMatchesClarity = Math.abs(confidence - clarity) < 0.2; // Within 20%
             
-            console.log(`\n📈 ${dimension} DIMENSION ANALYSIS:`);
-            console.log(`   Final Choice: ${finalChoice} (${score1} vs ${score2})`);
-            console.log(`   Score Difference: ${scoreDifference}`);
-            console.log(`   Total Score: ${totalScore}`);
-            console.log(`   Clarity: ${(clarity * 100).toFixed(1)}%`);
-            console.log(`   Confidence: ${(confidence * 100).toFixed(1)}%`);
-            console.log(`   Match Quality: ${confidenceMatchesClarity ? '✅ GOOD' : '⚠️  NEEDS IMPROVEMENT'}`);
-            
+            devLog(`\n📈 ${dimension} DIMENSION ANALYSIS:`);
+            devLog(`   Final Choice: ${finalChoice} (${score1} vs ${score2})`);
+            devLog(`   Score Difference: ${scoreDifference}`);
+            devLog(`   Total Score: ${totalScore}`);
+            devLog(`   Clarity: ${(clarity * 100).toFixed(1)}%`);
+            devLog(`   Confidence: ${(confidence * 100).toFixed(1)}%`);
+            devLog(`   Match Quality: ${confidenceMatchesClarity ? '✅ GOOD' : '⚠️  NEEDS IMPROVEMENT'}`);
+
             if (!confidenceMatchesClarity) {
-                console.log(`   💡 Suggestion: Confidence calculation may need adjustment for ${dimension}`);
+                devLog(`   💡 Suggestion: Confidence calculation may need adjustment for ${dimension}`);
             }
         });
         
@@ -1258,34 +1258,34 @@ class MBTIQuiz {
         const answeredQuestions = this.answers.length;
         const completionRate = answeredQuestions / totalQuestions;
         
-        console.log('\n🎯 OVERALL CORRELATION ANALYSIS:');
-        console.log(`   Questions Completed: ${answeredQuestions}/${totalQuestions} (${(completionRate * 100).toFixed(1)}%)`);
-        console.log(`   Average Confidence: ${(avgConfidence * 100).toFixed(1)}%`);
-        console.log(`   Final Type: ${finalType}`);
-        
+        devLog('\n🎯 OVERALL CORRELATION ANALYSIS:');
+        devLog(`   Questions Completed: ${answeredQuestions}/${totalQuestions} (${(completionRate * 100).toFixed(1)}%)`);
+        devLog(`   Average Confidence: ${(avgConfidence * 100).toFixed(1)}%`);
+        devLog(`   Final Type: ${finalType}`);
+
         // Determine if the system is working well
         if (avgConfidence > 0.6 && completionRate > 0.8) {
-            console.log('   🎉 SYSTEM STATUS: EXCELLENT - High confidence with good completion');
+            devLog('   🎉 SYSTEM STATUS: EXCELLENT - High confidence with good completion');
         } else if (avgConfidence > 0.4 && completionRate > 0.6) {
-            console.log('   ✅ SYSTEM STATUS: GOOD - Reasonable confidence and completion');
+            devLog('   ✅ SYSTEM STATUS: GOOD - Reasonable confidence and completion');
         } else if (avgConfidence > 0.2 && completionRate > 0.4) {
-            console.log('   ⚠️  SYSTEM STATUS: FAIR - Low confidence or incomplete quiz');
+            devLog('   ⚠️  SYSTEM STATUS: FAIR - Low confidence or incomplete quiz');
         } else {
-            console.log('   ❌ SYSTEM STATUS: POOR - Very low confidence or incomplete quiz');
+            devLog('   ❌ SYSTEM STATUS: POOR - Very low confidence or incomplete quiz');
         }
-        
-        console.log('\n💡 RECOMMENDATIONS:');
+
+        devLog('\n💡 RECOMMENDATIONS:');
         if (avgConfidence < 0.4) {
-            console.log('   - Consider adjusting confidence calculation weights');
-            console.log('   - Review question scoring system');
-            console.log('   - Check if questions are properly balanced');
+            devLog('   - Consider adjusting confidence calculation weights');
+            devLog('   - Review question scoring system');
+            devLog('   - Check if questions are properly balanced');
         }
         if (completionRate < 0.8) {
-            console.log('   - Quiz may be too long for users');
-            console.log('   - Consider adaptive question selection');
+            devLog('   - Quiz may be too long for users');
+            devLog('   - Consider adaptive question selection');
         }
         
-        console.log('==================================================');
+        devLog('==================================================');
     }
 }
 
@@ -2445,6 +2445,15 @@ function getCurrentAppState() {
     return getAppStateFromURL();
 }
 
+/**
+ * Development logging function - only logs in development mode
+ */
+function devLog(...args) {
+    if (getCurrentAppState() === 'development') {
+        console.log(...args);
+    }
+}
+
 // Function to show/hide development tools
 function updateDevToolsVisibility() {
     const devTools = document.getElementById('devTools');
@@ -2860,9 +2869,9 @@ let quiz;
 // Utility function for logging
 function log(message, data = null) {
     if (data) {
-        console.log(`[Adaptive] ${message}`, data);
+        devLog(`[Adaptive] ${message}`, data);
     } else {
-        console.log(`[Adaptive] ${message}`);
+        devLog(`[Adaptive] ${message}`);
     }
 }
 
@@ -3817,7 +3826,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Test confidence calculation with sample data
-    console.log('Testing confidence calculation...');
+    devLog('Testing confidence calculation...');
     const testScores = { E: 5, I: 2, S: 3, N: 4, T: 6, F: 1, J: 4, P: 3 };
     const testAnswers = [
         { option: 1, dimension: 'EI' },
@@ -3842,7 +3851,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const preferenceStrength = scoreDifference / totalPossibleScore;
             const dimensionConfidence = (utilizationRatio * 0.4) + (preferenceStrength * 0.6);
             
-            console.log(`Test ${dimension}:`, {
+            devLog(`Test ${dimension}:`, {
                 score1, score2, scoreDifference,
                 answeredForDimension, totalPossibleScore,
                 utilizationRatio, preferenceStrength,
