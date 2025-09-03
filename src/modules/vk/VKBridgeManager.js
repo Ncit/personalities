@@ -262,14 +262,14 @@ export class VKBridgeManager {
             return this.fallbackShare(shareText, shareTitle);
         }
         if (!this.bridge.isWebView()) {
-            const shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(shareTitle)}&title=${encodeURIComponent(shareText)}`;
+            const shareUrl = `https://vk.ru/share.php?url=${encodeURIComponent(shareTitle)}&title=${encodeURIComponent(shareText)}`;
             window.open(shareUrl, '_blank', 'width=550,height=370');
             return;
         }
 
         try {
             await this.bridge.send('VKWebAppShare', {
-                link: "https://vk.com/app53942833",
+                link: "https://vk.ru/app53942833",
                 title: shareTitle,
                 text: shareText
             });
@@ -500,10 +500,10 @@ export class VKBridgeManager {
         }
         
         const urlIndicators = [
-            window.location.hostname.includes('vk.com'),
-            window.location.hostname.includes('m.vk.com'),
+            window.location.hostname.includes('vk.ru'),
+            window.location.hostname.includes('m.vk.ru'),
             window.location.search.includes('vk_'),
-            document.referrer.includes('vk.com')
+            document.referrer.includes('vk.ru')
         ];
         
         const hasVKUrlIndicators = urlIndicators.some(indicator => indicator);
@@ -512,9 +512,9 @@ export class VKBridgeManager {
             method: 'url_indicators',
             is_vk_platform: this.isVKPlatform,
             bridge_available: typeof window.vkBridge !== 'undefined',
-            hostname_contains_vk: window.location.hostname.includes('vk.com'),
+            hostname_contains_vk: window.location.hostname.includes('vk.ru'),
             url_has_vk_params: window.location.search.includes('vk_'),
-            referrer_contains_vk: document.referrer.includes('vk.com'),
+            referrer_contains_vk: document.referrer.includes('vk.ru'),
             has_vk_url_indicators: hasVKUrlIndicators,
             final_result: hasVKUrlIndicators
         });

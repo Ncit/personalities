@@ -40,7 +40,7 @@ Content-Type: application/json
   "username": "john_doe",
   "first_name": "John",
   "last_name": "Doe",
-  "vk_photo": "https://vk.com/images/camera_200.png"
+  "vk_photo": "https://vk.ru/images/camera_200.png"
 }
 ```
 

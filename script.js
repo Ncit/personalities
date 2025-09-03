@@ -913,7 +913,7 @@ class PersonalityQuiz {
             navigator.share({
                 title: shareTitle,
                 text: shareText,
-                url: "https://vk.com/app53942833"
+                url: "https://vk.ru/app53942833"
             });
         }
     }
