@@ -17,6 +17,66 @@ import { productAnalytics } from './src/modules/analytics/AnalyticsEngine.js';
 // Initialize global logger
 const logger = new LoggerManager().createModuleLogger('MainApp');
 
+// Global function to handle user info from both VK Mini App and web VK Auth
+window.handleUserInfo = function(userInfo) {
+    logger.log('handleUserInfo called with:', userInfo);
+    
+    // Store user info globally
+    window.userInfo = userInfo;
+    
+    // Set Firebase Analytics user properties if available
+    if (firebaseAnalytics && userInfo) {
+        try {
+            setUserId(firebaseAnalytics, userInfo.id?.toString());
+            setUserProperties(firebaseAnalytics, {
+                vk_user_id: userInfo.id?.toString(),
+                vk_username: userInfo.screen_name || `user_${userInfo.id}`,
+                vk_first_name: userInfo.first_name || '',
+                vk_last_name: userInfo.last_name || '',
+                vk_has_photo: !!userInfo.photo_100,
+                user_type: 'vk_user'
+            });
+            logger.log('Firebase Analytics user properties set');
+        } catch (error) {
+            logger.error('Failed to set Firebase Analytics user properties:', error);
+        }
+    }
+    
+    // Track user info event
+    if (firebaseAnalytics) {
+        try {
+            logEvent(firebaseAnalytics, 'user_info_received', {
+                user_id: userInfo.id?.toString(),
+                username: userInfo.screen_name || `user_${userInfo.id}`,
+                has_photo: !!userInfo.photo_100,
+                source: 'vk_auth'
+            });
+        } catch (error) {
+            logger.error('Failed to track user info event:', error);
+        }
+    }
+    
+    // Update UI to show user is logged in
+    updateUserInterface(userInfo);
+};
+
+// Function to update UI based on user info
+function updateUserInterface(userInfo) {
+    // Update header buttons to show user is logged in
+    const cabinetBtn = document.getElementById('clientCabinetBtn');
+    if (cabinetBtn && userInfo) {
+        cabinetBtn.innerHTML = `<i class="fas fa-user"></i> ${userInfo.first_name || 'Пользователь'}`;
+    }
+    
+    // Hide VK Auth container since user is now logged in
+    const vkAuthContainer = document.getElementById('vkAuthContainer');
+    if (vkAuthContainer) {
+        vkAuthContainer.style.display = 'none';
+    }
+    
+    logger.log('UI updated for user:', userInfo.first_name || userInfo.screen_name);
+}
+
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A",

@@ -239,6 +239,7 @@ export class VKBridgeManager {
      * Handle user info
      */
     handleUserInfo(data) {
+        console.log('QQQ:', data);
         this.userService.userInfo = data;
         this.analytics.trackUserInfo(data, true);
         this.analytics.setUserProperties(data);

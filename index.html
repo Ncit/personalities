@@ -46,6 +46,96 @@
                 <button class="btn btn-secondary" id="debugToggleBtn" onclick="toggleFirebaseAnalyticsDebug()" style="font-size: 12px; display: none;">
                     Firebase Debug
                 </button>
+                
+                <!-- VK Auth - Only show in web version, hide for VK Mini App -->
+                <div id="vkAuthContainer" style="display: none; background: white; border-radius: 12px; padding: 16px; margin: 8px 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid #e0e0e0;">
+                    <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
+                    <script type="text/javascript">
+                        // Check if VK flavor is enabled via URL parameter
+                        const authUrlParams = new URLSearchParams(window.location.search);
+                        const isVKFlavorAuth = authUrlParams.get('flavor') === 'vk';
+                        
+                        // Only show VK Auth container for web version (not VK Mini App)
+                        if (!isVKFlavorAuth) {
+                            document.getElementById('vkAuthContainer').style.display = 'block';
+                            
+                            if ('VKIDSDK' in window) {
+                                const VKID = window.VKIDSDK;
+
+                                VKID.Config.init({
+                                    app: 54109191,
+                                    redirectUrl: 'https://user6582162-zsbbyijp.tunnel.vk-apps.com/',
+                                    responseMode: VKID.ConfigResponseMode.Callback,
+                                    source: VKID.ConfigSource.LOWCODE,
+                                    scope: '', // Заполните нужными доступами по необходимости
+                                });
+
+                                const oneTap = new VKID.OneTap();
+
+                                oneTap.render({
+                                    container: document.getElementById('vkAuthContainer'),
+                                    showAlternativeLogin: true
+                                })
+                                .on(VKID.WidgetEvents.ERROR, vkidOnError)
+                                .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
+                                    const code = payload.code;
+                                    const deviceId = payload.device_id;
+
+                                    VKID.Auth.exchangeCode(code, deviceId)
+                                        .then(vkidOnSuccess)
+                                        .catch(vkidOnError);
+                                });
+                            }
+                        }
+                        
+                        function vkidOnSuccess(data) {
+                            // Обработка полученного результата - получаем токены
+                            console.log('VK Auth Success - Tokens received:', data);
+                            
+                            // Extract access token
+                            const accessToken = data.access_token;
+                            
+                            if (accessToken) {
+                                // Use VK API directly to get user info with access token
+                                fetch('https://api.vk.com/method/users.get?access_token=' + accessToken + '&fields=photo_100,screen_name&v=5.131')
+                                    .then(response => response.json())
+                                    .then(apiResponse => {
+                                        console.log('VK API Response:', apiResponse);
+                                        
+                                        if (apiResponse.response && apiResponse.response.length > 0) {
+                                            const userInfo = apiResponse.response[0];
+                                            console.log('VK User Info received:', userInfo);
+                                            
+                                            // Store user info globally for web version
+                                            if (window.vkBridgeManager) {
+                                                window.vkBridgeManager.userInfo = userInfo;
+                                            }
+                                            
+                                            // Trigger user info handling similar to VK Mini App
+                                            if (typeof handleUserInfo === 'function') {
+                                                handleUserInfo(userInfo);
+                                            }
+                                        } else {
+                                            console.error('No user data in VK API response');
+                                            vkidOnError(new Error('No user data received'));
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Failed to get user info from VK API:', error);
+                                        vkidOnError(error);
+                                    });
+                            } else {
+                                console.error('Access token not available');
+                                vkidOnError(new Error('Access token not available'));
+                            }
+                        }
+                    
+                        function vkidOnError(error) {
+                            // Обработка ошибки
+                            console.error('VK Auth Error:', error);
+                        }
+                    </script>
+                </div>
             </div>
         </header>
 
@@ -910,8 +1000,19 @@
         </div>
     </div>
 
-    <!-- VK Bridge Integration -->
-    <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
+    <!-- VK Bridge Integration - Only load when VK flavor is enabled -->
+    <script>
+        // Check if VK flavor is enabled via URL parameter
+        const bridgeUrlParams = new URLSearchParams(window.location.search);
+        const isVKFlavorBridge = bridgeUrlParams.get('flavor') === 'vk';
+        
+        if (isVKFlavorBridge) {
+            // Load VK Bridge only for VK Mini App
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
     
     
     
