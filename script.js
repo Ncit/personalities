@@ -24,6 +24,26 @@ window.handleUserInfo = function(userInfo) {
     // Store user info globally
     window.userInfo = userInfo;
     
+    // Save user authorization to localStorage
+    if (userInfo && userInfo.id) {
+        try {
+            const userAuthData = {
+                id: userInfo.id,
+                first_name: userInfo.first_name || '',
+                last_name: userInfo.last_name || '',
+                screen_name: userInfo.screen_name || '',
+                photo_100: userInfo.photo_100 || '',
+                authorized: true,
+                auth_timestamp: Date.now()
+            };
+            
+            localStorage.setItem('vk_user_auth', JSON.stringify(userAuthData));
+            logger.log('User authorization saved to localStorage:', userAuthData);
+        } catch (error) {
+            logger.error('Failed to save user authorization to localStorage:', error);
+        }
+    }
+    
     // Set Firebase Analytics user properties if available
     if (firebaseAnalytics && userInfo) {
         try {
@@ -76,6 +96,89 @@ function updateUserInterface(userInfo) {
     
     logger.log('UI updated for user:', userInfo.first_name || userInfo.screen_name);
 }
+
+// Function to check for existing user authorization on page load
+function checkExistingUserAuth() {
+    try {
+        const savedAuth = localStorage.getItem('vk_user_auth');
+        if (savedAuth) {
+            const userAuthData = JSON.parse(savedAuth);
+            
+            // Check if authorization is still valid (optional: add expiration check)
+            if (userAuthData.authorized && userAuthData.id) {
+                logger.log('Found existing user authorization:', userAuthData);
+                
+                // Restore user info globally
+                window.userInfo = userAuthData;
+                
+                // Update UI to show user is logged in
+                updateUserInterface(userAuthData);
+                
+                // Set Firebase Analytics user properties if available
+                if (firebaseAnalytics) {
+                    try {
+                        setUserId(firebaseAnalytics, userAuthData.id?.toString());
+                        setUserProperties(firebaseAnalytics, {
+                            vk_user_id: userAuthData.id?.toString(),
+                            vk_username: userAuthData.screen_name || `user_${userAuthData.id}`,
+                            vk_first_name: userAuthData.first_name || '',
+                            vk_last_name: userAuthData.last_name || '',
+                            vk_has_photo: !!userAuthData.photo_100,
+                            user_type: 'vk_user'
+                        });
+                        logger.log('Firebase Analytics user properties restored from localStorage');
+                    } catch (error) {
+                        logger.error('Failed to restore Firebase Analytics user properties:', error);
+                    }
+                }
+                
+                return true; // User is authorized
+            }
+        }
+    } catch (error) {
+        logger.error('Failed to check existing user authorization:', error);
+        // Clear corrupted data
+        localStorage.removeItem('vk_user_auth');
+    }
+    
+    return false; // User is not authorized
+}
+
+// Function to clear user authorization
+function clearUserAuth() {
+    try {
+        localStorage.removeItem('vk_user_auth');
+        window.userInfo = null;
+        
+        // Reset UI
+        const cabinetBtn = document.getElementById('clientCabinetBtn');
+        if (cabinetBtn) {
+            cabinetBtn.innerHTML = `<i class="fas fa-user"></i> Личный кабинет`;
+        }
+        
+        // Show VK Auth container again
+        const vkAuthContainer = document.getElementById('vkAuthContainer');
+        if (vkAuthContainer) {
+            vkAuthContainer.style.display = 'block';
+        }
+        
+        logger.log('User authorization cleared');
+    } catch (error) {
+        logger.error('Failed to clear user authorization:', error);
+    }
+}
+
+// Global logout function
+window.logoutUser = function() {
+    clearUserAuth();
+    
+    // Show confirmation message
+    if (window.showAppAlert) {
+        window.showAppAlert('Вы вышли из аккаунта');
+    } else {
+        alert('Вы вышли из аккаунта');
+    }
+};
 
 // Firebase configuration
 const firebaseConfig = {
@@ -2891,6 +2994,9 @@ function setupModalClickOutside() {
 let vkBridgeManager;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Check for existing user authorization first
+    checkExistingUserAuth();
+    
     // Initialize VK Bridge Manager
     try {
         vkBridgeManager = new VKBridgeManager();
