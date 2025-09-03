@@ -180,6 +180,28 @@ window.logoutUser = function() {
     }
 };
 
+// Function to check if user is authenticated (for web version)
+function isUserAuthenticated() {
+    // In VK Mini App, user is always authenticated
+    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+        return true;
+    }
+    
+    // In web version, check localStorage
+    return window.userInfo && window.userInfo.authorized;
+}
+
+// Function to show authentication required alert
+function showAuthRequiredAlert(action = 'выполнить это действие') {
+    const message = `Для ${action} необходимо войти через VK. Пожалуйста, авторизуйтесь сначала.`;
+    
+    if (window.showAppAlert) {
+        window.showAppAlert(message);
+    } else {
+        alert(message);
+    }
+}
+
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A",
@@ -1725,6 +1747,12 @@ function closePremiumModal() {
 }
 
 async function unlockPremium() {
+    // Check authentication for web version
+    if (!isUserAuthenticated()) {
+        showAuthRequiredAlert('покупки премиум доступа');
+        return;
+    }
+    
     const unlockMsg = document.getElementById('premiumUnlockMsg');
     
     // Show loading state
@@ -2928,6 +2956,12 @@ function updateQuizTitle(quizType) {
 
 // Function to start different quiz types
 function startQuizType(quizType) {
+    // Check authentication for web version
+    if (!isUserAuthenticated()) {
+        showAuthRequiredAlert('начала премиум теста');
+        return;
+    }
+    
     if (!isPremium()) {
         openPremiumModal();
         return;
@@ -3051,6 +3085,12 @@ let bannerAdTimer = null;
 
 // Global functions for HTML onclick handlers
 function startQuiz() {
+    // Check authentication for web version
+    if (!isUserAuthenticated()) {
+        showAuthRequiredAlert('начала теста');
+        return;
+    }
+    
     quiz = new PersonalityQuiz();
 
     // Set default personality quiz title
@@ -3771,7 +3811,7 @@ function showHelp(topic) {
                     <li><strong>Специализированные тесты:</strong> 12 дополнительных тестов для разных аспектов личности</li>
                     <li><strong>Без рекламы:</strong> Чистый интерфейс без отвлекающих элементов</li>
                 </ul>
-                <p><strong>💎 Стоимость:</strong> 40 голосов ВКонтакте</p>
+                <p><strong>💎 Стоимость:</strong> 280 рублей</p>
             `
         },
         'faq': {
