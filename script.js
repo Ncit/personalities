@@ -105,10 +105,11 @@ function checkExistingUserAuth() {
     
     // In VK Mini App, don't check localStorage - VK Bridge will handle authentication
     if (isVKFlavor) {
-        logger.log('VK Mini App detected - skipping localStorage auth check');
+        logger.log('VK Mini App detected - VK Bridge will handle authentication');
         return false; // Let VK Bridge handle authentication
     }
     
+    // Only check localStorage for web version
     try {
         const savedAuth = localStorage.getItem('vk_user_auth');
         if (savedAuth) {
@@ -190,19 +191,20 @@ window.logoutUser = function() {
     }
 };
 
-// Function to check if user is authenticated (for web version)
+// Function to check if user is authenticated
 function isUserAuthenticated() {
     // Check if we're in VK Mini App environment
     const urlParams = new URLSearchParams(window.location.search);
     const isVKFlavor = urlParams.get('flavor') === 'vk';
     
-    // In VK Mini App, user is always authenticated via VK Bridge
-    if (isVKFlavor && vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
-        return true;
+    if (isVKFlavor) {
+        // In VK Mini App, check if VK Bridge is available and user is authenticated
+        // VK Bridge handles authentication automatically, so we just check if it's available
+        return vkBridgeManager && vkBridgeManager.isVKEnvironment();
+    } else {
+        // In web version, check localStorage for VK Auth
+        return window.userInfo && window.userInfo.authorized;
     }
-    
-    // In web version, check localStorage for VK Auth
-    return window.userInfo && window.userInfo.authorized;
 }
 
 // Function to show authentication required alert
