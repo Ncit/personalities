@@ -57,35 +57,48 @@
                         
                         // Only show VK Auth container for web version (not VK Mini App)
                         if (!isVKFlavorAuth) {
-                            document.getElementById('vkAuthContainer').style.display = 'block';
+                            // Wait for VK ID SDK to load
+                            const initVKAuth = () => {
+                                if ('VKIDSDK' in window) {
+                                    const VKID = window.VKIDSDK;
+
+                                    VKID.Config.init({
+                                        app: 54109191,
+                                        redirectUrl: 'https://nikmobdev.ru/personalities/',
+                                        responseMode: VKID.ConfigResponseMode.Callback,
+                                        source: VKID.ConfigSource.LOWCODE,
+                                        scope: '', // Заполните нужными доступами по необходимости
+                                    });
+
+                                    const oneTap = new VKID.OneTap();
+
+                                    oneTap.render({
+                                        container: document.getElementById('vkAuthContainer'),
+                                        showAlternativeLogin: true
+                                    })
+                                    .on(VKID.WidgetEvents.ERROR, vkidOnError)
+                                    .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
+                                        const code = payload.code;
+                                        const deviceId = payload.device_id;
+
+                                        VKID.Auth.exchangeCode(code, deviceId)
+                                            .then(vkidOnSuccess)
+                                            .catch(vkidOnError);
+                                    });
+                                    
+                                    // Show the container after successful initialization
+                                    document.getElementById('vkAuthContainer').style.display = 'block';
+                                } else {
+                                    // Retry if VK ID SDK is not loaded yet
+                                    setTimeout(initVKAuth, 100);
+                                }
+                            };
                             
-                            if ('VKIDSDK' in window) {
-                                const VKID = window.VKIDSDK;
-
-                                VKID.Config.init({
-                                    app: 54109191,
-                                    redirectUrl: 'https://nikmobdev.ru/personalities/',
-                                    responseMode: VKID.ConfigResponseMode.Callback,
-                                    source: VKID.ConfigSource.LOWCODE,
-                                    scope: '', // Заполните нужными доступами по необходимости
-                                });
-
-                                const oneTap = new VKID.OneTap();
-
-                                oneTap.render({
-                                    container: document.getElementById('vkAuthContainer'),
-                                    showAlternativeLogin: true
-                                })
-                                .on(VKID.WidgetEvents.ERROR, vkidOnError)
-                                .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
-                                    const code = payload.code;
-                                    const deviceId = payload.device_id;
-
-                                    VKID.Auth.exchangeCode(code, deviceId)
-                                        .then(vkidOnSuccess)
-                                        .catch(vkidOnError);
-                                });
-                            }
+                            // Start initialization
+                            initVKAuth();
+                        } else {
+                            // For VK Mini App, ensure the container is hidden
+                            document.getElementById('vkAuthContainer').style.display = 'none';
                         }
                         
                         function vkidOnSuccess(data) {
@@ -829,9 +842,9 @@
                         Без рекламы
                     </li>
                 </ul>
-                <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
-                    <i class="fas fa-unlock"></i> Разблокировать Премиум 280 рублей
-                </button>
+                                    <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
+                        <i class="fas fa-unlock"></i> Разблокировать Премиум <span id="premiumPrice">280 рублей</span>
+                    </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
             </div>
         </div>
@@ -876,7 +889,7 @@
                         <div class="tier-card premium-tier">
                             <div class="tier-header">
                                 <h4><i class="fas fa-star"></i>Премиум доступ</h4>
-                                <div class="tier-price">280 рублей</div>
+                                <div class="tier-price" id="subscriptionPrice">280 рублей</div>
                             </div>
                             <ul class="tier-features">
                                 <li><i class="fas fa-check"></i> Полный тест личности (61 вопрос)</li>
@@ -1087,7 +1100,7 @@
                 <div class="offer-section">
                     <h3>3. СТОИМОСТЬ УСЛУГ И ПОРЯДОК РАСЧЕТОВ</h3>
                     <p>3.1. Базовые услуги предоставляются бесплатно.</p>
-                    <p>3.2. Стоимость премиум-доступа составляет <strong>280 (двести восемьдесят) рублей</strong>.</p>
+                    <p>3.2. Стоимость премиум-доступа составляет <strong id="offerPrice">280 (двести восемьдесят) рублей</strong>.</p>
                     <p>3.3. Оплата производится:</p>
                     <ul>
                         <li>В веб-версии: банковской картой или другими электронными способами</li>

@@ -99,6 +99,16 @@ function updateUserInterface(userInfo) {
 
 // Function to check for existing user authorization on page load
 function checkExistingUserAuth() {
+    // Check if we're in VK Mini App environment
+    const urlParams = new URLSearchParams(window.location.search);
+    const isVKFlavor = urlParams.get('flavor') === 'vk';
+    
+    // In VK Mini App, don't check localStorage - VK Bridge will handle authentication
+    if (isVKFlavor) {
+        logger.log('VK Mini App detected - skipping localStorage auth check');
+        return false; // Let VK Bridge handle authentication
+    }
+    
     try {
         const savedAuth = localStorage.getItem('vk_user_auth');
         if (savedAuth) {
@@ -182,12 +192,16 @@ window.logoutUser = function() {
 
 // Function to check if user is authenticated (for web version)
 function isUserAuthenticated() {
-    // In VK Mini App, user is always authenticated
-    if (vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
+    // Check if we're in VK Mini App environment
+    const urlParams = new URLSearchParams(window.location.search);
+    const isVKFlavor = urlParams.get('flavor') === 'vk';
+    
+    // In VK Mini App, user is always authenticated via VK Bridge
+    if (isVKFlavor && vkBridgeManager && vkBridgeManager.isVKEnvironment()) {
         return true;
     }
     
-    // In web version, check localStorage
+    // In web version, check localStorage for VK Auth
     return window.userInfo && window.userInfo.authorized;
 }
 
@@ -218,6 +232,34 @@ function closeOfferModal() {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto'; // Restore scrolling
     }
+}
+
+// Function to update pricing based on environment
+function updatePricing() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isVKFlavor = urlParams.get('flavor') === 'vk';
+    
+    const webPrice = '280 рублей';
+    const vkPrice = '40 голосов';
+    
+    const price = isVKFlavor ? vkPrice : webPrice;
+    
+    // Update all price elements
+    const priceElements = [
+        'premiumPrice',
+        'subscriptionPrice', 
+        'offerPrice',
+        'scriptPrice'
+    ];
+    
+    priceElements.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = price;
+        }
+    });
+    
+    logger.log('Pricing updated for environment:', isVKFlavor ? 'VK Mini App' : 'Web', 'Price:', price);
 }
 
 // Firebase configuration
@@ -3046,6 +3088,9 @@ function setupModalClickOutside() {
 let vkBridgeManager;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Update pricing based on environment
+    updatePricing();
+    
     // Check for existing user authorization first
     checkExistingUserAuth();
     
@@ -3833,7 +3878,7 @@ function showHelp(topic) {
                     <li><strong>Специализированные тесты:</strong> 12 дополнительных тестов для разных аспектов личности</li>
                     <li><strong>Без рекламы:</strong> Чистый интерфейс без отвлекающих элементов</li>
                 </ul>
-                <p><strong>💎 Стоимость:</strong> 280 рублей</p>
+                <p><strong>💎 Стоимость:</strong> <span id="scriptPrice">280 рублей</span></p>
             `
         },
         'faq': {
