@@ -202,6 +202,24 @@ function showAuthRequiredAlert(action = 'выполнить это действ�
     }
 }
 
+// Function to show offer modal
+function showOfferModal() {
+    const modal = document.getElementById('offerModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+}
+
+// Function to close offer modal
+function closeOfferModal() {
+    const modal = document.getElementById('offerModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+}
+
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A",
@@ -3268,6 +3286,10 @@ window.unlockPremium = unlockPremium;
 window.toggleAppState = toggleAppState;
 window.viewLastResults = viewLastResults;
 window.startQuizType = startQuizType;
+
+// Global functions for offer modal
+window.showOfferModal = showOfferModal;
+window.closeOfferModal = closeOfferModal;
 window.fillAllRandomAnswersFromWelcome = fillAllRandomAnswersFromWelcome;
 window.fillPremiumRandomAnswers = fillPremiumRandomAnswers;
 window.copyShareLink = copyShareLink;

@@ -64,7 +64,7 @@
 
                                 VKID.Config.init({
                                     app: 54109191,
-                                    redirectUrl: 'https://user6582162-qvytsrxz.tunnel.vk-apps.com/',
+                                    redirectUrl: 'https://nikmobdev.ru/personalities/',
                                     responseMode: VKID.ConfigResponseMode.Callback,
                                     source: VKID.ConfigSource.LOWCODE,
                                     scope: '', // Заполните нужными доступами по необходимости
@@ -729,6 +729,7 @@
                         <li><a href="#" onclick="showHelp('about-personality')">О типах личности</a></li>
                         <li><a href="#" onclick="showHelp('privacy')">Конфиденциальность</a></li>
                         <li><a href="#" onclick="showHelp('terms')">Условия использования</a></li>
+                        <li><a href="#" onclick="showOfferModal()">Публичная оферта</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -739,6 +740,18 @@
                     <ul>
                         <li>personalitiesresearch@mail.ru</li>
                     </ul>
+                    
+                    <!-- Реквизиты - только для веб-версии -->
+                    <div id="requisitesSection" style="display: none; margin-top: 20px;">
+                        <h4>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+                            Реквизиты
+                        </h4>
+                        <ul>
+                            <li><strong>Наименование:</strong> Фещун Н.Ю.</li>
+                            <li><strong>ИНН:</strong> 920352231504</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -817,7 +830,7 @@
                     </li>
                 </ul>
                 <button class="btn btn-premium" id="unlockPremiumBtn" onclick="unlockPremium()">
-                    <i class="fas fa-unlock"></i> Разблокировать Премиум
+                    <i class="fas fa-unlock"></i> Разблокировать Премиум 280 рублей
                 </button>
                 <div id="premiumUnlockMsg" class="premium-unlock-msg"></div>
             </div>
@@ -863,7 +876,7 @@
                         <div class="tier-card premium-tier">
                             <div class="tier-header">
                                 <h4><i class="fas fa-star"></i>Премиум доступ</h4>
-                                <div class="tier-price">40 голосов</div>
+                                <div class="tier-price">280 рублей</div>
                             </div>
                             <ul class="tier-features">
                                 <li><i class="fas fa-check"></i> Полный тест личности (61 вопрос)</li>
@@ -1027,6 +1040,104 @@
         </div>
     </div>
 
+    <!-- Offer Modal -->
+    <div id="offerModal" class="modal" style="display:none;">
+        <div class="modal-content offer-modal-content">
+            <span class="close" onclick="closeOfferModal()">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-file-contract"></i> Публичная оферта</h2>
+                <p>О предоставлении услуг по тестированию личности</p>
+            </div>
+            <div class="modal-body offer-content">
+                <div class="offer-section">
+                    <h3>1. ОБЩИЕ ПОЛОЖЕНИЯ</h3>
+                    <p><strong>Наименование:</strong> Фещун Н.Ю.<br>
+                    <strong>ИНН:</strong> 920352231504</p>
+                    
+                    <p>1.1. Настоящая публичная оферта (далее — «Оферта») определяет условия предоставления услуг по тестированию личности и является официальным предложением Фещун Н.Ю. (далее — «Исполнитель») заключить договор на указанных ниже условиях с любым физическим лицом (далее — «Заказчик»).</p>
+                    
+                    <p>1.2. Акцептом настоящей Оферты является совершение Заказчиком действий, направленных на получение услуг, в том числе:</p>
+                    <ul>
+                        <li>Регистрация на сайте</li>
+                        <li>Прохождение тестирования</li>
+                        <li>Оплата услуг</li>
+                    </ul>
+                </div>
+
+                <div class="offer-section">
+                    <h3>2. ПРЕДМЕТ ДОГОВОРА</h3>
+                    <p>2.1. Исполнитель обязуется предоставить Заказчику следующие услуги:</p>
+                    <ul>
+                        <li>Доступ к тестам личности на основе типологии MBTI (16 типов личности)</li>
+                        <li>Базовые результаты тестирования</li>
+                        <li>Описание типа личности</li>
+                        <li>Дополнительные премиум-функции (при оплате)</li>
+                    </ul>
+                    
+                    <p>2.2. Премиум-функции включают:</p>
+                    <ul>
+                        <li>Расширенные анализы личности</li>
+                        <li>Сравнение с известными личностями</li>
+                        <li>Визуальная аналитика (графики и диаграммы)</li>
+                        <li>Премиум тесты (12 специализированных типов)</li>
+                        <li>Отсутствие рекламы</li>
+                    </ul>
+                </div>
+
+                <div class="offer-section">
+                    <h3>3. СТОИМОСТЬ УСЛУГ И ПОРЯДОК РАСЧЕТОВ</h3>
+                    <p>3.1. Базовые услуги предоставляются бесплатно.</p>
+                    <p>3.2. Стоимость премиум-доступа составляет <strong>280 (двести восемьдесят) рублей</strong>.</p>
+                    <p>3.3. Оплата производится:</p>
+                    <ul>
+                        <li>В веб-версии: банковской картой или другими электронными способами</li>
+                        <li>В VK Mini App: голосами ВКонтакте (40 голосов)</li>
+                    </ul>
+                </div>
+
+                <div class="offer-section">
+                    <h3>4. ВОЗВРАТ СРЕДСТВ</h3>
+                    <p>4.1. Возврат средств возможен в следующих случаях:</p>
+                    <ul>
+                        <li>Техническая невозможность предоставления услуг</li>
+                        <li>Двойное списание средств</li>
+                        <li>Ошибка в платеже</li>
+                    </ul>
+                    <p>4.2. Возврат не производится при:</p>
+                    <ul>
+                        <li>Получении услуг в полном объеме</li>
+                        <li>Нарушении условий использования</li>
+                        <li>Истечении 14 дней с момента оплаты</li>
+                    </ul>
+                    <p>4.3. Заявка на возврат подается на email: <strong>personalitiesresearch@mail.ru</strong></p>
+                </div>
+
+                <div class="offer-section">
+                    <h3>5. КОНФИДЕНЦИАЛЬНОСТЬ</h3>
+                    <p>5.1. Стороны обязуются не разглашать конфиденциальную информацию.</p>
+                    <p>5.2. Персональные данные обрабатываются в соответствии с Федеральным законом «О персональных данных».</p>
+                    <p>5.3. Исполнитель может использовать обезличенные данные для улучшения сервиса.</p>
+                </div>
+
+                <div class="offer-section">
+                    <h3>6. КОНТАКТНАЯ ИНФОРМАЦИЯ</h3>
+                    <p><strong>Email:</strong> personalitiesresearch@mail.ru</p>
+                    <p><strong>Дата размещения:</strong> 2025</p>
+                    <p><strong>Версия:</strong> 1.0</p>
+                </div>
+
+                <div class="offer-footer">
+                    <p><em>Данная оферта составлена в соответствии с требованиями российского законодательства и является публичным договором присоединения.</em></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeOfferModal()">
+                    <i class="fas fa-check"></i> Понятно
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- VK Bridge Integration - Only load when VK flavor is enabled -->
     <script>
         // Check if VK flavor is enabled via URL parameter
@@ -1038,6 +1149,14 @@
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js';
             document.head.appendChild(script);
+        } else {
+            // Show requisites section for web version only
+            document.addEventListener('DOMContentLoaded', function() {
+                const requisitesSection = document.getElementById('requisitesSection');
+                if (requisitesSection) {
+                    requisitesSection.style.display = 'block';
+                }
+            });
         }
     </script>
     
