@@ -56,6 +56,14 @@ export class VKUserService {
             this.analytics.trackUserInfo(enhancedUserInfo, true);
             this.analytics.setUserProperties(enhancedUserInfo);
             
+            // Track login event for VK Mini App
+            if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+                window.vkBridgeManager.trackVKEvent('login', {
+                    user_id: enhancedUserInfo.id,
+                    platform: 'vk_mini_app'
+                });
+            }
+            
             // Save user data to server (non-blocking)
             if (this.isEnabled) {
                 this.saveUserDataToServer(enhancedUserInfo).catch(error => {

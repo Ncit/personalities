@@ -61,6 +61,9 @@ export class VKBridgeManager {
 
                 this.analytics.trackVKEvent('app_initialized');
                 
+                // Track VK Mini App visit
+                this.trackVKEvent('visit_website');
+                
                 // Get user info
                 await this.userService.getUserInfo();
                 
@@ -572,6 +575,23 @@ export class VKBridgeManager {
         
         this.analytics.trackVKEvent('environment_debug', debugInfo);
         return debugInfo;
+    }
+
+    /**
+     * Track VK Mini App events using VKWebAppTrackEvent
+     */
+    trackVKEvent(eventName, parameters = {}) {
+        if (this.bridge && this.isVKPlatform) {
+            try {
+                this.bridge.send('VKWebAppTrackEvent', {
+                    event_name: eventName,
+                    event_params: parameters
+                });
+                this.logger.log(`VK Track Event: ${eventName}`, parameters);
+            } catch (error) {
+                this.logger.error(`Failed to track VK event ${eventName}:`, error);
+            }
+        }
     }
 
     /**

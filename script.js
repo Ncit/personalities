@@ -866,6 +866,16 @@ class PersonalityQuiz {
             });
         }
         
+        // Track view_info_page event for VK Mini App
+        if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+            window.vkBridgeManager.trackVKEvent('view_info_page', {
+                personality_type: personalityType,
+                quiz_type: this.currentQuizType || 'mbti',
+                platform: 'vk_mini_app',
+                is_premium: isPremium()
+            });
+        }
+        
         // Show the "На главную" button after test completion
         const onMainPageBtn = document.getElementById('onMainPageBtn');
         if (onMainPageBtn) {
@@ -1081,6 +1091,17 @@ class PersonalityQuiz {
                 const link = `${window.location.origin}${window.location.pathname}?type=${results.personalityType}&premium=1`;
                 shareLink.value = link;
             }
+        }
+        
+        // Track view_info_page event for viewing saved results
+        if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+            window.vkBridgeManager.trackVKEvent('view_info_page', {
+                personality_type: results.personalityType,
+                quiz_type: this.currentQuizType || 'mbti',
+                platform: 'vk_mini_app',
+                is_premium: isPremium(),
+                source: 'saved_results'
+            });
         }
         
         return true;
@@ -1846,6 +1867,16 @@ async function unlockPremium() {
                         unlockMsg.textContent = '🎉 Премиум доступ открыт!';
                         unlockMsg.style.display = 'block';
                         unlockMsg.style.color = '#28a745'; // Green color for success messages
+                    }
+                    
+                    // Track purchase event for VK Mini App
+                    if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+                        window.vkBridgeManager.trackVKEvent('purchase', {
+                            product_id: 'premium_access',
+                            price: '40_votes',
+                            platform: 'vk_mini_app',
+                            success: true
+                        });
                     }
                     
                     // Complete premium unlock
@@ -3045,6 +3076,15 @@ function startQuizType(quizType) {
             is_premium: isPremium()
         });
     }
+    
+    // Track take_test event for VK Mini App
+    if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+        window.vkBridgeManager.trackVKEvent('take_test', {
+            quiz_type: quizType,
+            test_type: 'premium',
+            platform: 'vk_mini_app'
+        });
+    }
 }
 
 // Modal click-outside-to-close functionality
@@ -3168,6 +3208,15 @@ function startQuiz() {
         quiz_type: 'mbti',
         feature: 'quiz'
     });
+
+    // Track take_test event for VK Mini App
+    if (window.vkBridgeManager && typeof window.vkBridgeManager.trackVKEvent === 'function') {
+        window.vkBridgeManager.trackVKEvent('take_test', {
+            quiz_type: 'mbti',
+            test_type: 'main',
+            platform: 'vk_mini_app'
+        });
+    }
 
     // Hide banner ad when starting quiz
     hideBannerAd();
@@ -3592,7 +3641,7 @@ function updateSubscriptionInfo() {
         const startDateValue = subscriptionData.startDate || new Date().toLocaleDateString();
         const endDateValue = subscriptionData.endDate || 'Бессрочно';
         const nextPaymentValue = subscriptionData.nextPayment || 'Нет';
-        const priceValue = subscriptionData.price || 'Бесплатно (демо)';
+        const priceValue = subscriptionData.price || '';
         
         if (startDate) startDate.textContent = startDateValue;
         if (endDate) endDate.textContent = endDateValue;
