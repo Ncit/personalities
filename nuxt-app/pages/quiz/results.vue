@@ -126,10 +126,11 @@ const results = computed(() => quizStore.lastResults)
 
 // Mock personality type data - would be loaded from data files
 const typeData = computed(() => {
-  if (!results.value) return null
+  if (!results.value) return undefined
 
   // This would be loaded from the actual personality types data
   return {
+    code: results.value.personalityType,
     title: 'The Architect',
     subtitle: 'Strategic Thinker',
     description: 'Innovative thinkers with an unquenchable thirst for knowledge.',
