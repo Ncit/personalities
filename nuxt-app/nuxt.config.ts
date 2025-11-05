@@ -9,6 +9,14 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
 
+  // Components auto-import configuration
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false
+    }
+  ],
+
   // TypeScript configuration
   typescript: {
     strict: true,
@@ -75,14 +83,18 @@ export default defineNuxtConfig({
   // Runtime config
   runtimeConfig: {
     public: {
-      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A',
-      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'nikitaproject-b0a52.firebaseapp.com',
-      firebaseProjectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID || 'nikitaproject-b0a52',
-      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'nikitaproject-b0a52.firebasestorage.app',
-      firebaseMessagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '188919966813',
-      firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID || '1:188919966813:web:748cc6a6354d672173f1b4',
-      firebaseMeasurementId: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-TZ5LN0BB9L',
-      vkAppId: process.env.NUXT_PUBLIC_VK_APP_ID || '54109191'
+      firebase: {
+        apiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyB773kQHk-jLJeSwYhCluXXk1r6CEOuR8A',
+        authDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'nikitaproject-b0a52.firebaseapp.com',
+        projectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID || 'nikitaproject-b0a52',
+        storageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'nikitaproject-b0a52.firebasestorage.app',
+        messagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '188919966813',
+        appId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID || '1:188919966813:web:748cc6a6354d672173f1b4',
+        measurementId: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-TZ5LN0BB9L'
+      },
+      vk: {
+        appId: process.env.NUXT_PUBLIC_VK_APP_ID || '54109191'
+      }
     }
   },
 
