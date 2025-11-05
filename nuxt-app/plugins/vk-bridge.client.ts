@@ -57,13 +57,14 @@ export default defineNuxtPlugin(() => {
       await bridge.send('VKWebAppInit')
       console.log('VK Bridge initialized')
 
-      // Update store to indicate VK platform
-      vkStore.setVKPlatform(true)
+      // Update store with bridge and platform info
+      vkStore.setBridge(bridge)
+      vkStore.setInitialized(true)
 
       // Get VK user info
       try {
         const user = await bridge.send('VKWebAppGetUserInfo')
-        vkStore.setVKUser(user)
+        vkStore.setUser(user)
         console.log('VK user info loaded:', user)
       } catch (error) {
         console.warn('Failed to get VK user info:', error)

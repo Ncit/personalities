@@ -5,14 +5,17 @@
  */
 
 import { initializeApp } from 'firebase/app'
-import { getAnalytics, Analytics } from 'firebase/analytics'
-import { getPerformance, Performance } from 'firebase/performance'
+import { getAnalytics, type Analytics } from 'firebase/analytics'
+import { getPerformance, type FirebasePerformance } from 'firebase/performance'
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
 
+  // Type guard for firebase config
+  const firebaseConfig = config.public.firebase as any
+
   // Only initialize if Firebase config is available
-  if (!config.public.firebase.apiKey) {
+  if (!firebaseConfig?.apiKey) {
     console.warn('Firebase config not found. Analytics disabled.')
     return {
       provide: {
@@ -25,18 +28,18 @@ export default defineNuxtPlugin(() => {
   try {
     // Initialize Firebase
     const app = initializeApp({
-      apiKey: config.public.firebase.apiKey,
-      authDomain: config.public.firebase.authDomain,
-      projectId: config.public.firebase.projectId,
-      storageBucket: config.public.firebase.storageBucket,
-      messagingSenderId: config.public.firebase.messagingSenderId,
-      appId: config.public.firebase.appId,
-      measurementId: config.public.firebase.measurementId
+      apiKey: firebaseConfig.apiKey,
+      authDomain: firebaseConfig.authDomain,
+      projectId: firebaseConfig.projectId,
+      storageBucket: firebaseConfig.storageBucket,
+      messagingSenderId: firebaseConfig.messagingSenderId,
+      appId: firebaseConfig.appId,
+      measurementId: firebaseConfig.measurementId
     })
 
     // Initialize Analytics
     let analytics: Analytics | null = null
-    let performance: Performance | null = null
+    let performance: FirebasePerformance | null = null
 
     try {
       analytics = getAnalytics(app)

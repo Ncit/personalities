@@ -42,16 +42,11 @@ export interface MBTIScores {
 }
 
 // Dimension Breakdown
-export interface DimensionData {
-  [key: string]: number
-  preference: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P'
-}
-
 export interface DimensionBreakdown {
-  EI: DimensionData & { E: number; I: number; preference: 'E' | 'I' }
-  SN: DimensionData & { S: number; N: number; preference: 'S' | 'N' }
-  TF: DimensionData & { T: number; F: number; preference: 'T' | 'F' }
-  JP: DimensionData & { J: number; P: number; preference: 'J' | 'P' }
+  EI: { E: number; I: number; preference: 'E' | 'I' }
+  SN: { S: number; N: number; preference: 'S' | 'N' }
+  TF: { T: number; F: number; preference: 'T' | 'F' }
+  JP: { J: number; P: number; preference: 'J' | 'P' }
 }
 
 // Quiz Results
