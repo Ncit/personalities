@@ -1,6 +1,6 @@
 // Core Types
 export type PersonalityDimension = 'EI' | 'SN' | 'TF' | 'JP'
-export type QuestionType = 'behavioral' | 'situational' | 'preference'
+export type QuestionType = 'behavioral' | 'situational' | 'preference' | 'specialized'
 export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 export type ScreenType = 'welcome' | 'quiz' | 'results'
 export type Locale = 'en' | 'ru'
@@ -140,8 +140,8 @@ export interface PersonalityType {
   traits: string[]
   strengths: string[]
   weaknesses: string[]
-  careers: string[]
-  relationships: string[]
+  careers?: string[]
+  relationships?: string[]
   percentage?: number
   compatibility?: string[]
 }

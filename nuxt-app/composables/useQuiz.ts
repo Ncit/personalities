@@ -42,9 +42,9 @@ export const useQuiz = () => {
    * Load questions for quiz type
    */
   const loadQuestions = async (quizType: string, isPremium: boolean): Promise<Question[]> => {
-    // Import questions dynamically
-    const { getQuestions } = await import('~/data/questions')
-    return getQuestions(quizType, isPremium)
+    // Import question loader utility
+    const { loadQuestions: loadQuestionsUtil } = await import('~/utils/questionLoader')
+    return loadQuestionsUtil(quizType, isPremium)
   }
 
   /**
