@@ -8,7 +8,19 @@
     "subtitle": "Discover your personality type with comprehensive assessment",
     "startButton": "Start Quiz",
     "viewResults": "View Last Results",
-    "learnMore": "Learn More About Types"
+    "learnMore": "Learn More About Types",
+    "aboutQuiz": "About This Quiz",
+    "description": "This comprehensive MBTI personality assessment helps you discover your unique personality type through scientifically-backed questions. Understand your preferences, strengths, and how you interact with the world around you.",
+    "features": {
+      "comprehensive": "Comprehensive Assessment",
+      "comprehensiveDesc": "60 carefully crafted questions covering all MBTI dimensions",
+      "accurate": "Accurate Results",
+      "accurateDesc": "Based on established psychological research and MBTI framework",
+      "adaptive": "Adaptive Testing",
+      "adaptiveDesc": "Smart question selection based on your responses for precise results",
+      "private": "Private & Secure",
+      "privateDesc": "Your data stays on your device. Complete privacy guaranteed"
+    }
   },
   "quiz": {
     "progress": "Question {current} of {total}",
@@ -29,11 +41,19 @@
   "premium": {
     "title": "Premium Features",
     "unlock": "Unlock Premium",
+    "description": "Unlock advanced personality insights and specialized assessments with Premium",
+    "free": "Free Plan",
+    "premiumTitle": "Premium",
     "features": {
+      "basic": "Basic MBTI assessment",
+      "results": "View your personality type",
       "full": "Full 60-question assessment",
       "specialized": "15+ specialized quizzes",
       "detailed": "Detailed analysis and insights",
       "pdf": "PDF export of results"
     }
+  },
+  "footer": {
+    "rights": "All rights reserved"
   }
 }
