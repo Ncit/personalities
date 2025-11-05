@@ -1,0 +1,39 @@
+{
+  "app": {
+    "title": "Personality Test",
+    "description": "Discover your MBTI personality type"
+  },
+  "welcome": {
+    "title": "MBTI Personality Quiz",
+    "subtitle": "Discover your personality type with comprehensive assessment",
+    "startButton": "Start Quiz",
+    "viewResults": "View Last Results",
+    "learnMore": "Learn More About Types"
+  },
+  "quiz": {
+    "progress": "Question {current} of {total}",
+    "next": "Next",
+    "previous": "Previous",
+    "selectOption": "Please select an option",
+    "exit": "Exit Quiz",
+    "exitConfirm": "Are you sure you want to exit? Your progress will be lost."
+  },
+  "results": {
+    "title": "Your Results",
+    "personalityType": "Your Personality Type",
+    "dimensions": "Dimension Breakdown",
+    "share": "Share Results",
+    "download": "Download PDF",
+    "restart": "Take Quiz Again"
+  },
+  "premium": {
+    "title": "Premium Features",
+    "unlock": "Unlock Premium",
+    "features": {
+      "full": "Full 60-question assessment",
+      "specialized": "15+ specialized quizzes",
+      "detailed": "Detailed analysis and insights",
+      "pdf": "PDF export of results"
+    }
+  }
+}
