@@ -9,16 +9,10 @@ export default defineNuxtPlugin(({ vueApp }) => {
     locale: 'ru',
     fallbackLocale: 'ru',
     messages: {
-      ru,
-      en
+      ru: ru.default || ru,
+      en: en.default || en
     }
   })
 
   vueApp.use(i18n)
-
-  return {
-    provide: {
-      i18n
-    }
-  }
 })

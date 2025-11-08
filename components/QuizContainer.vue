@@ -46,10 +46,13 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-const { trackQuizEvent } = useFirebase()
 
 const startQuiz = () => {
-  trackQuizEvent('start', 'mbti')
+  // Track event only on client side
+  if (process.client) {
+    const { trackQuizEvent } = useFirebase()
+    trackQuizEvent('start', 'mbti')
+  }
   // TODO: Implement quiz start logic
   console.log('Starting quiz...')
 }

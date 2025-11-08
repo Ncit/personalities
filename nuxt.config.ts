@@ -85,8 +85,8 @@ export default defineNuxtConfig({
     }
   },
 
-  // SSR configuration
-  ssr: true,
+  // SSR configuration - disabled for client-heavy interactive app
+  ssr: false,
 
   // Nitro configuration for deployment
   nitro: {
