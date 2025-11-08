@@ -7,13 +7,12 @@
 </template>
 
 <script setup lang="ts">
-// Initialize Firebase on app mount
-import { useFirebase } from '~/composables/useFirebase'
-
-const { initialize } = useFirebase()
-
+// Initialize Firebase on app mount (client-side only)
 onMounted(() => {
-  initialize()
+  if (process.client) {
+    const { initialize } = useFirebase()
+    initialize()
+  }
 })
 </script>
 
