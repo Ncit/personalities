@@ -30,8 +30,14 @@
             </button>
           </div>
 
+          <!-- Cabinet Button -->
+          <button @click="showCabinet = true" class="btn btn-outline">
+            <Icon name="mdi:account" />
+            Личный кабинет
+          </button>
+
           <!-- Premium Button -->
-          <button class="btn btn-primary">
+          <button @click="showPremium = true" class="btn btn-primary">
             <Icon name="mdi:crown" />
             {{ $t('ui.upgradeToPremium') }}
           </button>
@@ -39,6 +45,10 @@
       </div>
     </div>
   </header>
+
+  <!-- Modals -->
+  <PremiumModal v-model="showPremium" />
+  <ClientCabinetModal v-model="showCabinet" @open-premium="showPremium = true" />
 </template>
 
 <script setup lang="ts">
@@ -51,6 +61,9 @@ const availableLocales = ref([
   { code: 'ru', name: 'Русский' },
   { code: 'en', name: 'English' }
 ])
+
+const showPremium = ref(false)
+const showCabinet = ref(false)
 
 const switchLocale = (newLocale: string) => {
   locale.value = newLocale
