@@ -145,12 +145,12 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { MBTI_QUESTIONS } from '~/data/quizData'
+import { QUIZ_QUESTIONS_MAP } from '~/data/quizData'
 
 const { t } = useI18n()
 const quizStore = useQuizStore()
 
-const questions = ref(MBTI_QUESTIONS)
+const questions = ref(QUIZ_QUESTIONS_MAP.mbti)
 const currentAnswer = ref<number | null>(null)
 const showResults = ref(false)
 const showQuizSelection = ref(false)
@@ -227,6 +227,9 @@ const startQuiz = (type: string) => {
     const { trackQuizEvent } = useFirebase()
     trackQuizEvent('start', type)
   }
+
+  // Load appropriate questions for the quiz type
+  questions.value = QUIZ_QUESTIONS_MAP[type] || QUIZ_QUESTIONS_MAP.mbti
 
   showQuizSelection.value = false
   quizStore.startQuiz(type)
