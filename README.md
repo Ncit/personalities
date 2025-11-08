@@ -1,147 +1,271 @@
-# MBTI 16 Personalities Quiz
+# Personality Types Quiz - Nuxt.js Edition
 
-A modern, interactive web application for discovering your Myers-Briggs Type Indicator (MBTI) personality type. This static website provides a comprehensive 60-question assessment that evaluates your preferences across the four MBTI dimensions.
+A comprehensive personality assessment platform built with Nuxt.js, featuring the Myers-Briggs Type Indicator (MBTI) and multiple specialized personality quizzes.
 
-## 🌟 Features
+## Features
 
-- **60 Comprehensive Questions**: Carefully crafted questions covering all four MBTI dimensions
-- **Interactive Quiz Interface**: Modern, responsive design with smooth animations
-- **Real-time Progress Tracking**: Visual progress bar and question counter
-- **Detailed Results**: Complete personality type analysis with descriptions and traits
-- **Dimension Breakdown**: Visual representation of your preferences across all four dimensions
-- **Mobile Responsive**: Works perfectly on desktop, tablet, and mobile devices
-- **Share Results**: Easy sharing of your personality type results
-- **No Data Storage**: All processing happens locally - your privacy is protected
+- **16 Personality Types**: Complete MBTI personality assessment
+- **Multilingual Support**: Russian and English languages
+- **Modern UI**: Built with Tailwind CSS
+- **Responsive Design**: Mobile-first approach
+- **Firebase Analytics**: Track user engagement and quiz completion
+- **VK Integration**: Support for VK Mini App and VK Auth
+- **State Management**: Pinia for robust state handling
+- **TypeScript**: Full type safety throughout the application
+- **SSR/SSG**: Server-side rendering and static generation support
 
-## 🎯 MBTI Dimensions
+## Tech Stack
 
-The quiz evaluates your preferences across four key dimensions:
+- **Framework**: [Nuxt.js 3](https://nuxt.com/) - Vue framework with SSR
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- **State Management**: [Pinia](https://pinia.vuejs.org/) - Vue store
+- **i18n**: [Vue I18n](https://vue-i18n.intlify.dev/) - Internationalization
+- **Analytics**: [Firebase](https://firebase.google.com/) - Analytics & Performance
+- **Icons**: [Nuxt Icon](https://github.com/nuxt-modules/icon) - Icon component
+- **Utilities**: [VueUse](https://vueuse.org/) - Vue composition utilities
+- **TypeScript**: Full TypeScript support
 
-### 1. Extraversion (E) vs Introversion (I)
-- **Extraversion**: How you direct and receive energy from the outer world
-- **Introversion**: How you direct and receive energy from your inner world
+## Prerequisites
 
-### 2. Sensing (S) vs Intuition (N)
-- **Sensing**: How you take in information through concrete facts and details
-- **Intuition**: How you take in information through patterns and possibilities
+- Node.js >= 18.0.0
+- npm >= 9.0.0
 
-### 3. Thinking (T) vs Feeling (F)
-- **Thinking**: How you make decisions based on logic and objective analysis
-- **Feeling**: How you make decisions based on values and how they affect people
-
-### 4. Judging (J) vs Perceiving (P)
-- **Judging**: How you approach the outer world with structure and planning
-- **Perceiving**: How you approach the outer world with flexibility and spontaneity
-
-## 🚀 Getting Started
-
-### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- No additional software or installations required
+## Quick Start
 
 ### Installation
-1. Download or clone this repository
-2. Open `index.html` in your web browser
-3. Start the quiz!
 
-### Alternative: Live Demo
-Simply open the `index.html` file in any web browser to begin the quiz immediately.
+```bash
+# Clone the repository
+git clone <repository-url>
+cd personalities
 
-## 📱 How to Use
-
-1. **Welcome Screen**: Read about the MBTI dimensions and click "Start Quiz"
-2. **Answer Questions**: Select the option that best describes you for each of the 60 questions
-3. **Navigate**: Use "Previous" and "Next" buttons to review or change answers
-4. **View Results**: See your personality type, description, and dimension breakdown
-5. **Share**: Share your results with friends or take the quiz again
-
-## 🎨 Design Features
-
-- **Modern UI**: Clean, professional design with gradient backgrounds
-- **Smooth Animations**: Fade-in effects and hover animations
-- **Responsive Layout**: Adapts to any screen size
-- **Accessibility**: High contrast colors and clear typography
-- **Interactive Elements**: Hover effects and visual feedback
-
-## 📊 16 Personality Types
-
-The quiz identifies one of 16 possible personality types:
-
-| Type | Title | Description |
-|------|-------|-------------|
-| ISTJ | The Inspector | Practical, responsible, and organized |
-| ISFJ | The Protector | Caring, loyal, and traditional |
-| INFJ | The Counselor | Insightful, idealistic, and compassionate |
-| INTJ | The Mastermind | Strategic, independent, and analytical |
-| ISTP | The Craftsman | Flexible, logical, and practical |
-| ISFP | The Composer | Artistic, gentle, and adaptable |
-| INFP | The Healer | Idealistic, creative, and empathetic |
-| INTP | The Architect | Analytical, innovative, and independent |
-| ESTP | The Dynamo | Energetic, practical, and spontaneous |
-| ESFP | The Performer | Enthusiastic, friendly, and spontaneous |
-| ENFP | The Champion | Enthusiastic, creative, and sociable |
-| ENTP | The Visionary | Innovative, strategic, and energetic |
-| ESTJ | The Supervisor | Practical, organized, and decisive |
-| ESFJ | The Provider | Caring, sociable, and responsible |
-| ENFJ | The Teacher | Charismatic, inspiring, and altruistic |
-| ENTJ | The Commander | Strategic, confident, and decisive |
-
-## 🔧 Technical Details
-
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **No Dependencies**: Pure vanilla JavaScript - no frameworks required
-- **Responsive Design**: CSS Grid and Flexbox for layout
-- **Modern CSS**: Custom properties, gradients, and animations
-- **Local Processing**: All calculations happen in the browser
-
-## 📁 File Structure
-
-```
-mbti-quiz/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles and responsive design
-├── script.js           # JavaScript quiz logic and functionality
-└── README.md           # This file
+# Install dependencies
+npm install
 ```
 
-## 🎯 Quiz Algorithm
+### Development
 
-The quiz uses a weighted scoring system:
+```bash
+# Start development server at http://localhost:3000
+npm run dev
+```
 
-1. **Question Weighting**: Each answer option has a weight (-3 to +3) indicating preference strength
-2. **Dimension Scoring**: Scores are accumulated for each dimension pair (E/I, S/N, T/F, J/P)
-3. **Type Calculation**: The higher score in each dimension pair determines the final type
-4. **Result Display**: Shows personality type, description, traits, and dimension breakdown
+### Production
 
-## 🌐 Browser Compatibility
+```bash
+# Build for production
+npm run build
 
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 12+
-- ✅ Edge 79+
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+# Preview production build
+npm run preview
 
-## 📄 License
+# Generate static site
+npm run generate
+```
 
-This project is open source and available under the [MIT License](LICENSE).
+## Project Structure
 
-## 🤝 Contributing
+```
+personalities/
+├── assets/          # Static assets (CSS, images)
+├── components/      # Vue components
+├── composables/     # Vue composables
+├── layouts/         # Nuxt layouts
+├── locales/         # i18n translations
+├── pages/           # Application pages (auto-routed)
+├── plugins/         # Nuxt plugins
+├── public/          # Public static files
+├── stores/          # Pinia stores
+├── app.vue          # Root component
+├── nuxt.config.ts   # Nuxt configuration
+├── tailwind.config.js # Tailwind configuration
+└── tsconfig.json    # TypeScript configuration
+```
 
-Contributions are welcome! Feel free to:
-- Report bugs or issues
-- Suggest new features
-- Improve the quiz questions
-- Enhance the design
-- Add new personality type descriptions
+## Configuration
 
-## 📞 Support
+### Environment Variables
 
-If you have any questions or need help with the quiz, please open an issue in the repository.
+Create a `.env` file in the root directory:
 
-## ⚠️ Disclaimer
+```env
+# Firebase Configuration
+NUXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NUXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NUXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
-This quiz is for entertainment and self-discovery purposes. While based on the MBTI framework, it is not a professional psychological assessment. For official MBTI testing, please consult certified professionals.
+# VK Configuration
+NUXT_PUBLIC_VK_APP_ID=your_vk_app_id
+NUXT_PUBLIC_VK_REDIRECT_URL=your_redirect_url
+```
 
----
+### Tailwind CSS
 
-**Enjoy discovering your personality type! 🎉** 
+The project uses a custom Tailwind configuration with extended colors and utilities. Modify `tailwind.config.js` to customize the theme.
+
+### i18n
+
+Add new translations in `locales/ru.ts` and `locales/en.ts`. The application defaults to Russian with English as an alternative.
+
+## Components
+
+### Main Components
+
+- **AppHeader**: Application header with language switcher and navigation
+- **AppFooter**: Application footer with copyright information
+- **QuizContainer**: Main quiz interface container
+
+### Composables
+
+- **useFirebase**: Firebase analytics integration
+
+### Stores
+
+- **quiz**: Manages quiz state, answers, and progress
+- **user**: Manages user preferences and test history
+
+## Deployment
+
+### Vercel (Recommended)
+
+The project is pre-configured for Vercel:
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+Or connect your repository to Vercel for automatic deployments.
+
+### Other Platforms
+
+The application can be deployed to any platform supporting Node.js:
+
+```bash
+# Build the application
+npm run build
+
+# The output will be in .output/ directory
+```
+
+## Development Guidelines
+
+### Adding New Pages
+
+Create a new file in the `pages/` directory:
+
+```vue
+<!-- pages/about.vue -->
+<template>
+  <div>
+    <h1>About Page</h1>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Page logic here
+</script>
+```
+
+### Adding New Components
+
+Create a new file in the `components/` directory:
+
+```vue
+<!-- components/MyComponent.vue -->
+<template>
+  <div class="my-component">
+    <!-- Component template -->
+  </div>
+</template>
+
+<script setup lang="ts">
+// Component logic here
+</script>
+```
+
+Components are auto-imported in Nuxt.js - no need to manually import them.
+
+### Using Tailwind CSS
+
+Apply utility classes directly in your templates:
+
+```vue
+<div class="bg-blue-500 text-white p-4 rounded-lg shadow-md">
+  Styled with Tailwind
+</div>
+```
+
+### State Management
+
+Access stores using composables:
+
+```typescript
+const quizStore = useQuizStore()
+quizStore.startQuiz('mbti')
+```
+
+### Translations
+
+Use the `$t` function in templates:
+
+```vue
+<template>
+  <h1>{{ $t('ui.welcomeTitle') }}</h1>
+</template>
+
+<script setup lang="ts">
+const { t } = useI18n()
+console.log(t('ui.welcomeTitle'))
+</script>
+```
+
+## Firebase Setup
+
+1. Create a Firebase project at https://console.firebase.google.com
+2. Enable Analytics and Performance Monitoring
+3. Copy your configuration to `.env` file
+4. The `useFirebase` composable will handle initialization
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Performance
+
+- Lighthouse Score: 95+ (target)
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3.5s
+- Cumulative Layout Shift: < 0.1
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Support
+
+For issues and questions, please use the GitHub issues tracker.
+
+## Acknowledgments
+
+- Myers-Briggs Type Indicator® and MBTI® are trademarks of the Myers & Briggs Foundation
+- Icon set from Material Design Icons
+- Powered by Nuxt.js and Vue.js communities
