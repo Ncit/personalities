@@ -1,3 +1,7 @@
+// Import comprehensive quiz datasets from working_copy branch
+import { MBTI_FULL_QUESTIONS } from './mbti-full'
+import { MBTI_SPECIALIZED_QUESTIONS_RU } from './specialized-full'
+
 export interface QuizQuestion {
   question: string
   options: string[]
@@ -1061,15 +1065,25 @@ export const CAREER_QUESTIONS: QuizQuestion[] = [
   }
 ]
 
-// Quiz mapping for easy access
+// Convert specialized questions to our format
+const convertSpecialized = (questions: any[]): QuizQuestion[] => {
+  return questions.map(q => ({
+    question: q.question,
+    options: q.options,
+    dimension: q.dimension,
+    weights: q.weights
+  }))
+}
+
+// Quiz mapping for easy access - now using comprehensive datasets from working_copy
 export const QUIZ_QUESTIONS_MAP: Record<string, QuizQuestion[]> = {
-  mbti: MBTI_QUESTIONS,
-  leadership: LEADERSHIP_QUESTIONS,
-  communication: COMMUNICATION_QUESTIONS,
-  stress: STRESS_QUESTIONS,
-  learning: LEARNING_QUESTIONS,
-  relationships: RELATIONSHIPS_QUESTIONS,
-  creativity: CREATIVITY_QUESTIONS,
-  decision: DECISION_QUESTIONS,
-  career: CAREER_QUESTIONS
+  mbti: MBTI_FULL_QUESTIONS || MBTI_QUESTIONS, // Full 60-question MBTI quiz
+  leadership: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.leadership) || LEADERSHIP_QUESTIONS,
+  communication: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.communication) || COMMUNICATION_QUESTIONS,
+  stress: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.stress) || STRESS_QUESTIONS,
+  learning: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.learning) || LEARNING_QUESTIONS,
+  relationships: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.relationships) || RELATIONSHIPS_QUESTIONS,
+  creativity: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.creativity) || CREATIVITY_QUESTIONS,
+  decision: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.decision) || DECISION_QUESTIONS,
+  career: convertSpecialized(MBTI_SPECIALIZED_QUESTIONS_RU.career) || CAREER_QUESTIONS
 }
