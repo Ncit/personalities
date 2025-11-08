@@ -1,7 +1,8 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto" @click.self="close">
+  <ClientOnly>
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto" @click.self="close">
         <div class="flex min-h-screen items-center justify-center p-4">
           <!-- Backdrop -->
           <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="close"></div>
@@ -96,6 +97,7 @@
       </div>
     </Transition>
   </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
