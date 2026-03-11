@@ -77,7 +77,7 @@ Complete redesign of the MBTI personality quiz app with a new warm color scheme 
 ### Component Library (19 components)
 
 1. **Button/Primary** — Sage fill, white text, pill shape (24px radius)
-2. **Button/Secondary** — Cream fill, dark text, sage icon, pill shape with border
+2. **Button/Secondary** — Muted BG fill (`#F0EDE8`), dark text, sage icon, pill shape with border
 3. **Badge** — Small pill with tinted background
 4. **Card** — White card with border, 20px radius, 24px padding
 5. **Stat Card** — Label + large mono value + optional delta
@@ -111,7 +111,7 @@ Complete redesign of the MBTI personality quiz app with a new warm color scheme 
   - *Your Type* — Shows MBTI code (IBM Plex Mono 32, sage) + type name (Fraunces 16). Empty state: "Take a quiz to discover"
   - *Compare* — Purple accent gradient. People icon + "With Friends →" link. Taps to share a comparison link. Phase 1: generates shareable link with your type. Phase 2 (future): side-by-side comparison view when both users have results.
 - **Bento Row 2** (horizontal, flexible):
-  - *Traits Chart* — 4 trait bars (E/N/F/P) with colored fills and percentages. Empty state: placeholder bars
+  - *Traits Chart* — 4 dimension trait bars (E/I, S/N, T/F, J/P) with colored fills and percentages. Empty state: placeholder bars. Takes remaining width via flex.
   - *Socionics Quiz* (140px wide) — Amber accent. "New!" badge + sparkles icon + title. This is the framework extensibility slot.
 - **Share Card** — Horizontal card with title + subtitle + Share button. Hidden if no results.
 
@@ -225,12 +225,34 @@ Complete redesign of the MBTI personality quiz app with a new warm color scheme 
 - **Header** — Gold icon wrap (crown) + "Go Premium" (Fraunces 26) + subtitle
 - **Benefits List** — 5 items with check-circle icons (sage):
   - Advanced personality insights & analysis
-  - 15 specialized premium quizzes
+  - All specialized premium quizzes
   - Famous personality matches
   - Visual charts & analytics
   - Ad-free experience
 - **CTA Button** — Gold fill (#D4A574), full-width pill. "Unlock Premium — 280 ₽" (Inter 16 semibold, white)
 - **Note** — "One-time payment · No subscription" (Inter 12, muted)
+
+---
+
+## Global States
+
+### Loading States
+- **Quiz loading:** Full-screen spinner (sage) centered on Surface background. Shown while quiz data loads.
+- **Payment processing:** Premium Modal CTA button shows spinner + "Processing…" text, disabled state. Backdrop remains.
+- **Results calculating:** After last question, show centered spinner with "Calculating your type…" text before navigating to Result Detail.
+
+### Error States
+- **Network error:** Toast notification at top of screen — red-tinted card with "Connection error. Try again." + retry button. Auto-dismisses after 5 seconds.
+- **Payment failure:** Premium Modal shows inline error below CTA — "Payment failed. Please try again." in red text. CTA button re-enables.
+- **Quiz data error:** Hero card shows "Couldn't load quiz. Tap to retry." with refresh icon.
+
+### VK Payment Flow
+1. User taps "Unlock Premium — 280 ₽" in Premium Modal
+2. CTA enters loading state (spinner + "Processing…")
+3. VK Bridge `VKWebAppShowOrderBox` is called with product details
+4. **Success:** Modal dismisses, premium content reveals with subtle fade-in, toast "Premium unlocked!" appears
+5. **Failure:** CTA re-enables, inline error shown below button
+6. **Cancelled:** CTA re-enables, no error shown (user chose to cancel)
 
 ---
 
@@ -241,7 +263,7 @@ Complete redesign of the MBTI personality quiz app with a new warm color scheme 
 - Active: sage fill + white icon/label
 - Inactive: transparent + muted icon/label
 - Icons: layout-dashboard / compass / chart-bar / user
-- Labels: uppercase, Inter 10, 500 weight, 0.5 letter-spacing
+- Labels: uppercase, Inter 10, Semi-bold 600, 0.5 letter-spacing
 
 ### Key User Flows
 
