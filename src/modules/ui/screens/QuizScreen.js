@@ -91,7 +91,6 @@ export class QuizScreen {
 
     this.el.innerHTML = `
       <div class="quiz-card">
-        <div class="status-bar"></div>
         <div class="quiz-header">
           <button class="quiz-header__close" id="quiz-close">
             <i data-lucide="x" style="width:24px;height:24px"></i>

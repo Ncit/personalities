@@ -513,11 +513,6 @@ body {
 }
 
 @media (max-width: 767px) {
-    .quiz-header {
-        flex-direction: column;
-        text-align: center;
-        position: relative;
-    }
     
     .quiz-title {
         position: static;
