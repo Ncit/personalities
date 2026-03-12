@@ -78,7 +78,7 @@ export class ProfileScreen {
         ${!isPremium && !isGuest ? `
         <!-- Premium CTA — full width -->
         <div class="profile-grid__premium">
-          <div class="premium-cta-mobile" id="premium-cta-mobile">
+          <div class="premium-cta-mobile" id="premium-cta-mobile" style="width:fit-content">
             <div class="premium-cta-mobile__text">
               <div class="premium-cta-mobile__title">Премиум</div>
               <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>

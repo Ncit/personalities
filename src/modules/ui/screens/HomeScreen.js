@@ -61,11 +61,22 @@ export class HomeScreen {
   render() {
     const hasResults = resultsStore.getCount() > 0;
     const greeting = this._getGreeting();
+    const sm = window.stateManager;
+    const isPremium = sm ? sm.get('isPremium') : false;
 
     this.el.innerHTML = `
       <h1 class="page-title">${greeting}</h1>
       <p class="page-subtitle">Исследуйте свою личность через разные методики</p>
       ${HeroCard.render()}
+      ${!isPremium ? `
+      <div class="premium-cta-mobile" id="home-premium-cta" style="margin-bottom:12px;width:fit-content">
+        <div class="premium-cta-mobile__text">
+          <div class="premium-cta-mobile__title">Премиум</div>
+          <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
+        </div>
+        <button class="btn-gold btn-gold--small">299 ₽</button>
+      </div>
+      ` : ''}
       ${BentoGrid.render(hasResults)}
       ${hasResults ? this._shareCard() : ''}
 
@@ -95,6 +106,9 @@ export class HomeScreen {
 
     HeroCard.bind(this.el);
     BentoGrid.bind(this.el);
+    this.el.querySelector('#home-premium-cta')?.addEventListener('click', () => {
+      router.openOverlay('premium-modal');
+    });
     this._bind();
     this._renderTypes();
 

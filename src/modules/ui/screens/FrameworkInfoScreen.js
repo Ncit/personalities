@@ -1,6 +1,23 @@
 import { router } from '../../router/Router.js';
 
 const FRAMEWORK_DATA = {
+  jung: {
+    title: 'Когнитивные функции Юнга',
+    icon: 'eye',
+    accent: '#6B7EC8',
+    gradient: 'linear-gradient(135deg, #6B7EC8 0%, #4A5AA0 100%)',
+    description: 'Оригинальная типология Карла Юнга — основа всех современных систем типирования. Определяет 8 когнитивных функций: способы восприятия и оценки информации, которые формируют ваше мышление и поведение.',
+    dimensions: [
+      { pair: 'Se / Si', name: 'Ощущение', desc: 'Внешнее восприятие или внутренние впечатления' },
+      { pair: 'Ne / Ni', name: 'Интуиция', desc: 'Внешние возможности или внутреннее предвидение' },
+      { pair: 'Te / Ti', name: 'Мышление', desc: 'Внешняя логика или внутренний анализ' },
+      { pair: 'Fe / Fi', name: 'Чувство', desc: 'Внешняя гармония или внутренние ценности' },
+    ],
+    types: 8,
+    questions: null,
+    time: null,
+    comingSoon: true,
+  },
   mbti: {
     title: 'MBTI — 16 типов личности',
     icon: 'brain',
@@ -75,7 +92,7 @@ export class FrameworkInfoScreen {
           <i data-lucide="${fw.icon}" style="width:32px;height:32px;color:#fff"></i>
           <div class="framework-info__title">${fw.title}</div>
           <div class="framework-info__stats">
-            ${fw.types} типов · ${fw.questions} вопросов · ${fw.time}
+            ${fw.types} ${fw.comingSoon ? 'функций' : 'типов'}${fw.questions ? ` · ${fw.questions} вопросов` : ''}${fw.time ? ` · ${fw.time}` : ''}
           </div>
         </div>
         <div class="framework-info__body">
@@ -90,7 +107,10 @@ export class FrameworkInfoScreen {
               </div>
             `).join('')}
           </div>
-          <button class="btn-primary framework-info__cta" id="fw-start">Начать тест</button>
+          ${fw.comingSoon
+            ? '<button class="btn-secondary framework-info__cta" disabled>Скоро</button>'
+            : '<button class="btn-primary framework-info__cta" id="fw-start">Начать тест</button>'
+          }
         </div>
       </div>
     `;
