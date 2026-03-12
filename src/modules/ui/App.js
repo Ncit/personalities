@@ -15,6 +15,7 @@ import { ResultDetailScreen } from './screens/ResultDetailScreen.js';
 import { PremiumModal } from './components/PremiumModal.js';
 import { FrameworkInfoScreen } from './screens/FrameworkInfoScreen.js';
 import { TypeDetailModal } from './components/TypeDetailModal.js';
+import { HelpModal } from './components/HelpModal.js';
 import { resultsStore } from '../results/ResultsStore.js';
 import { LoggerManager } from '../core/LoggerManager.js';
 
@@ -49,6 +50,7 @@ export class App {
       'premium-modal': () => new PremiumModal(),
       'framework-info': () => new FrameworkInfoScreen(),
       'type-detail': () => new TypeDetailModal(),
+      'help': () => new HelpModal(),
     };
 
     this.currentOverlay = null;

@@ -3,7 +3,7 @@
  * Handles quiz flow, question management, scoring algorithms, and adaptive features
  */
 import { stateManager } from '../core/StateManager.js';
-import { QUIZ_TYPES } from '../../data/QuizData.js';
+import { QUIZ_TYPES } from '../../data/QuizData.ru.js';
 import { AdaptiveEngine } from '../adaptive/index.js';
 
 export class QuizEngine {
@@ -529,8 +529,8 @@ export class QuizEngine {
     }
 
     async generateSpecializedQuestions(quizType) {
-        const { MBTI_SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuiz.js');
-        return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
+        const { MBTI_SPECIALIZED_QUESTIONS_RU } = await import('../../data/SpecializedQuiz.ru.js');
+        return MBTI_SPECIALIZED_QUESTIONS_RU[quizType] || [];
     }
 
     // Utility methods

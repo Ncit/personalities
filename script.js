@@ -3891,7 +3891,7 @@ window.stopBannerAdTimer = stopBannerAdTimer;
 // Help Functions
 function showHelp(topic) {
     // Prevent scrolling of the main page
-    event.preventDefault();
+    if (typeof event !== 'undefined' && event) event.preventDefault();
     
     const helpContent = {
         'how-to-test': {
@@ -3989,6 +3989,32 @@ function showHelp(topic) {
                     <li>Мы не несем ответственности за решения, принятые на основе результатов</li>
                 </ul>
                 <p><strong>📅 Последнее обновление:</strong> 23 июля 2025</p>
+            `
+        },
+        'offer': {
+            title: 'Публичная оферта',
+            content: `
+                <h3>📄 Публичная оферта</h3>
+                <p>Настоящий документ является официальным предложением (публичной офертой) сервиса «Тест личности».</p>
+                <ul>
+                    <li><strong>Предмет оферты:</strong> Предоставление доступа к премиум-функциям сервиса тестирования личности</li>
+                    <li><strong>Стоимость:</strong> Указана на странице оплаты в момент совершения покупки</li>
+                    <li><strong>Момент акцепта:</strong> Оферта считается принятой с момента оплаты</li>
+                    <li><strong>Возврат средств:</strong> Возможен в течение 14 дней с момента покупки при отсутствии использования премиум-функций</li>
+                </ul>
+                <p><strong>📧 Вопросы:</strong> personalitiesresearch@mail.ru</p>
+            `
+        },
+        'contacts': {
+            title: 'Контакты',
+            content: `
+                <h3>📬 Свяжитесь с нами</h3>
+                <p>Мы всегда рады вашим вопросам, предложениям и отзывам.</p>
+                <ul>
+                    <li><strong>Email:</strong> <a href="mailto:personalitiesresearch@mail.ru">personalitiesresearch@mail.ru</a></li>
+                    <li><strong>Время ответа:</strong> Обычно в течение 24 часов в рабочие дни</li>
+                </ul>
+                <p>Мы стремимся сделать наш сервис лучше благодаря вашей обратной связи!</p>
             `
         }
     };

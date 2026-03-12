@@ -11,20 +11,20 @@ const FOOTER_SECTIONS = [
   {
     title: 'Помощь',
     links: [
-      { label: 'Как пройти тест', action: () => window.showHelp?.('how-to') },
-      { label: 'Понимание результатов', action: () => window.showHelp?.('understanding') },
-      { label: 'Премиум функции', action: () => window.showHelp?.('premium') },
-      { label: 'Вопросы и ответы', action: () => window.showHelp?.('faq') },
+      { label: 'Как пройти тест', topic: 'how-to-test' },
+      { label: 'Понимание результатов', topic: 'understanding-results' },
+      { label: 'Премиум функции', topic: 'premium-features' },
+      { label: 'Вопросы и ответы', topic: 'faq' },
     ],
   },
   {
     title: 'О проекте',
     links: [
-      { label: 'О типах личности', action: () => window.showHelp?.('about-personality') },
-      { label: 'Конфиденциальность', action: () => window.showHelp?.('privacy') },
-      { label: 'Условия использования', action: () => window.showHelp?.('terms') },
-      { label: 'Публичная оферта', action: () => window.showHelp?.('offer') },
-      { label: 'Контакты', action: () => window.showHelp?.('contacts') },
+      { label: 'О типах личности', topic: 'about-personality' },
+      { label: 'Конфиденциальность', topic: 'privacy' },
+      { label: 'Условия использования', topic: 'terms' },
+      { label: 'Публичная оферта', topic: 'offer' },
+      { label: 'Контакты', topic: 'contacts' },
     ],
   },
 ];
@@ -79,7 +79,8 @@ export class Sidebar {
         e.preventDefault();
         const si = parseInt(footerLink.dataset.section);
         const li = parseInt(footerLink.dataset.link);
-        FOOTER_SECTIONS[si]?.links[li]?.action?.();
+        const topic = FOOTER_SECTIONS[si]?.links[li]?.topic;
+        if (topic) router.openOverlay('help', { topic });
       }
     });
 

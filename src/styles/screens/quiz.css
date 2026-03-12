@@ -109,6 +109,18 @@
   font: 600 14px/1 var(--font-body); cursor: pointer;
 }
 
+.dev-finish-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: 0 auto 16px;
+  padding: 8px 16px;
+  border: 2px dashed #E8A85C;
+  border-radius: var(--radius-pill);
+  background: #E8A85C10;
+  font: 500 12px/1 var(--font-body);
+  color: #E8A85C;
+  cursor: pointer;
+}
+
 .quiz-adaptive {
   display: flex; gap: 8px; padding: 8px 20px;
 }

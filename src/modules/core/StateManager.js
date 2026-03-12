@@ -11,7 +11,7 @@ export class StateManager {
     constructor() {
         this.state = {
             // Application state
-            appState: 'release', // 'development' | 'release'
+            appState: new URLSearchParams(window.location.search).get('state') || 'release', // 'development' | 'release'
             currentScreen: 'welcome', // 'welcome' | 'quiz' | 'results'
             
             // User preferences

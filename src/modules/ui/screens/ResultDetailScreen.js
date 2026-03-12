@@ -171,7 +171,7 @@ export class ResultDetailScreen {
     this.el.querySelector('#result-share')?.addEventListener('click', () => {
       if (navigator.share) {
         navigator.share({
-          title: `I'm ${result.typeCode} — ${result.typeName}`,
+          title: `Я — ${result.typeCode} (${result.typeName})`,
           url: window.location.href
         });
       }

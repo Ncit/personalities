@@ -9,6 +9,27 @@ const logger = new LoggerManager().createModuleLogger('QuizScreen');
 function getQuizEngine() { return window.quizEngine; }
 function getStateManager() { return window.stateManager; }
 
+const FRAMEWORK_NAMES = {
+  mbti: 'MBTI',
+  socionics: 'Соционика',
+  enneagram: 'Эннеаграмма',
+  leadership: 'Стиль лидерства',
+  communication: 'Стиль общения',
+  stress: 'Реакция на стресс',
+  learning: 'Стиль обучения',
+  relationships: 'Динамика отношений',
+  creativity: 'Креативность',
+  decision: 'Принятие решений',
+  teamwork: 'Командная работа',
+  career: 'Карьера',
+  social: 'Социальное взаимодействие',
+  motivation: 'Мотивация',
+  adaptability: 'Адаптивность',
+  conflict: 'Разрешение конфликтов',
+  productivity: 'Продуктивность',
+  emotional: 'Эмоциональный интеллект',
+};
+
 export class QuizScreen {
   constructor() {
     this.el = document.createElement('div');
@@ -53,7 +74,7 @@ export class QuizScreen {
           <button class="quiz-header__close" id="quiz-close">
             <i data-lucide="x" style="width:24px;height:24px"></i>
           </button>
-          <span class="quiz-header__title">${this.framework.toUpperCase()} Тест</span>
+          <span class="quiz-header__title">${FRAMEWORK_NAMES[this.framework] || this.framework.toUpperCase()}</span>
           <span class="quiz-header__counter">${questionIndex + 1}/${total}</span>
         </div>
         <div class="quiz-progress">
@@ -68,7 +89,7 @@ export class QuizScreen {
               const isSelected = qe.selectedOption === optionIndex;
               return `
               <button class="answer-option ${isSelected ? 'answer-option--selected' : ''}" data-option="${optionIndex}">
-                ${isSelected ? '<i data-lucide="check" style="width:18px;height:18px;margin-right:8px"></i>' : ''}
+                <i data-lucide="check" style="width:18px;height:18px;flex-shrink:0;opacity:${isSelected ? '1' : '0'}"></i>
                 ${opt.text || opt}
               </button>`;
             }).join('')}
@@ -82,6 +103,11 @@ export class QuizScreen {
             ${isLast ? 'Результаты' : 'Далее'} <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
           </button>
         </div>
+        ${getStateManager()?.isDevelopment() ? `
+          <button class="dev-finish-btn" id="dev-finish">
+            <i data-lucide="zap" style="width:14px;height:14px"></i> Заполнить случайно
+          </button>
+        ` : ''}
       </div>
       ${this.showExitDialog ? this._exitDialog() : ''}
     `;
@@ -160,6 +186,14 @@ export class QuizScreen {
     this.el.querySelector('#quiz-prev')?.addEventListener('click', () => {
       if (qe) qe.previousQuestion();
       this.render();
+    });
+
+    this.el.querySelector('#dev-finish')?.addEventListener('click', () => {
+      if (!qe) return;
+      const results = qe.fillRandomAnswers();
+      if (results) {
+        this._handleCompletion(results);
+      }
     });
 
     this.el.querySelector('#quiz-next')?.addEventListener('click', async () => {
