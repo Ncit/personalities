@@ -295,13 +295,14 @@
   width: 44px; height: 44px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 12px;
-  background: #7C908225;
-  color: var(--color-primary);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .achievement-card--locked .achievement-card__icon-wrap {
-  background: var(--color-muted-bg);
-  color: var(--color-text-disabled);
+  filter: grayscale(1) opacity(0.5);
+}
+.achievement-card--locked {
+  opacity: 0.8;
 }
 .achievement-card__text {
   flex: 1; min-width: 0;

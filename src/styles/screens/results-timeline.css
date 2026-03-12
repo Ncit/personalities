@@ -1,32 +1,63 @@
-.results-list {
-  display: flex; flex-direction: column; gap: 12px;
+/* ── Results horizontal scroll (2 rows) ── */
+.results-scroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
 }
-.result-item {
-  display: flex; align-items: center; gap: 14px;
+.results-scroll::-webkit-scrollbar { display: none; }
+.result-item.card {
+  display: flex; flex-direction: column; gap: 8px;
   padding: 14px;
+  border-radius: 12px;
   cursor: pointer;
+  width: 140px;
+  flex-shrink: 0;
 }
 .result-item__badge {
-  width: 56px; height: 56px;
+  width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: var(--radius-lg);
-  font: 500 18px/1 var(--font-mono);
+  border-radius: 8px;
+  font: 500 12px/1 var(--font-mono);
   color: #fff; flex-shrink: 0;
 }
-.result-item__badge--mbti { background: var(--gradient-sage); }
-.result-item__badge--premium { background: var(--gradient-gold); }
-.result-item__info { flex: 1; }
+/* Framework badge colors */
+.result-item__badge--mbti { background: linear-gradient(135deg, #7C9082, #5A7A64); }
+.result-item__badge--socionics { background: linear-gradient(135deg, #E8A85C, #C4843A); }
+.result-item__badge--enneagram { background: linear-gradient(135deg, #C47A8A, #A05A6A); }
+.result-item__badge--jung { background: linear-gradient(135deg, #6B7EC8, #4A5AA0); }
+/* Premium quiz frameworks */
+.result-item__badge--leadership { background: linear-gradient(135deg, #D4A574, #B8894E); }
+.result-item__badge--teamwork { background: linear-gradient(135deg, #7C9082, #5A7A64); }
+.result-item__badge--career { background: linear-gradient(135deg, #6B7EC8, #4A5AA0); }
+.result-item__badge--social { background: linear-gradient(135deg, #8B7EC8, #6B5EA8); }
+.result-item__badge--communication { background: linear-gradient(135deg, #6BAAB0, #4A8A90); }
+.result-item__badge--stress { background: linear-gradient(135deg, #C47A7A, #A05A5A); }
+.result-item__badge--learning { background: linear-gradient(135deg, #7AB0C4, #5A90A4); }
+.result-item__badge--relationships { background: linear-gradient(135deg, #C47A8A, #A05A6A); }
+.result-item__badge--creativity { background: linear-gradient(135deg, #B07AC4, #905AA4); }
+.result-item__badge--decision { background: linear-gradient(135deg, #8B9082, #6A7A64); }
+.result-item__badge--motivation { background: linear-gradient(135deg, #E8A85C, #C4843A); }
+.result-item__badge--adaptability { background: linear-gradient(135deg, #7AC4A0, #5AA480); }
+.result-item__badge--conflict { background: linear-gradient(135deg, #C49A7A, #A47A5A); }
+.result-item__badge--productivity { background: linear-gradient(135deg, #7C9082, #5A7A64); }
+.result-item__badge--emotional { background: linear-gradient(135deg, #C47A8A, #A05A6A); }
+.result-item__info { flex: 1; min-width: 0; }
 .result-item__title {
-  font: 500 14px/1.3 var(--font-body);
+  font: 500 13px/1.3 var(--font-body);
   color: var(--color-text-primary);
 }
 .result-item__date {
-  font: 400 13px/1 var(--font-body);
+  font: 400 11px/1.3 var(--font-body);
   color: var(--color-text-muted);
   margin-top: 2px;
 }
 .result-item__chevron {
-  color: var(--color-text-disabled);
+  display: none;
 }
 
 .results-empty {

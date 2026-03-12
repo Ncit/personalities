@@ -180,7 +180,8 @@ export class StateManager {
             const dataToSave = {
                 theme: this.state.theme,
                 language: this.state.language,
-                lastResults: this.state.lastResults
+                lastResults: this.state.lastResults,
+                achievements: this.state.achievements
             };
             localStorage.setItem('mbti_state', JSON.stringify(dataToSave));
         } catch (error) {
@@ -196,7 +197,8 @@ export class StateManager {
                 this.setState({
                     theme: parsed.theme || 'light',
                     language: parsed.language || 'en',
-                    lastResults: parsed.lastResults || null
+                    lastResults: parsed.lastResults || null,
+                    achievements: parsed.achievements || this.state.achievements
                 });
             }
 

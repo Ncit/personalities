@@ -4,20 +4,20 @@ import { router } from '../../router/Router.js';
 function getStateManager() { return window.stateManager; }
 
 const ACHIEVEMENTS = [
-  { key: 'firstSteps', icon: 'footprints', title: 'Первые шаги', description: 'Пройдите первый тест' },
-  { key: 'onFire', icon: 'flame', title: 'В ударе', description: '3+ теста за неделю' },
-  { key: 'highAccuracy', icon: 'target', title: 'Высокая точность', description: '85%+ показатель уверенности' },
-  { key: 'explorer', icon: 'compass', title: 'Исследователь', description: 'Откройте 5 разных типов' },
-  { key: 'collector', icon: 'layers', title: 'Коллекционер', description: 'Пройдите тесты 3 разных систем' },
-  { key: 'marathon', icon: 'trending-up', title: 'Марафонец', description: 'Пройдите 10 тестов' },
-  { key: 'stable', icon: 'shield-check', title: 'Стабильность', description: 'Один тип 3 раза подряд' },
-  { key: 'perfectionist', icon: 'star', title: 'Перфекционист', description: '95%+ показатель уверенности' },
-  { key: 'earlyBird', icon: 'sunrise', title: 'Ранняя пташка', description: 'Пройдите тест до 7 утра' },
-  { key: 'nightOwl', icon: 'moon', title: 'Ночная сова', description: 'Пройдите тест после полуночи' },
-  { key: 'weekStreak', icon: 'calendar-check', title: 'Неделя роста', description: 'Заходите 7 дней подряд' },
-  { key: 'curious', icon: 'book-open', title: 'Любознательный', description: 'Откройте все разделы помощи' },
-  { key: 'specialist', icon: 'award', title: 'Специалист', description: 'Пройдите все премиум тесты' },
-  { key: 'master', icon: 'trophy', title: 'Мастер', description: 'Пройдите все доступные тесты' },
+  { key: 'firstSteps', icon: 'ach_firstSteps', title: 'Первые шаги', description: 'Пройдите первый тест' },
+  { key: 'onFire', icon: 'ach_onFire', title: 'В ударе', description: '3+ теста за неделю' },
+  { key: 'highAccuracy', icon: 'ach_highAccuracy', title: 'Высокая точность', description: '85%+ показатель уверенности' },
+  { key: 'explorer', icon: 'ach_explorer', title: 'Исследователь', description: 'Откройте 5 разных типов' },
+  { key: 'collector', icon: 'ach_collector', title: 'Коллекционер', description: 'Пройдите тесты 3 разных систем' },
+  { key: 'marathon', icon: 'ach_marathon', title: 'Марафонец', description: 'Пройдите 10 тестов' },
+  { key: 'stable', icon: 'ach_stable', title: 'Стабильность', description: 'Один тип 3 раза подряд' },
+  { key: 'perfectionist', icon: 'ach_perfectionist', title: 'Перфекционист', description: '95%+ показатель уверенности' },
+  { key: 'earlyBird', icon: 'ach_earlyBird', title: 'Ранняя пташка', description: 'Пройдите тест до 7 утра' },
+  { key: 'nightOwl', icon: 'ach_nightOwl', title: 'Ночная сова', description: 'Пройдите тест после полуночи' },
+  { key: 'weekStreak', icon: 'ach_weekStreak', title: 'Неделя роста', description: 'Заходите 7 дней подряд' },
+  { key: 'curious', icon: 'ach_curious', title: 'Любознательный', description: 'Откройте все разделы помощи' },
+  { key: 'specialist', icon: 'ach_specialist', title: 'Специалист', description: 'Пройдите все премиум тесты' },
+  { key: 'master', icon: 'ach_master', title: 'Мастер', description: 'Пройдите все доступные тесты' },
 ];
 
 export class ResultsTimelineScreen {
@@ -47,20 +47,20 @@ export class ResultsTimelineScreen {
 
   _list(results) {
     const types = window.PERSONALITY_TYPES || {};
-    return `<div class="results-list">
+    return `
+    <div class="results-scroll">
       ${results.map(r => {
         const typeData = types[r.typeCode] || {};
         const displayName = typeData.title || r.typeName || r.typeCode;
         return `
         <div class="card result-item" data-id="${r.id}">
-          <div class="result-item__badge result-item__badge--${r.framework === 'mbti' ? 'mbti' : 'premium'}">
+          <div class="result-item__badge result-item__badge--${r.framework}">
             ${r.typeCode}
           </div>
           <div class="result-item__info">
             <div class="result-item__title">${r.framework.toUpperCase()} — ${r.typeCode}</div>
             <div class="result-item__date">${displayName} · ${this._formatDate(r.date)}</div>
           </div>
-          <i data-lucide="chevron-right" class="result-item__chevron" style="width:18px;height:18px"></i>
         </div>`;
       }).join('')}
     </div>`;
@@ -99,7 +99,7 @@ export class ResultsTimelineScreen {
           return `
           <div class="achievement-card ${earned ? '' : 'achievement-card--locked'}">
             <div class="achievement-card__icon-wrap">
-              <i data-lucide="${a.icon}" style="width:22px;height:22px"></i>
+              <img src="/images/achievements/${a.icon}.png" style="width:40px;height:40px;object-fit:cover;border-radius:8px">
             </div>
             <div class="achievement-card__text">
               <div class="achievement-card__title">${a.title}</div>
@@ -120,5 +120,6 @@ export class ResultsTimelineScreen {
     this.el.querySelector('#results-start-quiz')?.addEventListener('click', () => {
       router.navigateTab('explore');
     });
+
   }
 }
