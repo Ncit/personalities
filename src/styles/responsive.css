@@ -23,15 +23,15 @@
   }
 }
 
-/* Desktop (>1024px) — Sidebar layout */
+/* Desktop (>1024px) — Sidebar layout (not in VK flavor) */
 @media (min-width: 1024px) {
   /* Switch app to horizontal layout */
-  #app {
+  #app:not([data-flavor="vk"]) {
     flex-direction: row;
   }
 
   /* Show sidebar, hide tab bar */
-  .sidebar {
+  #app:not([data-flavor="vk"]) .sidebar {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -46,7 +46,7 @@
     padding: 32px 0;
   }
 
-  .tab-bar {
+  #app:not([data-flavor="vk"]) .tab-bar {
     display: none !important;
   }
 

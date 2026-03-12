@@ -24,7 +24,7 @@ export class BentoGrid {
       <div class="bento-mobile">
         <div class="bento-grid-2x2">
           ${BentoGrid._typeCardMobile(mbti)}
-          ${BentoGrid._compareCard()}
+          ${BentoGrid._enneagramCard()}
           ${BentoGrid._traitsCardMobile(mbti)}
           ${BentoGrid._socionicsCard()}
         </div>
@@ -47,11 +47,12 @@ export class BentoGrid {
     </div>`;
   }
 
-  static _compareCard() {
-    return `<div class="card bento-card bento-card--compare" data-action="compare">
-      <div class="bento-card__label">Сравнить</div>
-      <div class="bento-card__icon">👥</div>
-      <div class="bento-card__link">С друзьями →</div>
+  static _enneagramCard() {
+    return `<div class="card bento-card bento-card--enneagram" data-action="enneagram">
+      <div class="bento-card__badge">Новое!</div>
+      <div class="bento-card__label">Эннеаграмма</div>
+      <div class="bento-card__icon">🔷</div>
+      <div class="bento-card__link">9 типов</div>
     </div>`;
   }
 

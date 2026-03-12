@@ -24,10 +24,15 @@ export class App {
     this.overlayContainer = document.getElementById('overlay-container');
     this.tabBar = new TabBar(document.getElementById('tab-bar'));
 
-    // Desktop sidebar
-    this.sidebar = new Sidebar();
+    // Desktop sidebar (hidden in VK Mini App)
+    const isVKFlavor = new URLSearchParams(window.location.search).get('flavor') === 'vk';
     const appEl = document.getElementById('app');
-    appEl.insertBefore(this.sidebar.getElement(), this.screenContainer);
+    if (isVKFlavor) {
+      appEl.dataset.flavor = 'vk';
+    } else {
+      this.sidebar = new Sidebar();
+      appEl.insertBefore(this.sidebar.getElement(), this.screenContainer);
+    }
 
     this.screens = {
       home: new HomeScreen(),
