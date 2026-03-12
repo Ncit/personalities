@@ -3,6 +3,7 @@ import { QuizListItem } from '../components/QuizListItem.js';
 import { TypeCard } from '../components/TypeCard.js';
 import { router } from '../../router/Router.js';
 import { stateManager } from '../../core/StateManager.js';
+import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
 
 const QUIZZES = {
   frameworks: [
@@ -85,12 +86,15 @@ export class ExploreScreen {
     } else {
       codes = MBTI_CATEGORIES[this.activeFilter] || [];
     }
-    return codes.map(code => ({
-      code,
-      name: code,
-      description: 'Personality type',
-      gradient: 'var(--gradient-sage)',
-    }));
+    return codes.map(code => {
+      const typeData = MBTI_TYPES ? MBTI_TYPES[code] : null;
+      return {
+        code,
+        name: typeData ? (typeData.title || typeData.name || code) : code,
+        description: typeData ? (typeData.subtitle || typeData.description || '') : 'Personality type',
+        gradient: 'var(--gradient-sage)',
+      };
+    });
   }
 
   _bind() {
