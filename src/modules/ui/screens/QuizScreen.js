@@ -56,7 +56,9 @@ export class QuizScreen {
   _getBaseFramework(fw) {
     if (fw.startsWith('socionics_')) return 'socionics';
     if (fw.startsWith('enneagram_')) return 'enneagram';
-    return fw;
+    if (fw === 'mbti' || fw === 'socionics' || fw === 'enneagram') return fw;
+    // All other specialized quizzes (leadership, communication, etc.) are MBTI-based
+    return 'mbti';
   }
 
   async setData(data) {
@@ -165,22 +167,33 @@ export class QuizScreen {
       ];
     }
 
-    // Calculate progress per dimension based on answered questions
-    const dimCounts = {};
-    const dimTotals = {};
-    dims.forEach(d => { dimCounts[d.key] = 0; dimTotals[d.key] = 0; });
-
-    questions.forEach((q, i) => {
-      const dim = base === 'enneagram' ? this._enneagramDimGroup(q.dimension) : q.dimension;
-      if (dim in dimTotals) {
-        dimTotals[dim]++;
-        if (i < questionIndex) dimCounts[dim]++;
-      }
-    });
+    // Show live score percentages matching result screen
+    const scores = qe.scores || {};
 
     return `<div class="quiz-adaptive">
       ${dims.map(d => {
-        const pct = dimTotals[d.key] > 0 ? Math.round((dimCounts[d.key] / dimTotals[d.key]) * 100) : 0;
+        let pct = 50;
+        if (base === 'socionics') {
+          const pairs = { LE: ['L', 'E'], IN: ['I', 'S'], EI: ['Ex', 'In'], RJ: ['R', 'Ir'] };
+          const p = pairs[d.key];
+          if (p) {
+            const a = scores[p[0]] || 0, b = scores[p[1]] || 0;
+            const diff = a - b;
+            pct = diff === 0 ? 50 : Math.round(Math.max(5, Math.min(95, 50 + (diff / (Math.abs(diff) + 4)) * 45)));
+          }
+        } else if (base === 'enneagram') {
+          const val = scores[d.key] || 0;
+          pct = Math.max(10, Math.min(90, 50 + val * 3));
+        } else {
+          const pairs = { EI: ['E', 'I'], SN: ['S', 'N'], TF: ['T', 'F'], JP: ['J', 'P'] };
+          const p = pairs[d.key];
+          if (p) {
+            const a = scores[p[0]] || 0, b = scores[p[1]] || 0;
+            const total = Math.abs(a) + Math.abs(b);
+            pct = total > 0 ? Math.round((a / total) * 100) : 50;
+            pct = Math.max(5, Math.min(95, pct));
+          }
+        }
         return `
         <div class="quiz-adaptive__bar">
           <div class="quiz-adaptive__track"><div class="quiz-adaptive__fill" style="width:${pct}%;background:${d.color}"></div></div>

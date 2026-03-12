@@ -28,9 +28,24 @@ export class QuizEngine {
         this.initializeQuiz();
     }
 
+    _shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
     async initializeQuiz() {
         this.quizType = stateManager.getCurrentQuizType();
-        this.questions = await this.generateQuestions();
+        let questions = await this.generateQuestions();
+
+        // Shuffle specialized quizzes so dimension progress is even
+        if (this.quizType.includes('_')) {
+            questions = this._shuffleArray(questions);
+        }
+        this.questions = questions;
 
         // Initialize adaptive engine only for MBTI; reset for other frameworks
         if (this.adaptiveConfig.enabled && this.quizType === 'mbti') {
@@ -72,9 +87,9 @@ export class QuizEngine {
     }
 
     _resetScores() {
-        if (this.quizType === 'socionics') {
+        if (this.quizType === 'socionics' || this.quizType.startsWith('socionics_')) {
             this.scores = { L: 0, E: 0, I: 0, S: 0, Ex: 0, In: 0, R: 0, Ir: 0 };
-        } else if (this.quizType === 'enneagram') {
+        } else if (this.quizType === 'enneagram' || this.quizType.startsWith('enneagram_')) {
             this.scores = { HC: 0, HD: 0, BD: 0, H1: 0, D1: 0, B1: 0 };
         } else {
             this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
@@ -261,12 +276,12 @@ export class QuizEngine {
         const w = question.weights[selectedOption - 1];
         const dim = question.dimension;
 
-        if (this.quizType === 'socionics') {
+        if (this.quizType === 'socionics' || this.quizType.startsWith('socionics_')) {
             if (dim === 'LE') { this.scores.L += w; this.scores.E -= w; }
             else if (dim === 'IN') { this.scores.I += w; this.scores.S -= w; }
             else if (dim === 'EI') { this.scores.Ex += w; this.scores.In -= w; }
             else if (dim === 'RJ') { this.scores.R += w; this.scores.Ir -= w; }
-        } else if (this.quizType === 'enneagram') {
+        } else if (this.quizType === 'enneagram' || this.quizType.startsWith('enneagram_')) {
             this.scores[dim] = (this.scores[dim] || 0) + w;
         } else {
             // MBTI
@@ -473,30 +488,39 @@ export class QuizEngine {
         return type;
     }
 
+    _dimPct(a, b) {
+        const total = Math.abs(a) + Math.abs(b);
+        if (total === 0) return 50;
+        return Math.max(5, Math.min(95, Math.round((a / total) * 100)));
+    }
+
     calculateDimensionBreakdown() {
-        const total = Math.abs(this.scores.E) + Math.abs(this.scores.I);
-        const ePercentage = total > 0 ? (this.scores.E / total) * 100 : 50;
+        const s = this.scores;
+        const ePct = this._dimPct(s.E, s.I);
+        const sPct = this._dimPct(s.S, s.N);
+        const tPct = this._dimPct(s.T, s.F);
+        const jPct = this._dimPct(s.J, s.P);
 
         return {
             EI: {
-                E: Math.max(0, ePercentage),
-                I: Math.max(0, 100 - ePercentage),
-                preference: this.scores.E > this.scores.I ? 'E' : 'I'
+                E: ePct,
+                I: 100 - ePct,
+                preference: s.E > s.I ? 'E' : 'I'
             },
             SN: {
-                S: this.scores.S > this.scores.N ? 60 : 40,
-                N: this.scores.N > this.scores.S ? 60 : 40,
-                preference: this.scores.S > this.scores.N ? 'S' : 'N'
+                S: sPct,
+                N: 100 - sPct,
+                preference: s.S > s.N ? 'S' : 'N'
             },
             TF: {
-                T: this.scores.T > this.scores.F ? 60 : 40,
-                F: this.scores.F > this.scores.T ? 60 : 40,
-                preference: this.scores.T > this.scores.F ? 'T' : 'F'
+                T: tPct,
+                F: 100 - tPct,
+                preference: s.T > s.F ? 'T' : 'F'
             },
             JP: {
-                J: this.scores.J > this.scores.P ? 60 : 40,
-                P: this.scores.P > this.scores.J ? 60 : 40,
-                preference: this.scores.J > this.scores.P ? 'J' : 'P'
+                J: jPct,
+                P: 100 - jPct,
+                preference: s.J > s.P ? 'J' : 'P'
             }
         };
     }

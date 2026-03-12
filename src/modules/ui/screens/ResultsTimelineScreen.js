@@ -24,6 +24,36 @@ const FRAMEWORK_NAMES = {
   mbti: 'MBTI',
   socionics: 'Соционика',
   enneagram: 'Эннеаграмма',
+  // MBTI specialized
+  leadership: 'Стиль лидерства',
+  communication: 'Стиль общения',
+  stress: 'Реакция на стресс',
+  learning: 'Стиль обучения',
+  relationships: 'Динамика отношений',
+  creativity: 'Креативность',
+  decision: 'Принятие решений',
+  teamwork: 'Командная работа',
+  career: 'Карьера',
+  social: 'Социальное взаимодействие',
+  motivation: 'Мотивация',
+  adaptability: 'Адаптивность',
+  conflict: 'Разрешение конфликтов',
+  productivity: 'Продуктивность',
+  emotional: 'Эмоциональный интеллект',
+  // Socionics specialized
+  socionics_intertype: 'Интертипные отношения',
+  socionics_quadra: 'Квадровые ценности',
+  socionics_functions: 'Инф. метаболизм',
+  socionics_conflict: 'Конфликтология',
+  socionics_career: 'Карьера и социотип',
+  socionics_love: 'Любовь и дуальность',
+  // Enneagram specialized
+  enneagram_wings: 'Крылья и подтипы',
+  enneagram_stress: 'Стресс и рост',
+  enneagram_instincts: 'Инстинкты выживания',
+  enneagram_relationships: 'Отношения',
+  enneagram_shadow: 'Теневая сторона',
+  enneagram_spiritual: 'Духовный путь',
 };
 
 export class ResultsTimelineScreen {
