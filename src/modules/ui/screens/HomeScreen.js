@@ -6,9 +6,9 @@ import { router } from '../../router/Router.js';
 import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
 
 const QUIZZES = [
-  { title: 'MBTI', badge: '16 типов', meta: '60 вопросов · 15 мин', gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)', framework: 'mbti' },
-  { title: 'Соционика', badge: '16 типов', meta: '48 вопросов · 12 мин', gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)', framework: 'socionics' },
-  { title: 'Эннеаграмма', badge: '9 типов', meta: '36 вопросов · 10 мин', gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)', framework: 'enneagram' },
+  { title: 'MBTI — 16 типов личности', meta: '60 вопросов · 15 мин · Бесплатно', gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)', framework: 'mbti' },
+  { title: 'Соционика — 16 социотипов', meta: '48 вопросов · 12 мин · Бесплатно', gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)', framework: 'socionics' },
+  { title: 'Эннеаграмма — 9 типов', meta: '36 вопросов · 10 мин · Бесплатно', gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)', framework: 'enneagram' },
 ];
 
 const FRAMEWORK_FILTERS = [
@@ -69,7 +69,7 @@ export class HomeScreen {
       <p class="page-subtitle">Исследуйте свою личность через разные методики</p>
       ${HeroCard.render()}
       ${!isPremium ? `
-      <div class="premium-cta-mobile" id="home-premium-cta" style="margin-bottom:12px;width:fit-content">
+      <div class="premium-cta-mobile" id="home-premium-cta" style="margin-bottom:12px">
         <div class="premium-cta-mobile__text">
           <div class="premium-cta-mobile__title">Премиум</div>
           <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
@@ -82,12 +82,11 @@ export class HomeScreen {
 
       <div class="home-section">
         <div class="section-label">Основные тесты</div>
-        <div class="test-cards-grid">
+        <div class="catalog-fw-cards">
           ${QUIZZES.map(q => `
-            <div class="test-card" data-framework="${q.framework}" style="background:${q.gradient}">
-              <div class="test-card__badge">${q.badge}</div>
-              <div class="test-card__title">${q.title}</div>
-              <div class="test-card__meta">${q.meta}</div>
+            <div class="catalog-fw-card" data-framework="${q.framework}" style="background:${q.gradient}">
+              <div class="catalog-fw-card__title">${q.title}</div>
+              <div class="catalog-fw-card__meta">${q.meta}</div>
             </div>
           `).join('')}
         </div>
@@ -195,7 +194,7 @@ export class HomeScreen {
       });
     });
 
-    this.el.querySelectorAll('.test-card').forEach(card => {
+    this.el.querySelectorAll('.catalog-fw-card').forEach(card => {
       card.addEventListener('click', () => {
         const framework = card.dataset.framework;
         if (framework) {

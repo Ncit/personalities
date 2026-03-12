@@ -120,13 +120,13 @@
     overflow-y: auto;
     height: 100vh;
     height: 100dvh;
-    scrollbar-gutter: stable;
   }
 
   #app:not([data-flavor="vk"]) .screen-content {
     padding: 32px 40px;
     padding-bottom: 40px;
-    max-width: 960px;
+    max-width: 800px;
+    margin: 0 auto;
   }
 
   .types-grid {

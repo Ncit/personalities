@@ -14,8 +14,8 @@ const ABOUT_LINKS = [
   { icon: 'users', label: 'О типах личности', action: 'about-personality' },
   { icon: 'shield', label: 'Конфиденциальность', action: 'privacy' },
   { icon: 'file-text', label: 'Условия использования', action: 'terms' },
-  { icon: 'scroll-text', label: 'Публичная оферта', action: 'offer' },
   { icon: 'mail', label: 'Контакты', action: 'contacts' },
+  { icon: 'scroll-text', label: 'Публичная оферта', action: 'offer' },
 ];
 
 export class ProfileScreen {
@@ -78,7 +78,7 @@ export class ProfileScreen {
         ${!isPremium && !isGuest ? `
         <!-- Premium CTA — full width -->
         <div class="profile-grid__premium">
-          <div class="premium-cta-mobile" id="premium-cta-mobile" style="width:fit-content">
+          <div class="premium-cta-mobile" id="premium-cta-mobile">
             <div class="premium-cta-mobile__text">
               <div class="premium-cta-mobile__title">Премиум</div>
               <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
