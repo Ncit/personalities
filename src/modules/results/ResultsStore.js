@@ -55,6 +55,24 @@ class ResultsStore {
     return entry;
   }
 
+  removeResult(id) {
+    const idx = this.results.findIndex(r => r.id === id);
+    if (idx === -1) return false;
+    this.results.splice(idx, 1);
+    this._save();
+    this._notify();
+    // Clean up comparison exclusion list
+    try {
+      const raw = localStorage.getItem('quiz_comparison_excluded');
+      if (raw) {
+        const excluded = JSON.parse(raw).filter(eid => eid !== id);
+        localStorage.setItem('quiz_comparison_excluded', JSON.stringify(excluded));
+      }
+    } catch (e) { /* ignore */ }
+    logger.log('Result removed:', id);
+    return true;
+  }
+
   getAll() {
     return [...this.results];
   }

@@ -4,6 +4,7 @@ const TABS = [
   { id: 'home', label: 'ГЛАВНАЯ', icon: 'layout-dashboard' },
   { id: 'explore', label: 'КАТАЛОГ', icon: 'compass' },
   { id: 'results', label: 'РЕЗУЛЬТАТЫ', icon: 'chart-bar' },
+  { id: 'achievements', label: 'ДОСТИЖЕНИЯ', icon: 'trophy' },
   { id: 'profile', label: 'ПРОФИЛЬ', icon: 'user' },
 ];
 

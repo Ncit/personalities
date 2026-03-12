@@ -1,24 +1,8 @@
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
+import { ComparisonSection } from '../components/ComparisonSection.js';
 
 function getStateManager() { return window.stateManager; }
-
-const ACHIEVEMENTS = [
-  { key: 'firstSteps', icon: 'ach_firstSteps', title: 'Первые шаги', description: 'Пройдите первый тест' },
-  { key: 'onFire', icon: 'ach_onFire', title: 'В ударе', description: '3+ теста за неделю' },
-  { key: 'highAccuracy', icon: 'ach_highAccuracy', title: 'Высокая точность', description: '85%+ показатель уверенности' },
-  { key: 'explorer', icon: 'ach_explorer', title: 'Исследователь', description: 'Откройте 5 разных типов' },
-  { key: 'collector', icon: 'ach_collector', title: 'Коллекционер', description: 'Пройдите тесты 3 разных систем' },
-  { key: 'marathon', icon: 'ach_marathon', title: 'Марафонец', description: 'Пройдите 10 тестов' },
-  { key: 'stable', icon: 'ach_stable', title: 'Стабильность', description: 'Один тип 3 раза подряд' },
-  { key: 'perfectionist', icon: 'ach_perfectionist', title: 'Перфекционист', description: '95%+ показатель уверенности' },
-  { key: 'earlyBird', icon: 'ach_earlyBird', title: 'Ранняя пташка', description: 'Пройдите тест до 7 утра' },
-  { key: 'nightOwl', icon: 'ach_nightOwl', title: 'Ночная сова', description: 'Пройдите тест после полуночи' },
-  { key: 'weekStreak', icon: 'ach_weekStreak', title: 'Неделя роста', description: 'Заходите 7 дней подряд' },
-  { key: 'curious', icon: 'ach_curious', title: 'Любознательный', description: 'Откройте все разделы помощи' },
-  { key: 'specialist', icon: 'ach_specialist', title: 'Специалист', description: 'Пройдите все премиум тесты' },
-  { key: 'master', icon: 'ach_master', title: 'Мастер', description: 'Пройдите все доступные тесты' },
-];
 
 const FRAMEWORK_NAMES = {
   mbti: 'MBTI',
@@ -60,6 +44,7 @@ export class ResultsTimelineScreen {
   constructor() {
     this.el = document.createElement('div');
     this.el.className = 'results-timeline-screen screen-content';
+    this._comparison = new ComparisonSection();
     this.render();
   }
 
@@ -69,15 +54,18 @@ export class ResultsTimelineScreen {
   render() {
     const results = resultsStore.getAll();
     const sm = getStateManager();
-    const achievements = sm ? (sm.get('achievements') || {}) : {};
+    const isPremium = sm ? sm.get('isPremium') : false;
 
     this.el.innerHTML = `
       <h1 class="page-title">Результаты</h1>
       ${results.length > 0 ? this._list(results) : this._empty()}
-      ${this._achievements(achievements)}
+      ${results.length >= 2
+        ? (isPremium ? this._comparison.render(null) : this._comparisonTeaser())
+        : ''}
     `;
 
     this._bind();
+    if (isPremium && results.length >= 2) this._comparison.bind(this.el, null);
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
   }
 
@@ -128,24 +116,21 @@ export class ResultsTimelineScreen {
     return d.toLocaleDateString();
   }
 
-  _achievements(achievements) {
+  _comparisonTeaser() {
+    const content = this._comparison.render(null);
     return `
-      <div class="section-label" style="margin-top:28px">Достижения</div>
-      <div class="achievements-grid">
-        ${ACHIEVEMENTS.map(a => {
-          const earned = !!achievements[a.key];
-          return `
-          <div class="achievement-card ${earned ? '' : 'achievement-card--locked'}">
-            <div class="achievement-card__icon-wrap">
-              <img src="/images/achievements/${a.icon}.png" style="width:40px;height:40px;object-fit:cover;border-radius:8px">
-            </div>
-            <div class="achievement-card__text">
-              <div class="achievement-card__title">${a.title}</div>
-              <div class="achievement-card__desc">${a.description}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
+      <div class="comparison-paywall" id="comparison-premium-teaser">
+        <div class="comparison-paywall__content">${content}</div>
+        <div class="comparison-paywall__overlay">
+          <div class="comparison-paywall__card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5.5 21h13"/></svg>
+            <div class="comparison-paywall__title">Эволюция типа</div>
+            <div class="comparison-paywall__desc">Сравнение результатов, диаграмма, стабильность и корреляция типов</div>
+            <button class="premium-cta-btn comparison-paywall__btn">Открыть Премиум</button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   _bind() {
@@ -159,5 +144,8 @@ export class ResultsTimelineScreen {
       router.navigateTab('explore');
     });
 
+    this.el.querySelector('#comparison-premium-teaser')?.addEventListener('click', () => {
+      router.openOverlay('premium-modal');
+    });
   }
 }

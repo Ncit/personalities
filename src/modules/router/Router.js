@@ -4,7 +4,7 @@ const logger = new LoggerManager().createModuleLogger('Router');
 
 class Router {
   constructor() {
-    this.tabs = ['home', 'explore', 'results', 'profile'];
+    this.tabs = ['home', 'explore', 'results', 'achievements', 'profile'];
     this.currentTab = 'home';
     this.overlayStack = [];
     this.subscribers = [];

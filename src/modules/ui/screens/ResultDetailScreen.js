@@ -134,9 +134,9 @@ export class ResultDetailScreen {
         </button>
         ${this._renderHero(result, isPremium)}
         ${this._renderDimensions(result)}
-        ${isPremium ? this._renderAnalytics(result) : ''}
-        ${isPremium ? this._renderInsights(result) : this._renderPremiumTeaser()}
-        ${this._renderFamous(result)}
+        ${isPremium
+          ? `${this._renderAnalytics(result)}${this._renderInsights(result)}${this._renderFamous(result)}`
+          : this._renderPremiumPaywall(result)}
         ${this._renderActions()}
       </div>
     `;
@@ -500,15 +500,19 @@ export class ResultDetailScreen {
     `;
   }
 
-  _renderPremiumTeaser() {
+  _renderPremiumPaywall(result) {
+    const content = `${this._renderAnalytics(result)}${this._renderInsights(result)}${this._renderFamous(result)}`;
     return `
-      <div class="premium-teaser" id="premium-teaser">
-        <div class="premium-teaser__info">
-          <span class="badge badge--gold premium-teaser__badge">Премиум</span>
-          <div class="premium-teaser__title">Открыть глубокий анализ</div>
-          <div class="premium-teaser__desc">Расширенный анализ, известные совпадения и другое</div>
+      <div class="comparison-paywall" id="premium-teaser">
+        <div class="comparison-paywall__content">${content}</div>
+        <div class="comparison-paywall__overlay">
+          <div class="comparison-paywall__card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5.5 21h13"/></svg>
+            <div class="comparison-paywall__title">Глубокий анализ</div>
+            <div class="comparison-paywall__desc">Расширенная аналитика, совпадения с известными личностями и другое</div>
+            <button class="premium-cta-btn comparison-paywall__btn">Открыть Премиум</button>
+          </div>
         </div>
-        <i data-lucide="chevron-right" style="width:18px;height:18px;color:#C5C0B8"></i>
       </div>
     `;
   }
@@ -591,5 +595,6 @@ export class ResultDetailScreen {
       router.closeOverlay();
       router.openOverlay('quiz', { framework: result.framework });
     });
+
   }
 }

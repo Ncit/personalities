@@ -5,6 +5,7 @@ import { HomeScreen } from './screens/HomeScreen.js';
 import { ExploreScreen } from './screens/ExploreScreen.js';
 import { ResultsTimelineScreen } from './screens/ResultsTimelineScreen.js';
 import { ProfileScreen } from './screens/ProfileScreen.js';
+import { AchievementsScreen } from './screens/AchievementsScreen.js';
 import { QuizScreen } from './screens/QuizScreen.js';
 import { ResultDetailScreen } from './screens/ResultDetailScreen.js';
 import { PremiumModal } from './components/PremiumModal.js';
@@ -36,6 +37,7 @@ export class App {
       home: new HomeScreen(),
       explore: new ExploreScreen(),
       results: new ResultsTimelineScreen(),
+      achievements: new AchievementsScreen(),
       profile: new ProfileScreen(),
     };
 
@@ -48,7 +50,7 @@ export class App {
       'help': () => new HelpModal(),
     };
 
-    this.currentOverlay = null;
+    this.overlayInstances = []; // stack of { name, instance }
 
     resultsStore.migrateFromLegacy();
 
@@ -71,22 +73,29 @@ export class App {
       if (!el.parentElement) this.screenContainer.appendChild(el);
     });
 
-    if (overlay) {
-      if (!this.currentOverlay || this.currentOverlay._name !== overlay) {
-        this.overlayContainer.innerHTML = '';
+    if (!overlay) {
+      // No overlay — clear all
+      this.overlayContainer.innerHTML = '';
+      this.overlayInstances = [];
+    } else {
+      const top = this.overlayInstances[this.overlayInstances.length - 1];
+      if (top && top.name === overlay) {
+        // Same overlay on top — nothing to do
+      } else if (this.overlayInstances.length > router.overlayStack.length) {
+        // Stack shrunk (popped) — remove top instance
+        const removed = this.overlayInstances.pop();
+        removed.instance.getElement().remove();
+      } else {
+        // Stack grew (pushed) — add new overlay on top
         const OverlayFactory = this.overlays[overlay];
         if (OverlayFactory) {
-          this.currentOverlay = OverlayFactory();
-          this.currentOverlay._name = overlay;
-          if (overlayData && this.currentOverlay.setData) {
-            this.currentOverlay.setData(overlayData);
-          }
-          this.overlayContainer.appendChild(this.currentOverlay.getElement());
+          const instance = OverlayFactory();
+          instance._name = overlay;
+          if (overlayData && instance.setData) instance.setData(overlayData);
+          this.overlayContainer.appendChild(instance.getElement());
+          this.overlayInstances.push({ name: overlay, instance });
         }
       }
-    } else {
-      this.overlayContainer.innerHTML = '';
-      this.currentOverlay = null;
     }
   }
 }
