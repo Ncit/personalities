@@ -1,5 +1,7 @@
 // Import Firebase modules
 import { App } from './src/modules/ui/App.js';
+import { quizEngine } from './src/modules/quiz/QuizEngine.js';
+import { stateManager } from './src/modules/core/StateManager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAnalytics, logEvent, setUserId, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
 import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
@@ -4791,6 +4793,13 @@ function areAllTestsCompleted() {
 window.openClientCabinetModal = openClientCabinetModal;
 window.closeClientCabinetModal = closeClientCabinetModal;
 window.clearAllUserData = clearAllUserData;
+
+// Expose singletons and data as globals for new UI screens
+window.quizEngine = quizEngine;
+window.stateManager = stateManager;
+window.PERSONALITY_TYPES = PERSONALITY_TYPES;
+window.ADVANCED_INSIGHTS = ADVANCED_INSIGHTS;
+window.FAMOUS_PERSONALITIES = FAMOUS_PERSONALITIES;
 
 // Initialize new app shell
 const app = new App();

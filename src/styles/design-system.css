@@ -61,3 +61,16 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+#screen-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
