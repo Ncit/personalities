@@ -24,9 +24,7 @@ export class BentoGrid {
       <div class="bento-mobile">
         <div class="bento-grid-2x2">
           ${BentoGrid._typeCardMobile(mbti)}
-          ${BentoGrid._enneagramCard()}
           ${BentoGrid._traitsCardMobile(mbti)}
-          ${BentoGrid._socionicsCard()}
         </div>
       </div>
     `;

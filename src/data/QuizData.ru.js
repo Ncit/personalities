@@ -125,8 +125,22 @@ export const QUIZ_TYPES = {
         name: 'Оценка личности MBTI',
         description: 'Откройте свой тип личности по индикатору Майерс-Бриггс',
         questionCount: { free: 20, premium: 60 },
-        icon: 'fas fa-brain',
-        color: '#667eea'
+        icon: 'brain',
+        color: '#7C9082'
+    },
+    socionics: {
+        name: 'Соционика',
+        description: 'Определите свой социотип и интертипные отношения',
+        questionCount: { free: 48, premium: 48 },
+        icon: 'sparkles',
+        color: '#E8A85C'
+    },
+    enneagram: {
+        name: 'Эннеаграмма',
+        description: '9 типов личности — мотивации, страхи и пути развития',
+        questionCount: { free: 36, premium: 36 },
+        icon: 'heart',
+        color: '#C47A8A'
     },
     leadership: {
         name: 'Оценка стиля лидерства',

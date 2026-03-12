@@ -128,6 +128,20 @@ export const QUIZ_TYPES = {
         icon: 'fas fa-brain',
         color: '#667eea'
     },
+    socionics: {
+        name: 'Socionics',
+        description: 'Discover your sociotype and intertype relations',
+        questionCount: { free: 48, premium: 48 },
+        icon: 'sparkles',
+        color: '#E8A85C'
+    },
+    enneagram: {
+        name: 'Enneagram',
+        description: '9 personality types — motivations, fears, and growth paths',
+        questionCount: { free: 36, premium: 36 },
+        icon: 'heart',
+        color: '#C47A8A'
+    },
     leadership: {
         name: 'Leadership Style Assessment',
         description: 'Discover your leadership approach and preferences',

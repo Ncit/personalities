@@ -13,6 +13,7 @@ import { ProfileScreen } from './screens/ProfileScreen.js';
 import { QuizScreen } from './screens/QuizScreen.js';
 import { ResultDetailScreen } from './screens/ResultDetailScreen.js';
 import { PremiumModal } from './components/PremiumModal.js';
+import { FrameworkInfoScreen } from './screens/FrameworkInfoScreen.js';
 import { resultsStore } from '../results/ResultsStore.js';
 import { LoggerManager } from '../core/LoggerManager.js';
 
@@ -45,6 +46,7 @@ export class App {
       quiz: () => new QuizScreen(),
       'result-detail': () => new ResultDetailScreen(),
       'premium-modal': () => new PremiumModal(),
+      'framework-info': () => new FrameworkInfoScreen(),
     };
 
     this.currentOverlay = null;

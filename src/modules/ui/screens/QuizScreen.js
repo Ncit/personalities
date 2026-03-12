@@ -21,6 +21,8 @@ export class QuizScreen {
 
   async setData(data) {
     if (data?.framework) this.framework = data.framework;
+    const sm = getStateManager();
+    if (sm) sm.setQuizType(this.framework);
     const qe = getQuizEngine();
     if (qe) {
       qe.resetQuiz();
@@ -176,18 +178,23 @@ export class QuizScreen {
 
   _handleCompletion(results) {
     const dims = results.dimensionBreakdown || {};
-    const typeData = window.PERSONALITY_TYPES?.[results.personalityType];
-    const typeName = typeData?.title || typeData?.name || results.personalityType;
+    let typeName = results.personalityType;
+
+    // Resolve type name from framework-specific type data
+    if (this.framework === 'mbti') {
+      const typeData = window.PERSONALITY_TYPES?.[results.personalityType];
+      typeName = typeData?.title || typeData?.name || results.personalityType;
+    } else if (this.framework === 'socionics') {
+      typeName = results.typeName || results.personalityType;
+    } else if (this.framework === 'enneagram') {
+      typeName = results.typeName || results.personalityType;
+    }
+
     const entry = resultsStore.addResult({
       framework: this.framework,
       typeCode: results.personalityType,
       typeName,
-      dimensions: {
-        E: dims.EI?.E || 50, I: dims.EI?.I || 50,
-        S: dims.SN?.S || 50, N: dims.SN?.N || 50,
-        T: dims.TF?.T || 50, F: dims.TF?.F || 50,
-        J: dims.JP?.J || 50, P: dims.JP?.P || 50,
-      },
+      dimensions: results.dimensions || dims,
       confidence: results.adaptiveAnalytics?.confidenceScores || null,
     });
     const sm = getStateManager();

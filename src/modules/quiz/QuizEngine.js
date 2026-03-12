@@ -57,15 +57,25 @@ export class QuizEngine {
     resetQuiz() {
         this.currentQuestionIndex = 0;
         this.answers = [];
-        this.scores = { E: 0, I: 0, S: 0, N: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        this._resetScores();
         this.selectedOption = null;
-        
+
         // Reset adaptive engine if available
         if (this.adaptiveEngine) {
             this.adaptiveEngine.reset();
         }
-        
+
         stateManager.resetQuiz();
+    }
+
+    _resetScores() {
+        if (this.quizType === 'socionics') {
+            this.scores = { L: 0, E: 0, I: 0, S: 0, Ex: 0, In: 0, R: 0, Ir: 0 };
+        } else if (this.quizType === 'enneagram') {
+            this.scores = { HC: 0, HD: 0, BD: 0, H1: 0, D1: 0, B1: 0 };
+        } else {
+            this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        }
     }
 
     async startQuiz() {
@@ -245,27 +255,28 @@ export class QuizEngine {
     }
 
     updateScores(question, selectedOption) {
-        const weights = question.weights;
-        const dimension = question.dimension;
-        
-        if (dimension === 'EI') {
-            this.scores.E += weights[selectedOption - 1];
-            this.scores.I -= weights[selectedOption - 1];
-        } else if (dimension === 'SN') {
-            this.scores.S += weights[selectedOption - 1];
-            this.scores.N -= weights[selectedOption - 1];
-        } else if (dimension === 'TF') {
-            this.scores.T += weights[selectedOption - 1];
-            this.scores.F -= weights[selectedOption - 1];
-        } else if (dimension === 'JP') {
-            this.scores.J += weights[selectedOption - 1];
-            this.scores.P -= weights[selectedOption - 1];
+        const w = question.weights[selectedOption - 1];
+        const dim = question.dimension;
+
+        if (this.quizType === 'socionics') {
+            if (dim === 'LE') { this.scores.L += w; this.scores.E -= w; }
+            else if (dim === 'IN') { this.scores.I += w; this.scores.S -= w; }
+            else if (dim === 'EI') { this.scores.Ex += w; this.scores.In -= w; }
+            else if (dim === 'RJ') { this.scores.R += w; this.scores.Ir -= w; }
+        } else if (this.quizType === 'enneagram') {
+            this.scores[dim] = (this.scores[dim] || 0) + w;
+        } else {
+            // MBTI
+            if (dim === 'EI') { this.scores.E += w; this.scores.I -= w; }
+            else if (dim === 'SN') { this.scores.S += w; this.scores.N -= w; }
+            else if (dim === 'TF') { this.scores.T += w; this.scores.F -= w; }
+            else if (dim === 'JP') { this.scores.J += w; this.scores.P -= w; }
         }
     }
 
     recalculateScores() {
-        this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
-        
+        this._resetScores();
+
         this.answers.forEach(answer => {
             const question = this.questions[answer.questionIndex];
             this.updateScores(question, answer.selectedOption);
@@ -329,12 +340,24 @@ export class QuizEngine {
     }
 
     calculateResults() {
+        if (this.quizType === 'socionics') return this._calculateSocionicsResults();
+        if (this.quizType === 'enneagram') return this._calculateEnneagramResults();
+        return this._calculateMBTIResults();
+    }
+
+    _calculateMBTIResults() {
         const personalityType = this.calculatePersonalityType();
         const dimensionBreakdown = this.calculateDimensionBreakdown();
-        
+
         return {
             personalityType,
             dimensionBreakdown,
+            dimensions: {
+                E: dimensionBreakdown.EI?.E || 50, I: dimensionBreakdown.EI?.I || 50,
+                S: dimensionBreakdown.SN?.S || 50, N: dimensionBreakdown.SN?.N || 50,
+                T: dimensionBreakdown.TF?.T || 50, F: dimensionBreakdown.TF?.F || 50,
+                J: dimensionBreakdown.JP?.J || 50, P: dimensionBreakdown.JP?.P || 50,
+            },
             scores: { ...this.scores },
             answers: [...this.answers],
             quizType: this.quizType,
@@ -345,6 +368,93 @@ export class QuizEngine {
         };
     }
 
+    async _calculateSocionicsResults() {
+        const { SOCIONICS_TYPES } = await import('../../data/SocionicsQuiz.ru.js');
+        const s = this.scores;
+
+        // Find matching type via MBTI equivalent mapping
+        const mbtiEquiv = this._socionicsToMBTI(s);
+        const typeEntry = Object.values(SOCIONICS_TYPES).find(t => t.mbtiEquivalent === mbtiEquiv);
+
+        const typeCode = typeEntry ? typeEntry.code : mbtiEquiv;
+        const typeName = typeEntry ? typeEntry.title : typeCode;
+
+        return {
+            personalityType: typeCode,
+            typeName,
+            dimensions: {
+                L: this._pct(s.L, s.E), E: this._pct(s.E, s.L),
+                I: this._pct(s.I, s.S), S: this._pct(s.S, s.I),
+                Ex: this._pct(s.Ex, s.In), In: this._pct(s.In, s.Ex),
+                R: this._pct(s.R, s.Ir), Ir: this._pct(s.Ir, s.R),
+            },
+            scores: { ...this.scores },
+            answers: [...this.answers],
+            quizType: this.quizType,
+            timestamp: new Date().toISOString(),
+            totalQuestions: this.questions.length,
+            answeredQuestions: this.answers.length
+        };
+    }
+
+    _socionicsToMBTI(s) {
+        return [
+            s.Ex > s.In ? 'E' : 'I',
+            s.I > s.S ? 'N' : 'S',
+            s.L > s.E ? 'T' : 'F',
+            s.R > s.Ir ? 'J' : 'P',
+        ].join('');
+    }
+
+    async _calculateEnneagramResults() {
+        const { ENNEAGRAM_TYPES } = await import('../../data/EnneagramQuiz.ru.js');
+        const s = this.scores;
+
+        // Determine dominant center
+        const centers = [
+            { name: 'heart', score: s.HC, types: [2, 3, 4], sub: s.H1 },
+            { name: 'head', score: s.HD, types: [5, 6, 7], sub: s.D1 },
+            { name: 'body', score: s.BD, types: [8, 9, 1], sub: s.B1 },
+        ];
+        centers.sort((a, b) => b.score - a.score);
+        const dominant = centers[0];
+
+        // Within the dominant center, use sub-dimension to pick type
+        // sub > 0 = assertive (3,7,8), sub < 0 = compliant (2,6,1), near 0 = withdrawn (4,5,9)
+        let typeNum;
+        if (Math.abs(dominant.sub) < 2) {
+            typeNum = dominant.types[2]; // withdrawn: 4, 5, 9
+        } else if (dominant.sub > 0) {
+            typeNum = dominant.types[1]; // assertive: 3, 7, 8
+        } else {
+            typeNum = dominant.types[0]; // compliant: 2, 6, 1 (mapped as first in array)
+        }
+
+        const typeCode = String(typeNum);
+        const typeData = ENNEAGRAM_TYPES[typeCode];
+        const typeName = typeData ? typeData.title : `Тип ${typeCode}`;
+
+        return {
+            personalityType: typeCode,
+            typeName,
+            dimensions: {
+                HC: s.HC, HD: s.HD, BD: s.BD,
+                H1: s.H1, D1: s.D1, B1: s.B1,
+            },
+            scores: { ...this.scores },
+            answers: [...this.answers],
+            quizType: this.quizType,
+            timestamp: new Date().toISOString(),
+            totalQuestions: this.questions.length,
+            answeredQuestions: this.answers.length
+        };
+    }
+
+    _pct(a, b) {
+        const total = Math.abs(a) + Math.abs(b);
+        return total > 0 ? Math.round((Math.max(0, a) / total) * 100) : 50;
+    }
+
     calculatePersonalityType() {
         const type = [
             this.scores.E > this.scores.I ? 'E' : 'I',
@@ -352,14 +462,14 @@ export class QuizEngine {
             this.scores.T > this.scores.F ? 'T' : 'F',
             this.scores.J > this.scores.P ? 'J' : 'P'
         ].join('');
-        
+
         return type;
     }
 
     calculateDimensionBreakdown() {
         const total = Math.abs(this.scores.E) + Math.abs(this.scores.I);
         const ePercentage = total > 0 ? (this.scores.E / total) * 100 : 50;
-        
+
         return {
             EI: {
                 E: Math.max(0, ePercentage),
@@ -387,8 +497,12 @@ export class QuizEngine {
     generateQuestions() {
         const quizType = this.quizType;
         const isPremium = stateManager.isPremium();
-        
-        if (quizType === 'mbti') {
+
+        if (quizType === 'socionics') {
+            return this._generateSocionicsQuestions();
+        } else if (quizType === 'enneagram') {
+            return this._generateEnneagramQuestions();
+        } else if (quizType === 'mbti') {
             return this.generateMBTIQuestions(isPremium);
         } else {
             return this.generateSpecializedQuestions(quizType);
@@ -396,9 +510,7 @@ export class QuizEngine {
     }
 
     async generateMBTIQuestions(isPremium) {
-        // Import Russian questions
         const { MBTI_QUESTIONS_RU } = await import('../../data/MainQuiz.ru.js');
-
         if (isPremium) {
             return MBTI_QUESTIONS_RU;
         } else {
@@ -406,10 +518,18 @@ export class QuizEngine {
         }
     }
 
+    async _generateSocionicsQuestions() {
+        const { SOCIONICS_QUESTIONS_RU } = await import('../../data/SocionicsQuiz.ru.js');
+        return SOCIONICS_QUESTIONS_RU;
+    }
+
+    async _generateEnneagramQuestions() {
+        const { ENNEAGRAM_QUESTIONS_RU } = await import('../../data/EnneagramQuiz.ru.js');
+        return ENNEAGRAM_QUESTIONS_RU;
+    }
+
     async generateSpecializedQuestions(quizType) {
-        // Import specialized questions from separate data file
         const { MBTI_SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuiz.js');
-        
         return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
     }
 
@@ -469,7 +589,7 @@ export class QuizEngine {
         }
 
         this.answers = [];
-        this.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        this._resetScores();
 
         for (let i = 0; i < this.questions.length; i++) {
             const randomOption = Math.floor(Math.random() * 4) + 1;
