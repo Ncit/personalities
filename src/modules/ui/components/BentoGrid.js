@@ -1,63 +1,136 @@
-import { TraitBar } from './TraitBar.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
+import { TraitBar } from './TraitBar.js';
+
+const DIMENSION_COLORS = {
+  E: 'var(--color-dim-ei)',
+  N: 'var(--color-dim-sn)',
+  F: 'var(--color-dim-tf)',
+  P: 'var(--color-dim-jp)',
+};
 
 export class BentoGrid {
-  static render() {
+  static render(hasResults) {
     const mbti = resultsStore.getLatestByFramework('mbti');
     return `
-      <div class="bento-row">
-        ${BentoGrid._typeCard(mbti)}
-        ${BentoGrid._compareCard()}
-      </div>
-      <div class="bento-row">
-        ${BentoGrid._traitsCard(mbti)}
-        ${BentoGrid._frameworkSlot()}
+      ${BentoGrid._renderMobile(mbti, hasResults)}
+      ${BentoGrid._renderDesktop(mbti)}
+    `;
+  }
+
+  /* ── Mobile: 2×2 grid ── */
+  static _renderMobile(mbti, hasResults) {
+    return `
+      <div class="bento-mobile">
+        <div class="bento-grid-2x2">
+          ${BentoGrid._typeCardMobile(mbti)}
+          ${BentoGrid._compareCard()}
+          ${BentoGrid._traitsCardMobile(mbti)}
+          ${BentoGrid._socionicsCard()}
+        </div>
       </div>
     `;
   }
 
-  static _typeCard(mbti) {
+  static _typeCardMobile(mbti) {
     if (!mbti) {
       return `<div class="card bento-card bento-card--type">
-        <div class="bento-card__label">Your Type</div>
-        <div class="bento-card__empty">Take a quiz to discover</div>
+        <div class="bento-card__label">Ваш тип</div>
+        <div class="bento-card__code bento-card__code--empty">????</div>
+        <div class="bento-card__empty">Пройдите тест</div>
       </div>`;
     }
     return `<div class="card bento-card bento-card--type" data-action="view-result" data-id="${mbti.id}">
-      <div class="bento-card__label">Your Type</div>
+      <div class="bento-card__label">Ваш тип</div>
       <div class="bento-card__code">${mbti.typeCode}</div>
       <div class="bento-card__name">${mbti.typeName}</div>
     </div>`;
   }
 
   static _compareCard() {
-    return `<div class="card bento-card bento-card--compare">
-      <i data-lucide="users" style="width:20px;height:20px;color:var(--color-accent-purple)"></i>
-      <div class="bento-card__label">Compare</div>
-      <div class="bento-card__link">With Friends →</div>
+    return `<div class="card bento-card bento-card--compare" data-action="compare">
+      <div class="bento-card__label">Сравнить</div>
+      <div class="bento-card__icon">👥</div>
+      <div class="bento-card__link">С друзьями →</div>
     </div>`;
   }
 
-  static _traitsCard(mbti) {
-    const dims = mbti?.dimensions || {};
-    const bars = [
-      { letter: 'E', pct: dims.E || 50, color: 'var(--color-primary)' },
-      { letter: 'N', pct: dims.N || 50, color: 'var(--color-accent-gold)' },
-      { letter: 'F', pct: dims.F || 50, color: 'var(--color-success)' },
-      { letter: 'P', pct: dims.P || 50, color: 'var(--color-info-blue)' },
-    ];
+  static _traitsCardMobile(mbti) {
+    if (!mbti) {
+      return `<div class="card bento-card bento-card--traits-bars">
+        <div class="bento-card__label">Ваши черты</div>
+        <div class="bento-card__empty">Сначала пройдите тест</div>
+      </div>`;
+    }
+    const dims = mbti.dimensions || {};
+    const code = mbti.typeCode || 'ENFP';
+    const bars = code.split('').map(letter => {
+      const pct = dims[letter] || 50;
+      const color = DIMENSION_COLORS[letter] || 'var(--color-primary)';
+      return TraitBar.render(letter, pct, color);
+    }).join('');
+    return `<div class="card bento-card bento-card--traits-bars">
+      <div class="bento-card__label">Ваши черты</div>
+      <div class="bento-card__bars">${bars}</div>
+    </div>`;
+  }
+
+  static _socionicsCard() {
+    return `<div class="card bento-card bento-card--socionics" data-action="socionics">
+      <div class="bento-card__badge">Новое!</div>
+      <div class="bento-card__label">Соционика</div>
+      <div class="bento-card__icon">✨</div>
+      <div class="bento-card__link">16 типов</div>
+    </div>`;
+  }
+
+  /* ── Desktop: 1×3 row ── */
+  static _renderDesktop(mbti) {
+    return `
+      <div class="bento-desktop">
+        <div class="bento-row">
+          ${BentoGrid._typeCardDesktop(mbti)}
+          ${BentoGrid._traitsCardDesktop(mbti)}
+          ${BentoGrid._statsCard()}
+        </div>
+      </div>
+    `;
+  }
+
+  static _typeCardDesktop(mbti) {
+    if (!mbti) {
+      return `<div class="card bento-card bento-card--type">
+        <div class="bento-card__label">Ваш тип</div>
+        <div class="bento-card__empty">Пройдите тест</div>
+      </div>`;
+    }
+    return `<div class="card bento-card bento-card--type" data-action="view-result" data-id="${mbti.id}">
+      <div class="bento-card__label">Ваш тип</div>
+      <div class="bento-card__code">${mbti.typeCode}</div>
+      <div class="bento-card__name">${mbti.typeName}</div>
+    </div>`;
+  }
+
+  static _traitsCardDesktop(mbti) {
+    if (!mbti) {
+      return `<div class="card bento-card bento-card--traits">
+        <div class="bento-card__label">Основные черты</div>
+        <div class="bento-card__empty">Сначала пройдите тест</div>
+      </div>`;
+    }
+    const traits = mbti.traits || ['Энтузиаст', 'Творческий', 'Общительный'];
     return `<div class="card bento-card bento-card--traits">
-      <div class="bento-card__label">Traits</div>
-      ${bars.map(b => TraitBar.render(b.letter, b.pct, b.color)).join('')}
+      <div class="bento-card__label">Основные черты</div>
+      <div class="bento-card__traits-list">${traits.join(' · ')}</div>
     </div>`;
   }
 
-  static _frameworkSlot() {
-    return `<div class="card bento-card bento-card--framework" style="background:var(--gradient-amber);min-width:140px">
-      <span class="badge badge--amber">New!</span>
-      <i data-lucide="sparkles" style="width:24px;height:24px;color:var(--color-accent-amber);margin:8px 0"></i>
-      <div class="bento-card__label" style="color:var(--color-accent-amber)">Socionics</div>
+  static _statsCard() {
+    const count = resultsStore.getCount();
+    return `<div class="card bento-card bento-card--stats">
+      <div class="bento-card__label">Статистика</div>
+      <div class="bento-card__stats-line">${count} тестов пройдено</div>
+      <div class="bento-card__stats-line">${count > 0 ? '82% средняя точность' : 'Нет данных'}</div>
     </div>`;
   }
 

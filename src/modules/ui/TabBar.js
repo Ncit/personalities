@@ -1,10 +1,10 @@
 import { router } from '../router/Router.js';
 
 const TABS = [
-  { id: 'home', label: 'HOME', icon: 'layout-dashboard' },
-  { id: 'explore', label: 'EXPLORE', icon: 'compass' },
-  { id: 'results', label: 'RESULTS', icon: 'chart-bar' },
-  { id: 'profile', label: 'PROFILE', icon: 'user' },
+  { id: 'home', label: 'ГЛАВНАЯ', icon: 'layout-dashboard' },
+  { id: 'explore', label: 'КАТАЛОГ', icon: 'compass' },
+  { id: 'results', label: 'РЕЗУЛЬТАТЫ', icon: 'chart-bar' },
+  { id: 'profile', label: 'ПРОФИЛЬ', icon: 'user' },
 ];
 
 export class TabBar {

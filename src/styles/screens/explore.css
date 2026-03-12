@@ -40,3 +40,43 @@
   color: var(--color-text-muted);
   font: 400 14px/1.4 var(--font-body);
 }
+
+/* Desktop: quiz items as horizontal cards in a row */
+@media (min-width: 1024px) {
+  .quiz-section .section-label {
+    display: none;
+  }
+
+  .quiz-section {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .quiz-section .quiz-list-item {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg, 16px);
+    background: var(--color-card);
+  }
+
+  .quiz-section .quiz-list-item + .quiz-list-item {
+    border-top: none;
+  }
+
+  .quiz-section .quiz-list-item__icon-wrap {
+    margin-bottom: 12px;
+  }
+
+  .quiz-section .quiz-list-item__info {
+    flex: 1;
+    margin-bottom: 12px;
+  }
+
+  .quiz-section .quiz-list-item__chevron {
+    align-self: flex-end;
+  }
+}

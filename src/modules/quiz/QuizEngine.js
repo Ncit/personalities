@@ -28,15 +28,15 @@ export class QuizEngine {
         this.initializeQuiz();
     }
 
-    initializeQuiz() {
+    async initializeQuiz() {
         this.quizType = stateManager.getCurrentQuizType();
-        this.questions = this.generateQuestions();
-        
+        this.questions = await this.generateQuestions();
+
         // Initialize adaptive engine if enabled
         if (this.adaptiveConfig.enabled && this.quizType === 'mbti') {
             this.initializeAdaptiveEngine();
         }
-        
+
         this.resetQuiz();
     }
 
@@ -68,13 +68,13 @@ export class QuizEngine {
         stateManager.resetQuiz();
     }
 
-    startQuiz() {
-        this.initializeQuiz();
+    async startQuiz() {
+        await this.initializeQuiz();
         stateManager.setState({
             currentScreen: 'quiz',
             currentQuestion: 0
         });
-        
+
         return this.getCurrentQuestion();
     }
 
@@ -396,13 +396,13 @@ export class QuizEngine {
     }
 
     async generateMBTIQuestions(isPremium) {
-        // Import questions from separate data file
-        const { MBTI_QUESTIONS } = await import('../../data/MainQuiz.js');
-        
+        // Import Russian questions
+        const { MBTI_QUESTIONS_RU } = await import('../../data/MainQuiz.ru.js');
+
         if (isPremium) {
-            return MBTI_QUESTIONS; // Full questions
+            return MBTI_QUESTIONS_RU;
         } else {
-            return MBTI_QUESTIONS.slice(0, 20); // First 20 questions for free users
+            return MBTI_QUESTIONS_RU.slice(0, 20);
         }
     }
 

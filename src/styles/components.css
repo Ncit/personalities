@@ -155,9 +155,10 @@
 .hero-card {
   background: var(--gradient-sage);
   border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
+  padding: 24px 28px;
   color: #fff;
   cursor: pointer;
+  margin-bottom: 12px;
 }
 .hero-card__badge {
   display: inline-flex; padding: 4px 10px;
@@ -167,7 +168,7 @@
   margin-bottom: 12px;
 }
 .hero-card__title {
-  font: 400 22px/1.3 var(--font-display);
+  font: 400 24px/1.3 var(--font-display);
   margin-bottom: 8px;
 }
 .hero-card__subtitle {

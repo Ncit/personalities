@@ -19,12 +19,12 @@ export class QuizScreen {
 
   getElement() { return this.el; }
 
-  setData(data) {
+  async setData(data) {
     if (data?.framework) this.framework = data.framework;
     const qe = getQuizEngine();
     if (qe) {
       qe.resetQuiz();
-      qe.startQuiz();
+      await qe.startQuiz();
     }
     this.render();
   }
@@ -32,7 +32,7 @@ export class QuizScreen {
   render() {
     const qe = getQuizEngine();
     if (!qe) {
-      this.el.innerHTML = '<div class="loading-screen"><div class="spinner"></div><span>Loading quiz...</span></div>';
+      this.el.innerHTML = '<div class="loading-screen"><div class="spinner"></div><span>Загрузка теста...</span></div>';
       return;
     }
 
@@ -45,39 +45,41 @@ export class QuizScreen {
     const hasSelection = qe.selectedOption !== null && qe.selectedOption !== undefined;
 
     this.el.innerHTML = `
-      <div class="status-bar"></div>
-      <div class="quiz-header">
-        <button class="quiz-header__close" id="quiz-close">
-          <i data-lucide="x" style="width:24px;height:24px"></i>
-        </button>
-        <span class="quiz-header__title">${this.framework.toUpperCase()} Quiz</span>
-        <span class="quiz-header__counter">${questionIndex + 1}/${total}</span>
-      </div>
-      <div class="quiz-progress">
-        <div class="quiz-progress__fill" style="width:${progress}%"></div>
-      </div>
-      ${isAdaptive ? this._adaptiveBars(qe) : ''}
-      <div class="quiz-content">
-        <div class="quiz-question">${current?.text || 'Loading...'}</div>
-        <div class="quiz-options">
-          ${(current?.options || []).map((opt, i) => {
-            const optionIndex = i + 1;
-            const isSelected = qe.selectedOption === optionIndex;
-            return `
-            <button class="answer-option ${isSelected ? 'answer-option--selected' : ''}" data-option="${optionIndex}">
-              ${isSelected ? '<i data-lucide="check" style="width:18px;height:18px;margin-right:8px"></i>' : ''}
-              ${opt.text || opt}
-            </button>`;
-          }).join('')}
+      <div class="quiz-card">
+        <div class="status-bar"></div>
+        <div class="quiz-header">
+          <button class="quiz-header__close" id="quiz-close">
+            <i data-lucide="x" style="width:24px;height:24px"></i>
+          </button>
+          <span class="quiz-header__title">${this.framework.toUpperCase()} Тест</span>
+          <span class="quiz-header__counter">${questionIndex + 1}/${total}</span>
         </div>
-      </div>
-      <div class="quiz-nav">
-        <button class="btn-secondary" id="quiz-prev" ${questionIndex === 0 ? 'disabled' : ''}>
-          <i data-lucide="arrow-left" style="width:16px;height:16px"></i> Previous
-        </button>
-        <button class="btn-primary" id="quiz-next" ${!hasSelection ? 'disabled' : ''}>
-          ${isLast ? 'See Results' : 'Next'} <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
-        </button>
+        <div class="quiz-progress">
+          <div class="quiz-progress__fill" style="width:${progress}%"></div>
+        </div>
+        ${isAdaptive ? this._adaptiveBars(qe) : ''}
+        <div class="quiz-content">
+          <div class="quiz-question">${current?.question || current?.text || 'Загрузка...'}</div>
+          <div class="quiz-options">
+            ${(current?.options || []).map((opt, i) => {
+              const optionIndex = i + 1;
+              const isSelected = qe.selectedOption === optionIndex;
+              return `
+              <button class="answer-option ${isSelected ? 'answer-option--selected' : ''}" data-option="${optionIndex}">
+                ${isSelected ? '<i data-lucide="check" style="width:18px;height:18px;margin-right:8px"></i>' : ''}
+                ${opt.text || opt}
+              </button>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-secondary" id="quiz-prev" ${questionIndex === 0 ? 'disabled' : ''}>
+            <i data-lucide="arrow-left" style="width:16px;height:16px"></i> Назад
+          </button>
+          <button class="btn-primary" id="quiz-next" ${!hasSelection ? 'disabled' : ''}>
+            ${isLast ? 'Результаты' : 'Далее'} <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+          </button>
+        </div>
       </div>
       ${this.showExitDialog ? this._exitDialog() : ''}
     `;
@@ -89,15 +91,15 @@ export class QuizScreen {
   _adaptiveBars(qe) {
     const confidence = qe.getCurrentConfidence ? qe.getCurrentConfidence() : {};
     const dims = [
-      { label: 'E/I', value: Math.round((confidence.EI || 0) * 100) },
-      { label: 'S/N', value: Math.round((confidence.SN || 0) * 100) },
-      { label: 'T/F', value: Math.round((confidence.TF || 0) * 100) },
-      { label: 'J/P', value: Math.round((confidence.JP || 0) * 100) },
+      { label: 'E/I', value: Math.round((confidence.EI || 0) * 100), color: 'var(--color-dim-ei)' },
+      { label: 'S/N', value: Math.round((confidence.SN || 0) * 100), color: 'var(--color-dim-sn)' },
+      { label: 'T/F', value: Math.round((confidence.TF || 0) * 100), color: 'var(--color-dim-tf)' },
+      { label: 'J/P', value: Math.round((confidence.JP || 0) * 100), color: 'var(--color-dim-jp)' },
     ];
     return `<div class="quiz-adaptive">
       ${dims.map(d => `
         <div class="quiz-adaptive__bar">
-          <div class="quiz-adaptive__track"><div class="quiz-adaptive__fill" style="width:${d.value}%"></div></div>
+          <div class="quiz-adaptive__track"><div class="quiz-adaptive__fill" style="width:${d.value}%;background:${d.color}"></div></div>
           <span class="quiz-adaptive__label">${d.label}</span>
         </div>
       `).join('')}
@@ -108,11 +110,14 @@ export class QuizScreen {
     return `
       <div class="exit-dialog" id="exit-dialog">
         <div class="exit-dialog__card">
-          <div class="exit-dialog__title">Exit quiz?</div>
-          <div class="exit-dialog__text">Your progress will be lost.</div>
+          <div class="exit-dialog__icon">
+            <i data-lucide="door-open" style="width:32px;height:32px"></i>
+          </div>
+          <div class="exit-dialog__title">Выйти из теста?</div>
+          <div class="exit-dialog__text">Ваш прогресс будет потерян. Вы можете пройти тест снова в любое время.</div>
           <div class="exit-dialog__actions">
-            <button class="btn-secondary" id="exit-cancel">Cancel</button>
-            <button class="btn-danger" id="exit-confirm">Exit</button>
+            <button class="btn-danger" id="exit-confirm">Выйти</button>
+            <button class="btn-secondary" id="exit-cancel">Продолжить</button>
           </div>
         </div>
       </div>
@@ -171,10 +176,12 @@ export class QuizScreen {
 
   _handleCompletion(results) {
     const dims = results.dimensionBreakdown || {};
+    const typeData = window.PERSONALITY_TYPES?.[results.personalityType];
+    const typeName = typeData?.title || typeData?.name || results.personalityType;
     const entry = resultsStore.addResult({
       framework: this.framework,
       typeCode: results.personalityType,
-      typeName: results.personalityType,
+      typeName,
       dimensions: {
         E: dims.EI?.E || 50, I: dims.EI?.I || 50,
         S: dims.SN?.S || 50, N: dims.SN?.N || 50,

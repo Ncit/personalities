@@ -7,14 +7,14 @@ import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
 
 const QUIZZES = {
   frameworks: [
-    { icon: 'brain', title: 'MBTI', meta: '60 questions · 15 min · Free', accent: '#7C9082', framework: 'mbti' },
-    { icon: 'sparkles', title: 'Socionics', meta: '40 questions · 10 min · Free', accent: '#E8A85C', framework: 'socionics' },
-    { icon: 'heart', title: 'Enneagram', meta: 'Coming soon', accent: '#C47A8A', framework: 'enneagram' },
+    { icon: 'brain', title: 'MBTI — 16 типов личности', meta: '60 вопросов · 15 мин · Бесплатно', accent: '#7C9082', framework: 'mbti' },
+    { icon: 'sparkles', title: 'Соционика', meta: '48 вопросов · 12 мин · Скоро', accent: '#E8A85C', framework: 'socionics' },
+    { icon: 'heart', title: 'Эннеаграмма', meta: '36 вопросов · 10 мин · Скоро', accent: '#C47A8A', framework: 'enneagram' },
   ],
   premium: [
-    { icon: 'crown', title: 'Leadership Style', meta: '30 questions · 10 min · Premium', accent: '#D4A574', framework: 'leadership' },
-    { icon: 'message-circle', title: 'Communication', meta: '25 questions · 8 min · Premium', accent: '#D4A574', framework: 'communication' },
-    { icon: 'zap', title: 'Stress Response', meta: '20 questions · 7 min · Premium', accent: '#D4A574', framework: 'stress' },
+    { icon: 'crown', title: 'Стиль лидерства', meta: '30 вопросов · 10 мин · Премиум', accent: '#D4A574', framework: 'leadership' },
+    { icon: 'message-circle', title: 'Стиль общения', meta: '25 вопросов · 8 мин · Премиум', accent: '#D4A574', framework: 'communication' },
+    { icon: 'zap', title: 'Реакция на стресс', meta: '20 вопросов · 7 мин · Премиум', accent: '#D4A574', framework: 'stress' },
   ],
 };
 
@@ -39,10 +39,10 @@ export class ExploreScreen {
 
   render() {
     this.el.innerHTML = `
-      <h1 class="page-title">Explore</h1>
+      <h1 class="page-title">Каталог</h1>
       <div class="segmented-control">
-        <button class="segmented-control__item ${this.activeTab === 'quizzes' ? 'segmented-control__item--active' : ''}" data-tab="quizzes">Quizzes</button>
-        <button class="segmented-control__item ${this.activeTab === 'types' ? 'segmented-control__item--active' : ''}" data-tab="types">Types</button>
+        <button class="segmented-control__item ${this.activeTab === 'quizzes' ? 'segmented-control__item--active' : ''}" data-tab="quizzes">Тесты</button>
+        <button class="segmented-control__item ${this.activeTab === 'types' ? 'segmented-control__item--active' : ''}" data-tab="types">Типы</button>
       </div>
       ${this.activeTab === 'quizzes' ? this._quizzesTab() : this._typesTab()}
     `;
@@ -54,11 +54,11 @@ export class ExploreScreen {
   _quizzesTab() {
     return `
       <div class="quiz-section">
-        <div class="section-label">Personality Frameworks</div>
+        <div class="section-label">Методики определения личности</div>
         ${QUIZZES.frameworks.map(q => QuizListItem.render(q)).join('')}
       </div>
       <div class="quiz-section">
-        <div class="section-label">Premium Quizzes</div>
+        <div class="section-label">Премиум тесты</div>
         ${QUIZZES.premium.map(q => QuizListItem.render(q)).join('')}
       </div>
     `;
@@ -66,15 +66,16 @@ export class ExploreScreen {
 
   _typesTab() {
     const categories = ['All', ...Object.keys(MBTI_CATEGORIES)];
+    const categoryLabels = { All: 'Все', Analysts: 'Аналитики', Diplomats: 'Дипломаты', Sentinels: 'Стражи', Explorers: 'Искатели' };
     const types = this._getFilteredTypes();
 
     return `
       <div class="filter-pills">
-        ${categories.map(c => `<button class="filter-pill ${c === this.activeFilter ? 'filter-pill--active' : ''}" data-filter="${c}">${c}</button>`).join('')}
+        ${categories.map(c => `<button class="filter-pill ${c === this.activeFilter ? 'filter-pill--active' : ''}" data-filter="${c}">${categoryLabels[c] || c}</button>`).join('')}
       </div>
       ${types.length > 0
         ? `<div class="types-grid">${types.map(t => TypeCard.render(t)).join('')}</div>`
-        : '<div class="types-empty">No types match this filter</div>'
+        : '<div class="types-empty">Нет типов для этого фильтра</div>'
       }
     `;
   }
@@ -117,9 +118,9 @@ export class ExploreScreen {
         const title = item.dataset.quiz;
         const quiz = [...QUIZZES.frameworks, ...QUIZZES.premium].find(q => q.title === title);
         if (quiz) {
-          if (quiz.meta.includes('Premium') && !stateManager.get('isPremium')) {
+          if (quiz.meta.includes('Премиум') && !stateManager.get('isPremium')) {
             router.openOverlay('premium-modal');
-          } else if (!quiz.meta.includes('Coming soon')) {
+          } else if (!quiz.meta.includes('Скоро')) {
             router.openOverlay('quiz', { framework: quiz.framework });
           }
         }

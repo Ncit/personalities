@@ -46,33 +46,45 @@ export class ResultDetailScreen {
     const dims = result.dimensions || {};
 
     const dimensionBars = [
-      { leftLabel: 'Extraversion', rightLabel: 'Introversion', leftPercent: dims.E || 50, color: 'var(--color-primary)' },
-      { leftLabel: 'Sensing', rightLabel: 'Intuition', leftPercent: dims.S || 50, color: 'var(--color-accent-gold)' },
-      { leftLabel: 'Thinking', rightLabel: 'Feeling', leftPercent: dims.T || 50, color: 'var(--color-success)' },
-      { leftLabel: 'Judging', rightLabel: 'Perceiving', leftPercent: dims.J || 50, color: 'var(--color-info-blue)' },
+      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50, color: 'var(--color-dim-ei)' },
+      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50, color: 'var(--color-dim-sn)' },
+      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50, color: 'var(--color-dim-tf)' },
+      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50, color: 'var(--color-dim-jp)' },
     ];
+
+    // Get type description and name from personality data
+    const typeData = getTypeData()[result.typeCode] || {};
+    const heroDesc = typeData.description || typeData.subtitle || `Тип личности ${result.typeCode}`;
+    const displayName = typeData.title || typeData.name || result.typeName || result.typeCode;
 
     this.el.innerHTML = `
       <div class="status-bar"></div>
-      <button class="result-detail__back" id="result-back">
-        <i data-lucide="arrow-left" style="width:18px;height:18px"></i> Back
-      </button>
-      <div class="result-hero">
-        <div class="result-hero__code">${result.typeCode}</div>
-        <div class="result-hero__name">${result.typeName}</div>
-        <div class="result-hero__desc">${result.typeCode} personality type</div>
+      <div class="result-detail__layout">
+        <div class="result-detail__main">
+          <button class="result-detail__back" id="result-back">
+            <i data-lucide="arrow-left" style="width:18px;height:18px"></i> К результатам
+          </button>
+          <div class="result-hero">
+            <div class="result-hero__code">${result.typeCode}</div>
+            <div class="result-hero__name">${displayName}</div>
+            <div class="result-hero__desc">${heroDesc}</div>
+            ${isPremium ? '<span class="badge badge--gold result-hero__badge">Premium</span>' : ''}
+          </div>
+          <div class="card result-dimensions" style="margin:0 20px 20px">
+            <h3 style="font:400 18px/1.3 var(--font-display);margin-bottom:8px">Ваши предпочтения</h3>
+            ${dimensionBars.map(d => DimensionBar.render(d)).join('')}
+          </div>
+        </div>
+        <div class="result-detail__sidebar">
+          ${isPremium ? this._premiumContent(result) : this._premiumTeaser()}
+        </div>
       </div>
-      <div class="card result-dimensions" style="margin:0 20px 20px">
-        <h3 style="font:400 18px/1.3 var(--font-display);margin-bottom:8px">Your Preferences</h3>
-        ${dimensionBars.map(d => DimensionBar.render(d)).join('')}
-      </div>
-      ${isPremium ? this._premiumContent(result) : this._premiumTeaser()}
       <div class="result-actions">
         <button class="btn-primary" id="result-share">
-          <i data-lucide="share-2" style="width:16px;height:16px"></i> Share
+          <i data-lucide="share-2" style="width:16px;height:16px"></i> Поделиться
         </button>
         <button class="btn-secondary" id="result-retake">
-          <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Retake
+          <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Пройти снова
         </button>
       </div>
     `;
@@ -89,8 +101,8 @@ export class ResultDetailScreen {
         </div>
         <div class="premium-teaser__info">
           <span class="badge badge--gold premium-teaser__badge">Premium</span>
-          <div class="premium-teaser__title">Unlock Deep Insights</div>
-          <div class="premium-teaser__desc">Advanced analysis, famous matches & more</div>
+          <div class="premium-teaser__title">Открыть глубокий анализ</div>
+          <div class="premium-teaser__desc">Расширенный анализ, известные совпадения и другое</div>
         </div>
         <i data-lucide="chevron-right" style="width:18px;height:18px;color:var(--color-text-disabled)"></i>
       </div>
@@ -102,43 +114,43 @@ export class ResultDetailScreen {
     const typeFamous = getFamousPersonalities()[result.typeCode] || [];
 
     const insightSections = [
-      { icon: 'star', title: 'Strengths', key: 'strengths' },
-      { icon: 'target', title: 'Growth Areas', key: 'growth' },
-      { icon: 'briefcase', title: 'Career Advice', key: 'career' },
-      { icon: 'lightbulb', title: 'Development', key: 'development' },
+      { icon: 'briefcase', title: 'Карьера', key: 'career', bg: '#D4A57418', color: '#D4A574' },
+      { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: '#7C908218', color: '#7C9082' },
+      { icon: 'sprout', title: 'Рост', key: 'growth', bg: '#C2856A18', color: '#C2856A' },
+      { icon: 'heart', title: 'Отношения', key: 'development', bg: '#C47A8A18', color: '#C47A8A' },
     ];
 
     return `
-      <div class="card" style="margin:0 20px 20px;padding:20px">
-        <h3 style="font:400 18px/1.3 var(--font-display);margin-bottom:16px">Advanced Insights</h3>
-        <div class="insights-grid" style="margin:0">
-          ${insightSections.map(ins => {
-            const items = typeInsights[ins.key] || [];
-            return `
-            <div class="card insight-card">
-              <div class="insight-card__icon-wrap">
-                <i data-lucide="${ins.icon}" style="width:18px;height:18px"></i>
-              </div>
-              <div class="insight-card__title">${ins.title}</div>
-              <ul class="insight-card__list">
-                ${items.length > 0
-                  ? items.map(item => `<li>${item}</li>`).join('')
-                  : '<li>No data available</li>'
-                }
-              </ul>
-            </div>`;
-          }).join('')}
-        </div>
+      <h3 class="result-detail__section-title">Глубокий анализ</h3>
+      <div class="insights-grid">
+        ${insightSections.map(ins => {
+          const items = typeInsights[ins.key] || [];
+          return `
+          <div class="card insight-card">
+            <div class="insight-card__icon-wrap" style="background:${ins.bg};color:${ins.color}">
+              <i data-lucide="${ins.icon}" style="width:18px;height:18px"></i>
+            </div>
+            <div class="insight-card__title">${ins.title}</div>
+            <ul class="insight-card__list">
+              ${items.length > 0
+                ? items.map(item => `<li>${item}</li>`).join('')
+                : '<li>Нет данных</li>'
+              }
+            </ul>
+          </div>`;
+        }).join('')}
       </div>
       ${typeFamous.length > 0 ? `
-      <div style="margin-bottom:20px">
-        <h3 style="font:400 18px/1.3 var(--font-display);padding:0 20px;margin-bottom:12px">Famous Personalities</h3>
-        <div class="famous-scroll">
-          ${typeFamous.map(p => `
+      <div class="famous-section">
+        <h3 class="result-detail__section-title">Известные ${result.typeCode}</h3>
+        <div class="famous-list">
+          ${typeFamous.slice(0, 3).map(p => `
             <div class="famous-card">
               <div class="famous-card__avatar"${p.image ? ` style="background-image:url(${p.image});background-size:cover"` : ''}></div>
-              <div class="famous-card__name">${p.name}</div>
-              <div class="famous-card__role">${p.role || ''}</div>
+              <div class="famous-card__info">
+                <div class="famous-card__name">${p.name}</div>
+                <div class="famous-card__role">${p.role || ''}</div>
+              </div>
             </div>
           `).join('')}
         </div>

@@ -1,19 +1,35 @@
 import { router } from '../router/Router.js';
 
 const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: 'layout-dashboard' },
-  { id: 'explore', label: 'Explore', icon: 'compass' },
-  { id: 'results', label: 'Results', icon: 'chart-bar' },
-  { id: 'profile', label: 'Profile', icon: 'user' },
+  { id: 'home', label: 'Главная', icon: 'layout-dashboard' },
+  { id: 'explore', label: 'Каталог', icon: 'compass' },
+  { id: 'results', label: 'Результаты', icon: 'chart-bar' },
+  { id: 'profile', label: 'Профиль', icon: 'user' },
 ];
 
-const FOOTER_LINKS = [
-  'Help & FAQ',
-  'About Personality Types',
-  'Privacy Policy',
-  'Terms of Use',
-  'Contact Us',
+const FOOTER_SECTIONS = [
+  {
+    title: 'Помощь',
+    links: [
+      { label: 'Как пройти тест', action: () => window.showHelp?.('how-to') },
+      { label: 'Понимание результатов', action: () => window.showHelp?.('understanding') },
+      { label: 'Премиум функции', action: () => window.showHelp?.('premium') },
+      { label: 'Вопросы и ответы', action: () => window.showHelp?.('faq') },
+    ],
+  },
+  {
+    title: 'О проекте',
+    links: [
+      { label: 'О типах личности', action: () => window.showHelp?.('about-personality') },
+      { label: 'Конфиденциальность', action: () => window.showHelp?.('privacy') },
+      { label: 'Условия использования', action: () => window.showHelp?.('terms') },
+      { label: 'Публичная оферта', action: () => window.showHelp?.('offer') },
+      { label: 'Контакты', action: () => window.showHelp?.('contacts') },
+    ],
+  },
 ];
+
+const FOOTER_EMAIL = 'personalitiesresearch@mail.ru';
 
 export class Sidebar {
   constructor() {
@@ -44,16 +60,27 @@ export class Sidebar {
         </nav>
       </div>
       <div class="sidebar__footer">
-        <div class="sidebar__footer-links">
-          ${FOOTER_LINKS.map(link => `<a class="sidebar__footer-link">${link}</a>`).join('')}
-        </div>
-        <span class="sidebar__copyright">© 2025 Personalities</span>
+        ${FOOTER_SECTIONS.map((section, si) => `
+          <div class="sidebar__footer-section">
+            <span class="sidebar__footer-title">${section.title}</span>
+            ${section.links.map((link, li) => `<a class="sidebar__footer-link" href="#" data-section="${si}" data-link="${li}">${link.label}</a>`).join('')}
+          </div>
+        `).join('')}
+        <a class="sidebar__footer-email" href="mailto:${FOOTER_EMAIL}">${FOOTER_EMAIL}</a>
       </div>
     `;
 
     this.el.addEventListener('click', (e) => {
       const btn = e.target.closest('.nav-item');
       if (btn) router.navigateTab(btn.dataset.tab);
+
+      const footerLink = e.target.closest('.sidebar__footer-link');
+      if (footerLink) {
+        e.preventDefault();
+        const si = parseInt(footerLink.dataset.section);
+        const li = parseInt(footerLink.dataset.link);
+        FOOTER_SECTIONS[si]?.links[li]?.action?.();
+      }
     });
 
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });

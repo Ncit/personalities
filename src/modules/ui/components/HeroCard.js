@@ -4,13 +4,13 @@ import { resultsStore } from '../../results/ResultsStore.js';
 export class HeroCard {
   static render() {
     const mbtiResult = resultsStore.getLatestByFramework('mbti');
-    const badge = mbtiResult ? 'Retake Quiz' : 'MBTI Quiz';
+    const badge = mbtiResult ? 'Пройти снова' : 'Тест MBTI';
     const title = mbtiResult
-      ? 'Retake the MBTI Quiz'
-      : 'Discover Your\nPersonality Type';
+      ? 'Пройти тест MBTI снова'
+      : '60 вопросов для определения вашего типа';
     const subtitle = mbtiResult
-      ? 'See if your type has changed'
-      : '60 questions · 15 min · Free';
+      ? 'Узнайте, изменился ли ваш тип'
+      : '15 мин · Бесплатно · Поделитесь результатами';
 
     return `
       <div class="hero-card" id="hero-card">

@@ -76,20 +76,26 @@
   .sidebar__footer {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     padding: 0 16px;
   }
 
-  .sidebar__footer-links {
+  .sidebar__footer-section {
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
+  .sidebar__footer-title {
+    font: 600 12px/1 var(--font-body);
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+  }
+
   .sidebar__footer-link {
-    font: 400 13px/1 var(--font-body);
+    font: 400 12px/1 var(--font-body);
     color: var(--color-text-muted);
-    padding: 8px 0;
+    padding: 2px 0;
     cursor: pointer;
     text-decoration: none;
   }
@@ -98,9 +104,14 @@
     color: var(--color-text-secondary);
   }
 
-  .sidebar__copyright {
-    font: 400 11px/1 var(--font-body);
-    color: var(--color-text-disabled);
+  .sidebar__footer-email {
+    font: 400 10px/1 var(--font-body);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .sidebar__footer-email:hover {
+    color: var(--color-text-secondary);
   }
 
   /* Screen container fills remaining space */

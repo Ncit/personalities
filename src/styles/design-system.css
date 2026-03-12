@@ -20,6 +20,12 @@
   --color-info-blue: #5B82B0;
   --color-error: #D45C5C;
 
+  /* Dimension colors (warm palette) */
+  --color-dim-ei: #7C9082;
+  --color-dim-sn: #D4A574;
+  --color-dim-tf: #C2856A;
+  --color-dim-jp: #C47A8A;
+
   /* Gradients */
   --gradient-sage: linear-gradient(135deg, #7C9082, #5A7A64);
   --gradient-purple: linear-gradient(160deg, #8B7EC820, #8B7EC808);

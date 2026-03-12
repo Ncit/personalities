@@ -27,21 +27,21 @@ export class PremiumModal {
           <div class="premium-modal__icon-wrap">
             <i data-lucide="crown" style="width:24px;height:24px"></i>
           </div>
-          <div class="premium-modal__title">Go Premium</div>
-          <div class="premium-modal__subtitle">Unlock the full personality experience</div>
+          <div class="premium-modal__title">Премиум</div>
+          <div class="premium-modal__subtitle">Откройте полный опыт определения личности</div>
         </div>
         <ul class="premium-benefits">
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Advanced personality insights & analysis</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> All specialized premium quizzes</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Famous personality matches</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Visual charts & analytics</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Ad-free experience</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Расширенный анализ личности</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Все специализированные премиум тесты</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Совпадения с известными личностями</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Визуальные графики и аналитика</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Без рекламы</li>
         </ul>
         <button class="premium-cta-btn" id="premium-buy" ${isProcessing ? 'disabled' : ''}>
-          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Processing…' : 'Unlock Premium — 280 ₽'}
+          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : 'Открыть Премиум — 280 ₽'}
         </button>
         ${this.state === 'error' ? `<div class="premium-error">${this.errorMessage}</div>` : ''}
-        <div class="premium-note">One-time payment · No subscription</div>
+        <div class="premium-note">Разовый платёж · Без подписки</div>
       </div>
     `;
 
@@ -74,7 +74,7 @@ export class PremiumModal {
         this.state = 'idle';
         router.closeOverlay();
 
-        this._showToast('Premium unlocked!', 'success');
+        this._showToast('Премиум разблокирован!', 'success');
       } catch (error) {
         if (error.error_data?.error_code === 4) {
           this.state = 'idle';
@@ -82,7 +82,7 @@ export class PremiumModal {
         } else {
           logger.error('Payment failed:', error);
           this.state = 'error';
-          this.errorMessage = 'Payment failed. Please try again.';
+          this.errorMessage = 'Ошибка оплаты. Попробуйте снова.';
           this.render();
         }
       }
