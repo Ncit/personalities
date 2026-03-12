@@ -54,6 +54,7 @@ export class ResultsTimelineScreen {
   _list(results) {
     const types = window.PERSONALITY_TYPES || {};
     return `
+    <div class="results-scroll-wrapper">
     <div class="results-scroll">
       ${results.map(r => {
         const typeData = types[r.typeCode] || {};
@@ -69,6 +70,7 @@ export class ResultsTimelineScreen {
           </div>
         </div>`;
       }).join('')}
+    </div>
     </div>`;
   }
 

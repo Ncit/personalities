@@ -270,11 +270,28 @@ export class QuizScreen {
       typeCode: results.personalityType,
       typeName,
       dimensions: results.dimensions || dims,
-      confidence: results.adaptiveAnalytics?.confidenceScores || null,
+      confidence: this._calcConfidence(results),
     });
     const sm = getStateManager();
     if (sm) sm.checkAchievements(resultsStore);
     router.closeOverlay();
     router.openOverlay('result-detail', { resultId: entry.id });
+  }
+
+  _calcConfidence(results) {
+    const scores = results.adaptiveAnalytics?.confidenceScores;
+    if (!scores || typeof scores !== 'object') {
+      // For non-adaptive quizzes, compute from dimension spread
+      const dims = results.dimensions || {};
+      const values = Object.values(dims).filter(v => typeof v === 'number');
+      if (values.length === 0) return null;
+      // Higher spread from 50 = higher confidence
+      const avg = values.reduce((a, v) => a + Math.abs(v - 50), 0) / values.length;
+      return Math.min(100, Math.round(50 + avg));
+    }
+    // Adaptive mode: average the per-dimension confidence scores
+    const vals = Object.values(scores).filter(v => typeof v === 'number');
+    if (vals.length === 0) return null;
+    return Math.round((vals.reduce((a, v) => a + v, 0) / vals.length) * 100);
   }
 }

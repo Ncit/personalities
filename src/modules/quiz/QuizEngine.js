@@ -356,10 +356,10 @@ export class QuizEngine {
             personalityType,
             dimensionBreakdown,
             dimensions: {
-                E: dimensionBreakdown.EI?.E || 50, I: dimensionBreakdown.EI?.I || 50,
-                S: dimensionBreakdown.SN?.S || 50, N: dimensionBreakdown.SN?.N || 50,
-                T: dimensionBreakdown.TF?.T || 50, F: dimensionBreakdown.TF?.F || 50,
-                J: dimensionBreakdown.JP?.J || 50, P: dimensionBreakdown.JP?.P || 50,
+                E: dimensionBreakdown.EI?.E ?? 50, I: dimensionBreakdown.EI?.I ?? 50,
+                S: dimensionBreakdown.SN?.S ?? 50, N: dimensionBreakdown.SN?.N ?? 50,
+                T: dimensionBreakdown.TF?.T ?? 50, F: dimensionBreakdown.TF?.F ?? 50,
+                J: dimensionBreakdown.JP?.J ?? 50, P: dimensionBreakdown.JP?.P ?? 50,
             },
             scores: { ...this.scores },
             answers: [...this.answers],
@@ -454,8 +454,12 @@ export class QuizEngine {
     }
 
     _pct(a, b) {
-        const total = Math.abs(a) + Math.abs(b);
-        return total > 0 ? Math.round((Math.max(0, a) / total) * 100) : 50;
+        const diff = a - b;
+        if (diff === 0) return 50;
+        // Map diff to 0-100 range: positive diff = left side wins (>50%), negative = right side (<50%)
+        // Use sigmoid-like scaling capped at 5-95%
+        const scaled = 50 + (diff / (Math.abs(diff) + 4)) * 45;
+        return Math.round(Math.max(5, Math.min(95, scaled)));
     }
 
     calculatePersonalityType() {

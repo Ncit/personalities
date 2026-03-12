@@ -428,24 +428,24 @@ export class ResultDetailScreen {
   _getDimensionBars(framework, dims) {
     if (framework === 'socionics') {
       return [
-        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L || 50 },
-        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I || 50 },
-        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex || 50 },
-        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R || 50 },
+        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L ?? 50 },
+        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I ?? 50 },
+        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex ?? 50 },
+        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R ?? 50 },
       ];
     }
     if (framework === 'enneagram') {
       return [
-        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC || 0) * 3)) },
-        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD || 0) * 3)) },
-        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD || 0) * 3)) },
+        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
+        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
+        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
       ];
     }
     return [
-      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50 },
-      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50 },
-      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50 },
-      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50 },
+      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E ?? 50 },
+      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S ?? 50 },
+      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T ?? 50 },
+      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J ?? 50 },
     ];
   }
 

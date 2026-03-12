@@ -1,8 +1,14 @@
-/* ── Results horizontal scroll (2 rows) ── */
+/* ── Results horizontal scroll (2 rows carousel) ── */
+.results-scroll-wrapper {
+  width: 0;
+  min-width: 100%;
+  overflow: hidden;
+}
 .results-scroll {
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: auto auto;
+  grid-auto-columns: 140px;
   gap: 10px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -59,6 +65,7 @@
 .result-item__chevron {
   display: none;
 }
+
 
 .results-empty {
   display: flex; flex-direction: column; align-items: center;
