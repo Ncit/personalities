@@ -1792,6 +1792,10 @@ function setPremium(val) {
             }
         }
     }
+    // Sync StateManager with premium status
+    if (window.stateManager) {
+        window.stateManager.setPremium(!!val);
+    }
     updatePremiumUI();
 }
 

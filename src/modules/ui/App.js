@@ -58,6 +58,15 @@ export class App {
 
     this.onRouteChange(router.getState());
 
+    // Re-render active screen when premium status changes
+    if (window.stateManager) {
+      window.stateManager.subscribe('isPremium', () => {
+        const currentTab = router.getState().tab;
+        const screen = this.screens[currentTab];
+        if (screen && screen.onActivate) screen.onActivate();
+      });
+    }
+
     logger.log('App initialized');
   }
 

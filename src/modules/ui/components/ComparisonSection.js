@@ -63,7 +63,7 @@ export class ComparisonSection {
 
   render(currentResultId) {
     const results = getCoreResults();
-    if (results.length < 2) return '';
+    if (results.length < 1) return '';
     const excluded = getExcludedIds();
 
     return `

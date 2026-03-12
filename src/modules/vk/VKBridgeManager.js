@@ -260,30 +260,21 @@ export class VKBridgeManager {
      */
     async shareResults(personalityType, shareText, shareTitle = 'MBTI персональные тесты') {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
-        
+
         if (!this.bridge) {
             this.analytics.trackSharing(personalityType, false, null, { action: 'fallback_native' });
             return this.fallbackShare(shareText, shareTitle);
         }
-        if (!this.bridge.isWebView()) {
-            const shareUrl = `https://vk.ru/share.php?url=${encodeURIComponent(shareTitle)}&title=${encodeURIComponent(shareText)}`;
-            window.open(shareUrl, '_blank', 'width=550,height=370');
-            return;
-        }
 
         try {
             await this.bridge.send('VKWebAppShare', {
-                link: "https://vk.ru/app53942833",
-                title: shareTitle,
-                text: shareText
+                link: 'https://vk.com/app53942833'
             });
-            
+
             this.analytics.trackSharing(personalityType, true);
         } catch (error) {
-            const errorResult = this.errorHandler.handleError(error, 'shareResults');
-            
             this.analytics.trackSharing(personalityType, false, error);
-            
+
             return this.fallbackShare(shareText, shareTitle);
         }
     }
@@ -297,8 +288,7 @@ export class VKBridgeManager {
                 title: shareTitle,
                 text: shareText,
                 url: window.location.href
-            });
-        } else {
+            }).catch(() => {});
         }
     }
 

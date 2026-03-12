@@ -194,6 +194,11 @@ export class ProfileScreen {
   }
 
   _getVkUser() {
+    // Try VK Bridge Manager first (real VK environment)
+    if (window.vkBridgeManager && window.vkBridgeManager.userService && window.vkBridgeManager.userService.userInfo) {
+      return window.vkBridgeManager.userService.userInfo;
+    }
+    // Fallback to localStorage (dev/test login)
     try {
       const data = localStorage.getItem('vk_user_auth');
       return data ? JSON.parse(data) : null;

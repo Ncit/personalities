@@ -202,8 +202,9 @@ export class StateManager {
                 });
             }
 
-            // Premium status is now managed by backend API, not localStorage
-            this.setState({ isPremium: false });
+            // Sync premium status from global isPremium() which checks VK backend + localStorage
+            const globalPremium = typeof window.isPremium === 'function' ? window.isPremium() : false;
+            this.setState({ isPremium: globalPremium });
         } catch (error) {
             logger.warn('Failed to load state from localStorage:', error);
         }

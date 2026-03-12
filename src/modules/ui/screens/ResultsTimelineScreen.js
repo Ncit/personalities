@@ -56,16 +56,19 @@ export class ResultsTimelineScreen {
     const sm = getStateManager();
     const isPremium = sm ? sm.get('isPremium') : false;
 
+    const coreResults = results.filter(r => ['mbti', 'socionics', 'enneagram'].includes(r.framework));
+
     this.el.innerHTML = `
       <h1 class="page-title">Результаты</h1>
       ${results.length > 0 ? this._list(results) : this._empty()}
-      ${results.length >= 2
+      ${coreResults.length >= 1
         ? (isPremium ? this._comparison.render(null) : this._comparisonTeaser())
         : ''}
+      ${coreResults.length === 1 ? this._moreTestsHint() : ''}
     `;
 
     this._bind();
-    if (isPremium && results.length >= 2) this._comparison.bind(this.el, null);
+    if (isPremium && coreResults.length >= 1) this._comparison.bind(this.el, null);
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
   }
 
@@ -116,6 +119,18 @@ export class ResultsTimelineScreen {
     return d.toLocaleDateString();
   }
 
+  _moreTestsHint() {
+    return `
+      <div class="more-tests-hint" style="text-align:center;padding:16px 20px;margin-top:8px">
+        <div style="font-size:13px;color:#8A8A8A;margin-bottom:12px">Пройдите ещё тесты (Соционика, Эннеаграмма), чтобы увидеть сравнение и корреляцию типов</div>
+        <button class="btn-primary" id="results-more-tests" style="font-size:14px">
+          <i data-lucide="compass" style="width:16px;height:16px"></i>
+          Пройти ещё тест
+        </button>
+      </div>
+    `;
+  }
+
   _comparisonTeaser() {
     const content = this._comparison.render(null);
     return `
@@ -141,6 +156,10 @@ export class ResultsTimelineScreen {
     });
 
     this.el.querySelector('#results-start-quiz')?.addEventListener('click', () => {
+      router.navigateTab('explore');
+    });
+
+    this.el.querySelector('#results-more-tests')?.addEventListener('click', () => {
       router.navigateTab('explore');
     });
 

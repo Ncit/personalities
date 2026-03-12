@@ -114,46 +114,45 @@ export class HomeScreen {
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
 
     this.el.querySelector('#share-btn')?.addEventListener('click', async () => {
-      if (navigator.share) {
-        const frameworks = ['mbti', 'socionics', 'enneagram'];
-        const labels = { mbti: 'MBTI', socionics: 'Соционика', enneagram: 'Эннеаграмма' };
+      const frameworks = ['mbti', 'socionics', 'enneagram'];
+      const labels = { mbti: 'MBTI', socionics: 'Соционика', enneagram: 'Эннеаграмма' };
 
-        // Load type descriptions lazily
-        let socTypes = null, ennTypes = null;
-        const results = frameworks.map(fw => resultsStore.getLatestByFramework(fw)).filter(Boolean);
-        if (results.some(r => r.framework === 'socionics')) {
-          try { const m = await import('../../../data/SocionicsQuiz.ru.js'); socTypes = m.SOCIONICS_TYPES; } catch(e) {}
+      let socTypes = null, ennTypes = null;
+      const results = frameworks.map(fw => resultsStore.getLatestByFramework(fw)).filter(Boolean);
+      if (results.some(r => r.framework === 'socionics')) {
+        try { const m = await import('../../../data/SocionicsQuiz.ru.js'); socTypes = m.SOCIONICS_TYPES; } catch(e) {}
+      }
+      if (results.some(r => r.framework === 'enneagram')) {
+        try { const m = await import('../../../data/EnneagramQuiz.ru.js'); ennTypes = m.ENNEAGRAM_TYPES; } catch(e) {}
+      }
+
+      const lines = frameworks.map(fw => {
+        const r = resultsStore.getLatestByFramework(fw);
+        if (!r) return null;
+        let desc = '';
+        if (fw === 'mbti') {
+          const td = MBTI_TYPES?.[r.typeCode];
+          desc = td?.subtitle || td?.description || '';
+        } else if (fw === 'socionics' && socTypes) {
+          const key = Object.keys(socTypes).find(k => socTypes[k].code === r.typeCode);
+          const td = key ? socTypes[key] : null;
+          desc = td?.subtitle || td?.description || '';
+        } else if (fw === 'enneagram' && ennTypes) {
+          const td = ennTypes[r.typeCode];
+          desc = td?.subtitle || td?.description || '';
         }
-        if (results.some(r => r.framework === 'enneagram')) {
-          try { const m = await import('../../../data/EnneagramQuiz.ru.js'); ennTypes = m.ENNEAGRAM_TYPES; } catch(e) {}
-        }
+        const descLine = desc ? `\n   ${desc}` : '';
+        return `${labels[fw]}: ${r.typeCode} — ${r.typeName}${descLine}`;
+      }).filter(Boolean);
 
-        const lines = frameworks.map(fw => {
-          const r = resultsStore.getLatestByFramework(fw);
-          if (!r) return null;
-          let desc = '';
-          if (fw === 'mbti') {
-            const td = MBTI_TYPES?.[r.typeCode];
-            desc = td?.subtitle || td?.description || '';
-          } else if (fw === 'socionics' && socTypes) {
-            const key = Object.keys(socTypes).find(k => socTypes[k].code === r.typeCode);
-            const td = key ? socTypes[key] : null;
-            desc = td?.subtitle || td?.description || '';
-          } else if (fw === 'enneagram' && ennTypes) {
-            const td = ennTypes[r.typeCode];
-            desc = td?.subtitle || td?.description || '';
-          }
-          const descLine = desc ? `\n   ${desc}` : '';
-          return `${labels[fw]}: ${r.typeCode} — ${r.typeName}${descLine}`;
-        }).filter(Boolean);
-
-        const text = lines.length > 0
-          ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\nhttps://vk.com/app53942833_6582162'
-          : '';
-        navigator.share({
-          title: 'Мои типы личности',
-          text,
-        });
+      const text = lines.length > 0
+        ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\nhttps://vk.com/app53942833_6582162'
+        : '';
+      const title = 'Мои типы личности';
+      if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
+        window.vkBridgeManager.shareResults(null, text, title);
+      } else if (navigator.share) {
+        navigator.share({ title, text, url: 'https://vk.ru/app53942833' }).catch(() => {});
       }
     });
   }
@@ -259,8 +258,9 @@ export class HomeScreen {
           <div class="share-card__title">Поделиться типом</div>
           <div class="share-card__subtitle">Покажите друзьям свой результат</div>
         </div>
-        <button class="btn-primary" id="share-btn">
-          <i data-lucide="share-2" style="width:16px;height:16px"></i> Поделиться
+        <button class="btn-primary" id="share-btn" style="display:inline-flex;align-items:center;gap:6px">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Поделиться
         </button>
       </div>
     `;
