@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <base href="/personadev/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест личности - 16 типов характера</title>
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon-Bq2wergW.svg">
+    <!-- Google Fonts with fallback for SSL errors -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" onerror="handleFontError()">
+    <!-- Font Awesome removed — using Lucide icons now -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> -->
+
+    <script>
+        function handleFontError() {
+            // Fallback font loading if Google Fonts fails
+            console.warn('Google Fonts failed to load, using system fonts');
+
+            // Apply fallback font stack
+            document.documentElement.style.setProperty('--font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif');
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script type="module" crossorigin src="./assets/index-KNUJXNb4.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/quiz-CJj3zeTA.js">
+  <link rel="modulepreload" crossorigin href="./assets/analytics-hSyef9A4.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-CQSuyeGh.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+</head>
+<body>
+    <div id="app">
+      <div id="screen-container"></div>
+      <nav id="tab-bar" class="tab-bar"></nav>
+    </div>
+    <div id="overlay-container"></div>
+    <div id="toast-container"></div>
+
+    <!-- VK Bridge SDK -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
+    <!-- VK Auth SDK -->
+    <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
+
+    <!-- Environment detection -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const isVKFlavor = urlParams.get('flavor') === 'vk';
+    </script>
+
+    <!-- Debug Utilities -->
+
+    <!-- Main app entry -->
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DZupdfnG.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BmbV-CvJ.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+</body>
+</html>
