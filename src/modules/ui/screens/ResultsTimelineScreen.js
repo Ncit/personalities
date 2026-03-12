@@ -112,9 +112,7 @@ export class ResultsTimelineScreen {
 
   _bind() {
     this.el.querySelectorAll('.result-item').forEach(item => {
-      item.addEventListener('click', () => {
-        router.openOverlay('result-detail', { resultId: item.dataset.id });
-      });
+      // Result detail overlay removed
     });
 
     this.el.querySelector('#results-start-quiz')?.addEventListener('click', () => {

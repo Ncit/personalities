@@ -6,7 +6,6 @@ import { ExploreScreen } from './screens/ExploreScreen.js';
 import { ResultsTimelineScreen } from './screens/ResultsTimelineScreen.js';
 import { ProfileScreen } from './screens/ProfileScreen.js';
 import { QuizScreen } from './screens/QuizScreen.js';
-import { ResultDetailScreen } from './screens/ResultDetailScreen.js';
 import { PremiumModal } from './components/PremiumModal.js';
 import { FrameworkInfoScreen } from './screens/FrameworkInfoScreen.js';
 import { TypeDetailModal } from './components/TypeDetailModal.js';
@@ -41,7 +40,7 @@ export class App {
 
     this.overlays = {
       quiz: () => new QuizScreen(),
-      'result-detail': () => new ResultDetailScreen(),
+
       'premium-modal': () => new PremiumModal(),
       'framework-info': () => new FrameworkInfoScreen(),
       'type-detail': () => new TypeDetailModal(),
