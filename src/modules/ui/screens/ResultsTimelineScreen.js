@@ -20,6 +20,12 @@ const ACHIEVEMENTS = [
   { key: 'master', icon: 'ach_master', title: 'Мастер', description: 'Пройдите все доступные тесты' },
 ];
 
+const FRAMEWORK_NAMES = {
+  mbti: 'MBTI',
+  socionics: 'Соционика',
+  enneagram: 'Эннеаграмма',
+};
+
 export class ResultsTimelineScreen {
   constructor() {
     this.el = document.createElement('div');
@@ -58,7 +64,7 @@ export class ResultsTimelineScreen {
             ${r.typeCode}
           </div>
           <div class="result-item__info">
-            <div class="result-item__title">${r.framework.toUpperCase()} — ${r.typeCode}</div>
+            <div class="result-item__title">${FRAMEWORK_NAMES[r.framework] || r.framework.toUpperCase()} — ${r.typeCode}</div>
             <div class="result-item__date">${displayName} · ${this._formatDate(r.date)}</div>
           </div>
         </div>`;
@@ -112,7 +118,9 @@ export class ResultsTimelineScreen {
 
   _bind() {
     this.el.querySelectorAll('.result-item').forEach(item => {
-      // Result detail overlay removed
+      item.addEventListener('click', () => {
+        router.openOverlay('result-detail', { resultId: item.dataset.id });
+      });
     });
 
     this.el.querySelector('#results-start-quiz')?.addEventListener('click', () => {

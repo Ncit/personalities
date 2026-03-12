@@ -133,6 +133,11 @@
     grid-template-columns: repeat(4, 1fr);
   }
 
+  .result-detail-screen {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
   /* Quiz overlay on desktop: dimmed background with centered card */
   .quiz-screen {
     background: rgba(0,0,0,0.4);

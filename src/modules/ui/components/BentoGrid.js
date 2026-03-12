@@ -134,6 +134,11 @@ export class BentoGrid {
   }
 
   static bind(container) {
-    // Result detail overlay removed
+    container.querySelectorAll('[data-action="view-result"]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        router.openOverlay('result-detail', { resultId: id });
+      });
+    });
   }
 }

@@ -1,20 +1,55 @@
-import { DimensionBar } from '../components/DimensionBar.js';
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 
-// Access stateManager via window since it's initialized in script.js
 function getStateManager() { return window.stateManager; }
+function getTypeData() { return window.PERSONALITY_TYPES || {}; }
+function getAdvancedInsights() { return window.ADVANCED_INSIGHTS || {}; }
+function getFamousPersonalities() { return window.FAMOUS_PERSONALITIES || {}; }
 
-// Try to get type data — these may or may not exist in the data files
-function getTypeData() {
-  return window.PERSONALITY_TYPES || {};
-}
-function getAdvancedInsights() {
-  return window.ADVANCED_INSIGHTS || {};
-}
-function getFamousPersonalities() {
-  return window.FAMOUS_PERSONALITIES || {};
-}
+const INSIGHT_SECTIONS_DEFAULT = [
+  { icon: 'briefcase', title: 'Карьера', key: 'careers', bg: 'rgba(124,144,130,0.06)', color: '#7C9082' },
+  { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: 'rgba(212,165,116,0.06)', color: '#D4A574' },
+  { icon: 'trending-up', title: 'Рост', key: 'development', bg: 'rgba(74,130,96,0.06)', color: '#4A8260' },
+  { icon: 'heart', title: 'Отношения', key: 'relations', bg: 'rgba(196,122,138,0.06)', color: '#C47A8A' },
+];
+
+const INSIGHT_SECTIONS_MBTI = [
+  { icon: 'briefcase', title: 'Карьера', key: 'careers', bg: 'rgba(124,144,130,0.06)', color: '#7C9082' },
+  { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: 'rgba(212,165,116,0.06)', color: '#D4A574' },
+  { icon: 'trending-up', title: 'Рост', key: 'development', bg: 'rgba(74,130,96,0.06)', color: '#4A8260' },
+  { icon: 'shield-alert', title: 'Слабые стороны', key: 'weaknesses', bg: 'rgba(196,122,138,0.06)', color: '#C47A8A' },
+];
+
+const SOCIONICS_INSIGHTS = {
+  'ИЛЭ': { careers: ['Учёный', 'Программист', 'Предприниматель', 'Изобретатель'], strengths: ['Генерация идей', 'Видение возможностей', 'Креативность', 'Быстрая адаптация'], development: ['Развивать внимание к деталям', 'Учиться практичности', 'Доводить дела до конца'], relations: ['Дуал: СЭИ (Дюма)', 'Активация: ЭСЭ (Гюго)', 'Конфликт: ЭСИ (Драйзер)'] },
+  'СЭИ': { careers: ['Дизайнер', 'Повар', 'Терапевт', 'Флорист'], strengths: ['Создание уюта', 'Забота о близких', 'Чувство прекрасного', 'Гармония'], development: ['Учиться стратегическому мышлению', 'Развивать аналитику', 'Ставить долгосрочные цели'], relations: ['Дуал: ИЛЭ (Дон Кихот)', 'Активация: ЛИЭ (Джек Лондон)', 'Конфликт: ЛИИ (Робеспьер)'] },
+  'ЭСЭ': { careers: ['PR-менеджер', 'Учитель', 'Организатор мероприятий', 'Менеджер по продажам'], strengths: ['Энергичность', 'Общительность', 'Оптимизм', 'Эмоциональный заряд'], development: ['Развивать логическое мышление', 'Учиться дистанции', 'Контролировать эмоции'], relations: ['Дуал: ЛИИ (Робеспьер)', 'Активация: СЭИ (Дюма)', 'Конфликт: СЛИ (Габен)'] },
+  'ЛИИ': { careers: ['Математик', 'Аналитик', 'Философ', 'Программист'], strengths: ['Системное мышление', 'Логический анализ', 'Структурирование', 'Объективность'], development: ['Развивать коммуникацию', 'Учиться эмоциональности', 'Быть гибче в отношениях'], relations: ['Дуал: ЭСЭ (Гюго)', 'Активация: ИЛЭ (Дон Кихот)', 'Конфликт: ИЭЭ (Гексли)'] },
+  'ЭИЭ': { careers: ['Актёр', 'Психолог', 'Журналист', 'Режиссёр'], strengths: ['Эмоциональная глубина', 'Вдохновение других', 'Драматический талант', 'Эмпатия'], development: ['Развивать практичность', 'Учиться спокойствию', 'Контролировать драматизм'], relations: ['Дуал: ЛСИ (Максим Горький)', 'Активация: СЛЭ (Жуков)', 'Конфликт: СЛИ (Габен)'] },
+  'ЛСИ': { careers: ['Военный', 'Юрист', 'Администратор', 'Инспектор'], strengths: ['Организованность', 'Надёжность', 'Дисциплина', 'Системный подход'], development: ['Развивать гибкость', 'Учиться принимать перемены', 'Быть открытее к новому'], relations: ['Дуал: ЭИЭ (Гамлет)', 'Активация: ИЭИ (Есенин)', 'Конфликт: ИЭЭ (Гексли)'] },
+  'СЛЭ': { careers: ['Предприниматель', 'Спортсмен', 'Управленец', 'Кризис-менеджер'], strengths: ['Воля к победе', 'Решительность', 'Лидерство', 'Практичность'], development: ['Развивать дипломатичность', 'Учиться слушать других', 'Быть терпеливее'], relations: ['Дуал: ИЭИ (Есенин)', 'Активация: ЭИЭ (Гамлет)', 'Конфликт: ЭИИ (Достоевский)'] },
+  'ИЭИ': { careers: ['Поэт', 'Музыкант', 'Консультант', 'Психолог'], strengths: ['Интуиция времени', 'Романтичность', 'Чуткость', 'Предвидение'], development: ['Развивать волю', 'Учиться настойчивости', 'Быть практичнее'], relations: ['Дуал: СЛЭ (Жуков)', 'Активация: ЛСИ (Максим Горький)', 'Конфликт: ЛСЭ (Штирлиц)'] },
+  'СЭЭ': { careers: ['Политик', 'Актёр', 'Менеджер по продажам', 'Шоумен'], strengths: ['Харизма', 'Влияние на людей', 'Энергичность', 'Находчивость'], development: ['Развивать терпение', 'Учиться планированию', 'Углублять знания'], relations: ['Дуал: ИЛИ (Бальзак)', 'Активация: ЛИЭ (Джек Лондон)', 'Конфликт: ЛИИ (Робеспьер)'] },
+  'ИЛИ': { careers: ['Аналитик', 'Финансист', 'Критик', 'Исследователь'], strengths: ['Глубокий анализ', 'Предвидение рисков', 'Скептицизм', 'Осторожность'], development: ['Развивать оптимизм', 'Учиться действовать', 'Быть решительнее'], relations: ['Дуал: СЭЭ (Наполеон)', 'Активация: ЭСИ (Драйзер)', 'Конфликт: ЭСЭ (Гюго)'] },
+  'ЛИЭ': { careers: ['Бизнесмен', 'Инженер', 'Стратег', 'Менеджер проекта'], strengths: ['Деловая хватка', 'Стратегия', 'Эффективность', 'Целеустремлённость'], development: ['Развивать эмпатию', 'Учиться расслабляться', 'Заботиться о здоровье'], relations: ['Дуал: ЭСИ (Драйзер)', 'Активация: СЭЭ (Наполеон)', 'Конфликт: СЭИ (Дюма)'] },
+  'ЭСИ': { careers: ['Врач', 'Соцработник', 'Учитель', 'Юрист'], strengths: ['Нравственность', 'Верность', 'Забота', 'Чувство долга'], development: ['Развивать гибкость', 'Учиться прощать', 'Быть объективнее'], relations: ['Дуал: ЛИЭ (Джек Лондон)', 'Активация: ИЛИ (Бальзак)', 'Конфликт: ИЛЭ (Дон Кихот)'] },
+  'ЛСЭ': { careers: ['Управленец', 'Логист', 'Военный', 'Фермер'], strengths: ['Трудолюбие', 'Организация', 'Практичность', 'Ответственность'], development: ['Развивать воображение', 'Учиться мечтать', 'Быть гибче'], relations: ['Дуал: ЭИИ (Достоевский)', 'Активация: ИЭЭ (Гексли)', 'Конфликт: ИЭИ (Есенин)'] },
+  'ЭИИ': { careers: ['Психолог', 'Писатель', 'Педагог', 'Консультант'], strengths: ['Глубокая эмпатия', 'Миротворчество', 'Мудрость', 'Понимание людей'], development: ['Развивать волю', 'Учиться отстаивать себя', 'Быть практичнее'], relations: ['Дуал: ЛСЭ (Штирлиц)', 'Активация: СЛЭ (Жуков)', 'Конфликт: СЛЭ (Жуков)'] },
+  'ИЭЭ': { careers: ['Журналист', 'HR-менеджер', 'Тренер', 'Консультант'], strengths: ['Понимание людей', 'Оптимизм', 'Раскрытие потенциала', 'Креативность'], development: ['Развивать дисциплину', 'Учиться системности', 'Быть последовательнее'], relations: ['Дуал: СЛИ (Габен)', 'Активация: ЛСИ (Максим Горький)', 'Конфликт: ЛСИ (Максим Горький)'] },
+  'СЛИ': { careers: ['Ремесленник', 'Инженер', 'Спортсмен', 'Технолог'], strengths: ['Мастерство', 'Спокойствие', 'Практичность', 'Надёжность'], development: ['Развивать общительность', 'Учиться выражать чувства', 'Быть активнее'], relations: ['Дуал: ИЭЭ (Гексли)', 'Активация: ЭИИ (Достоевский)', 'Конфликт: ЭИЭ (Гамлет)'] },
+};
+
+const ENNEAGRAM_INSIGHTS = {
+  '1': { careers: ['Юрист', 'Редактор', 'Аудитор', 'Преподаватель'], strengths: ['Принципиальность', 'Честность', 'Организованность', 'Стремление к идеалу'], development: ['Принимать несовершенство', 'Учиться расслабляться', 'Развивать терпимость'], relations: ['Совместимы: Тип 7, Тип 2', 'Рост через: Тип 4', 'Сложно: Тип 8'] },
+  '2': { careers: ['Врач', 'Психолог', 'Учитель', 'Волонтёр'], strengths: ['Щедрость', 'Эмпатия', 'Забота', 'Умение поддержать'], development: ['Учиться говорить нет', 'Заботиться о себе', 'Признавать свои потребности'], relations: ['Совместимы: Тип 4, Тип 8', 'Рост через: Тип 4', 'Сложно: Тип 5'] },
+  '3': { careers: ['Менеджер', 'Маркетолог', 'Предприниматель', 'Тренер'], strengths: ['Амбициозность', 'Эффективность', 'Адаптивность', 'Мотивация'], development: ['Быть искренним', 'Ценить процесс', 'Принимать уязвимость'], relations: ['Совместимы: Тип 6, Тип 9', 'Рост через: Тип 6', 'Сложно: Тип 4'] },
+  '4': { careers: ['Художник', 'Писатель', 'Дизайнер', 'Терапевт'], strengths: ['Творческость', 'Глубина чувств', 'Аутентичность', 'Интуиция'], development: ['Развивать дисциплину', 'Ценить обычное', 'Не идеализировать'], relations: ['Совместимы: Тип 1, Тип 9', 'Рост через: Тип 1', 'Сложно: Тип 3'] },
+  '5': { careers: ['Аналитик', 'Исследователь', 'Учёный', 'Программист'], strengths: ['Глубокий анализ', 'Независимость', 'Объективность', 'Экспертиза'], development: ['Делиться чувствами', 'Доверять другим', 'Быть в моменте'], relations: ['Совместимы: Тип 8, Тип 2', 'Рост через: Тип 8', 'Сложно: Тип 7'] },
+  '6': { careers: ['Юрист', 'Аналитик рисков', 'Охранник', 'Менеджер проекта'], strengths: ['Верность', 'Ответственность', 'Предусмотрительность', 'Командный дух'], development: ['Доверять себе', 'Уменьшить тревожность', 'Рисковать чаще'], relations: ['Совместимы: Тип 9, Тип 3', 'Рост через: Тип 9', 'Сложно: Тип 8'] },
+  '7': { careers: ['Путешественник', 'Маркетолог', 'Ведущий', 'Предприниматель'], strengths: ['Оптимизм', 'Энтузиазм', 'Разносторонность', 'Креативность'], development: ['Учиться сосредоточенности', 'Принимать боль', 'Доводить до конца'], relations: ['Совместимы: Тип 1, Тип 5', 'Рост через: Тип 5', 'Сложно: Тип 6'] },
+  '8': { careers: ['Руководитель', 'Предприниматель', 'Адвокат', 'Военный'], strengths: ['Лидерство', 'Решительность', 'Защита слабых', 'Сила воли'], development: ['Показывать уязвимость', 'Слушать других', 'Проявлять мягкость'], relations: ['Совместимы: Тип 2, Тип 9', 'Рост через: Тип 2', 'Сложно: Тип 6'] },
+  '9': { careers: ['Медиатор', 'Консультант', 'Дипломат', 'Терапевт'], strengths: ['Миролюбие', 'Принятие', 'Гармония', 'Терпение'], development: ['Отстаивать себя', 'Принимать конфликт', 'Действовать решительно'], relations: ['Совместимы: Тип 3, Тип 6', 'Рост через: Тип 3', 'Сложно: Тип 8'] },
+};
 
 export class ResultDetailScreen {
   constructor() {
@@ -42,43 +77,19 @@ export class ResultDetailScreen {
 
     const sm = getStateManager();
     const isPremium = sm ? sm.get('isPremium') : false;
-    const dims = result.dimensions || {};
 
-    const dimensionBars = this._getDimensionBars(result.framework, dims);
-
-    // Get type description and name from personality data
-    const heroDesc = this._getHeroDesc(result);
-    const displayName = this._getDisplayName(result);
+    this.el.className = `result-detail-screen result-detail-screen--${result.framework}`;
 
     this.el.innerHTML = `
       <div class="status-bar"></div>
-      <div class="result-detail__layout">
-        <div class="result-detail__main">
-          <button class="result-detail__back" id="result-back">
-            <i data-lucide="arrow-left" style="width:18px;height:18px"></i> К результатам
-          </button>
-          <div class="result-hero">
-            <div class="result-hero__code">${result.typeCode}</div>
-            <div class="result-hero__name">${displayName}</div>
-            <div class="result-hero__desc">${heroDesc}</div>
-            ${isPremium ? '<span class="badge badge--gold result-hero__badge">Premium</span>' : ''}
-          </div>
-          <div class="card result-dimensions" style="margin:0 20px 20px">
-            <h3 style="font:400 18px/1.3 var(--font-display);margin-bottom:8px">Ваши предпочтения</h3>
-            ${dimensionBars.map(d => DimensionBar.render(d)).join('')}
-          </div>
-        </div>
-        <div class="result-detail__sidebar">
-          ${isPremium ? this._premiumContent(result) : this._premiumTeaser()}
-        </div>
-      </div>
-      <div class="result-actions">
-        <button class="btn-primary" id="result-share">
-          <i data-lucide="share-2" style="width:16px;height:16px"></i> Поделиться
+      <div class="result-detail__content">
+        <button class="result-detail__back" id="result-back">
+          <i data-lucide="arrow-left" style="width:18px;height:18px"></i> К результатам
         </button>
-        <button class="btn-secondary" id="result-retake">
-          <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Пройти снова
-        </button>
+        ${this._renderHero(result, isPremium)}
+        ${this._renderDimensions(result)}
+        ${isPremium ? this._renderFamous(result) : ''}
+        ${this._renderActions()}
       </div>
     `;
 
@@ -86,56 +97,85 @@ export class ResultDetailScreen {
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
   }
 
-  _premiumTeaser() {
+  _renderHero(result, isPremium) {
+    const displayName = this._getDisplayName(result);
+    const heroDesc = this._getHeroDesc(result);
     return `
-      <div class="card premium-teaser" id="premium-teaser">
-        <div class="premium-teaser__icon-wrap">
-          <i data-lucide="lock" style="width:20px;height:20px"></i>
-        </div>
-        <div class="premium-teaser__info">
-          <span class="badge badge--gold premium-teaser__badge">Premium</span>
-          <div class="premium-teaser__title">Открыть глубокий анализ</div>
-          <div class="premium-teaser__desc">Расширенный анализ, известные совпадения и другое</div>
-        </div>
-        <i data-lucide="chevron-right" style="width:18px;height:18px;color:var(--color-text-disabled)"></i>
+      <div class="result-hero">
+        <div class="result-hero__code">${result.typeCode}</div>
+        <div class="result-hero__name">${displayName}</div>
+        <div class="result-hero__desc">${heroDesc}</div>
+        ${isPremium ? `<span class="result-hero__badge"><i data-lucide="crown" style="width:12px;height:12px"></i> Premium</span>` : ''}
       </div>
     `;
   }
 
-  _premiumContent(result) {
-    const typeInsights = getAdvancedInsights()[result.typeCode] || {};
-    const typeFamous = getFamousPersonalities()[result.typeCode] || [];
-
-    const insightSections = [
-      { icon: 'briefcase', title: 'Карьера', key: 'career', bg: '#D4A57418', color: '#D4A574' },
-      { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: '#7C908218', color: '#7C9082' },
-      { icon: 'sprout', title: 'Рост', key: 'growth', bg: '#C2856A18', color: '#C2856A' },
-      { icon: 'heart', title: 'Отношения', key: 'development', bg: '#C47A8A18', color: '#C47A8A' },
-    ];
-
+  _renderDimensions(result) {
+    const dims = result.dimensions || {};
+    const bars = this._getDimensionBars(result.framework, dims);
     return `
-      <h3 class="result-detail__section-title">Глубокий анализ</h3>
-      <div class="insights-grid">
-        ${insightSections.map(ins => {
-          const items = typeInsights[ins.key] || [];
-          return `
-          <div class="card insight-card">
-            <div class="insight-card__icon-wrap" style="background:${ins.bg};color:${ins.color}">
-              <i data-lucide="${ins.icon}" style="width:18px;height:18px"></i>
-            </div>
-            <div class="insight-card__title">${ins.title}</div>
-            <ul class="insight-card__list">
-              ${items.length > 0
-                ? items.map(item => `<li>${item}</li>`).join('')
-                : '<li>Нет данных</li>'
-              }
-            </ul>
-          </div>`;
-        }).join('')}
+      <div class="result-dimensions">
+        <div class="result-dimensions__title">Ваши предпочтения</div>
+        ${bars.map(d => this._renderDimBar(d)).join('')}
       </div>
-      ${typeFamous.length > 0 ? `
-      <div class="famous-section">
-        <h3 class="result-detail__section-title">Известные ${result.typeCode}</h3>
+    `;
+  }
+
+  _renderDimBar({ leftLabel, rightLabel, leftPercent }) {
+    const rightPercent = 100 - leftPercent;
+    const leftActive = leftPercent >= 50;
+    return `
+      <div class="dim-row">
+        <div class="dim-row__labels">
+          <span class="dim-row__label${leftActive ? ' dim-row__label--active' : ''}">${leftLabel}</span>
+          <span class="dim-row__label${!leftActive ? ' dim-row__label--active' : ''}">${rightLabel}</span>
+        </div>
+        <div class="dim-row__bar">
+          <div class="dim-row__fill" style="width:${leftPercent}%"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  _getInsightsData(result) {
+    if (result.framework === 'socionics') return SOCIONICS_INSIGHTS[result.typeCode] || {};
+    if (result.framework === 'enneagram') {
+      const num = result.typeCode.replace(/\D/g, '');
+      return ENNEAGRAM_INSIGHTS[num] || {};
+    }
+    return getAdvancedInsights()[result.typeCode] || {};
+  }
+
+  _renderInsights(result) {
+    const typeInsights = this._getInsightsData(result);
+    const sections = result.framework === 'mbti' ? INSIGHT_SECTIONS_MBTI : INSIGHT_SECTIONS_DEFAULT;
+    return `
+      <div class="result-insights">
+        <div class="result-insights__title">Глубокий анализ</div>
+        <div class="insights-carousel">
+          ${sections.map(ins => {
+            const items = typeInsights[ins.key] || [];
+            const desc = items.length > 0 ? items.join(', ') : 'Нет данных';
+            return `
+              <div class="insight-card" style="background:${ins.bg}">
+                <div class="insight-card__icon" style="color:${ins.color}">
+                  <i data-lucide="${ins.icon}" style="width:20px;height:20px"></i>
+                </div>
+                <div class="insight-card__title">${ins.title}</div>
+                <div class="insight-card__desc">${desc}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderFamous(result) {
+    const typeFamous = getFamousPersonalities()[result.typeCode] || [];
+    if (typeFamous.length === 0) return '';
+    return `
+      <div class="result-famous">
+        <div class="result-famous__title">Известные ${result.typeCode}</div>
         <div class="famous-list">
           ${typeFamous.slice(0, 3).map(p => `
             <div class="famous-card">
@@ -147,31 +187,60 @@ export class ResultDetailScreen {
             </div>
           `).join('')}
         </div>
-      </div>` : ''}
+      </div>
+    `;
+  }
+
+  _renderPremiumTeaser() {
+    return `
+      <div class="premium-teaser" id="premium-teaser">
+        <div class="premium-teaser__icon-wrap">
+          <i data-lucide="lock" style="width:20px;height:20px"></i>
+        </div>
+        <div class="premium-teaser__info">
+          <span class="badge badge--gold premium-teaser__badge">Premium</span>
+          <div class="premium-teaser__title">Открыть глубокий анализ</div>
+          <div class="premium-teaser__desc">Расширенный анализ, известные совпадения и другое</div>
+        </div>
+        <i data-lucide="chevron-right" style="width:18px;height:18px;color:#C5C0B8"></i>
+      </div>
+    `;
+  }
+
+  _renderActions() {
+    return `
+      <div class="result-actions">
+        <button class="btn-primary" id="result-share">
+          <i data-lucide="share-2" style="width:16px;height:16px"></i> Поделиться
+        </button>
+        <button class="btn-secondary" id="result-retake">
+          <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Пройти снова
+        </button>
+      </div>
     `;
   }
 
   _getDimensionBars(framework, dims) {
     if (framework === 'socionics') {
       return [
-        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L || 50, color: 'var(--color-dim-ei, #7C9082)' },
-        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I || 50, color: 'var(--color-dim-sn, #E8A85C)' },
-        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex || 50, color: 'var(--color-dim-tf, #C47A8A)' },
-        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R || 50, color: 'var(--color-dim-jp, #8B7EC8)' },
+        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L || 50 },
+        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I || 50 },
+        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex || 50 },
+        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R || 50 },
       ];
     }
     if (framework === 'enneagram') {
       return [
-        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC || 0) * 3)), color: '#C47A8A' },
-        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD || 0) * 3)), color: '#7C9082' },
-        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD || 0) * 3)), color: '#E8A85C' },
+        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC || 0) * 3)) },
+        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD || 0) * 3)) },
+        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD || 0) * 3)) },
       ];
     }
     return [
-      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50, color: 'var(--color-dim-ei)' },
-      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50, color: 'var(--color-dim-sn)' },
-      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50, color: 'var(--color-dim-tf)' },
-      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50, color: 'var(--color-dim-jp)' },
+      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50 },
+      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50 },
+      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50 },
+      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50 },
     ];
   }
 

@@ -275,6 +275,6 @@ export class QuizScreen {
     const sm = getStateManager();
     if (sm) sm.checkAchievements(resultsStore);
     router.closeOverlay();
-    router.navigateTab('results');
+    router.openOverlay('result-detail', { resultId: entry.id });
   }
 }
