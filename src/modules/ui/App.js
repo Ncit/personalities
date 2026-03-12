@@ -1,6 +1,7 @@
 // Styles
 import '../../styles/design-system.css';
 import '../../styles/components.css';
+import '../../styles/responsive.css';
 
 import { router } from '../router/Router.js';
 import { TabBar } from './TabBar.js';

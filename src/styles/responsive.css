@@ -1,0 +1,40 @@
+/* Tablet (768-1024px) */
+@media (min-width: 768px) {
+  .screen-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .bento-row {
+    gap: 16px;
+  }
+
+  .types-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop (>1024px) */
+@media (min-width: 1024px) {
+  .screen-content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .types-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .result-detail-screen {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .tab-bar {
+    bottom: 24px;
+  }
+}
