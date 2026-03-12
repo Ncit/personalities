@@ -1,3 +1,8 @@
+/* === Sidebar (hidden on mobile, visible on desktop) === */
+.sidebar {
+  display: none;
+}
+
 /* Tablet (768-1024px) */
 @media (min-width: 768px) {
   .screen-content {
@@ -18,11 +23,98 @@
   }
 }
 
-/* Desktop (>1024px) */
+/* Desktop (>1024px) — Sidebar layout */
 @media (min-width: 1024px) {
+  /* Switch app to horizontal layout */
+  #app {
+    flex-direction: row;
+  }
+
+  /* Show sidebar, hide tab bar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 240px;
+    min-width: 240px;
+    height: 100vh;
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+    background: var(--color-card);
+    border-right: 1px solid var(--color-border);
+    padding: 32px 0;
+  }
+
+  .tab-bar {
+    display: none !important;
+  }
+
+  /* Sidebar internals */
+  .sidebar__top {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .sidebar__logo {
+    padding: 0 24px;
+  }
+
+  .sidebar__logo-text {
+    font: 400 20px/1 var(--font-display);
+    color: var(--color-text-primary);
+  }
+
+  .sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 12px;
+  }
+
+  .sidebar__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 16px;
+  }
+
+  .sidebar__footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sidebar__footer-link {
+    font: 400 13px/1 var(--font-body);
+    color: var(--color-text-muted);
+    padding: 8px 0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .sidebar__footer-link:hover {
+    color: var(--color-text-secondary);
+  }
+
+  .sidebar__copyright {
+    font: 400 11px/1 var(--font-body);
+    color: var(--color-text-disabled);
+  }
+
+  /* Screen container fills remaining space */
+  #screen-container {
+    flex: 1;
+    overflow-y: auto;
+    height: 100vh;
+    height: 100dvh;
+  }
+
   .screen-content {
-    padding-left: 40px;
-    padding-right: 40px;
+    padding: 32px 40px;
+    padding-bottom: 40px;
+    max-width: 960px;
   }
 
   .types-grid {
@@ -34,7 +126,11 @@
     margin: 0 auto;
   }
 
-  .tab-bar {
-    bottom: 24px;
+  /* Quiz overlay on desktop: dimmed background with centered card */
+  .quiz-screen {
+    background: rgba(0,0,0,0.4);
+  }
+  .quiz-screen .status-bar {
+    display: none;
   }
 }

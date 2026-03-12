@@ -5,6 +5,7 @@ import '../../styles/responsive.css';
 
 import { router } from '../router/Router.js';
 import { TabBar } from './TabBar.js';
+import { Sidebar } from './Sidebar.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { ExploreScreen } from './screens/ExploreScreen.js';
 import { ResultsTimelineScreen } from './screens/ResultsTimelineScreen.js';
@@ -22,6 +23,11 @@ export class App {
     this.screenContainer = document.getElementById('screen-container');
     this.overlayContainer = document.getElementById('overlay-container');
     this.tabBar = new TabBar(document.getElementById('tab-bar'));
+
+    // Desktop sidebar
+    this.sidebar = new Sidebar();
+    const appEl = document.getElementById('app');
+    appEl.insertBefore(this.sidebar.getElement(), this.screenContainer);
 
     this.screens = {
       home: new HomeScreen(),
