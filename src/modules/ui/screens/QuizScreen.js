@@ -79,7 +79,7 @@ export class QuizScreen {
         <div class="quiz-progress">
           <div class="quiz-progress__fill" style="width:${progress}%"></div>
         </div>
-        ${isAdaptive ? this._adaptiveBars(qe) : ''}
+        ${this._dimensionBars(qe)}
         <div class="quiz-content">
           <div class="quiz-question">${current?.question || current?.text || 'Загрузка...'}</div>
           <div class="quiz-options">
@@ -115,22 +115,64 @@ export class QuizScreen {
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
   }
 
-  _adaptiveBars(qe) {
-    const confidence = qe.getCurrentConfidence ? qe.getCurrentConfidence() : {};
-    const dims = [
-      { label: 'E/I', value: Math.round((confidence.EI || 0) * 100), color: 'var(--color-dim-ei)' },
-      { label: 'S/N', value: Math.round((confidence.SN || 0) * 100), color: 'var(--color-dim-sn)' },
-      { label: 'T/F', value: Math.round((confidence.TF || 0) * 100), color: 'var(--color-dim-tf)' },
-      { label: 'J/P', value: Math.round((confidence.JP || 0) * 100), color: 'var(--color-dim-jp)' },
-    ];
+  _dimensionBars(qe) {
+    const questionIndex = qe.currentQuestionIndex || 0;
+    const questions = qe.questions || [];
+    const total = questions.length;
+
+    let dims;
+    if (this.framework === 'socionics') {
+      dims = [
+        { label: 'Л/Э', key: 'LE', color: 'var(--color-dim-ei, #7C9082)' },
+        { label: 'И/С', key: 'IN', color: 'var(--color-dim-sn, #E8A85C)' },
+        { label: 'Э/И', key: 'EI', color: 'var(--color-dim-tf, #C47A8A)' },
+        { label: 'Р/Ир', key: 'RJ', color: 'var(--color-dim-jp, #8B7EC8)' },
+      ];
+    } else if (this.framework === 'enneagram') {
+      dims = [
+        { label: 'Сердце', key: 'HC', color: '#C47A8A' },
+        { label: 'Голова', key: 'HD', color: '#7C9082' },
+        { label: 'Тело', key: 'BD', color: '#E8A85C' },
+      ];
+    } else {
+      dims = [
+        { label: 'E/I', key: 'EI', color: 'var(--color-dim-ei, #7C9082)' },
+        { label: 'S/N', key: 'SN', color: 'var(--color-dim-sn, #E8A85C)' },
+        { label: 'T/F', key: 'TF', color: 'var(--color-dim-tf, #C47A8A)' },
+        { label: 'J/P', key: 'JP', color: 'var(--color-dim-jp, #8B7EC8)' },
+      ];
+    }
+
+    // Calculate progress per dimension based on answered questions
+    const dimCounts = {};
+    const dimTotals = {};
+    dims.forEach(d => { dimCounts[d.key] = 0; dimTotals[d.key] = 0; });
+
+    questions.forEach((q, i) => {
+      const dim = this.framework === 'enneagram' ? this._enneagramDimGroup(q.dimension) : q.dimension;
+      if (dim in dimTotals) {
+        dimTotals[dim]++;
+        if (i < questionIndex) dimCounts[dim]++;
+      }
+    });
+
     return `<div class="quiz-adaptive">
-      ${dims.map(d => `
+      ${dims.map(d => {
+        const pct = dimTotals[d.key] > 0 ? Math.round((dimCounts[d.key] / dimTotals[d.key]) * 100) : 0;
+        return `
         <div class="quiz-adaptive__bar">
-          <div class="quiz-adaptive__track"><div class="quiz-adaptive__fill" style="width:${d.value}%;background:${d.color}"></div></div>
+          <div class="quiz-adaptive__track"><div class="quiz-adaptive__fill" style="width:${pct}%;background:${d.color}"></div></div>
           <span class="quiz-adaptive__label">${d.label}</span>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>`;
+  }
+
+  _enneagramDimGroup(dim) {
+    if (dim === 'HC' || dim === 'H1') return 'HC';
+    if (dim === 'HD' || dim === 'D1') return 'HD';
+    if (dim === 'BD' || dim === 'B1') return 'BD';
+    return dim;
   }
 
   _exitDialog() {
@@ -187,9 +229,9 @@ export class QuizScreen {
       this.render();
     });
 
-    this.el.querySelector('#dev-finish')?.addEventListener('click', () => {
+    this.el.querySelector('#dev-finish')?.addEventListener('click', async () => {
       if (!qe) return;
-      const results = qe.fillRandomAnswers();
+      const results = await qe.fillRandomAnswers();
       if (results) {
         this._handleCompletion(results);
       }

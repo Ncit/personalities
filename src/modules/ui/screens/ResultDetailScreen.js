@@ -44,17 +44,11 @@ export class ResultDetailScreen {
     const isPremium = sm ? sm.get('isPremium') : false;
     const dims = result.dimensions || {};
 
-    const dimensionBars = [
-      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50, color: 'var(--color-dim-ei)' },
-      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50, color: 'var(--color-dim-sn)' },
-      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50, color: 'var(--color-dim-tf)' },
-      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50, color: 'var(--color-dim-jp)' },
-    ];
+    const dimensionBars = this._getDimensionBars(result.framework, dims);
 
     // Get type description and name from personality data
-    const typeData = getTypeData()[result.typeCode] || {};
-    const heroDesc = typeData.description || typeData.subtitle || `Тип личности ${result.typeCode}`;
-    const displayName = typeData.title || typeData.name || result.typeName || result.typeCode;
+    const heroDesc = this._getHeroDesc(result);
+    const displayName = this._getDisplayName(result);
 
     this.el.innerHTML = `
       <div class="status-bar"></div>
@@ -155,6 +149,46 @@ export class ResultDetailScreen {
         </div>
       </div>` : ''}
     `;
+  }
+
+  _getDimensionBars(framework, dims) {
+    if (framework === 'socionics') {
+      return [
+        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L || 50, color: 'var(--color-dim-ei, #7C9082)' },
+        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I || 50, color: 'var(--color-dim-sn, #E8A85C)' },
+        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex || 50, color: 'var(--color-dim-tf, #C47A8A)' },
+        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R || 50, color: 'var(--color-dim-jp, #8B7EC8)' },
+      ];
+    }
+    if (framework === 'enneagram') {
+      return [
+        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC || 0) * 3)), color: '#C47A8A' },
+        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD || 0) * 3)), color: '#7C9082' },
+        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD || 0) * 3)), color: '#E8A85C' },
+      ];
+    }
+    return [
+      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E || 50, color: 'var(--color-dim-ei)' },
+      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S || 50, color: 'var(--color-dim-sn)' },
+      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T || 50, color: 'var(--color-dim-tf)' },
+      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J || 50, color: 'var(--color-dim-jp)' },
+    ];
+  }
+
+  _getDisplayName(result) {
+    if (result.framework === 'socionics' || result.framework === 'enneagram') {
+      return result.typeName || result.typeCode;
+    }
+    const typeData = getTypeData()[result.typeCode] || {};
+    return typeData.title || typeData.name || result.typeName || result.typeCode;
+  }
+
+  _getHeroDesc(result) {
+    if (result.framework === 'socionics' || result.framework === 'enneagram') {
+      return result.typeName ? `Тип личности ${result.typeCode}` : '';
+    }
+    const typeData = getTypeData()[result.typeCode] || {};
+    return typeData.description || typeData.subtitle || `Тип личности ${result.typeCode}`;
   }
 
   _bind(result) {

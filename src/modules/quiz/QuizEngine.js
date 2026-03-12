@@ -32,9 +32,12 @@ export class QuizEngine {
         this.quizType = stateManager.getCurrentQuizType();
         this.questions = await this.generateQuestions();
 
-        // Initialize adaptive engine if enabled
+        // Initialize adaptive engine only for MBTI; reset for other frameworks
         if (this.adaptiveConfig.enabled && this.quizType === 'mbti') {
             this.initializeAdaptiveEngine();
+        } else {
+            this.isAdaptiveMode = false;
+            this.adaptiveEngine = null;
         }
 
         this.resetQuiz();
@@ -283,19 +286,19 @@ export class QuizEngine {
         });
     }
 
-    completeQuiz() {
-        const results = this.calculateResults();
-        
+    async completeQuiz() {
+        const results = await this.calculateResults();
+
         // Get adaptive analytics if available
         if (this.adaptiveEngine && this.isAdaptiveMode) {
             results.adaptiveAnalytics = this.getAdaptiveAnalytics();
         }
-        
+
         stateManager.setState({
             currentScreen: 'results',
             lastResults: results
         });
-        
+
         return results;
     }
 
@@ -583,7 +586,7 @@ export class QuizEngine {
     }
 
     // Development tools
-    fillRandomAnswers() {
+    async fillRandomAnswers() {
         if (!stateManager.isDevelopment()) {
             throw new Error('Random answers only available in development mode');
         }
@@ -594,7 +597,7 @@ export class QuizEngine {
         for (let i = 0; i < this.questions.length; i++) {
             const randomOption = Math.floor(Math.random() * 4) + 1;
             const question = this.questions[i];
-            
+
             this.answers.push({
                 questionIndex: i,
                 selectedOption: randomOption,
@@ -606,7 +609,7 @@ export class QuizEngine {
         }
 
         this.currentQuestionIndex = this.questions.length;
-        return this.completeQuiz();
+        return await this.completeQuiz();
     }
 }
 
