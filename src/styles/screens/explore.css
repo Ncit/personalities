@@ -1,0 +1,42 @@
+.explore-screen .segmented-control { margin-bottom: 20px; }
+
+.quiz-section { margin-bottom: 8px; }
+.quiz-section .quiz-list-item + .quiz-list-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.types-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.filter-pills {
+  display: flex; gap: 8px;
+  overflow-x: auto; padding-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.filter-pills::-webkit-scrollbar { display: none; }
+
+.filter-pill {
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  font: 400 13px/1 var(--font-body);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.filter-pill--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.types-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--color-text-muted);
+  font: 400 14px/1.4 var(--font-body);
+}
