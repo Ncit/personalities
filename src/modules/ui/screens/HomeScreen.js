@@ -1,4 +1,3 @@
-import '../../../styles/screens/home.css';
 import { HeroCard } from '../components/HeroCard.js';
 import { BentoGrid } from '../components/BentoGrid.js';
 import { TypeCard } from '../components/TypeCard.js';

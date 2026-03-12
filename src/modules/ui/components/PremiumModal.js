@@ -1,4 +1,3 @@
-import '../../../styles/screens/premium-modal.css';
 import { router } from '../../router/Router.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
 

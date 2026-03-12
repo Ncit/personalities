@@ -1,4 +1,3 @@
-import '../../../styles/screens/quiz.css';
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { LoggerManager } from '../../core/LoggerManager.js';

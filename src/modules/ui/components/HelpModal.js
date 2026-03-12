@@ -1,4 +1,3 @@
-import '../../../styles/screens/help-modal.css';
 import { router } from '../../router/Router.js';
 
 const HELP_CONTENT = {

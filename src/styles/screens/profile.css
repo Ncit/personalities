@@ -68,8 +68,23 @@
 /* ── Achievements Grid ── */
 .achievements-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 4px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.achievements-grid .achievement-card {
+  flex-direction: column;
+  text-align: center;
+  padding: 16px 8px;
+  gap: 8px;
+}
+.achievements-grid .achievement-card__text {
+  min-width: 0;
+}
+.achievements-grid .achievement-card__title {
+  font-size: 13px;
+}
+.achievements-grid .achievement-card__desc {
+  font-size: 11px;
 }
 
 /* ── Links Grid ── */
@@ -233,6 +248,6 @@
     grid-template-columns: 1fr 1fr;
   }
   .achievements-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }

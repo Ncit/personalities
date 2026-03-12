@@ -74,6 +74,15 @@
   min-height: 160px;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+.type-card::before {
+  display: none;
+}
+.type-card:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--color-border);
 }
 .type-card__header {
   background: var(--gradient-sage);

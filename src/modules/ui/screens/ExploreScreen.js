@@ -1,4 +1,3 @@
-import '../../../styles/screens/explore.css';
 import { router } from '../../router/Router.js';
 import { stateManager } from '../../core/StateManager.js';
 

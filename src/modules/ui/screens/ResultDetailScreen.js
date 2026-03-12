@@ -1,4 +1,3 @@
-import '../../../styles/screens/result-detail.css';
 import { DimensionBar } from '../components/DimensionBar.js';
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';

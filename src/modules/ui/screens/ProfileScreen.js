@@ -1,17 +1,7 @@
-import '../../../styles/screens/profile.css';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 
 function getStateManager() { return window.stateManager; }
-
-const ACHIEVEMENTS = [
-  { key: 'firstSteps', icon: 'footprints', title: 'Первые шаги', description: 'Пройдите первый тест' },
-  { key: 'onFire', icon: 'flame', title: 'В ударе', description: '3+ теста за неделю' },
-  { key: 'highAccuracy', icon: 'target', title: 'Высокая точность', description: '85%+ показатель уверенности' },
-  { key: 'explorer', icon: 'compass', title: 'Исследователь', description: 'Откройте 5 разных типов' },
-  { key: 'specialist', icon: 'award', title: 'Специалист', description: 'Пройдите все премиум тесты' },
-  { key: 'master', icon: 'trophy', title: 'Мастер', description: 'Пройдите все доступные тесты' },
-];
 
 const HELP_LINKS = [
   { icon: 'info', label: 'Как пройти тест', action: 'how-to-test' },
@@ -41,7 +31,6 @@ export class ProfileScreen {
   render() {
     const sm = getStateManager();
     const isPremium = sm ? sm.get('isPremium') : false;
-    const achievements = sm ? (sm.get('achievements') || {}) : {};
     const mbti = resultsStore.getLatestByFramework('mbti');
     const testCount = resultsStore.getCount();
     const accuracy = resultsStore.getAverageConfidence();
@@ -85,28 +74,6 @@ export class ProfileScreen {
             <div class="stat-card__value">${accuracy != null ? `${accuracy}%` : '—'}</div>
           </div>
         </div>
-
-        ${!isGuest ? `
-        <!-- Achievements — full width -->
-        <div class="profile-grid__achievements">
-          <div class="section-label">Достижения</div>
-          <div class="achievements-grid">
-            ${ACHIEVEMENTS.map(a => {
-              const earned = !!achievements[a.key];
-              return `
-              <div class="achievement-card ${earned ? '' : 'achievement-card--locked'}">
-                <div class="achievement-card__icon-wrap">
-                  <i data-lucide="${a.icon}" style="width:22px;height:22px"></i>
-                </div>
-                <div class="achievement-card__text">
-                  <div class="achievement-card__title">${a.title}</div>
-                  <div class="achievement-card__desc">${a.description}</div>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-        ` : ''}
 
         ${!isPremium && !isGuest ? `
         <!-- Premium CTA — full width -->

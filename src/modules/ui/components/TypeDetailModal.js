@@ -1,4 +1,3 @@
-import '../../../styles/screens/type-detail-modal.css';
 import { router } from '../../router/Router.js';
 
 export class TypeDetailModal {

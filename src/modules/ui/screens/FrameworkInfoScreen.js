@@ -1,4 +1,3 @@
-import '../../../styles/screens/framework-info.css';
 import { router } from '../../router/Router.js';
 
 const FRAMEWORK_DATA = {

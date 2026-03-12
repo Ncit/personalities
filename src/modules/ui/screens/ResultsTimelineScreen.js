@@ -1,6 +1,24 @@
-import '../../../styles/screens/results-timeline.css';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
+
+function getStateManager() { return window.stateManager; }
+
+const ACHIEVEMENTS = [
+  { key: 'firstSteps', icon: 'footprints', title: 'Первые шаги', description: 'Пройдите первый тест' },
+  { key: 'onFire', icon: 'flame', title: 'В ударе', description: '3+ теста за неделю' },
+  { key: 'highAccuracy', icon: 'target', title: 'Высокая точность', description: '85%+ показатель уверенности' },
+  { key: 'explorer', icon: 'compass', title: 'Исследователь', description: 'Откройте 5 разных типов' },
+  { key: 'collector', icon: 'layers', title: 'Коллекционер', description: 'Пройдите тесты 3 разных систем' },
+  { key: 'marathon', icon: 'trending-up', title: 'Марафонец', description: 'Пройдите 10 тестов' },
+  { key: 'stable', icon: 'shield-check', title: 'Стабильность', description: 'Один тип 3 раза подряд' },
+  { key: 'perfectionist', icon: 'star', title: 'Перфекционист', description: '95%+ показатель уверенности' },
+  { key: 'earlyBird', icon: 'sunrise', title: 'Ранняя пташка', description: 'Пройдите тест до 7 утра' },
+  { key: 'nightOwl', icon: 'moon', title: 'Ночная сова', description: 'Пройдите тест после полуночи' },
+  { key: 'weekStreak', icon: 'calendar-check', title: 'Неделя роста', description: 'Заходите 7 дней подряд' },
+  { key: 'curious', icon: 'book-open', title: 'Любознательный', description: 'Откройте все разделы помощи' },
+  { key: 'specialist', icon: 'award', title: 'Специалист', description: 'Пройдите все премиум тесты' },
+  { key: 'master', icon: 'trophy', title: 'Мастер', description: 'Пройдите все доступные тесты' },
+];
 
 export class ResultsTimelineScreen {
   constructor() {
@@ -14,10 +32,13 @@ export class ResultsTimelineScreen {
 
   render() {
     const results = resultsStore.getAll();
+    const sm = getStateManager();
+    const achievements = sm ? (sm.get('achievements') || {}) : {};
 
     this.el.innerHTML = `
       <h1 class="page-title">Результаты</h1>
       ${results.length > 0 ? this._list(results) : this._empty()}
+      ${this._achievements(achievements)}
     `;
 
     this._bind();
@@ -67,6 +88,26 @@ export class ResultsTimelineScreen {
     if (diffDays === 0) return 'Сегодня';
     if (diffDays === 1) return 'Вчера';
     return d.toLocaleDateString();
+  }
+
+  _achievements(achievements) {
+    return `
+      <div class="section-label" style="margin-top:28px">Достижения</div>
+      <div class="achievements-grid">
+        ${ACHIEVEMENTS.map(a => {
+          const earned = !!achievements[a.key];
+          return `
+          <div class="achievement-card ${earned ? '' : 'achievement-card--locked'}">
+            <div class="achievement-card__icon-wrap">
+              <i data-lucide="${a.icon}" style="width:22px;height:22px"></i>
+            </div>
+            <div class="achievement-card__text">
+              <div class="achievement-card__title">${a.title}</div>
+              <div class="achievement-card__desc">${a.description}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
   }
 
   _bind() {
