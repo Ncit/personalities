@@ -9,7 +9,7 @@ function getStateManager() { return window.stateManager; }
 export class PremiumModal {
   constructor() {
     this.el = document.createElement('div');
-    this.el.className = 'overlay-backdrop';
+    this.el.className = 'overlay-backdrop premium-backdrop';
     this.state = 'idle';
     this.errorMessage = '';
     this.render();
@@ -21,9 +21,8 @@ export class PremiumModal {
     const isProcessing = this.state === 'processing';
 
     this.el.innerHTML = `
-      <div class="bottom-sheet premium-modal">
-        <div class="bottom-sheet__handle"></div>
-        <div class="bottom-sheet__header">
+      <div class="premium-modal">
+        <div class="premium-modal__header-section">
           <div class="premium-modal__icon-wrap">
             <i data-lucide="crown" style="width:24px;height:24px"></i>
           </div>

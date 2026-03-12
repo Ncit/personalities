@@ -120,6 +120,8 @@ export class HomeScreen {
           code,
           name: td ? (td.title || td.name || code) : code,
           description: td ? (td.subtitle || td.description || '') : '',
+          fullDescription: td ? (td.description || '') : '',
+          traits: td ? (td.traits || []) : [],
           gradient: 'var(--gradient-sage)',
         };
       });
@@ -131,6 +133,8 @@ export class HomeScreen {
           code: td ? td.code : key,
           name: td ? td.title : key,
           description: td ? td.subtitle : '',
+          fullDescription: td ? (td.description || td.subtitle || '') : '',
+          traits: td ? (td.traits || []) : [],
           gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)',
         };
       });
@@ -142,12 +146,29 @@ export class HomeScreen {
           code: td ? `Тип ${td.code}` : key,
           name: td ? td.title : `Тип ${key}`,
           description: td ? td.subtitle : '',
+          fullDescription: td ? (td.description || td.subtitle || '') : '',
+          traits: td ? (td.traits || []) : [],
           gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)',
         };
       });
     }
 
+    this._typesData = types;
     grid.innerHTML = types.map(t => TypeCard.render(t)).join('');
+
+    grid.querySelectorAll('.type-card').forEach((card, i) => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        const t = this._typesData[i];
+        router.openOverlay('type-detail', {
+          code: t.code,
+          name: t.name,
+          description: t.fullDescription,
+          traits: t.traits,
+          gradient: t.gradient,
+        });
+      });
+    });
   }
 
   _bind() {

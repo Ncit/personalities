@@ -19,25 +19,11 @@ const PREMIUM_SECTIONS = [
       { icon: 'zap', title: 'Реакция на стресс', meta: '20 вопросов · 7 мин', framework: 'stress' },
       { icon: 'graduation-cap', title: 'Стиль обучения', meta: '20 вопросов · 7 мин', framework: 'learning' },
       { icon: 'heart', title: 'Динамика отношений', meta: '20 вопросов · 7 мин', framework: 'relationships' },
-    ],
-  },
-  {
-    label: 'Соционика · Премиум',
-    accent: '#E8A85C',
-    accentDark: '#C4843A',
-    tests: [
       { icon: 'palette', title: 'Креативность и инновации', meta: '20 вопросов · 7 мин', framework: 'creativity' },
       { icon: 'scale', title: 'Принятие решений', meta: '20 вопросов · 7 мин', framework: 'decision' },
       { icon: 'users', title: 'Командное сотрудничество', meta: '20 вопросов · 7 мин', framework: 'teamwork' },
       { icon: 'briefcase', title: 'Карьерные предпочтения', meta: '20 вопросов · 7 мин', framework: 'career' },
       { icon: 'handshake', title: 'Социальное взаимодействие', meta: '20 вопросов · 7 мин', framework: 'social' },
-    ],
-  },
-  {
-    label: 'Эннеаграмма · Премиум',
-    accent: '#C47A8A',
-    accentDark: '#A05A6A',
-    tests: [
       { icon: 'rocket', title: 'Мотивация и стремление', meta: '20 вопросов · 7 мин', framework: 'motivation' },
       { icon: 'refresh-cw', title: 'Адаптивность и изменения', meta: '20 вопросов · 7 мин', framework: 'adaptability' },
       { icon: 'shield', title: 'Разрешение конфликтов', meta: '20 вопросов · 7 мин', framework: 'conflict' },
@@ -67,20 +53,13 @@ function renderPremiumCard(test, accent) {
 }
 
 function renderPremiumSection(section) {
-  const col1 = [], col2 = [];
-  section.tests.forEach((t, i) => (i % 2 === 0 ? col1 : col2).push(t));
   return `
     <div class="catalog-premium-header">
       <span class="catalog-premium-dot" style="background:${section.accent}"></span>
       <span class="catalog-premium-label" style="color:${section.accentDark}">${section.label}</span>
     </div>
     <div class="catalog-premium-grid">
-      <div class="catalog-premium-col">
-        ${col1.map(t => renderPremiumCard(t, section.accent)).join('')}
-      </div>
-      <div class="catalog-premium-col">
-        ${col2.map(t => renderPremiumCard(t, section.accent)).join('')}
-      </div>
+      ${section.tests.map(t => renderPremiumCard(t, section.accent)).join('')}
     </div>`;
 }
 
