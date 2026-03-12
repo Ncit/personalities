@@ -410,7 +410,136 @@ export const RUSSIAN_PERSONALITIES = {
         { name: 'Дмитрий Пучков', profession: 'Публицист', image: '📝' },
         { name: 'Тимур Батрутдинов', profession: 'Комик', image: '🎭' },
         
-    ]
+    ],
+
+    // ── Socionics Types (Cyrillic codes) ──
+    'ИЛЭ': [
+        { name: 'Пётр I', profession: 'Император', image: '👑' },
+        { name: 'Илон Маск', profession: 'Предприниматель', image: '🚀' },
+        { name: 'Михаил Ломоносов', profession: 'Учёный', image: '🔬' },
+    ],
+    'СЭИ': [
+        { name: 'Фаина Раневская', profession: 'Актриса', image: '🎭' },
+        { name: 'Юрий Никулин', profession: 'Актёр', image: '🎪' },
+        { name: 'Олег Табаков', profession: 'Актёр', image: '🎭' },
+    ],
+    'ЭСЭ': [
+        { name: 'Алла Пугачёва', profession: 'Певица', image: '🎤' },
+        { name: 'Иван Ургант', profession: 'Телеведущий', image: '📺' },
+        { name: 'Филипп Киркоров', profession: 'Певец', image: '🎤' },
+    ],
+    'ЛИИ': [
+        { name: 'Андрей Сахаров', profession: 'Физик', image: '⚛️' },
+        { name: 'Дмитрий Менделеев', profession: 'Химик', image: '🧪' },
+        { name: 'Григорий Перельман', profession: 'Математик', image: '📐' },
+    ],
+    'ЭИЭ': [
+        { name: 'Фёдор Достоевский', profession: 'Писатель', image: '📖' },
+        { name: 'Владимир Высоцкий', profession: 'Актёр и поэт', image: '🎸' },
+        { name: 'Олег Даль', profession: 'Актёр', image: '🎭' },
+    ],
+    'ЛСИ': [
+        { name: 'Иосиф Сталин', profession: 'Глава СССР', image: '⚒️' },
+        { name: 'Георгий Жуков', profession: 'Маршал', image: '🎖️' },
+        { name: 'Сергей Королёв', profession: 'Конструктор', image: '🚀' },
+    ],
+    'СЛЭ': [
+        { name: 'Александр Суворов', profession: 'Полководец', image: '⚔️' },
+        { name: 'Владимир Путин', profession: 'Президент', image: '🇷🇺' },
+        { name: 'Хабиб Нурмагомедов', profession: 'Боец UFC', image: '🥊' },
+    ],
+    'ИЭИ': [
+        { name: 'Сергей Есенин', profession: 'Поэт', image: '📝' },
+        { name: 'Александр Блок', profession: 'Поэт', image: '📝' },
+        { name: 'Пётр Чайковский', profession: 'Композитор', image: '🎵' },
+    ],
+    'СЭЭ': [
+        { name: 'Наполеон Бонапарт', profession: 'Император', image: '👑' },
+        { name: 'Владимир Жириновский', profession: 'Политик', image: '🏛️' },
+        { name: 'Ксения Собчак', profession: 'Журналист', image: '📺' },
+    ],
+    'ИЛИ': [
+        { name: 'Оноре де Бальзак', profession: 'Писатель', image: '📖' },
+        { name: 'Николай Гоголь', profession: 'Писатель', image: '📖' },
+        { name: 'Андрей Тарковский', profession: 'Режиссёр', image: '🎬' },
+    ],
+    'ЛИЭ': [
+        { name: 'Павел Дуров', profession: 'Предприниматель', image: '💻' },
+        { name: 'Сергей Брин', profession: 'Сооснователь Google', image: '💻' },
+        { name: 'Михаил Фридман', profession: 'Бизнесмен', image: '💰' },
+    ],
+    'ЭСИ': [
+        { name: 'Лев Толстой', profession: 'Писатель', image: '📖' },
+        { name: 'Мать Тереза', profession: 'Миссионер', image: '🕊️' },
+        { name: 'Людмила Гурченко', profession: 'Актриса', image: '🎭' },
+    ],
+    'ЛСЭ': [
+        { name: 'Леонид Брежнев', profession: 'Глава СССР', image: '⚒️' },
+        { name: 'Валентина Матвиенко', profession: 'Политик', image: '🏛️' },
+        { name: 'Герман Греф', profession: 'Глава Сбербанка', image: '🏦' },
+    ],
+    'ЭИИ': [
+        { name: 'Антон Чехов', profession: 'Писатель', image: '📖' },
+        { name: 'Андрей Мягков', profession: 'Актёр', image: '🎭' },
+        { name: 'Дмитрий Лихачёв', profession: 'Филолог', image: '📚' },
+    ],
+    'ИЭЭ': [
+        { name: 'Александр Пушкин', profession: 'Поэт', image: '📝' },
+        { name: 'Юрий Дудь', profession: 'Журналист', image: '🎙️' },
+        { name: 'Артемий Лебедев', profession: 'Дизайнер', image: '🎨' },
+    ],
+    'СЛИ': [
+        { name: 'Юрий Гагарин', profession: 'Космонавт', image: '🚀' },
+        { name: 'Фёдор Конюхов', profession: 'Путешественник', image: '🌍' },
+        { name: 'Евгений Леонов', profession: 'Актёр', image: '🎭' },
+    ],
+
+    // ── Enneagram Types (number codes) ──
+    '1': [
+        { name: 'Лев Толстой', profession: 'Писатель', image: '📖' },
+        { name: 'Александр Солженицын', profession: 'Писатель', image: '📖' },
+        { name: 'Дмитрий Менделеев', profession: 'Учёный', image: '🧪' },
+    ],
+    '2': [
+        { name: 'Мать Тереза', profession: 'Миссионер', image: '🕊️' },
+        { name: 'Валентина Терешкова', profession: 'Космонавт', image: '🚀' },
+        { name: 'Чулпан Хаматова', profession: 'Актриса', image: '🎭' },
+    ],
+    '3': [
+        { name: 'Павел Дуров', profession: 'Предприниматель', image: '💻' },
+        { name: 'Алина Загитова', profession: 'Фигуристка', image: '⛸️' },
+        { name: 'Тимати', profession: 'Рэпер и бизнесмен', image: '🎤' },
+    ],
+    '4': [
+        { name: 'Фёдор Достоевский', profession: 'Писатель', image: '📖' },
+        { name: 'Пётр Чайковский', profession: 'Композитор', image: '🎵' },
+        { name: 'Земфира', profession: 'Певица', image: '🎤' },
+    ],
+    '5': [
+        { name: 'Андрей Сахаров', profession: 'Физик', image: '⚛️' },
+        { name: 'Григорий Перельман', profession: 'Математик', image: '📐' },
+        { name: 'Андрей Тарковский', profession: 'Режиссёр', image: '🎬' },
+    ],
+    '6': [
+        { name: 'Юрий Гагарин', profession: 'Космонавт', image: '🚀' },
+        { name: 'Сергей Лавров', profession: 'Дипломат', image: '🌍' },
+        { name: 'Евгений Леонов', profession: 'Актёр', image: '🎭' },
+    ],
+    '7': [
+        { name: 'Александр Пушкин', profession: 'Поэт', image: '📝' },
+        { name: 'Иван Ургант', profession: 'Телеведущий', image: '📺' },
+        { name: 'Юрий Никулин', profession: 'Актёр', image: '🎪' },
+    ],
+    '8': [
+        { name: 'Пётр I', profession: 'Император', image: '👑' },
+        { name: 'Александр Суворов', profession: 'Полководец', image: '⚔️' },
+        { name: 'Хабиб Нурмагомедов', profession: 'Боец UFC', image: '🥊' },
+    ],
+    '9': [
+        { name: 'Антон Чехов', profession: 'Писатель', image: '📖' },
+        { name: 'Андрей Мягков', profession: 'Актёр', image: '🎭' },
+        { name: 'Олег Табаков', profession: 'Актёр', image: '🎭' },
+    ],
 };
 
-export default RUSSIAN_PERSONALITIES; 
+export default RUSSIAN_PERSONALITIES;

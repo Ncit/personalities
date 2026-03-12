@@ -343,8 +343,8 @@ export class QuizEngine {
     }
 
     calculateResults() {
-        if (this.quizType === 'socionics') return this._calculateSocionicsResults();
-        if (this.quizType === 'enneagram') return this._calculateEnneagramResults();
+        if (this.quizType === 'socionics' || this.quizType.startsWith('socionics_')) return this._calculateSocionicsResults();
+        if (this.quizType === 'enneagram' || this.quizType.startsWith('enneagram_')) return this._calculateEnneagramResults();
         return this._calculateMBTIResults();
     }
 
@@ -511,6 +511,10 @@ export class QuizEngine {
             return this._generateEnneagramQuestions();
         } else if (quizType === 'mbti') {
             return this.generateMBTIQuestions(isPremium);
+        } else if (quizType.startsWith('socionics_')) {
+            return this._generateSocionicsSpecialized(quizType);
+        } else if (quizType.startsWith('enneagram_')) {
+            return this._generateEnneagramSpecialized(quizType);
         } else {
             return this.generateSpecializedQuestions(quizType);
         }
@@ -538,6 +542,16 @@ export class QuizEngine {
     async generateSpecializedQuestions(quizType) {
         const { MBTI_SPECIALIZED_QUESTIONS_RU } = await import('../../data/SpecializedQuiz.ru.js');
         return MBTI_SPECIALIZED_QUESTIONS_RU[quizType] || [];
+    }
+
+    async _generateSocionicsSpecialized(quizType) {
+        const { SOCIONICS_SPECIALIZED_QUESTIONS_RU } = await import('../../data/SocionicsSpecialized.ru.js');
+        return SOCIONICS_SPECIALIZED_QUESTIONS_RU[quizType] || [];
+    }
+
+    async _generateEnneagramSpecialized(quizType) {
+        const { ENNEAGRAM_SPECIALIZED_QUESTIONS_RU } = await import('../../data/EnneagramSpecialized.ru.js');
+        return ENNEAGRAM_SPECIALIZED_QUESTIONS_RU[quizType] || [];
     }
 
     // Utility methods

@@ -185,14 +185,37 @@ export class ResultDetailScreen {
     `;
   }
 
+  _getFrameworkTheme(framework) {
+    if (framework === 'socionics') return {
+      colors: ['#E8A85C', '#C4843A', '#D4A574', '#B8894E'],
+      primary: '#E8A85C', primaryRgb: '232,168,92',
+      strengths: ['Логическое', 'Интуитивное', 'Коммуникативное', 'Организаторское'],
+    };
+    if (framework === 'enneagram') return {
+      colors: ['#C47A8A', '#A05A6A', '#C49A7A'],
+      primary: '#C47A8A', primaryRgb: '196,122,138',
+      strengths: ['Эмоциональное', 'Интеллектуальное', 'Инстинктивное'],
+    };
+    return {
+      colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c'],
+      primary: '#7C9082', primaryRgb: '124,144,130',
+      strengths: ['Аналитический', 'Креативный', 'Социальный', 'Организованный'],
+    };
+  }
+
   _renderAnalytics(result) {
     const dims = result.dimensions || {};
     const bars = this._getDimensionBars(result.framework, dims);
     const values = bars.map(b => b.leftPercent);
-    const leftLabels = bars.map(b => b.leftLabel);
-    const rightLabels = bars.map(b => b.rightLabel);
-    const labels = bars.map(b => `${b.leftLabel}/${b.rightLabel}`);
-    const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
+    const leftLabels = bars.map(b => b.shortLeft || b.leftLabel);
+    const rightLabels = bars.map(b => b.shortRight ?? b.rightLabel);
+    const labels = bars.map(b => {
+      const sl = b.shortLeft || b.leftLabel;
+      const sr = b.shortRight ?? b.rightLabel;
+      return sr ? `${sl}/${sr}` : sl;
+    });
+    const theme = this._getFrameworkTheme(result.framework);
+    const colors = theme.colors;
 
     // 1. Radar chart
     const cx = 120, cy = 120, r = 90;
@@ -207,7 +230,7 @@ export class ResultDetailScreen {
     }).join('');
     const axisLabels = labels.map((lbl, i) => {
       const angle = i * angleStep - Math.PI / 2;
-      return `<text x="${cx + (r + 18) * Math.cos(angle)}" y="${cy + (r + 18) * Math.sin(angle)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#8A8A8A" font-family="Inter,sans-serif">${lbl}</text>`;
+      return `<text x="${cx + (r + 18) * Math.cos(angle)}" y="${cy + (r + 18) * Math.sin(angle)}" text-anchor="middle" dominant-baseline="middle" font-size="${n <= 3 ? 11 : 10}" fill="#8A8A8A" font-family="Inter,sans-serif">${lbl}</text>`;
     }).join('');
     const pts = values.map((v, i) => {
       const angle = i * angleStep - Math.PI / 2;
@@ -215,12 +238,12 @@ export class ResultDetailScreen {
     }).join(' ');
     const radarDots = values.map((v, i) => {
       const angle = i * angleStep - Math.PI / 2;
-      return `<circle cx="${cx + (r * v / 100) * Math.cos(angle)}" cy="${cy + (r * v / 100) * Math.sin(angle)}" r="4" fill="#fff" stroke="#7C9082" stroke-width="2"/>`;
+      return `<circle cx="${cx + (r * v / 100) * Math.cos(angle)}" cy="${cy + (r * v / 100) * Math.sin(angle)}" r="4" fill="#fff" stroke="${theme.primary}" stroke-width="2"/>`;
     }).join('');
-    const radarSvg = `<svg viewBox="0 0 240 240" width="100%" style="max-width:240px">${gridCircles}${axes}<polygon points="${pts}" fill="rgba(124,144,130,0.2)" stroke="#7C9082" stroke-width="2"/>${radarDots}${axisLabels}</svg>`;
+    const radarSvg = `<svg viewBox="0 0 240 240" width="100%" style="max-width:240px">${gridCircles}${axes}<polygon points="${pts}" fill="rgba(${theme.primaryRgb},0.2)" stroke="${theme.primary}" stroke-width="2"/>${radarDots}${axisLabels}</svg>`;
 
     // 2. Bar chart (Сравнение измерений)
-    const barW = 44, barGap = 16, barMaxH = 100;
+    const barW = 40, barGap = 20, barMaxH = 100;
     const svgW = n * (barW + barGap) - barGap + 40;
     const baseY = barMaxH + 30;
     const barsSvg = values.map((v, i) => {
@@ -228,29 +251,31 @@ export class ResultDetailScreen {
       const h = (v / 100) * barMaxH;
       return `<rect x="${x}" y="${baseY - h}" width="${barW}" height="${h}" rx="6" fill="${colors[i % colors.length]}"/>
         <text x="${x + barW / 2}" y="${baseY - h - 8}" text-anchor="middle" font-size="12" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">${Math.round(v)}%</text>
-        <text x="${x + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${labels[i]}</text>`;
+        <text x="${x + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${leftLabels[i]}</text>`;
     }).join('');
     const chartSvg = `<svg viewBox="0 0 ${svgW} ${baseY + 30}" width="100%">${barsSvg}</svg>`;
 
     // 3. Balance chart (Баланс личности)
-    const balRowH = 28, balGap = 8, balBarW = 200, balX = 45, balRightX = balX + balBarW + 8;
+    const balRowH = 28, balGap = 8, balBarW = 120, balX = 90, balRightX = balX + balBarW + 8;
     const balSvgH = n * (balRowH + balGap) + 10;
+    const balSvgW = balRightX + 70;
     const balRows = values.map((v, i) => {
       const y = 10 + i * (balRowH + balGap);
       const leftW = (v / 100) * balBarW;
       const rightW = balBarW - leftW;
       const midX = balX + leftW;
+      const rightText = rightLabels[i] ? `${rightLabels[i]} ${100 - Math.round(v)}%` : '';
       return `
         <text x="${balX - 6}" y="${y + 16}" text-anchor="end" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${leftLabels[i]} ${Math.round(v)}%</text>
         <rect x="${balX}" y="${y}" width="${leftW}" height="${balRowH}" rx="4" fill="${colors[i % colors.length]}"/>
         <rect x="${midX}" y="${y}" width="${rightW}" height="${balRowH}" rx="4" fill="#E8E4DF"/>
         <circle cx="${midX}" cy="${y + balRowH / 2}" r="6" fill="${colors[i % colors.length]}" stroke="#fff" stroke-width="2"/>
-        <text x="${balRightX}" y="${y + 16}" text-anchor="start" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${rightLabels[i]} ${100 - Math.round(v)}%</text>`;
+        <text x="${balRightX}" y="${y + 16}" text-anchor="start" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${rightText}</text>`;
     }).join('');
-    const balanceSvg = `<svg viewBox="0 0 320 ${balSvgH}" width="100%">${balRows}</svg>`;
+    const balanceSvg = `<svg viewBox="0 0 ${balSvgW} ${balSvgH}" width="100%">${balRows}</svg>`;
 
     // 4. Pie chart (Распределение предпочтений)
-    const pieCx = 90, pieCy = 90, pieR = 80;
+    const pieCx = 70, pieCy = 70, pieR = 60;
     const total = values.reduce((a, b) => a + b, 0);
     let startAngle = -Math.PI / 2;
     const pieSlices = values.map((v, i) => {
@@ -265,44 +290,97 @@ export class ResultDetailScreen {
       startAngle = endAngle;
       return `<path d="${d}" fill="${colors[i % colors.length]}"/>`;
     }).join('');
-    const pieLegend = labels.map((lbl, i) => {
+    const pieH = Math.max(140, n * 22 + 30);
+    const pieLegX = 150;
+    const pieLegend = leftLabels.map((lbl, i) => {
       const ly = 20 + i * 22;
-      return `<rect x="190" y="${ly}" width="10" height="10" rx="2" fill="${colors[i % colors.length]}"/>
-        <text x="206" y="${ly + 9}" font-size="12" fill="#2D2D2D" font-family="Inter,sans-serif">${lbl}: ${Math.round(values[i])}%</text>`;
+      return `<rect x="${pieLegX}" y="${ly}" width="10" height="10" rx="2" fill="${colors[i % colors.length]}"/>
+        <text x="${pieLegX + 16}" y="${ly + 9}" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${lbl}: ${Math.round(values[i])}%</text>`;
     }).join('');
-    const pieSvg = `<svg viewBox="0 0 320 180" width="100%">${pieSlices}${pieLegend}</svg>`;
+    const pieSvg = `<svg viewBox="0 0 280 ${pieH}" width="100%">${pieSlices}${pieLegend}</svg>`;
 
-    // 5. Timeline chart (Временная линия личности)
-    const tlY = 50, tlX1 = 30, tlX2 = 270, tlMid = 150;
-    const timelineSvg = `<svg viewBox="0 0 300 100" width="100%">
-      <line x1="${tlX1}" y1="${tlY}" x2="${tlX2}" y2="${tlY}" stroke="#E8E4DF" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="${tlX1 + 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
-      <circle cx="${tlMid}" cy="${tlY}" r="8" fill="#667eea"/>
-      <circle cx="${tlMid}" cy="${tlY}" r="12" fill="none" stroke="#f5576c" stroke-width="2"/>
-      <circle cx="${tlX2 - 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
-      <text x="${tlX1 + 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Прошлое</text>
-      <text x="${tlMid}" y="${tlY - 20}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">Текущая позиция</text>
-      <text x="${tlMid}" y="${tlY + 22}" text-anchor="middle" font-size="11" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">Настоящее</text>
-      <text x="${tlX2 - 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Будущее</text>
-    </svg>`;
+    // 5. Framework-specific extra chart
+    let extraChart = '';
+    if (result.framework === 'socionics') {
+      // Socionics: Cognitive functions stack
+      const funcs = this._getSocionicsFunctions(result.typeCode);
+      const fBarMaxW = 100, fBarH = 20, fLabelW = 160, fRowGap = 10;
+      const fSvgH = funcs.length * (fBarH + fRowGap) + 10;
+      const fSvgW = fLabelW + fBarMaxW + 50;
+      const funcRows = funcs.map((f, i) => {
+        const y = 10 + i * (fBarH + fRowGap);
+        const w = (f.strength / 100) * fBarMaxW;
+        return `
+          <text x="${fLabelW - 8}" y="${y + 15}" text-anchor="end" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${f.label}</text>
+          <rect x="${fLabelW}" y="${y}" width="${fBarMaxW}" height="${fBarH}" rx="4" fill="#F0EDE8"/>
+          <rect x="${fLabelW}" y="${y}" width="${w}" height="${fBarH}" rx="4" fill="${colors[i % colors.length]}"/>
+          <text x="${fLabelW + fBarMaxW + 8}" y="${y + 15}" font-size="11" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">${f.strength}%</text>`;
+      }).join('');
+      extraChart = `
+        <div class="result-analytics__card">
+          <div class="result-analytics__card-title">Стек функций</div>
+          <svg viewBox="0 0 ${fSvgW} ${fSvgH}" width="100%">${funcRows}</svg>
+        </div>`;
+    } else if (result.framework === 'enneagram') {
+      // Enneagram: Triadic centers visualization
+      const centers = [
+        { label: 'Сердце', value: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)), color: colors[0] },
+        { label: 'Голова', value: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)), color: colors[1] },
+        { label: 'Тело', value: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)), color: colors[2] },
+      ];
+      const triR = 60, triCx = 130, triCy = 110;
+      const triPts = centers.map((c, i) => {
+        const angle = i * (2 * Math.PI / 3) - Math.PI / 2;
+        const dist = triR * (c.value / 100);
+        return { x: triCx + dist * Math.cos(angle), y: triCy + dist * Math.sin(angle), lx: triCx + (triR + 30) * Math.cos(angle), ly: triCy + (triR + 30) * Math.sin(angle) };
+      });
+      const triGrid = [0.33, 0.66, 1.0].map(s =>
+        `<polygon points="${centers.map((_, i) => { const a = i * (2 * Math.PI / 3) - Math.PI / 2; return `${triCx + triR * s * Math.cos(a)},${triCy + triR * s * Math.sin(a)}`; }).join(' ')}" fill="none" stroke="#E8E4DF" stroke-width="1"/>`
+      ).join('');
+      const triShape = `<polygon points="${triPts.map(p => `${p.x},${p.y}`).join(' ')}" fill="rgba(${theme.primaryRgb},0.2)" stroke="${theme.primary}" stroke-width="2"/>`;
+      const triDots = triPts.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${centers[i].color}"/>`).join('');
+      const triLabels = centers.map((c, i) => `<text x="${triPts[i].lx}" y="${triPts[i].ly}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${c.label} ${c.value}%</text>`).join('');
+      extraChart = `
+        <div class="result-analytics__card">
+          <div class="result-analytics__card-title">Центры энергии</div>
+          <svg viewBox="0 0 260 230" width="100%" style="max-width:260px">${triGrid}${triShape}${triDots}${triLabels}</svg>
+        </div>`;
+    } else {
+      // MBTI: Timeline
+      const tlY = 50, tlX1 = 30, tlX2 = 270, tlMid = 150;
+      extraChart = `
+        <div class="result-analytics__card">
+          <div class="result-analytics__card-title">Временная линия личности</div>
+          <svg viewBox="0 0 300 100" width="100%">
+            <line x1="${tlX1}" y1="${tlY}" x2="${tlX2}" y2="${tlY}" stroke="#E8E4DF" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="${tlX1 + 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
+            <circle cx="${tlMid}" cy="${tlY}" r="8" fill="${theme.primary}"/>
+            <circle cx="${tlMid}" cy="${tlY}" r="12" fill="none" stroke="${colors[3] || colors[0]}" stroke-width="2"/>
+            <circle cx="${tlX2 - 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
+            <text x="${tlX1 + 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Прошлое</text>
+            <text x="${tlMid}" y="${tlY - 20}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">Текущая позиция</text>
+            <text x="${tlMid}" y="${tlY + 22}" text-anchor="middle" font-size="11" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">Настоящее</text>
+            <text x="${tlX2 - 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Будущее</text>
+          </svg>
+        </div>`;
+    }
 
-    // 6. Strengths chart (Анализ сильных сторон)
-    const strengthLabels = ['Аналитический', 'Креативный', 'Социальный', 'Организованный'];
-    const strengthValues = values.length >= 4
-      ? [values[2], values[1], values[0], values[3]]
-      : [values[0] || 50, values[1] || 50, values[2] || 50, values[0] || 50];
-    const sBarMaxW = 140, sBarH = 20, sLabelW = 120, sRowGap = 12;
-    const sSvgH = 4 * (sBarH + sRowGap) + 10;
-    const strengthRows = strengthLabels.map((lbl, i) => {
+    // 6. Strengths chart (framework-specific)
+    const sLabels = theme.strengths;
+    const sValues = sLabels.map((_, i) => values[i % values.length] || 50);
+    const sBarMaxW = 100, sBarH = 20, sLabelW = 140, sRowGap = 12;
+    const sSvgH = sLabels.length * (sBarH + sRowGap) + 10;
+    const sSvgW = sLabelW + sBarMaxW + 50;
+    const strengthRows = sLabels.map((lbl, i) => {
       const y = 10 + i * (sBarH + sRowGap);
-      const w = (strengthValues[i] / 100) * sBarMaxW;
+      const w = (sValues[i] / 100) * sBarMaxW;
       return `
         <text x="${sLabelW - 8}" y="${y + 15}" text-anchor="end" font-size="12" fill="#2D2D2D" font-family="Inter,sans-serif">${lbl}</text>
         <rect x="${sLabelW}" y="${y}" width="${sBarMaxW}" height="${sBarH}" rx="4" fill="#F0EDE8"/>
         <rect x="${sLabelW}" y="${y}" width="${w}" height="${sBarH}" rx="4" fill="${colors[i % colors.length]}"/>
-        <text x="${sLabelW + sBarMaxW + 8}" y="${y + 15}" font-size="12" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">${Math.round(strengthValues[i])}%</text>`;
+        <text x="${sLabelW + sBarMaxW + 8}" y="${y + 15}" font-size="12" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">${Math.round(sValues[i])}%</text>`;
     }).join('');
-    const strengthsSvg = `<svg viewBox="0 0 320 ${sSvgH}" width="100%">${strengthRows}</svg>`;
+    const strengthsSvg = `<svg viewBox="0 0 ${sSvgW} ${sSvgH}" width="100%">${strengthRows}</svg>`;
 
     return `
       <div class="result-analytics">
@@ -324,10 +402,7 @@ export class ResultDetailScreen {
             <div class="result-analytics__card-title">Распределение предпочтений</div>
             ${pieSvg}
           </div>
-          <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Временная линия личности</div>
-            ${timelineSvg}
-          </div>
+          ${extraChart}
           <div class="result-analytics__card">
             <div class="result-analytics__card-title">Анализ сильных сторон</div>
             ${strengthsSvg}
@@ -335,6 +410,31 @@ export class ResultDetailScreen {
         </div>
       </div>
     `;
+  }
+
+  _getSocionicsFunctions(typeCode) {
+    const FUNC_MAP = {
+      'ИЛЭ': [{ label: 'Интуиция возможностей', strength: 90 }, { label: 'Структурная логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Сенсорика ощущений', strength: 25 }],
+      'СЭИ': [{ label: 'Сенсорика ощущений', strength: 90 }, { label: 'Этика эмоций', strength: 75 }, { label: 'Структурная логика', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
+      'ЭСЭ': [{ label: 'Этика эмоций', strength: 90 }, { label: 'Сенсорика ощущений', strength: 75 }, { label: 'Интуиция времени', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
+      'ЛИИ': [{ label: 'Структурная логика', strength: 90 }, { label: 'Интуиция возможностей', strength: 75 }, { label: 'Сенсорика ощущений', strength: 40 }, { label: 'Этика эмоций', strength: 25 }],
+      'ЭИЭ': [{ label: 'Этика эмоций', strength: 90 }, { label: 'Интуиция времени', strength: 75 }, { label: 'Деловая логика', strength: 40 }, { label: 'Сенсорика ощущений', strength: 25 }],
+      'ЛСИ': [{ label: 'Структурная логика', strength: 90 }, { label: 'Волевая сенсорика', strength: 75 }, { label: 'Интуиция возможностей', strength: 40 }, { label: 'Этика отношений', strength: 25 }],
+      'СЛЭ': [{ label: 'Волевая сенсорика', strength: 90 }, { label: 'Структурная логика', strength: 75 }, { label: 'Этика отношений', strength: 40 }, { label: 'Интуиция времени', strength: 25 }],
+      'ИЭИ': [{ label: 'Интуиция времени', strength: 90 }, { label: 'Этика эмоций', strength: 75 }, { label: 'Деловая логика', strength: 40 }, { label: 'Волевая сенсорика', strength: 25 }],
+      'СЭЭ': [{ label: 'Волевая сенсорика', strength: 90 }, { label: 'Этика отношений', strength: 75 }, { label: 'Структурная логика', strength: 40 }, { label: 'Интуиция времени', strength: 25 }],
+      'ИЛИ': [{ label: 'Интуиция времени', strength: 90 }, { label: 'Деловая логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Волевая сенсорика', strength: 25 }],
+      'ЛИЭ': [{ label: 'Деловая логика', strength: 90 }, { label: 'Интуиция возможностей', strength: 75 }, { label: 'Волевая сенсорика', strength: 40 }, { label: 'Этика отношений', strength: 25 }],
+      'ЭСИ': [{ label: 'Этика отношений', strength: 90 }, { label: 'Волевая сенсорика', strength: 75 }, { label: 'Интуиция возможностей', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
+      'ЛСЭ': [{ label: 'Деловая логика', strength: 90 }, { label: 'Сенсорика ощущений', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
+      'ЭИИ': [{ label: 'Этика отношений', strength: 90 }, { label: 'Интуиция времени', strength: 75 }, { label: 'Волевая сенсорика', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
+      'ИЭЭ': [{ label: 'Интуиция возможностей', strength: 90 }, { label: 'Этика отношений', strength: 75 }, { label: 'Сенсорика ощущений', strength: 40 }, { label: 'Структурная логика', strength: 25 }],
+      'СЛИ': [{ label: 'Сенсорика ощущений', strength: 90 }, { label: 'Деловая логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
+    };
+    return FUNC_MAP[typeCode] || [
+      { label: 'Базовая', strength: 85 }, { label: 'Творческая', strength: 70 },
+      { label: 'Ролевая', strength: 45 }, { label: 'Болевая', strength: 20 },
+    ];
   }
 
   _getInsightsData(result) {
@@ -379,9 +479,12 @@ export class ResultDetailScreen {
   _renderFamous(result) {
     const typeFamous = getFamousPersonalities()[result.typeCode] || [];
     if (typeFamous.length === 0) return '';
+    const famousTitle = result.framework === 'enneagram'
+      ? `Известные Тип ${result.typeCode}`
+      : `Известные ${result.typeCode}`;
     return `
       <div class="result-famous">
-        <div class="result-famous__title">Известные ${result.typeCode}</div>
+        <div class="result-famous__title">${famousTitle}</div>
         <div class="famous-list">
           ${typeFamous.slice(0, 3).map(p => `
             <div class="famous-card">
@@ -428,24 +531,24 @@ export class ResultDetailScreen {
   _getDimensionBars(framework, dims) {
     if (framework === 'socionics') {
       return [
-        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', leftPercent: dims.L ?? 50 },
-        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', leftPercent: dims.I ?? 50 },
-        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', leftPercent: dims.Ex ?? 50 },
-        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', leftPercent: dims.R ?? 50 },
+        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', shortLeft: 'Л', shortRight: 'Э', leftPercent: dims.L ?? 50 },
+        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', shortLeft: 'И', shortRight: 'С', leftPercent: dims.I ?? 50 },
+        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', shortLeft: 'Экст', shortRight: 'Инт', leftPercent: dims.Ex ?? 50 },
+        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', shortLeft: 'Рац', shortRight: 'Ирр', leftPercent: dims.R ?? 50 },
       ];
     }
     if (framework === 'enneagram') {
       return [
-        { leftLabel: 'Центр Сердца', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
-        { leftLabel: 'Центр Головы', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
-        { leftLabel: 'Центр Тела', rightLabel: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
+        { leftLabel: 'Центр Сердца', rightLabel: '', shortLeft: 'Сердце', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
+        { leftLabel: 'Центр Головы', rightLabel: '', shortLeft: 'Голова', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
+        { leftLabel: 'Центр Тела', rightLabel: '', shortLeft: 'Тело', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
       ];
     }
     return [
-      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', leftPercent: dims.E ?? 50 },
-      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', leftPercent: dims.S ?? 50 },
-      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', leftPercent: dims.T ?? 50 },
-      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', leftPercent: dims.J ?? 50 },
+      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', shortLeft: 'E', shortRight: 'I', leftPercent: dims.E ?? 50 },
+      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', shortLeft: 'S', shortRight: 'N', leftPercent: dims.S ?? 50 },
+      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', shortLeft: 'T', shortRight: 'F', leftPercent: dims.T ?? 50 },
+      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', shortLeft: 'J', shortRight: 'P', leftPercent: dims.J ?? 50 },
     ];
   }
 

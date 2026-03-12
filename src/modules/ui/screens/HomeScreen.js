@@ -113,9 +113,47 @@ export class HomeScreen {
 
     if (window.lucide) window.lucide.createIcons({ nodes: [this.el] });
 
-    this.el.querySelector('#share-btn')?.addEventListener('click', () => {
+    this.el.querySelector('#share-btn')?.addEventListener('click', async () => {
       if (navigator.share) {
-        navigator.share({ title: 'Мой тип личности', url: window.location.href });
+        const frameworks = ['mbti', 'socionics', 'enneagram'];
+        const labels = { mbti: 'MBTI', socionics: 'Соционика', enneagram: 'Эннеаграмма' };
+
+        // Load type descriptions lazily
+        let socTypes = null, ennTypes = null;
+        const results = frameworks.map(fw => resultsStore.getLatestByFramework(fw)).filter(Boolean);
+        if (results.some(r => r.framework === 'socionics')) {
+          try { const m = await import('../../../data/SocionicsQuiz.ru.js'); socTypes = m.SOCIONICS_TYPES; } catch(e) {}
+        }
+        if (results.some(r => r.framework === 'enneagram')) {
+          try { const m = await import('../../../data/EnneagramQuiz.ru.js'); ennTypes = m.ENNEAGRAM_TYPES; } catch(e) {}
+        }
+
+        const lines = frameworks.map(fw => {
+          const r = resultsStore.getLatestByFramework(fw);
+          if (!r) return null;
+          let desc = '';
+          if (fw === 'mbti') {
+            const td = MBTI_TYPES?.[r.typeCode];
+            desc = td?.subtitle || td?.description || '';
+          } else if (fw === 'socionics' && socTypes) {
+            const key = Object.keys(socTypes).find(k => socTypes[k].code === r.typeCode);
+            const td = key ? socTypes[key] : null;
+            desc = td?.subtitle || td?.description || '';
+          } else if (fw === 'enneagram' && ennTypes) {
+            const td = ennTypes[r.typeCode];
+            desc = td?.subtitle || td?.description || '';
+          }
+          const descLine = desc ? `\n   ${desc}` : '';
+          return `${labels[fw]}: ${r.typeCode} — ${r.typeName}${descLine}`;
+        }).filter(Boolean);
+
+        const text = lines.length > 0
+          ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\nhttps://vk.com/app53942833_6582162'
+          : '';
+        navigator.share({
+          title: 'Мои типы личности',
+          text,
+        });
       }
     });
   }

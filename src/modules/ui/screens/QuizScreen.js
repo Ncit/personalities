@@ -27,6 +27,20 @@ const FRAMEWORK_NAMES = {
   conflict: 'Разрешение конфликтов',
   productivity: 'Продуктивность',
   emotional: 'Эмоциональный интеллект',
+  // Socionics specialized
+  socionics_intertype: 'Интертипные отношения',
+  socionics_quadra: 'Квадровые ценности',
+  socionics_functions: 'Инф. метаболизм',
+  socionics_conflict: 'Конфликтология',
+  socionics_career: 'Карьера и социотип',
+  socionics_love: 'Любовь и дуальность',
+  // Enneagram specialized
+  enneagram_wings: 'Крылья и подтипы',
+  enneagram_stress: 'Стресс и рост',
+  enneagram_instincts: 'Инстинкты выживания',
+  enneagram_relationships: 'Отношения',
+  enneagram_shadow: 'Теневая сторона',
+  enneagram_spiritual: 'Духовный путь',
 };
 
 export class QuizScreen {
@@ -39,8 +53,15 @@ export class QuizScreen {
 
   getElement() { return this.el; }
 
+  _getBaseFramework(fw) {
+    if (fw.startsWith('socionics_')) return 'socionics';
+    if (fw.startsWith('enneagram_')) return 'enneagram';
+    return fw;
+  }
+
   async setData(data) {
     if (data?.framework) this.framework = data.framework;
+    this.baseFramework = this._getBaseFramework(this.framework);
     const sm = getStateManager();
     if (sm) sm.setQuizType(this.framework);
     const qe = getQuizEngine();
@@ -121,14 +142,15 @@ export class QuizScreen {
     const total = questions.length;
 
     let dims;
-    if (this.framework === 'socionics') {
+    const base = this.baseFramework || this._getBaseFramework(this.framework);
+    if (base === 'socionics') {
       dims = [
         { label: 'Л/Э', key: 'LE', color: 'var(--color-dim-ei, #7C9082)' },
         { label: 'И/С', key: 'IN', color: 'var(--color-dim-sn, #E8A85C)' },
         { label: 'Э/И', key: 'EI', color: 'var(--color-dim-tf, #C47A8A)' },
         { label: 'Р/Ир', key: 'RJ', color: 'var(--color-dim-jp, #8B7EC8)' },
       ];
-    } else if (this.framework === 'enneagram') {
+    } else if (base === 'enneagram') {
       dims = [
         { label: 'Сердце', key: 'HC', color: '#C47A8A' },
         { label: 'Голова', key: 'HD', color: '#7C9082' },
@@ -149,7 +171,7 @@ export class QuizScreen {
     dims.forEach(d => { dimCounts[d.key] = 0; dimTotals[d.key] = 0; });
 
     questions.forEach((q, i) => {
-      const dim = this.framework === 'enneagram' ? this._enneagramDimGroup(q.dimension) : q.dimension;
+      const dim = base === 'enneagram' ? this._enneagramDimGroup(q.dimension) : q.dimension;
       if (dim in dimTotals) {
         dimTotals[dim]++;
         if (i < questionIndex) dimCounts[dim]++;
@@ -256,17 +278,18 @@ export class QuizScreen {
     let typeName = results.personalityType;
 
     // Resolve type name from framework-specific type data
-    if (this.framework === 'mbti') {
+    const base = this.baseFramework || this._getBaseFramework(this.framework);
+    if (base === 'mbti') {
       const typeData = window.PERSONALITY_TYPES?.[results.personalityType];
       typeName = typeData?.title || typeData?.name || results.personalityType;
-    } else if (this.framework === 'socionics') {
+    } else if (base === 'socionics') {
       typeName = results.typeName || results.personalityType;
-    } else if (this.framework === 'enneagram') {
+    } else if (base === 'enneagram') {
       typeName = results.typeName || results.personalityType;
     }
 
     const entry = resultsStore.addResult({
-      framework: this.framework,
+      framework: base,
       typeCode: results.personalityType,
       typeName,
       dimensions: results.dimensions || dims,

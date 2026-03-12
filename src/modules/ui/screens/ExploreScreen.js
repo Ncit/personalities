@@ -30,6 +30,32 @@ const PREMIUM_SECTIONS = [
       { icon: 'smile', title: 'Эмоциональный интеллект', meta: '20 вопросов · 7 мин', framework: 'emotional' },
     ],
   },
+  {
+    label: 'Соционика · Премиум',
+    accent: '#E8A85C',
+    accentDark: '#C4843A',
+    tests: [
+      { icon: 'users', title: 'Интертипные отношения', meta: '20 вопросов · 8 мин', framework: 'socionics_intertype' },
+      { icon: 'layers', title: 'Квадровые ценности', meta: '20 вопросов · 8 мин', framework: 'socionics_quadra' },
+      { icon: 'cpu', title: 'Информационный метаболизм', meta: '20 вопросов · 8 мин', framework: 'socionics_functions' },
+      { icon: 'shield', title: 'Конфликтология', meta: '20 вопросов · 7 мин', framework: 'socionics_conflict' },
+      { icon: 'briefcase', title: 'Карьера и социотип', meta: '20 вопросов · 7 мин', framework: 'socionics_career' },
+      { icon: 'heart', title: 'Любовь и дуальность', meta: '20 вопросов · 8 мин', framework: 'socionics_love' },
+    ],
+  },
+  {
+    label: 'Эннеаграмма · Премиум',
+    accent: '#C47A8A',
+    accentDark: '#A05A6A',
+    tests: [
+      { icon: 'feather', title: 'Крылья и подтипы', meta: '20 вопросов · 8 мин', framework: 'enneagram_wings' },
+      { icon: 'zap', title: 'Стресс и рост', meta: '20 вопросов · 7 мин', framework: 'enneagram_stress' },
+      { icon: 'flame', title: 'Инстинкты выживания', meta: '20 вопросов · 8 мин', framework: 'enneagram_instincts' },
+      { icon: 'heart', title: 'Отношения по эннеаграмме', meta: '20 вопросов · 7 мин', framework: 'enneagram_relationships' },
+      { icon: 'eye', title: 'Теневая сторона', meta: '20 вопросов · 8 мин', framework: 'enneagram_shadow' },
+      { icon: 'sunrise', title: 'Духовный путь', meta: '20 вопросов · 8 мин', framework: 'enneagram_spiritual' },
+    ],
+  },
 ];
 
 function renderFrameworkCard(f) {

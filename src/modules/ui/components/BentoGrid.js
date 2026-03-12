@@ -1,5 +1,4 @@
 import { resultsStore } from '../../results/ResultsStore.js';
-import { router } from '../../router/Router.js';
 import { TraitBar } from './TraitBar.js';
 
 const DIMENSION_COLORS = {
@@ -21,9 +20,9 @@ const SOCIONICS_BARS = [
 ];
 
 const ENNEAGRAM_BARS = [
-  { key: 'HC', label: 'Сердце', color: '#C47A8A' },
-  { key: 'HD', label: 'Голова', color: '#A05A6A' },
-  { key: 'BD', label: 'Тело', color: '#C49A7A' },
+  { key: 'HC', label: 'С', color: '#C47A8A' },
+  { key: 'HD', label: 'Г', color: '#A05A6A' },
+  { key: 'BD', label: 'Т', color: '#C49A7A' },
 ];
 
 const FRAMEWORK_LABELS = {
@@ -88,7 +87,7 @@ export class BentoGrid {
   }
 
   static _typeCard(result) {
-    return `<div class="card bento-card bento-card--type" data-action="view-result" data-id="${result.id}">
+    return `<div class="card bento-card bento-card--type">
       <div class="bento-card__label">Ваш тип</div>
       <div class="bento-card__code">${result.typeCode}</div>
       <div class="bento-card__name">${result.typeName}</div>
@@ -123,13 +122,6 @@ export class BentoGrid {
   }
 
   static bind(container) {
-    container.querySelectorAll('[data-action="view-result"]').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.dataset.id;
-        router.openOverlay('result-detail', { resultId: id });
-      });
-    });
-
     // Carousel dot navigation
     const track = container.querySelector('.bento-carousel__track');
     const dots = container.querySelectorAll('.bento-carousel__dot');
