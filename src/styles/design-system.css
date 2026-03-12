@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz@9..144&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@400;500;600&amp;display=swap');
+
+:root {
+  /* Colors */
+  --color-primary: #7C9082;
+  --color-primary-dark: #5A7A64;
+  --color-surface: #FAF8F5;
+  --color-card: #FFFFFF;
+  --color-border: #E8E4DF;
+  --color-muted-bg: #F0EDE8;
+  --color-text-primary: #2D2D2D;
+  --color-text-secondary: #5A5A5A;
+  --color-text-muted: #8A8A8A;
+  --color-text-disabled: #ADADAD;
+  --color-accent-purple: #8B7EC8;
+  --color-accent-amber: #E8A85C;
+  --color-accent-rose: #C47A8A;
+  --color-accent-gold: #D4A574;
+  --color-success: #6BAF8D;
+  --color-info-blue: #5B82B0;
+  --color-error: #D45C5C;
+
+  /* Gradients */
+  --gradient-sage: linear-gradient(135deg, #7C9082, #5A7A64);
+  --gradient-purple: linear-gradient(160deg, #8B7EC820, #8B7EC808);
+  --gradient-amber: linear-gradient(160deg, #E8A85C20, #E8A85C08);
+  --gradient-gold: linear-gradient(135deg, #D4A57430, #D4A57410);
+
+  /* Shadows */
+  --shadow-tab-bar: 0 4px 20px #0000000A;
+  --shadow-card-elevated: 0 2px 8px #00000008;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 24px;
+  --radius-tab-bar: 36px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
