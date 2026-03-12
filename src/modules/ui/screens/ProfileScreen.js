@@ -1,6 +1,4 @@
 import '../../../styles/screens/profile.css';
-import { StatCard } from '../components/StatCard.js';
-import { AchievementCard } from '../components/AchievementCard.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 
@@ -50,45 +48,177 @@ export class ProfileScreen {
 
     const vkUser = this._getVkUser();
     const isGuest = !vkUser;
-
     const isDev = sm ? sm.isDevelopment() : false;
 
     this.el.innerHTML = `
       <h1 class="page-title">Профиль</h1>
-      <div class="profile-content">
-        <div class="user-card">
-          <div class="user-card__avatar">
-            ${vkUser?.photo_100
-              ? `<img src="${vkUser.photo_100}" alt="">`
-              : '<i data-lucide="user" style="width:24px;height:24px"></i>'
-            }
-          </div>
-          <div>
-            <div class="user-card__name">${vkUser ? `${vkUser.first_name} ${vkUser.last_name}` : 'Гость'}</div>
-            ${isGuest
-              ? '<div class="user-card__type">Войдите, чтобы сохранить результаты</div>'
-              : (mbti ? `<div class="user-card__type">${mbti.typeCode} · ${mbti.typeName}</div>` : '')
-            }
+      <div class="profile-grid">
+        <!-- User card — full width -->
+        <div class="profile-grid__user">
+          <div class="user-card">
+            <div class="user-card__avatar">
+              ${vkUser?.photo_100
+                ? `<img src="${vkUser.photo_100}" alt="">`
+                : '<i data-lucide="user" style="width:24px;height:24px"></i>'
+              }
+            </div>
+            <div>
+              <div class="user-card__name">${vkUser ? `${vkUser.first_name} ${vkUser.last_name}` : 'Гость'}</div>
+              ${isGuest
+                ? '<div class="user-card__type">Войдите, чтобы сохранить результаты</div>'
+                : (mbti ? `<div class="user-card__type">${mbti.typeCode} · ${mbti.typeName}</div>` : '')
+              }
+            </div>
           </div>
         </div>
-        <div class="stats-row">
-          ${StatCard.render({ label: 'Тестов пройдено', value: testCount.toString() })}
-          ${StatCard.render({ label: 'Точность', value: accuracy != null ? `${accuracy}%` : '—' })}
+
+        <!-- Stats — each card in its own grid cell -->
+        <div class="profile-grid__stat">
+          <div class="stat-card">
+            <div class="stat-card__label">Тестов пройдено</div>
+            <div class="stat-card__value">${testCount}</div>
+          </div>
         </div>
+        <div class="profile-grid__stat">
+          <div class="stat-card">
+            <div class="stat-card__label">Точность</div>
+            <div class="stat-card__value">${accuracy != null ? `${accuracy}%` : '—'}</div>
+          </div>
+        </div>
+
         ${!isGuest ? `
-          <div class="achievements-section">
-            <div class="achievements-section__title">Достижения</div>
-            ${ACHIEVEMENTS.map(a => AchievementCard.render({
-              ...a,
-              earned: !!achievements[a.key],
-            })).join('')}
+        <!-- Achievements — full width -->
+        <div class="profile-grid__achievements">
+          <div class="section-label">Достижения</div>
+          <div class="achievements-grid">
+            ${ACHIEVEMENTS.map(a => {
+              const earned = !!achievements[a.key];
+              return `
+              <div class="achievement-card ${earned ? '' : 'achievement-card--locked'}">
+                <div class="achievement-card__icon-wrap">
+                  <i data-lucide="${a.icon}" style="width:22px;height:22px"></i>
+                </div>
+                <div class="achievement-card__text">
+                  <div class="achievement-card__title">${a.title}</div>
+                  <div class="achievement-card__desc">${a.description}</div>
+                </div>
+              </div>`;
+            }).join('')}
           </div>
+        </div>
         ` : ''}
-        ${!isPremium && !isGuest ? this._premiumCtaMobile() : ''}
-        ${isGuest && !isDev ? this._vkSignInMobile() : ''}
-        ${isGuest && isDev ? this._devVkSignIn() : ''}
-        ${this._helpInfo()}
-        ${this._devTools()}
+
+        ${!isPremium && !isGuest ? `
+        <!-- Premium CTA — full width -->
+        <div class="profile-grid__premium">
+          <div class="premium-cta-mobile" id="premium-cta-mobile">
+            <div class="premium-cta-mobile__text">
+              <div class="premium-cta-mobile__title">Премиум</div>
+              <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
+            </div>
+            <button class="btn-gold btn-gold--small">299 ₽</button>
+          </div>
+        </div>
+        ` : ''}
+
+        ${isGuest && !isDev ? `
+        <!-- VK Sign In — full width -->
+        <div class="profile-grid__signin">
+          <div class="vk-signin-card" id="vk-signin-mobile">
+            <div class="vk-signin-card__icon">
+              <i data-lucide="log-in" style="width:28px;height:28px"></i>
+            </div>
+            <div class="vk-signin-card__title">Войти через VK</div>
+            <div class="vk-signin-card__subtitle">Сохраняйте результаты и достижения на всех устройствах</div>
+            <button class="btn-sage btn-sage--full">
+              <i data-lucide="log-in" style="width:16px;height:16px"></i>
+              Войти
+            </button>
+          </div>
+        </div>
+        ` : ''}
+
+        ${isGuest && isDev ? `
+        <!-- Dev VK Sign In — full width -->
+        <div class="profile-grid__signin">
+          <div class="dev-vk-signin" id="dev-vk-signin">
+            <div class="dev-vk-signin__title">
+              <i data-lucide="code" style="width:16px;height:16px"></i>
+              Dev: Войти как тестовый пользователь
+            </div>
+            <button class="dev-tools-btn" id="dev-vk-login">
+              <i data-lucide="log-in" style="width:16px;height:16px"></i>
+              Войти как Никита (тест)
+            </button>
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Help links — 2-column grid -->
+        <div class="profile-grid__help">
+          <div class="section-label">Помощь</div>
+          <div class="links-grid">
+            ${HELP_LINKS.map(link => `
+              <div class="help-info__link" data-action="${link.action}">
+                <i data-lucide="${link.icon}" style="width:18px;height:18px"></i>
+                <span>${link.label}</span>
+                <i data-lucide="chevron-right" style="width:16px;height:16px;margin-left:auto;opacity:0.4"></i>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- About links — 2-column grid -->
+        <div class="profile-grid__about">
+          <div class="section-label">О проекте</div>
+          <div class="links-grid">
+            ${ABOUT_LINKS.map(link => `
+              <div class="help-info__link" data-action="${link.action}">
+                <i data-lucide="${link.icon}" style="width:18px;height:18px"></i>
+                <span>${link.label}</span>
+                <i data-lucide="chevron-right" style="width:16px;height:16px;margin-left:auto;opacity:0.4"></i>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Footer — full width -->
+        <div class="profile-grid__footer">
+          <div class="profile-footer__text">
+            <a href="mailto:personalitiesresearch@mail.ru">personalitiesresearch@mail.ru</a><br>
+            © ${new Date().getFullYear()} Тест личности. Основано на исследованиях психологии личности.
+          </div>
+        </div>
+
+        ${isDev ? `
+        <!-- Dev tools — full width -->
+        <div class="profile-grid__dev">
+          <div class="dev-tools-panel">
+            <div class="dev-tools-panel__title">
+              <i data-lucide="code" style="width:16px;height:16px"></i>
+              Инструменты разработчика
+            </div>
+            <button class="dev-tools-btn" id="dev-toggle-premium">
+              <i data-lucide="crown" style="width:16px;height:16px"></i>
+              ${isPremium ? 'Отключить Премиум' : 'Включить Премиум'}
+            </button>
+            <button class="dev-tools-btn" id="dev-clear-storage">
+              <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+              Очистить localStorage
+            </button>
+            <button class="dev-tools-btn" id="dev-toggle-state">
+              <i data-lucide="toggle-left" style="width:16px;height:16px"></i>
+              Переключить на release
+            </button>
+            ${vkUser ? `
+            <button class="dev-tools-btn" id="dev-vk-logout">
+              <i data-lucide="log-out" style="width:16px;height:16px"></i>
+              Выйти из VK (тест)
+            </button>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
       </div>
     `;
 
@@ -103,108 +233,6 @@ export class ProfileScreen {
     } catch { return null; }
   }
 
-  _premiumCtaMobile() {
-    return `
-      <div class="premium-cta-mobile" id="premium-cta-mobile">
-        <div class="premium-cta-mobile__text">
-          <div class="premium-cta-mobile__title">Премиум</div>
-          <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
-        </div>
-        <button class="btn-gold btn-gold--small">299 ₽</button>
-      </div>
-    `;
-  }
-
-  _vkSignInMobile() {
-    return `
-      <div class="vk-signin-card vk-signin-card--mobile" id="vk-signin-mobile">
-        <div class="vk-signin-card__icon">
-          <i data-lucide="log-in" style="width:28px;height:28px"></i>
-        </div>
-        <div class="vk-signin-card__title">Войти через VK</div>
-        <div class="vk-signin-card__subtitle">Сохраняйте результаты и достижения на всех устройствах</div>
-        <button class="btn-sage btn-sage--full">
-          <i data-lucide="log-in" style="width:16px;height:16px"></i>
-          Войти
-        </button>
-      </div>
-    `;
-  }
-
-  _devVkSignIn() {
-    return `
-      <div class="dev-vk-signin" id="dev-vk-signin">
-        <div class="dev-vk-signin__title">
-          <i data-lucide="code" style="width:16px;height:16px"></i>
-          Dev: Войти как тестовый пользователь
-        </div>
-        <button class="dev-tools-btn" id="dev-vk-login">
-          <i data-lucide="log-in" style="width:16px;height:16px"></i>
-          Войти как Никита (тест)
-        </button>
-      </div>
-    `;
-  }
-
-  _helpInfo() {
-    const renderLinks = (links) => links.map(link => `
-      <div class="help-info__link" data-action="${link.action}">
-        <i data-lucide="${link.icon}" style="width:18px;height:18px"></i>
-        <span>${link.label}</span>
-        <i data-lucide="chevron-right" style="width:16px;height:16px;margin-left:auto;opacity:0.4"></i>
-      </div>
-    `).join('');
-
-    return `
-      <div class="help-info">
-        <div class="help-info__title">Помощь</div>
-        ${renderLinks(HELP_LINKS)}
-      </div>
-      <div class="help-info">
-        <div class="help-info__title">О проекте</div>
-        ${renderLinks(ABOUT_LINKS)}
-      </div>
-      <div class="profile-footer">
-        <div class="profile-footer__text">
-          <a href="mailto:personalitiesresearch@mail.ru">personalitiesresearch@mail.ru</a><br>
-          © 2025 Тест личности. Основано на исследованиях психологии личности.
-        </div>
-      </div>
-    `;
-  }
-
-  _devTools() {
-    const sm = getStateManager();
-    if (!sm || !sm.isDevelopment()) return '';
-    const isPremium = sm.get('isPremium');
-    return `
-      <div class="dev-tools-panel">
-        <div class="dev-tools-panel__title">
-          <i data-lucide="code" style="width:16px;height:16px"></i>
-          Инструменты разработчика
-        </div>
-        <button class="dev-tools-btn" id="dev-toggle-premium">
-          <i data-lucide="crown" style="width:16px;height:16px"></i>
-          ${isPremium ? 'Отключить Премиум' : 'Включить Премиум'}
-        </button>
-        <button class="dev-tools-btn" id="dev-clear-storage">
-          <i data-lucide="trash-2" style="width:16px;height:16px"></i>
-          Очистить localStorage
-        </button>
-        <button class="dev-tools-btn" id="dev-toggle-state">
-          <i data-lucide="toggle-left" style="width:16px;height:16px"></i>
-          Переключить на release
-        </button>
-        ${this._getVkUser() ? `
-        <button class="dev-tools-btn" id="dev-vk-logout">
-          <i data-lucide="log-out" style="width:16px;height:16px"></i>
-          Выйти из VK (тест)
-        </button>
-        ` : ''}
-      </div>
-    `;
-  }
-
   _bind() {
     this.el.querySelector('#premium-cta-mobile')?.addEventListener('click', () => {
       router.openOverlay('premium-modal');
@@ -215,12 +243,11 @@ export class ProfileScreen {
     });
 
     this.el.querySelector('#dev-vk-login')?.addEventListener('click', () => {
-      const fakeUser = {
+      localStorage.setItem('vk_user_auth', JSON.stringify({
         first_name: 'Никита',
         last_name: 'Тестов',
         photo_100: '',
-      };
-      localStorage.setItem('vk_user_auth', JSON.stringify(fakeUser));
+      }));
       this.render();
     });
 

@@ -1,11 +1,29 @@
-/* ── Profile Content ── */
+/* ── Profile Grid Layout ── */
 .profile-screen .page-title {
   margin-bottom: 16px;
 }
-.profile-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Full-width items span both columns */
+.profile-grid__user,
+.profile-grid__achievements,
+.profile-grid__premium,
+.profile-grid__signin,
+.profile-grid__help,
+.profile-grid__about,
+.profile-grid__footer,
+.profile-grid__dev {
+  grid-column: 1 / -1;
+}
+
+/* Stats take 1 column each */
+.profile-grid__stat {
+  grid-column: span 1;
 }
 
 /* ── User Card ── */
@@ -36,18 +54,50 @@
   margin-top: 4px;
 }
 
-/* ── Stats Row ── */
-.stats-row {
-  display: flex; gap: 12px;
+/* ── Stat Card (inside grid cell) ── */
+.profile-grid__stat .stat-card {
+  height: 100%;
 }
 
-/* ── Achievements ── */
-.achievements-section__title {
+/* ── Section Labels ── */
+.profile-grid .section-label {
   font: 500 15px/1.3 var(--font-body);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-/* ── Premium CTA Mobile (inline banner) ── */
+/* ── Achievements Grid ── */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+/* ── Links Grid ── */
+.links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+/* ── Help & Info Links ── */
+.help-info__link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  font: 400 14px/1.3 var(--font-body);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.help-info__link:active {
+  background: var(--color-surface);
+}
+.help-info__link i:first-child {
+  color: var(--color-primary);
+}
+
+/* ── Premium CTA ── */
 .premium-cta-mobile {
   display: flex;
   align-items: center;
@@ -114,36 +164,8 @@
   width: 100%;
 }
 
-/* ── Help & Info ── */
-.help-info__title {
-  font: 600 13px/1 var(--font-body);
-  color: var(--color-text-muted);
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-.help-info__link {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  margin-bottom: 4px;
-  font: 400 14px/1.3 var(--font-body);
-  color: var(--color-text);
-  cursor: pointer;
-}
-.help-info__link:last-child {
-  margin-bottom: 0;
-}
-.help-info__link:active {
-  background: var(--color-surface);
-}
-.help-info__link i:first-child {
-  color: var(--color-primary);
-}
-
 /* ── Profile Footer ── */
-.profile-footer {
+.profile-grid__footer {
   text-align: center;
   padding: 4px 0 8px;
 }
@@ -167,9 +189,7 @@
   background: #E8A85C08;
 }
 .dev-tools-panel__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
   font: 600 13px/1 var(--font-body);
   color: #E8A85C;
   text-transform: uppercase;
@@ -177,9 +197,7 @@
   margin-bottom: 12px;
 }
 .dev-tools-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 8px;
@@ -190,12 +208,8 @@
   color: var(--color-text-primary);
   cursor: pointer;
 }
-.dev-tools-btn:last-child {
-  margin-bottom: 0;
-}
-.dev-tools-btn:hover {
-  background: var(--color-surface);
-}
+.dev-tools-btn:last-child { margin-bottom: 0; }
+.dev-tools-btn:hover { background: var(--color-surface); }
 
 /* ── Dev VK Sign-In ── */
 .dev-vk-signin {
@@ -205,12 +219,20 @@
   background: #E8A85C08;
 }
 .dev-vk-signin__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
   font: 600 13px/1 var(--font-body);
   color: #E8A85C;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
+}
+
+/* ── Desktop: 2-column links ── */
+@media (min-width: 768px) {
+  .links-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .achievements-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
