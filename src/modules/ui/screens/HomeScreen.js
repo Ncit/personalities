@@ -75,7 +75,7 @@ export class HomeScreen {
           <div class="premium-cta-mobile__title">Премиум</div>
           <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
         </div>
-        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? '⭐ 75' : PlatformDetector.isVK() ? '40 гол.' : '150 ₽'}</button>
+        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? (window.tgBridgeManager?.userService?.getLanguage() === 'ru' ? '150 ₽ / ⭐ 75' : '⭐ 75') : PlatformDetector.isVK() ? '40 гол.' : '150 ₽'}</button>
       </div>
       ` : ''}
       ${BentoGrid.render(hasResults)}

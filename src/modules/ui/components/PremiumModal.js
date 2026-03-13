@@ -142,7 +142,10 @@ export class PremiumModal {
 
   _getButtonText() {
     const flavor = PlatformDetector.getFlavor();
-    if (flavor === 'tg') return 'Открыть Премиум';
+    if (flavor === 'tg') {
+      const lang = window.tgBridgeManager?.userService?.getLanguage();
+      return lang === 'ru' ? 'Открыть Премиум — 150 ₽ / ⭐ 75' : 'Get Premium — ⭐ 75';
+    }
     if (flavor === 'vk') return 'Открыть Премиум — 40 голосов';
     return 'Открыть Премиум — 150 ₽';
   }
