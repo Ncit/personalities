@@ -31,8 +31,9 @@ export class TGUserService {
             language_code: tgUser.language_code || 'ru'
         };
 
-        // Set locale based on Telegram language
-        const lang = this.userInfo.language_code;
+        // Set locale: URL ?locale= override takes priority, then Telegram language
+        const urlLocale = new URLSearchParams(window.location.search).get('locale');
+        const lang = urlLocale || this.userInfo.language_code;
         const supportedLang = (lang === 'ru' || lang === 'en') ? lang : 'ru';
         localizationManager.setLocale(supportedLang);
 
