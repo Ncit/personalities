@@ -28,8 +28,8 @@ export class PremiumModal {
     this.render();
 
     const confirmUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
-    const maxRetries = 5;
-    const retryDelay = 3000;
+    const maxRetries = 20;
+    const retryDelay = 5000; // 5s apart = up to ~100s
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -56,8 +56,7 @@ export class PremiumModal {
       }
     }
 
-    // Retries exhausted
-    localStorage.removeItem('tochka_pending_operation');
+    // Retries exhausted — don't clear operationId, visibilitychange handler will retry
     this.state = 'error';
     this.errorMessage = 'Платёж обрабатывается. Премиум активируется автоматически.';
     this.render();

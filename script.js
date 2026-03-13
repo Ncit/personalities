@@ -3137,10 +3137,9 @@ function setupModalClickOutside() {
  * Checks URL for ?payment=success, reads operationId from localStorage,
  * confirms payment with backend, and activates premium.
  */
+let _tochkaPollingActive = false;
+
 async function handleTochkaPaymentReturn() {
-    // Check if there's a pending Tochka payment to confirm
-    // This runs on every app load — after payment, user returns to VK app
-    // and we detect the pending operationId in localStorage
     const operationId = localStorage.getItem('tochka_pending_operation');
     if (!operationId) return;
 
@@ -3150,11 +3149,15 @@ async function handleTochkaPaymentReturn() {
         return;
     }
 
+    // Prevent concurrent polling
+    if (_tochkaPollingActive) return;
+    _tochkaPollingActive = true;
+
     logger.log('Confirming Tochka payment, operationId:', operationId);
 
     const backendUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
-    const maxRetries = 3;
-    const retryDelay = 3000;
+    const maxRetries = 20;       // 20 retries
+    const retryDelay = 5000;     // 5s apart = up to ~100s total
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -3167,6 +3170,7 @@ async function handleTochkaPaymentReturn() {
 
             if (data.success && data.has_purchase) {
                 localStorage.removeItem('tochka_pending_operation');
+                _tochkaPollingActive = false;
                 setPremium(true);
 
                 // Show success toast
@@ -3179,13 +3183,17 @@ async function handleTochkaPaymentReturn() {
                     setTimeout(() => toast.remove(), 5000);
                 }
 
+                // Close premium modal if open
+                const { router: appRouter } = await import('./src/modules/router/Router.js');
+                appRouter.closeOverlay();
+
                 logger.log('Tochka payment confirmed successfully');
                 return;
             }
 
             // Not yet approved — wait and retry
             if (attempt < maxRetries) {
-                logger.log(`Payment not yet confirmed (status: ${data.status}), retrying in ${retryDelay}ms... (${attempt}/${maxRetries})`);
+                logger.log(`Payment not yet confirmed (${attempt}/${maxRetries}), retrying in ${retryDelay}ms...`);
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
         } catch (error) {
@@ -3196,9 +3204,9 @@ async function handleTochkaPaymentReturn() {
         }
     }
 
-    // All retries exhausted — clean up, server-side poller will handle it
-    logger.warn('Payment confirmation retries exhausted, clearing pending operation');
-    localStorage.removeItem('tochka_pending_operation');
+    // All retries exhausted — keep operationId for next visibility check
+    _tochkaPollingActive = false;
+    logger.warn('Payment confirmation retries exhausted, will retry on next app focus');
 }
 
 // Initialize VK Bridge Manager
@@ -3213,6 +3221,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle return from Tochka payment
     handleTochkaPaymentReturn();
+
+    // Re-check pending payment when app returns to foreground (e.g. after bank redirect)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            handleTochkaPaymentReturn();
+        }
+    });
 
     // Initialize platform bridge manager
     const flavor = PlatformDetector.getFlavor();
