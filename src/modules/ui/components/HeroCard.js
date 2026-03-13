@@ -1,43 +1,46 @@
 import { router } from '../../router/Router.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
-const FRAMEWORKS = [
-  {
-    key: 'keirsey',
-    badge: 'Скоро',
-    title: 'Темперамент по Кейрси\n4 типа темперамента',
-    gradient: 'linear-gradient(135deg, #7A8EC4 0%, #5A6EA0 100%)',
-    comingSoon: true,
-  },
-  {
-    key: 'cognitive',
-    badge: 'Скоро',
-    title: 'Когнитивные функции\nчистая модель Юнга',
-    gradient: 'linear-gradient(135deg, #9B8EC4 0%, #7A6EA0 100%)',
-    comingSoon: true,
-  },
-  {
-    key: 'mbti',
-    badge: 'MBTI',
-    title: '16 типов личности\nи ваше место среди них',
-    gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)',
-  },
-  {
-    key: 'socionics',
-    badge: 'Соционика',
-    title: '16 социотипов\nи интертипные связи',
-    gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)',
-  },
-  {
-    key: 'enneagram',
-    badge: 'Эннеаграмма',
-    title: '9 типов личности\nи крылья характера',
-    gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)',
-  },
-];
+function getHeroFrameworks() {
+  return [
+    {
+      key: 'keirsey',
+      badge: localizationManager.get('hero.comingSoon'),
+      title: localizationManager.get('hero.keirsey'),
+      gradient: 'linear-gradient(135deg, #7A8EC4 0%, #5A6EA0 100%)',
+      comingSoon: true,
+    },
+    {
+      key: 'cognitive',
+      badge: localizationManager.get('hero.comingSoon'),
+      title: localizationManager.get('hero.cognitive'),
+      gradient: 'linear-gradient(135deg, #9B8EC4 0%, #7A6EA0 100%)',
+      comingSoon: true,
+    },
+    {
+      key: 'mbti',
+      badge: 'MBTI',
+      title: localizationManager.get('hero.mbti'),
+      gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)',
+    },
+    {
+      key: 'socionics',
+      badge: localizationManager.get('frameworks.socionics'),
+      title: localizationManager.get('hero.socionics'),
+      gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)',
+    },
+    {
+      key: 'enneagram',
+      badge: localizationManager.get('frameworks.enneagram'),
+      title: localizationManager.get('hero.enneagram'),
+      gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)',
+    },
+  ];
+}
 
 export class HeroCard {
   static render() {
-    const cards = FRAMEWORKS.map((fw, i) => {
+    const cards = getHeroFrameworks().map((fw, i) => {
       return `
         <div class="hero-card ${fw.comingSoon ? 'hero-card--coming-soon' : ''}" ${fw.comingSoon ? '' : `data-framework="${fw.key}"`} style="background:${fw.gradient}">
           <div class="hero-card__badge">${fw.badge}</div>
@@ -46,7 +49,7 @@ export class HeroCard {
       `;
     }).join('');
 
-    const dots = FRAMEWORKS.map((_, i) =>
+    const dots = getHeroFrameworks().map((_, i) =>
       `<span class="hero-slider__dot ${i === 0 ? 'hero-slider__dot--active' : ''}" data-slide="${i}"></span>`
     ).join('');
 

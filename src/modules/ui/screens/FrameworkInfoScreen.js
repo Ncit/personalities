@@ -1,71 +1,74 @@
 import { router } from '../../router/Router.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
-const FRAMEWORK_DATA = {
-  jung: {
-    title: 'Когнитивные функции Юнга',
-    icon: 'eye',
-    accent: '#6B7EC8',
-    gradient: 'linear-gradient(135deg, #6B7EC8 0%, #4A5AA0 100%)',
-    description: 'Оригинальная типология Карла Юнга — основа всех современных систем типирования. Определяет 8 когнитивных функций: способы восприятия и оценки информации, которые формируют ваше мышление и поведение.',
-    dimensions: [
-      { pair: 'Se / Si', name: 'Ощущение', desc: 'Внешнее восприятие или внутренние впечатления' },
-      { pair: 'Ne / Ni', name: 'Интуиция', desc: 'Внешние возможности или внутреннее предвидение' },
-      { pair: 'Te / Ti', name: 'Мышление', desc: 'Внешняя логика или внутренний анализ' },
-      { pair: 'Fe / Fi', name: 'Чувство', desc: 'Внешняя гармония или внутренние ценности' },
-    ],
-    types: 8,
-    questions: null,
-    time: null,
-    comingSoon: true,
-  },
-  mbti: {
-    title: 'MBTI — 16 типов личности',
-    icon: 'brain',
-    accent: '#7C9082',
-    gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)',
-    description: 'Типология Майерс-Бриггс (MBTI) — одна из самых популярных систем классификации личности. Основана на теории психологических типов Карла Юнга.',
-    dimensions: [
-      { pair: 'E / I', name: 'Экстраверсия — Интроверсия', desc: 'Откуда вы черпаете энергию' },
-      { pair: 'S / N', name: 'Сенсорика — Интуиция', desc: 'Как вы воспринимаете информацию' },
-      { pair: 'T / F', name: 'Мышление — Чувство', desc: 'Как вы принимаете решения' },
-      { pair: 'J / P', name: 'Суждение — Восприятие', desc: 'Как вы организуете жизнь' },
-    ],
-    types: 16,
-    questions: 60,
-    time: '15 мин',
-  },
-  socionics: {
-    title: 'Соционика',
-    icon: 'sparkles',
-    accent: '#E8A85C',
-    gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)',
-    description: 'Соционика изучает 16 социотипов и их взаимодействия. Помогает понять совместимость, интертипные отношения и информационный метаболизм.',
-    dimensions: [
-      { pair: 'Логика / Этика', name: 'Рациональность', desc: 'Логический или этический подход' },
-      { pair: 'Интуиция / Сенсорика', name: 'Восприятие', desc: 'Абстрактное или конкретное мышление' },
-      { pair: 'Экстраверсия / Интроверсия', name: 'Энергия', desc: 'Направление внимания' },
-      { pair: 'Рац. / Иррац.', name: 'Решения', desc: 'Способ принятия решений' },
-    ],
-    types: 16,
-    questions: 48,
-    time: '12 мин',
-  },
-  enneagram: {
-    title: 'Эннеаграмма',
-    icon: 'heart',
-    accent: '#C47A8A',
-    gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)',
-    description: 'Эннеаграмма описывает 9 базовых типов личности, каждый с уникальной мотивацией, страхами и путями развития. Включает систему крыльев и линий интеграции.',
-    dimensions: [
-      { pair: '2, 3, 4', name: 'Центр чувств', desc: 'Эмоциональный интеллект' },
-      { pair: '5, 6, 7', name: 'Центр мышления', desc: 'Интеллектуальный анализ' },
-      { pair: '8, 9, 1', name: 'Центр действий', desc: 'Инстинктивные реакции' },
-    ],
-    types: 9,
-    questions: 36,
-    time: '10 мин',
-  },
-};
+function getFrameworkData() {
+  return {
+    jung: {
+      title: localizationManager.get('frameworkInfo.jungTitle'),
+      icon: 'eye',
+      accent: '#6B7EC8',
+      gradient: 'linear-gradient(135deg, #6B7EC8 0%, #4A5AA0 100%)',
+      description: localizationManager.get('frameworkInfo.jungDesc'),
+      dimensions: [
+        { pair: 'Se / Si', name: localizationManager.get('frameworkInfo.jungSeSi'), desc: localizationManager.get('frameworkInfo.jungSeSiDesc') },
+        { pair: 'Ne / Ni', name: localizationManager.get('frameworkInfo.jungNeNi'), desc: localizationManager.get('frameworkInfo.jungNeNiDesc') },
+        { pair: 'Te / Ti', name: localizationManager.get('frameworkInfo.jungTeTi'), desc: localizationManager.get('frameworkInfo.jungTeTiDesc') },
+        { pair: 'Fe / Fi', name: localizationManager.get('frameworkInfo.jungFeFi'), desc: localizationManager.get('frameworkInfo.jungFeFiDesc') },
+      ],
+      types: 8,
+      questions: null,
+      time: null,
+      comingSoon: true,
+    },
+    mbti: {
+      title: localizationManager.get('frameworkInfo.mbtiTitle'),
+      icon: 'brain',
+      accent: '#7C9082',
+      gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)',
+      description: localizationManager.get('frameworkInfo.mbtiDesc'),
+      dimensions: [
+        { pair: 'E / I', name: localizationManager.get('frameworkInfo.mbtiEI'), desc: localizationManager.get('frameworkInfo.mbtiEIDesc') },
+        { pair: 'S / N', name: localizationManager.get('frameworkInfo.mbtiSN'), desc: localizationManager.get('frameworkInfo.mbtiSNDesc') },
+        { pair: 'T / F', name: localizationManager.get('frameworkInfo.mbtiTF'), desc: localizationManager.get('frameworkInfo.mbtiTFDesc') },
+        { pair: 'J / P', name: localizationManager.get('frameworkInfo.mbtiJP'), desc: localizationManager.get('frameworkInfo.mbtiJPDesc') },
+      ],
+      types: 16,
+      questions: 60,
+      time: localizationManager.get('frameworkInfo.mbtiTime'),
+    },
+    socionics: {
+      title: localizationManager.get('frameworkInfo.socionicsTitle'),
+      icon: 'sparkles',
+      accent: '#E8A85C',
+      gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)',
+      description: localizationManager.get('frameworkInfo.socionicsDesc'),
+      dimensions: [
+        { pair: localizationManager.get('frameworkInfo.socLE'), name: localizationManager.get('frameworkInfo.socLE'), desc: localizationManager.get('frameworkInfo.socLEDesc') },
+        { pair: localizationManager.get('frameworkInfo.socIN'), name: localizationManager.get('frameworkInfo.socIN'), desc: localizationManager.get('frameworkInfo.socINDesc') },
+        { pair: localizationManager.get('frameworkInfo.socEI'), name: localizationManager.get('frameworkInfo.socEI'), desc: localizationManager.get('frameworkInfo.socEIDesc') },
+        { pair: localizationManager.get('frameworkInfo.socRJ'), name: localizationManager.get('frameworkInfo.socRJ'), desc: localizationManager.get('frameworkInfo.socRJDesc') },
+      ],
+      types: 16,
+      questions: 48,
+      time: localizationManager.get('frameworkInfo.socionicsTime'),
+    },
+    enneagram: {
+      title: localizationManager.get('frameworkInfo.enneagramTitle'),
+      icon: 'heart',
+      accent: '#C47A8A',
+      gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)',
+      description: localizationManager.get('frameworkInfo.enneagramDesc'),
+      dimensions: [
+        { pair: '2, 3, 4', name: localizationManager.get('frameworkInfo.enn234'), desc: localizationManager.get('frameworkInfo.enn234Desc') },
+        { pair: '5, 6, 7', name: localizationManager.get('frameworkInfo.enn567'), desc: localizationManager.get('frameworkInfo.enn567Desc') },
+        { pair: '8, 9, 1', name: localizationManager.get('frameworkInfo.enn891'), desc: localizationManager.get('frameworkInfo.enn891Desc') },
+      ],
+      types: 9,
+      questions: 36,
+      time: localizationManager.get('frameworkInfo.enneagramTime'),
+    },
+  };
+}
 
 export class FrameworkInfoScreen {
   constructor() {
@@ -82,7 +85,7 @@ export class FrameworkInfoScreen {
   }
 
   render() {
-    const fw = FRAMEWORK_DATA[this.framework];
+    const fw = getFrameworkData()[this.framework];
     if (!fw) return;
 
     this.el.innerHTML = `
@@ -92,12 +95,12 @@ export class FrameworkInfoScreen {
           <i data-lucide="${fw.icon}" style="width:32px;height:32px;color:#fff"></i>
           <div class="framework-info__title">${fw.title}</div>
           <div class="framework-info__stats">
-            ${fw.types} ${fw.comingSoon ? 'функций' : 'типов'}${fw.questions ? ` · ${fw.questions} вопросов` : ''}${fw.time ? ` · ${fw.time}` : ''}
+            ${fw.types} ${fw.comingSoon ? localizationManager.get('frameworkInfo.functions') : localizationManager.get('frameworkInfo.types')}${fw.questions ? ` · ${fw.questions} ${localizationManager.get('frameworkInfo.questions')}` : ''}${fw.time ? ` · ${fw.time}` : ''}
           </div>
         </div>
         <div class="framework-info__body">
           <p class="framework-info__desc">${fw.description}</p>
-          <div class="framework-info__section-label">Измерения</div>
+          <div class="framework-info__section-label">${localizationManager.get('frameworkInfo.dimensions')}</div>
           <div class="framework-info__dimensions">
             ${fw.dimensions.map(d => `
               <div class="framework-info__dim">
@@ -108,8 +111,8 @@ export class FrameworkInfoScreen {
             `).join('')}
           </div>
           ${fw.comingSoon
-            ? '<button class="btn-secondary framework-info__cta" disabled>Скоро</button>'
-            : '<button class="btn-primary framework-info__cta" id="fw-start">Начать тест</button>'
+            ? `<button class="btn-secondary framework-info__cta" disabled>${localizationManager.get('frameworkInfo.comingSoon')}</button>`
+            : `<button class="btn-primary framework-info__cta" id="fw-start">${localizationManager.get('frameworkInfo.startTest')}</button>`
           }
         </div>
       </div>

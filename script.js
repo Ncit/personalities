@@ -3258,9 +3258,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Initialize platform bridge manager
+    // Initialize locale for web (non-VK, non-TG) — respects ?locale= param and browser language
     const flavor = PlatformDetector.getFlavor();
+    if (flavor === 'web') {
+        localizationManager.initialize();
+    }
+    // TG locale is set by TGUserService.init(); VK defaults to 'ru'
 
+    // Initialize platform bridge manager
     if (flavor === 'tg') {
         try {
             const tgManager = new TGBridgeManager();

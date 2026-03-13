@@ -1,5 +1,6 @@
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 function getStateManager() { return window.stateManager; }
 function getTypeData() { return window.PERSONALITY_TYPES || {}; }
@@ -21,30 +22,30 @@ const ICONS = {
 };
 
 const INSIGHT_SECTIONS_MBTI = [
-  { icon: 'briefcase', title: 'Карьера', key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
-  { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: '#40C05710', color: '#40C057' },
-  { icon: 'shield', title: 'Слабые стороны', key: 'weaknesses', bg: '#E6498010', color: '#E64980' },
-  { icon: 'trending', title: 'Рост', key: 'development', bg: '#FAB00510', color: '#FAB005' },
-  { icon: 'message', title: 'Коммуникация', key: 'communication', bg: '#9775FA10', color: '#9775FA' },
-  { icon: 'flame', title: 'Под стрессом', key: 'stress', bg: '#FF692210', color: '#FF6922' },
+  { icon: 'briefcase', get title() { return localizationManager.get('resultDetail.career'); }, key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
+  { icon: 'zap', get title() { return localizationManager.get('resultDetail.strengths'); }, key: 'strengths', bg: '#40C05710', color: '#40C057' },
+  { icon: 'shield', get title() { return localizationManager.get('resultDetail.weaknesses'); }, key: 'weaknesses', bg: '#E6498010', color: '#E64980' },
+  { icon: 'trending', get title() { return localizationManager.get('resultDetail.growth'); }, key: 'development', bg: '#FAB00510', color: '#FAB005' },
+  { icon: 'message', get title() { return localizationManager.get('resultDetail.communication'); }, key: 'communication', bg: '#9775FA10', color: '#9775FA' },
+  { icon: 'flame', get title() { return localizationManager.get('resultDetail.underStress'); }, key: 'stress', bg: '#FF692210', color: '#FF6922' },
 ];
 
 const INSIGHT_SECTIONS_SOCIONICS = [
-  { icon: 'briefcase', title: 'Карьера', key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
-  { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: '#40C05710', color: '#40C057' },
-  { icon: 'trending', title: 'Рост', key: 'development', bg: '#FAB00510', color: '#FAB005' },
-  { icon: 'heart', title: 'Отношения', key: 'relations', bg: '#E6498010', color: '#E64980' },
-  { icon: 'layers', title: 'Квадра', key: 'quadra', bg: '#9775FA10', color: '#9775FA' },
-  { icon: 'cpu', title: 'Функции', key: 'functions', bg: '#FF692210', color: '#FF6922' },
+  { icon: 'briefcase', get title() { return localizationManager.get('resultDetail.career'); }, key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
+  { icon: 'zap', get title() { return localizationManager.get('resultDetail.strengths'); }, key: 'strengths', bg: '#40C05710', color: '#40C057' },
+  { icon: 'trending', get title() { return localizationManager.get('resultDetail.growth'); }, key: 'development', bg: '#FAB00510', color: '#FAB005' },
+  { icon: 'heart', get title() { return localizationManager.get('resultDetail.relationships'); }, key: 'relations', bg: '#E6498010', color: '#E64980' },
+  { icon: 'layers', get title() { return localizationManager.get('resultDetail.quadra'); }, key: 'quadra', bg: '#9775FA10', color: '#9775FA' },
+  { icon: 'cpu', get title() { return localizationManager.get('resultDetail.functions'); }, key: 'functions', bg: '#FF692210', color: '#FF6922' },
 ];
 
 const INSIGHT_SECTIONS_ENNEAGRAM = [
-  { icon: 'briefcase', title: 'Карьера', key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
-  { icon: 'zap', title: 'Сильные стороны', key: 'strengths', bg: '#40C05710', color: '#40C057' },
-  { icon: 'trending', title: 'Рост', key: 'development', bg: '#FAB00510', color: '#FAB005' },
-  { icon: 'heart', title: 'Отношения', key: 'relations', bg: '#E6498010', color: '#E64980' },
-  { icon: 'feather', title: 'Крылья', key: 'wings', bg: '#9775FA10', color: '#9775FA' },
-  { icon: 'alert', title: 'Страхи и желания', key: 'fears', bg: '#FF692210', color: '#FF6922' },
+  { icon: 'briefcase', get title() { return localizationManager.get('resultDetail.career'); }, key: 'careers', bg: '#5C7CFA10', color: '#5C7CFA' },
+  { icon: 'zap', get title() { return localizationManager.get('resultDetail.strengths'); }, key: 'strengths', bg: '#40C05710', color: '#40C057' },
+  { icon: 'trending', get title() { return localizationManager.get('resultDetail.growth'); }, key: 'development', bg: '#FAB00510', color: '#FAB005' },
+  { icon: 'heart', get title() { return localizationManager.get('resultDetail.relationships'); }, key: 'relations', bg: '#E6498010', color: '#E64980' },
+  { icon: 'feather', get title() { return localizationManager.get('resultDetail.wings'); }, key: 'wings', bg: '#9775FA10', color: '#9775FA' },
+  { icon: 'alert', get title() { return localizationManager.get('resultDetail.fearsDesires'); }, key: 'fears', bg: '#FF692210', color: '#FF6922' },
 ];
 
 const MBTI_EXTRA = {
@@ -130,7 +131,7 @@ export class ResultDetailScreen {
       <div class="status-bar"></div>
       <div class="result-detail__content">
         <button class="result-detail__back" id="result-back">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> К результатам
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> ${localizationManager.get('resultDetail.toResults')}
         </button>
         ${this._renderHero(result, isPremium)}
         ${this._renderDimensions(result)}
@@ -163,7 +164,7 @@ export class ResultDetailScreen {
     const bars = this._getDimensionBars(result.framework, dims);
     return `
       <div class="result-dimensions">
-        <div class="result-dimensions__title">Ваши предпочтения</div>
+        <div class="result-dimensions__title">${localizationManager.get('resultDetail.yourPreferences')}</div>
         ${bars.map(d => this._renderDimBar(d)).join('')}
       </div>
     `;
@@ -318,7 +319,7 @@ export class ResultDetailScreen {
       }).join('');
       extraChart = `
         <div class="result-analytics__card">
-          <div class="result-analytics__card-title">Стек функций</div>
+          <div class="result-analytics__card-title">${localizationManager.get('resultDetail.functionStack')}</div>
           <svg viewBox="0 0 ${fSvgW} ${fSvgH}" width="100%">${funcRows}</svg>
         </div>`;
     } else if (result.framework === 'enneagram') {
@@ -342,7 +343,7 @@ export class ResultDetailScreen {
       const triLabels = centers.map((c, i) => `<text x="${triPts[i].lx}" y="${triPts[i].ly}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${c.label} ${c.value}%</text>`).join('');
       extraChart = `
         <div class="result-analytics__card">
-          <div class="result-analytics__card-title">Центры энергии</div>
+          <div class="result-analytics__card-title">${localizationManager.get('resultDetail.energyCenters')}</div>
           <svg viewBox="0 0 260 230" width="100%" style="max-width:260px">${triGrid}${triShape}${triDots}${triLabels}</svg>
         </div>`;
     } else {
@@ -350,17 +351,17 @@ export class ResultDetailScreen {
       const tlY = 50, tlX1 = 30, tlX2 = 270, tlMid = 150;
       extraChart = `
         <div class="result-analytics__card">
-          <div class="result-analytics__card-title">Временная линия личности</div>
+          <div class="result-analytics__card-title">${localizationManager.get('resultDetail.personalityTimeline')}</div>
           <svg viewBox="0 0 300 100" width="100%">
             <line x1="${tlX1}" y1="${tlY}" x2="${tlX2}" y2="${tlY}" stroke="#E8E4DF" stroke-width="3" stroke-linecap="round"/>
             <circle cx="${tlX1 + 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
             <circle cx="${tlMid}" cy="${tlY}" r="8" fill="${theme.primary}"/>
             <circle cx="${tlMid}" cy="${tlY}" r="12" fill="none" stroke="${colors[3] || colors[0]}" stroke-width="2"/>
             <circle cx="${tlX2 - 40}" cy="${tlY}" r="5" fill="#C5C0B8"/>
-            <text x="${tlX1 + 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Прошлое</text>
-            <text x="${tlMid}" y="${tlY - 20}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">Текущая позиция</text>
-            <text x="${tlMid}" y="${tlY + 22}" text-anchor="middle" font-size="11" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">Настоящее</text>
-            <text x="${tlX2 - 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">Будущее</text>
+            <text x="${tlX1 + 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${localizationManager.get('resultDetail.past')}</text>
+            <text x="${tlMid}" y="${tlY - 20}" text-anchor="middle" font-size="11" fill="#2D2D2D" font-family="Inter,sans-serif">${localizationManager.get('resultDetail.currentPosition')}</text>
+            <text x="${tlMid}" y="${tlY + 22}" text-anchor="middle" font-size="11" font-weight="600" fill="#2D2D2D" font-family="Inter,sans-serif">${localizationManager.get('resultDetail.present')}</text>
+            <text x="${tlX2 - 40}" y="${tlY + 22}" text-anchor="middle" font-size="11" fill="#8A8A8A" font-family="Inter,sans-serif">${localizationManager.get('resultDetail.future')}</text>
           </svg>
         </div>`;
     }
@@ -384,27 +385,27 @@ export class ResultDetailScreen {
 
     return `
       <div class="result-analytics">
-        <div class="result-analytics__title">Визуальная аналитика</div>
+        <div class="result-analytics__title">${localizationManager.get('resultDetail.visualAnalytics')}</div>
         <div class="result-analytics__grid">
           <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Радарная диаграмма</div>
+            <div class="result-analytics__card-title">${localizationManager.get('resultDetail.radarChart')}</div>
             ${radarSvg}
           </div>
           <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Сравнение измерений</div>
+            <div class="result-analytics__card-title">${localizationManager.get('resultDetail.dimensionComparison')}</div>
             ${chartSvg}
           </div>
           <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Баланс личности</div>
+            <div class="result-analytics__card-title">${localizationManager.get('resultDetail.personalityBalance')}</div>
             ${balanceSvg}
           </div>
           <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Распределение предпочтений</div>
+            <div class="result-analytics__card-title">${localizationManager.get('resultDetail.preferenceDistribution')}</div>
             ${pieSvg}
           </div>
           ${extraChart}
           <div class="result-analytics__card">
-            <div class="result-analytics__card-title">Анализ сильных сторон</div>
+            <div class="result-analytics__card-title">${localizationManager.get('resultDetail.strengthAnalysis')}</div>
             ${strengthsSvg}
           </div>
         </div>
@@ -455,11 +456,11 @@ export class ResultDetailScreen {
       : INSIGHT_SECTIONS_MBTI;
     return `
       <div class="result-insights">
-        <div class="result-insights__title">Глубокий анализ</div>
+        <div class="result-insights__title">${localizationManager.get('resultDetail.deepAnalysis')}</div>
         <div class="insights-carousel">
           ${sections.map(ins => {
             const items = typeInsights[ins.key] || [];
-            const desc = items.length > 0 ? items.join(', ') : 'Нет данных';
+            const desc = items.length > 0 ? items.join(', ') : localizationManager.get('resultDetail.noData');
             return `
               <div class="insight-card" style="background: ${ins.bg}">
                 <div class="insight-card__icon-wrap" style="background: ${ins.color}15; color: ${ins.color}">
@@ -479,9 +480,7 @@ export class ResultDetailScreen {
   _renderFamous(result) {
     const typeFamous = getFamousPersonalities()[result.typeCode] || [];
     if (typeFamous.length === 0) return '';
-    const famousTitle = result.framework === 'enneagram'
-      ? `Известные Тип ${result.typeCode}`
-      : `Известные ${result.typeCode}`;
+    const famousTitle = localizationManager.get('resultDetail.famousType', { type: result.typeCode });
     return `
       <div class="result-famous">
         <div class="result-famous__title">${famousTitle}</div>
@@ -508,9 +507,9 @@ export class ResultDetailScreen {
         <div class="comparison-paywall__overlay">
           <div class="comparison-paywall__card">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5.5 21h13"/></svg>
-            <div class="comparison-paywall__title">Глубокий анализ</div>
-            <div class="comparison-paywall__desc">Расширенная аналитика, совпадения с известными личностями и другое</div>
-            <button class="premium-cta-btn comparison-paywall__btn">Открыть Премиум</button>
+            <div class="comparison-paywall__title">${localizationManager.get('resultDetail.deepAnalysis')}</div>
+            <div class="comparison-paywall__desc">${localizationManager.get('resultDetail.paywallDesc')}</div>
+            <button class="premium-cta-btn comparison-paywall__btn">${localizationManager.get('resultDetail.paywallButton')}</button>
           </div>
         </div>
       </div>
@@ -522,7 +521,7 @@ export class ResultDetailScreen {
       <div class="result-actions">
         <button class="result-action result-action--secondary" id="result-retake">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C9082" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16h5v5"></path></svg>
-          Пройти снова
+          ${localizationManager.get('resultDetail.retake')}
         </button>
       </div>
     `;

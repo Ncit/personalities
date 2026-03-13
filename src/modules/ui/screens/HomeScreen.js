@@ -5,18 +5,23 @@ import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
 import { PlatformDetector } from '../../platform/PlatformDetector.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
-const QUIZZES = [
-  { title: 'MBTI — 16 типов личности', meta: '60 вопросов · 15 мин · Бесплатно', gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)', framework: 'mbti' },
-  { title: 'Соционика — 16 социотипов', meta: '48 вопросов · 12 мин · Бесплатно', gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)', framework: 'socionics' },
-  { title: 'Эннеаграмма — 9 типов', meta: '36 вопросов · 10 мин · Бесплатно', gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)', framework: 'enneagram' },
-];
+function getQuizzes() {
+  return [
+    { title: localizationManager.get('quizCards.mbtiTitle'), meta: localizationManager.get('quizCards.mbtiMeta'), gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)', framework: 'mbti' },
+    { title: localizationManager.get('quizCards.socionicsTitle'), meta: localizationManager.get('quizCards.socionicsMeta'), gradient: 'linear-gradient(135deg, #E8A85C 0%, #C4843A 100%)', framework: 'socionics' },
+    { title: localizationManager.get('quizCards.enneagramTitle'), meta: localizationManager.get('quizCards.enneagramMeta'), gradient: 'linear-gradient(135deg, #C47A8A 0%, #A05A6A 100%)', framework: 'enneagram' },
+  ];
+}
 
-const FRAMEWORK_FILTERS = [
-  { key: 'mbti', label: 'MBTI' },
-  { key: 'socionics', label: 'Соционика' },
-  { key: 'enneagram', label: 'Эннеаграмма' },
-];
+function getFrameworkFilters() {
+  return [
+    { key: 'mbti', label: localizationManager.get('frameworks.mbti') },
+    { key: 'socionics', label: localizationManager.get('frameworks.socionics') },
+    { key: 'enneagram', label: localizationManager.get('frameworks.enneagram') },
+  ];
+}
 
 // MBTI types by category
 const MBTI_CODES = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
@@ -67,13 +72,13 @@ export class HomeScreen {
 
     this.el.innerHTML = `
       <h1 class="page-title">${greeting}</h1>
-      <p class="page-subtitle">Исследуйте свою личность через разные методики</p>
+      <p class="page-subtitle">${localizationManager.get('home.subtitle')}</p>
       ${HeroCard.render()}
       ${!isPremium ? `
       <div class="premium-cta-mobile" id="home-premium-cta" style="margin-bottom:12px">
         <div class="premium-cta-mobile__text">
-          <div class="premium-cta-mobile__title">Премиум</div>
-          <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
+          <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
+          <div class="premium-cta-mobile__subtitle">${localizationManager.get('home.premiumSubtitle')}</div>
         </div>
         <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? (window.tgBridgeManager?.userService?.getLanguage() === 'ru' ? '150 ₽ / ⭐ 75' : '⭐ 75') : '150 ₽'}</button>
       </div>
@@ -82,9 +87,9 @@ export class HomeScreen {
       ${hasResults ? this._shareCard() : ''}
 
       <div class="home-section">
-        <div class="section-label">Основные тесты</div>
+        <div class="section-label">${localizationManager.get('home.mainTests')}</div>
         <div class="catalog-fw-cards">
-          ${QUIZZES.map(q => `
+          ${getQuizzes().map(q => `
             <div class="catalog-fw-card" data-framework="${q.framework}" style="background:${q.gradient}">
               <div class="catalog-fw-card__title">${q.title}</div>
               <div class="catalog-fw-card__meta">${q.meta}</div>
@@ -94,9 +99,9 @@ export class HomeScreen {
       </div>
 
       <div class="home-section">
-        <div class="section-label">Типы личности</div>
+        <div class="section-label">${localizationManager.get('home.personalityTypes')}</div>
         <div class="filter-pills">
-          ${FRAMEWORK_FILTERS.map(f =>
+          ${getFrameworkFilters().map(f =>
             `<button class="filter-pill ${f.key === this.activeFramework ? 'filter-pill--active' : ''}" data-framework-filter="${f.key}">${f.label}</button>`
           ).join('')}
         </div>
@@ -116,7 +121,7 @@ export class HomeScreen {
 
     this.el.querySelector('#share-btn')?.addEventListener('click', async () => {
       const frameworks = ['mbti', 'socionics', 'enneagram'];
-      const labels = { mbti: 'MBTI', socionics: 'Соционика', enneagram: 'Эннеаграмма' };
+      const labels = { mbti: localizationManager.get('frameworkNames.mbti'), socionics: localizationManager.get('frameworkNames.socionics'), enneagram: localizationManager.get('frameworkNames.enneagram') };
 
       let socTypes = null, ennTypes = null;
       const results = frameworks.map(fw => resultsStore.getLatestByFramework(fw)).filter(Boolean);
@@ -152,9 +157,9 @@ export class HomeScreen {
         try { const { TGConfig } = await import('../../tg/config/TGConfig.js'); shareUrl = TGConfig.getMiniAppUrl(); } catch(e) {}
       }
       const text = lines.length > 0
-        ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\n' + shareUrl
+        ? localizationManager.get('home.myResults') + '\n\n' + lines.join('\n\n') + '\n\n' + shareUrl
         : '';
-      const title = 'Мои типы личности';
+      const title = localizationManager.get('home.myTypes');
 
       if (manager && (manager.isTGEnvironment?.() || manager.isVKEnvironment?.())) {
         manager.shareResults(null, text, title);
@@ -250,9 +255,9 @@ export class HomeScreen {
 
   _getGreeting() {
     const hour = new Date().getHours();
-    let timeOfDay = 'Добрый вечер';
-    if (hour < 12) timeOfDay = 'Доброе утро';
-    else if (hour < 18) timeOfDay = 'Добрый день';
+    let timeOfDay = localizationManager.get('home.goodEvening');
+    if (hour < 12) timeOfDay = localizationManager.get('home.goodMorning');
+    else if (hour < 18) timeOfDay = localizationManager.get('home.goodAfternoon');
 
     const userName = window.stateManager?.getState?.()?.userName;
     return userName ? `${timeOfDay}, ${userName}` : timeOfDay;
@@ -262,12 +267,12 @@ export class HomeScreen {
     return `
       <div class="card share-card">
         <div class="share-card__info">
-          <div class="share-card__title">Поделиться типом</div>
-          <div class="share-card__subtitle">Пригласи друзей</div>
+          <div class="share-card__title">${localizationManager.get('home.shareType')}</div>
+          <div class="share-card__subtitle">${localizationManager.get('home.inviteFriends')}</div>
         </div>
         <button class="btn-primary" id="share-btn" style="display:inline-flex;align-items:center;gap:6px">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Поделиться
+          ${localizationManager.get('home.share')}
         </button>
       </div>
     `;

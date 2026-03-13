@@ -1,33 +1,38 @@
 import { router } from '../router/Router.js';
+import localizationManager from '../../locales/LocalizationManager.js';
 
-const NAV_ITEMS = [
-  { id: 'home', label: 'Главная', icon: 'layout-dashboard' },
-  { id: 'explore', label: 'Каталог', icon: 'compass' },
-  { id: 'results', label: 'Результаты', icon: 'chart-bar' },
-  { id: 'profile', label: 'Профиль', icon: 'user' },
-];
+function getNavItems() {
+  return [
+    { id: 'home', label: localizationManager.get('nav.homeSidebar'), icon: 'layout-dashboard' },
+    { id: 'explore', label: localizationManager.get('nav.catalogSidebar'), icon: 'compass' },
+    { id: 'results', label: localizationManager.get('nav.resultsSidebar'), icon: 'chart-bar' },
+    { id: 'profile', label: localizationManager.get('nav.profileSidebar'), icon: 'user' },
+  ];
+}
 
-const FOOTER_SECTIONS = [
-  {
-    title: 'Помощь',
-    links: [
-      { label: 'Как пройти тест', topic: 'how-to-test' },
-      { label: 'Понимание результатов', topic: 'understanding-results' },
-      { label: 'Премиум функции', topic: 'premium-features' },
-      { label: 'Вопросы и ответы', topic: 'faq' },
-    ],
-  },
-  {
-    title: 'О проекте',
-    links: [
-      { label: 'О типах личности', topic: 'about-personality' },
-      { label: 'Конфиденциальность', topic: 'privacy' },
-      { label: 'Условия использования', topic: 'terms' },
-      { label: 'Публичная оферта', topic: 'offer' },
-      { label: 'Контакты', topic: 'contacts' },
-    ],
-  },
-];
+function getFooterSections() {
+  return [
+    {
+      title: localizationManager.get('footer.helpTitle'),
+      links: [
+        { label: localizationManager.get('footer.howToTest'), topic: 'how-to-test' },
+        { label: localizationManager.get('footer.understandingResults'), topic: 'understanding-results' },
+        { label: localizationManager.get('footer.premiumFeatures'), topic: 'premium-features' },
+        { label: localizationManager.get('footer.faq'), topic: 'faq' },
+      ],
+    },
+    {
+      title: localizationManager.get('footer.aboutTitle'),
+      links: [
+        { label: localizationManager.get('footer.aboutPersonality'), topic: 'about-personality' },
+        { label: localizationManager.get('footer.privacy'), topic: 'privacy' },
+        { label: localizationManager.get('footer.terms'), topic: 'terms' },
+        { label: localizationManager.get('footer.offer'), topic: 'offer' },
+        { label: localizationManager.get('footer.contacts'), topic: 'contacts' },
+      ],
+    },
+  ];
+}
 
 const FOOTER_EMAIL = 'personalitiesresearch@mail.ru';
 
@@ -51,7 +56,7 @@ export class Sidebar {
           <span class="sidebar__logo-text">Personalities</span>
         </div>
         <nav class="sidebar__nav">
-          ${NAV_ITEMS.map(item => `
+          ${getNavItems().map(item => `
             <button class="nav-item ${item.id === currentTab ? 'nav-item--active' : ''}" data-tab="${item.id}">
               <i data-lucide="${item.icon}" style="width:20px;height:20px"></i>
               <span>${item.label}</span>
@@ -60,7 +65,7 @@ export class Sidebar {
         </nav>
       </div>
       <div class="sidebar__footer">
-        ${FOOTER_SECTIONS.map((section, si) => `
+        ${getFooterSections().map((section, si) => `
           <div class="sidebar__footer-section">
             <span class="sidebar__footer-title">${section.title}</span>
             ${section.links.map((link, li) => `<a class="sidebar__footer-link" href="#" data-section="${si}" data-link="${li}">${link.label}</a>`).join('')}
@@ -79,7 +84,7 @@ export class Sidebar {
         e.preventDefault();
         const si = parseInt(footerLink.dataset.section);
         const li = parseInt(footerLink.dataset.link);
-        const topic = FOOTER_SECTIONS[si]?.links[li]?.topic;
+        const topic = getFooterSections()[si]?.links[li]?.topic;
         if (topic) router.openOverlay('help', { topic });
       }
     });

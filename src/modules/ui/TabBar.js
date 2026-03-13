@@ -1,12 +1,15 @@
 import { router } from '../router/Router.js';
+import localizationManager from '../../locales/LocalizationManager.js';
 
-const TABS = [
-  { id: 'home', label: 'ГЛАВНАЯ', icon: 'layout-dashboard' },
-  { id: 'explore', label: 'КАТАЛОГ', icon: 'compass' },
-  { id: 'results', label: 'РЕЗУЛЬТАТЫ', icon: 'chart-bar' },
-  { id: 'achievements', label: 'ДОСТИЖЕНИЯ', icon: 'trophy' },
-  { id: 'profile', label: 'ПРОФИЛЬ', icon: 'user' },
-];
+function getTabs() {
+  return [
+    { id: 'home', label: localizationManager.get('nav.home'), icon: 'layout-dashboard' },
+    { id: 'explore', label: localizationManager.get('nav.catalog'), icon: 'compass' },
+    { id: 'results', label: localizationManager.get('nav.results'), icon: 'chart-bar' },
+    { id: 'achievements', label: localizationManager.get('nav.achievements'), icon: 'trophy' },
+    { id: 'profile', label: localizationManager.get('nav.profile'), icon: 'user' },
+  ];
+}
 
 export class TabBar {
   constructor(container) {
@@ -16,7 +19,7 @@ export class TabBar {
   }
 
   render() {
-    this.container.innerHTML = TABS.map(tab => `
+    this.container.innerHTML = getTabs().map(tab => `
       <button class="tab-item ${router.getState().tab === tab.id ? 'tab-item--active' : ''}"
               data-tab="${tab.id}">
         <i data-lucide="${tab.icon}" class="tab-item__icon"></i>

@@ -2,6 +2,7 @@ import { router } from '../../router/Router.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
 import { firebaseAnalytics } from '../../../config/firebase.js';
 import { PlatformDetector } from '../../platform/PlatformDetector.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 const logger = new LoggerManager().createModuleLogger('PremiumModal');
 
@@ -45,7 +46,7 @@ export class PremiumModal {
           localStorage.removeItem('tochka_pending_operation');
           localStorage.removeItem('tochka_pending_started');
           if (window.stateManager) window.stateManager.setState('isPremium', true);
-          this._showToast('Премиум разблокирован!', 'success');
+          this._showToast(localizationManager.get('premium.unlocked'), 'success');
           router.closeOverlay();
           return;
         }
@@ -58,7 +59,7 @@ export class PremiumModal {
 
     // 7 min expired
     this.state = 'error';
-    this.errorMessage = 'Платёж обрабатывается. Премиум активируется автоматически.';
+    this.errorMessage = localizationManager.get('errors.paymentProcessing');
     this.render();
   }
 
@@ -73,21 +74,21 @@ export class PremiumModal {
           <div class="premium-modal__icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5.5 21h13"/></svg>
           </div>
-          <div class="premium-modal__title">Премиум</div>
-          <div class="premium-modal__subtitle">Откройте полный опыт определения личности</div>
+          <div class="premium-modal__title">${localizationManager.get('premium.title')}</div>
+          <div class="premium-modal__subtitle">${localizationManager.get('premium.subtitle')}</div>
         </div>
         <ul class="premium-benefits">
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Расширенный анализ личности</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Все специализированные премиум тесты</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Совпадения с известными личностями</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Визуальные графики и аналитика</li>
-          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Без рекламы</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> ${localizationManager.get('premium.benefit1')}</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> ${localizationManager.get('premium.benefit2')}</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> ${localizationManager.get('premium.benefit3')}</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> ${localizationManager.get('premium.benefit4')}</li>
+          <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> ${localizationManager.get('premium.benefit5')}</li>
         </ul>
         <button class="premium-cta-btn" id="premium-buy" ${isProcessing ? 'disabled' : ''}>
-          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : this._getButtonText()}
+          ${isProcessing ? `<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> ${localizationManager.get('premium.processing')}` : this._getButtonText()}
         </button>
         ${this.state === 'error' ? `<div class="premium-error">${this.errorMessage}</div>` : ''}
-        <div class="premium-note">Разовый платёж · Без подписки</div>
+        <div class="premium-note">${localizationManager.get('premium.note')}</div>
       </div>
     `;
 
@@ -180,8 +181,8 @@ export class PremiumModal {
         logger.error('Payment failed:', error);
         this.state = 'error';
         this.errorMessage = error.message === 'User not identified'
-          ? 'Не удалось определить пользователя'
-          : 'Ошибка оплаты. Попробуйте позже.';
+          ? localizationManager.get('errors.userNotFound')
+          : localizationManager.get('errors.paymentFailed');
         this.render();
       }
     });
@@ -191,10 +192,9 @@ export class PremiumModal {
     const flavor = PlatformDetector.getFlavor();
     if (flavor === 'tg') {
       const lang = window.tgBridgeManager?.userService?.getLanguage();
-      return lang === 'ru' ? 'Открыть Премиум — 150 ₽ / ⭐ 75' : 'Get Premium — ⭐ 75';
+      return lang === 'ru' ? localizationManager.get('premium.buttonTgRu') : localizationManager.get('premium.buttonTgEn');
     }
-    if (flavor === 'vk') return 'Открыть Премиум — 150 ₽';
-    return 'Открыть Премиум — 150 ₽';
+    return localizationManager.get('premium.buttonDefault');
   }
 
   _showToast(message, type) {

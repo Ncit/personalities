@@ -1,6 +1,7 @@
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 const logger = new LoggerManager().createModuleLogger('QuizScreen');
 
@@ -8,40 +9,9 @@ const logger = new LoggerManager().createModuleLogger('QuizScreen');
 function getQuizEngine() { return window.quizEngine; }
 function getStateManager() { return window.stateManager; }
 
-const FRAMEWORK_NAMES = {
-  mbti: 'MBTI',
-  socionics: 'Соционика',
-  enneagram: 'Эннеаграмма',
-  leadership: 'Стиль лидерства',
-  communication: 'Стиль общения',
-  stress: 'Реакция на стресс',
-  learning: 'Стиль обучения',
-  relationships: 'Динамика отношений',
-  creativity: 'Креативность',
-  decision: 'Принятие решений',
-  teamwork: 'Командная работа',
-  career: 'Карьера',
-  social: 'Социальное взаимодействие',
-  motivation: 'Мотивация',
-  adaptability: 'Адаптивность',
-  conflict: 'Разрешение конфликтов',
-  productivity: 'Продуктивность',
-  emotional: 'Эмоциональный интеллект',
-  // Socionics specialized
-  socionics_intertype: 'Интертипные отношения',
-  socionics_quadra: 'Квадровые ценности',
-  socionics_functions: 'Инф. метаболизм',
-  socionics_conflict: 'Конфликтология',
-  socionics_career: 'Карьера и социотип',
-  socionics_love: 'Любовь и дуальность',
-  // Enneagram specialized
-  enneagram_wings: 'Крылья и подтипы',
-  enneagram_stress: 'Стресс и рост',
-  enneagram_instincts: 'Инстинкты выживания',
-  enneagram_relationships: 'Отношения',
-  enneagram_shadow: 'Теневая сторона',
-  enneagram_spiritual: 'Духовный путь',
-};
+function getFrameworkName(key) {
+  return localizationManager.get(`frameworkNames.${key}`) || key.toUpperCase();
+}
 
 export class QuizScreen {
   constructor() {
@@ -77,7 +47,7 @@ export class QuizScreen {
   render() {
     const qe = getQuizEngine();
     if (!qe) {
-      this.el.innerHTML = '<div class="loading-screen"><div class="spinner"></div><span>Загрузка теста...</span></div>';
+      this.el.innerHTML = '<div class="loading-screen"><div class="spinner"></div><span>' + localizationManager.get('quiz.loadingQuiz') + '</span></div>';
       return;
     }
 
@@ -95,7 +65,7 @@ export class QuizScreen {
           <button class="quiz-header__close" id="quiz-close">
             <i data-lucide="x" style="width:24px;height:24px"></i>
           </button>
-          <span class="quiz-header__title">${FRAMEWORK_NAMES[this.framework] || this.framework.toUpperCase()}</span>
+          <span class="quiz-header__title">${getFrameworkName(this.framework)}</span>
           <span class="quiz-header__counter">${questionIndex + 1}/${total}</span>
         </div>
         <div class="quiz-progress">
@@ -103,7 +73,7 @@ export class QuizScreen {
         </div>
         ${this._dimensionBars(qe)}
         <div class="quiz-content">
-          <div class="quiz-question">${current?.question || current?.text || 'Загрузка...'}</div>
+          <div class="quiz-question">${current?.question || current?.text || localizationManager.get('quiz.loading')}</div>
           <div class="quiz-options">
             ${(current?.options || []).map((opt, i) => {
               const optionIndex = i + 1;
@@ -118,15 +88,15 @@ export class QuizScreen {
         </div>
         <div class="quiz-nav">
           <button class="btn-secondary" id="quiz-prev" ${questionIndex === 0 ? 'disabled' : ''}>
-            <i data-lucide="arrow-left" style="width:16px;height:16px"></i> Назад
+            <i data-lucide="arrow-left" style="width:16px;height:16px"></i> ${localizationManager.get('quiz.back')}
           </button>
           <button class="btn-primary" id="quiz-next" ${!hasSelection ? 'disabled' : ''}>
-            ${isLast ? 'Результаты' : 'Далее'} <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+            ${isLast ? localizationManager.get('quiz.results') : localizationManager.get('quiz.next')} <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
           </button>
         </div>
         ${getStateManager()?.isDevelopment() ? `
           <button class="dev-finish-btn" id="dev-finish">
-            <i data-lucide="zap" style="width:14px;height:14px"></i> Заполнить случайно
+            <i data-lucide="zap" style="width:14px;height:14px"></i> ${localizationManager.get('quiz.fillRandom')}
           </button>
         ` : ''}
       </div>
@@ -153,9 +123,9 @@ export class QuizScreen {
       ];
     } else if (base === 'enneagram') {
       dims = [
-        { label: 'Сердце', key: 'HC', color: '#C47A8A' },
-        { label: 'Голова', key: 'HD', color: '#7C9082' },
-        { label: 'Тело', key: 'BD', color: '#E8A85C' },
+        { label: localizationManager.get('quiz.dimHeart'), key: 'HC', color: '#C47A8A' },
+        { label: localizationManager.get('quiz.dimHead'), key: 'HD', color: '#7C9082' },
+        { label: localizationManager.get('quiz.dimBody'), key: 'BD', color: '#E8A85C' },
       ];
     } else {
       dims = [
@@ -216,11 +186,11 @@ export class QuizScreen {
           <div class="exit-dialog__icon">
             <i data-lucide="door-open" style="width:32px;height:32px"></i>
           </div>
-          <div class="exit-dialog__title">Выйти из теста?</div>
-          <div class="exit-dialog__text">Ваш прогресс будет потерян. Вы можете пройти тест снова в любое время.</div>
+          <div class="exit-dialog__title">${localizationManager.get('quiz.exitTitle')}</div>
+          <div class="exit-dialog__text">${localizationManager.get('quiz.exitText')}</div>
           <div class="exit-dialog__actions">
-            <button class="btn-danger" id="exit-confirm">Выйти</button>
-            <button class="btn-secondary" id="exit-cancel">Продолжить</button>
+            <button class="btn-danger" id="exit-confirm">${localizationManager.get('quiz.exitConfirm')}</button>
+            <button class="btn-secondary" id="exit-cancel">${localizationManager.get('quiz.exitCancel')}</button>
           </div>
         </div>
       </div>

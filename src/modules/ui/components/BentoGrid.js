@@ -1,5 +1,6 @@
 import { resultsStore } from '../../results/ResultsStore.js';
 import { TraitBar } from './TraitBar.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 const DIMENSION_COLORS = {
   E: 'var(--color-dim-ei)',
@@ -25,11 +26,9 @@ const ENNEAGRAM_BARS = [
   { key: 'BD', label: 'Т', color: '#C49A7A' },
 ];
 
-const FRAMEWORK_LABELS = {
-  mbti: 'MBTI',
-  socionics: 'Соционика',
-  enneagram: 'Эннеаграмма',
-};
+function getFrameworkLabel(fw) {
+  return localizationManager.get(`frameworks.${fw}`) || fw;
+}
 
 const FRAMEWORKS = ['mbti', 'socionics', 'enneagram'];
 
@@ -62,13 +61,13 @@ export class BentoGrid {
     return `
       <div class="bento-grid-2x2">
         <div class="card bento-card bento-card--type">
-          <div class="bento-card__label">Ваш тип</div>
+          <div class="bento-card__label">${localizationManager.get('bento.yourType')}</div>
           <div class="bento-card__code bento-card__code--empty">????</div>
-          <div class="bento-card__empty">Пройдите тест</div>
+          <div class="bento-card__empty">${localizationManager.get('bento.takeTest')}</div>
         </div>
         <div class="card bento-card bento-card--traits-bars">
-          <div class="bento-card__label">Ваши черты</div>
-          <div class="bento-card__empty">Сначала пройдите тест</div>
+          <div class="bento-card__label">${localizationManager.get('bento.yourTraits')}</div>
+          <div class="bento-card__empty">${localizationManager.get('bento.takeTestFirst')}</div>
         </div>
       </div>
     `;
@@ -77,7 +76,7 @@ export class BentoGrid {
   static _renderSlide(result) {
     return `
       <div class="bento-carousel__slide">
-        <div class="bento-carousel__slide-label">${FRAMEWORK_LABELS[result.framework] || result.framework}</div>
+        <div class="bento-carousel__slide-label">${getFrameworkLabel(result.framework)}</div>
         <div class="bento-grid-2x2">
           ${BentoGrid._typeCard(result)}
           ${BentoGrid._traitsCard(result)}
@@ -88,7 +87,7 @@ export class BentoGrid {
 
   static _typeCard(result) {
     return `<div class="card bento-card bento-card--type">
-      <div class="bento-card__label">Ваш тип</div>
+      <div class="bento-card__label">${localizationManager.get('bento.yourType')}</div>
       <div class="bento-card__code">${result.typeCode}</div>
       <div class="bento-card__name">${result.typeName}</div>
     </div>`;
@@ -116,7 +115,7 @@ export class BentoGrid {
       }).join('');
     }
     return `<div class="card bento-card bento-card--traits-bars">
-      <div class="bento-card__label">Ваши черты</div>
+      <div class="bento-card__label">${localizationManager.get('bento.yourTraits')}</div>
       <div class="bento-card__bars">${bars}</div>
     </div>`;
   }

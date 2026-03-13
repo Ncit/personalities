@@ -9,6 +9,7 @@ import { TGAnalyticsService } from './services/TGAnalyticsService.js';
 import { TGUserService } from './services/TGUserService.js';
 import { TGPaymentService } from './services/TGPaymentService.js';
 import { PlatformDetector } from '../platform/PlatformDetector.js';
+import localizationManager from '../../locales/LocalizationManager.js';
 
 export class TGBridgeManager {
     constructor() {
@@ -117,7 +118,7 @@ export class TGBridgeManager {
             }
         } catch (error) {
             this.logger.error('Share failed:', error);
-            this.errorHandler.showError('Не удалось поделиться результатом.');
+            this.errorHandler.showError(localizationManager.get('errors.shareFailed'));
         }
     }
 
@@ -129,7 +130,7 @@ export class TGBridgeManager {
     async showOrderBox(productId) {
         const userId = this.userService.getUserId();
         if (!userId) {
-            this.errorHandler.showError('Пользователь не определён.');
+            this.errorHandler.showError(localizationManager.get('errors.userNotIdentified'));
             return null;
         }
 
@@ -173,8 +174,8 @@ export class TGBridgeManager {
             }
 
             tgApp.showPopup({
-                title: 'Способ оплаты',
-                message: 'Выберите способ оплаты для Премиум:',
+                title: localizationManager.get('payment.choiceTitle'),
+                message: localizationManager.get('payment.choiceMessage'),
                 buttons: [
                     { id: 'stars', type: 'default', text: `⭐ ${config.starsPrice} Stars` },
                     { id: 'tochka', type: 'default', text: `💳 ${config.tochkaPrice} ₽` },

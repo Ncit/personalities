@@ -1,11 +1,24 @@
 import { resultsStore } from '../../results/ResultsStore.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 import { TRAIT_KEYWORDS, PROFILE_DESCRIPTIONS } from '../../../data/TraitKeywords.ru.js';
 
 const CORE_FRAMEWORKS = ['mbti', 'socionics', 'enneagram'];
 const FW_COLORS = { mbti: '#7C9082', socionics: '#E8A85C', enneagram: '#C47A8A' };
-const FW_LABELS = { mbti: 'MBTI', socionics: 'Сц', enneagram: 'Энн' };
-const MONTHS_RU = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+function getFwLabel(fw) {
+  return localizationManager.get(`comparison.of${fw.charAt(0).toUpperCase() + fw.slice(1)}`) || fw;
+}
+
+function getMonths() {
+  return [
+    localizationManager.get('months.jan'), localizationManager.get('months.feb'),
+    localizationManager.get('months.mar'), localizationManager.get('months.apr'),
+    localizationManager.get('months.may'), localizationManager.get('months.jun'),
+    localizationManager.get('months.jul'), localizationManager.get('months.aug'),
+    localizationManager.get('months.sep'), localizationManager.get('months.oct'),
+    localizationManager.get('months.nov'), localizationManager.get('months.dec'),
+  ];
+}
 
 const AXIS_CONFIG = {
   mbti: [
@@ -29,7 +42,7 @@ const AXIS_CONFIG = {
 
 function shortDate(isoStr) {
   const d = new Date(isoStr);
-  return `${d.getDate()} ${MONTHS_RU[d.getMonth()]}`;
+  return `${d.getDate()} ${getMonths()[d.getMonth()]}`;
 }
 
 function getExcludedIds() {
@@ -68,8 +81,8 @@ export class ComparisonSection {
 
     return `
       <div class="comparison-section" id="comparison-section">
-        <div class="comparison-section__title">Эволюция типа</div>
-        <div class="comparison-section__subtitle">${results.length} результатов</div>
+        <div class="comparison-section__title">${localizationManager.get('comparison.typeEvolution')}</div>
+        <div class="comparison-section__subtitle">${localizationManager.get('comparison.results', { count: results.length })}</div>
         ${this._renderTimeline(results, excluded, currentResultId)}
         <div class="comparison-analytics" id="comparison-analytics">
           ${this._renderAnalytics(results, excluded)}
@@ -96,8 +109,8 @@ export class ComparisonSection {
             </button>
             <div class="comparison-card__date">${shortDate(r.date)}</div>
             <div class="comparison-card__type">${r.typeCode}</div>
-            <div class="comparison-card__meta">${FW_LABELS[r.framework]} · ${r.confidence ? r.confidence + '%' : '—'}</div>
-            <div class="comparison-card__badge">${isExcluded ? '✕ Убран' : '✓ Включён'}</div>
+            <div class="comparison-card__meta">${getFwLabel(r.framework)} · ${r.confidence ? r.confidence + '%' : '—'}</div>
+            <div class="comparison-card__badge">${isExcluded ? localizationManager.get('comparison.excluded') : localizationManager.get('comparison.included')}</div>
           </div>`;
         }).join('')}
       </div>
@@ -110,11 +123,11 @@ export class ComparisonSection {
     return `
       <div class="comparison-delete-dialog" id="comparison-delete-dialog">
         <div class="comparison-delete-dialog__card">
-          <div class="comparison-delete-dialog__title">Удалить результат?</div>
-          <div class="comparison-delete-dialog__text">${r.typeCode} от ${shortDate(r.date)} будет удалён навсегда.</div>
+          <div class="comparison-delete-dialog__title">${localizationManager.get('comparison.deleteTitle')}</div>
+          <div class="comparison-delete-dialog__text">${localizationManager.get('comparison.deleteText', { typeCode: r.typeCode, date: shortDate(r.date) })}</div>
           <div class="comparison-delete-dialog__actions">
-            <button class="btn-danger" id="comparison-delete-confirm">Удалить</button>
-            <button class="btn-secondary" id="comparison-delete-cancel">Отмена</button>
+            <button class="btn-danger" id="comparison-delete-confirm">${localizationManager.get('comparison.deleteConfirm')}</button>
+            <button class="btn-secondary" id="comparison-delete-cancel">${localizationManager.get('comparison.deleteCancel')}</button>
           </div>
         </div>
       </div>
@@ -124,7 +137,7 @@ export class ComparisonSection {
   _renderAnalytics(results, excluded) {
     const included = results.filter(r => !excluded.includes(r.id));
     if (included.length === 0) {
-      return '<div class="comparison-empty">Включите хотя бы один результат</div>';
+      return `<div class="comparison-empty">${localizationManager.get('comparison.includeAtLeast')}</div>`;
     }
     return `
       ${this._renderRadar(included)}
@@ -192,12 +205,12 @@ export class ComparisonSection {
     }).join('');
 
     const legend = fwsPresent.map(fw =>
-      `<span style="color:${FW_COLORS[fw]};font-size:11px;font-weight:500">${'\u25CF'} ${FW_LABELS[fw]}</span>`
+      `<span style="color:${FW_COLORS[fw]};font-size:11px;font-weight:500">${'\u25CF'} ${getFwLabel(fw)}</span>`
     ).join('&nbsp;&nbsp;');
 
     return `
       <div class="comparison-block">
-        <div class="comparison-block__title">Сравнение измерений</div>
+        <div class="comparison-block__title">${localizationManager.get('comparison.dimensionComparison')}</div>
         <svg viewBox="0 0 240 240" style="width:100%;max-width:280px;margin:0 auto;display:block">
           ${gridCircles}
           ${axisLines}
@@ -223,7 +236,7 @@ export class ComparisonSection {
     const rows = fws.map(fw => {
       const fwResults = byFw[fw];
       const color = FW_COLORS[fw];
-      const label = FW_LABELS[fw];
+      const label = getFwLabel(fw);
 
       const counts = {};
       fwResults.forEach(r => { counts[r.typeCode] = (counts[r.typeCode] || 0) + 1; });
@@ -259,12 +272,12 @@ export class ComparisonSection {
     }).join('');
 
     const overallLine = overallWeight > 0
-      ? `<div style="text-align:center;font-size:11px;color:#8A8A8A;margin-top:8px">Общая стабильность: <span style="color:#2D2D2D;font-weight:600">${Math.round(overallWeightedSum / overallWeight)}%</span></div>`
+      ? `<div style="text-align:center;font-size:11px;color:#8A8A8A;margin-top:8px">${localizationManager.get('comparison.overallStability')}: <span style="color:#2D2D2D;font-weight:600">${Math.round(overallWeightedSum / overallWeight)}%</span></div>`
       : '';
 
     return `
       <div class="comparison-block">
-        <div class="comparison-block__title">Стабильность результатов</div>
+        <div class="comparison-block__title">${localizationManager.get('comparison.resultStability')}</div>
         ${rows}
         ${overallLine}
       </div>
@@ -312,8 +325,8 @@ export class ComparisonSection {
       profileName = fwTraits.length >= 2
         ? this._capitalize(fwTraits[0]) + '-' + fwTraits[1]
         : this._capitalize(fwTraits[0] || 'Тип');
-      const fwLabel = { mbti: 'MBTI', socionics: 'Соционики', enneagram: 'Эннеаграммы' }[fwsWithResults[0]] || '';
-      profileSubtitle = `На основе ${fwLabel}`;
+      const fwLabel = { mbti: localizationManager.get('comparison.ofMBTI'), socionics: localizationManager.get('comparison.ofSocionics'), enneagram: localizationManager.get('comparison.ofEnneagram') }[fwsWithResults[0]] || '';
+      profileSubtitle = localizationManager.get('comparison.basedOn', { framework: fwLabel });
     } else {
       const topTraits = fwsWithResults.map(fw => {
         const r = latestByFw[fw];
@@ -331,8 +344,8 @@ export class ComparisonSection {
       .map(t => PROFILE_DESCRIPTIONS[t])
       .filter(Boolean);
     const description = descParts.length > 0
-      ? 'Ваш профиль сочетает ' + descParts.join(', ') + '.'
-      : 'Уникальный профиль на основе ваших результатов.';
+      ? localizationManager.get('comparison.profileCombines') + ' ' + descParts.join(', ') + '.'
+      : localizationManager.get('comparison.uniqueProfile');
 
     const allTraits = [...coreTraits, ...secondaryTraits.map(s => s.trait)];
     const pills = allTraits.slice(0, 6).map(trait => {
@@ -343,7 +356,7 @@ export class ComparisonSection {
 
     return `
       <div class="comparison-block comparison-block--correlation">
-        <div class="comparison-block__title">Корреляция типов</div>
+        <div class="comparison-block__title">${localizationManager.get('comparison.typeCorrelation')}</div>
         <div class="comparison-correlation-card">
           <div class="comparison-correlation-card__name">${profileName}</div>
           ${profileSubtitle ? `<div class="comparison-correlation-card__subtitle">${profileSubtitle}</div>` : ''}
@@ -369,7 +382,7 @@ export class ComparisonSection {
         const isExcluded = excluded.includes(id);
         card.classList.toggle('comparison-card--excluded', isExcluded);
         const badge = card.querySelector('.comparison-card__badge');
-        if (badge) badge.textContent = isExcluded ? '✕ Убран' : '✓ Включён';
+        if (badge) badge.textContent = isExcluded ? localizationManager.get('comparison.excluded') : localizationManager.get('comparison.included');
         this._refreshAnalytics(container);
       });
     });

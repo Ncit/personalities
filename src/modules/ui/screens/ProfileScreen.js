@@ -1,22 +1,27 @@
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
+import localizationManager from '../../../locales/LocalizationManager.js';
 
 function getStateManager() { return window.stateManager; }
 
-const HELP_LINKS = [
-  { icon: 'info', label: 'Как пройти тест', action: 'how-to-test' },
-  { icon: 'bar-chart-2', label: 'Понимание результатов', action: 'understanding-results' },
-  { icon: 'crown', label: 'Премиум функции', action: 'premium-features' },
-  { icon: 'message-circle', label: 'Вопросы и ответы', action: 'faq' },
-];
+function getHelpLinks() {
+  return [
+    { icon: 'info', label: localizationManager.get('footer.howToTest'), action: 'how-to-test' },
+    { icon: 'bar-chart-2', label: localizationManager.get('footer.understandingResults'), action: 'understanding-results' },
+    { icon: 'crown', label: localizationManager.get('footer.premiumFeatures'), action: 'premium-features' },
+    { icon: 'message-circle', label: localizationManager.get('footer.faq'), action: 'faq' },
+  ];
+}
 
-const ABOUT_LINKS = [
-  { icon: 'users', label: 'О типах личности', action: 'about-personality' },
-  { icon: 'shield', label: 'Конфиденциальность', action: 'privacy' },
-  { icon: 'file-text', label: 'Условия использования', action: 'terms' },
-  { icon: 'mail', label: 'Контакты', action: 'contacts' },
-  { icon: 'scroll-text', label: 'Публичная оферта', action: 'offer' },
-];
+function getAboutLinks() {
+  return [
+    { icon: 'users', label: localizationManager.get('footer.aboutPersonality'), action: 'about-personality' },
+    { icon: 'shield', label: localizationManager.get('footer.privacy'), action: 'privacy' },
+    { icon: 'file-text', label: localizationManager.get('footer.terms'), action: 'terms' },
+    { icon: 'mail', label: localizationManager.get('footer.contacts'), action: 'contacts' },
+    { icon: 'scroll-text', label: localizationManager.get('footer.offer'), action: 'offer' },
+  ];
+}
 
 export class ProfileScreen {
   constructor() {
@@ -40,7 +45,7 @@ export class ProfileScreen {
     const isDev = sm ? sm.isDevelopment() : false;
 
     this.el.innerHTML = `
-      <h1 class="page-title">Профиль</h1>
+      <h1 class="page-title">${localizationManager.get('profile.title')}</h1>
       <div class="profile-grid">
         <!-- User card — full width -->
         <div class="profile-grid__user">
@@ -52,9 +57,9 @@ export class ProfileScreen {
               }
             </div>
             <div>
-              <div class="user-card__name">${vkUser ? `${vkUser.first_name} ${vkUser.last_name}` : 'Гость'}</div>
+              <div class="user-card__name">${vkUser ? `${vkUser.first_name} ${vkUser.last_name}` : localizationManager.get('profile.guest')}</div>
               ${isGuest
-                ? '<div class="user-card__type">Войдите, чтобы сохранить результаты</div>'
+                ? `<div class="user-card__type">${localizationManager.get('profile.signInToSave')}</div>`
                 : (mbti ? `<div class="user-card__type">${mbti.typeCode} · ${mbti.typeName}</div>` : '')
               }
             </div>
@@ -64,13 +69,13 @@ export class ProfileScreen {
         <!-- Stats — each card in its own grid cell -->
         <div class="profile-grid__stat">
           <div class="stat-card">
-            <div class="stat-card__label">Тестов пройдено</div>
+            <div class="stat-card__label">${localizationManager.get('profile.testsCompleted')}</div>
             <div class="stat-card__value">${testCount}</div>
           </div>
         </div>
         <div class="profile-grid__stat">
           <div class="stat-card">
-            <div class="stat-card__label">Точность</div>
+            <div class="stat-card__label">${localizationManager.get('profile.accuracy')}</div>
             <div class="stat-card__value">${accuracy != null ? `${accuracy}%` : '—'}</div>
           </div>
         </div>
@@ -80,8 +85,8 @@ export class ProfileScreen {
         <div class="profile-grid__premium">
           <div class="premium-cta-mobile" id="premium-cta-mobile">
             <div class="premium-cta-mobile__text">
-              <div class="premium-cta-mobile__title">Премиум</div>
-              <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
+              <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
+              <div class="premium-cta-mobile__subtitle">${localizationManager.get('profile.premiumSubtitle')}</div>
             </div>
             <button class="btn-gold btn-gold--small">150 ₽</button>
           </div>
@@ -95,11 +100,11 @@ export class ProfileScreen {
             <div class="vk-signin-card__icon">
               <i data-lucide="log-in" style="width:28px;height:28px"></i>
             </div>
-            <div class="vk-signin-card__title">Войти через VK</div>
-            <div class="vk-signin-card__subtitle">Сохраняйте результаты и достижения на всех устройствах</div>
+            <div class="vk-signin-card__title">${localizationManager.get('profile.signInVK')}</div>
+            <div class="vk-signin-card__subtitle">${localizationManager.get('profile.saveResults')}</div>
             <button class="btn-sage btn-sage--full">
               <i data-lucide="log-in" style="width:16px;height:16px"></i>
-              Войти
+              ${localizationManager.get('profile.signIn')}
             </button>
           </div>
         </div>
@@ -111,11 +116,11 @@ export class ProfileScreen {
           <div class="dev-vk-signin" id="dev-vk-signin">
             <div class="dev-vk-signin__title">
               <i data-lucide="code" style="width:16px;height:16px"></i>
-              Dev: Войти как тестовый пользователь
+              ${localizationManager.get('profile.devSignIn')}
             </div>
             <button class="dev-tools-btn" id="dev-vk-login">
               <i data-lucide="log-in" style="width:16px;height:16px"></i>
-              Войти как Никита (тест)
+              ${localizationManager.get('profile.devSignInBtn')}
             </button>
           </div>
         </div>
@@ -123,9 +128,9 @@ export class ProfileScreen {
 
         <!-- Help links — 2-column grid -->
         <div class="profile-grid__help">
-          <div class="section-label">Помощь</div>
+          <div class="section-label">${localizationManager.get('profile.help')}</div>
           <div class="links-grid">
-            ${HELP_LINKS.map(link => `
+            ${getHelpLinks().map(link => `
               <div class="help-info__link" data-action="${link.action}">
                 <i data-lucide="${link.icon}" style="width:18px;height:18px"></i>
                 <span>${link.label}</span>
@@ -137,9 +142,9 @@ export class ProfileScreen {
 
         <!-- About links — 2-column grid -->
         <div class="profile-grid__about">
-          <div class="section-label">О проекте</div>
+          <div class="section-label">${localizationManager.get('profile.about')}</div>
           <div class="links-grid">
-            ${ABOUT_LINKS.map(link => `
+            ${getAboutLinks().map(link => `
               <div class="help-info__link" data-action="${link.action}">
                 <i data-lucide="${link.icon}" style="width:18px;height:18px"></i>
                 <span>${link.label}</span>
@@ -153,7 +158,7 @@ export class ProfileScreen {
         <div class="profile-grid__footer">
           <div class="profile-footer__text">
             <a href="mailto:personalitiesresearch@mail.ru">personalitiesresearch@mail.ru</a><br>
-            © ${new Date().getFullYear()} Тест личности. Основано на исследованиях психологии личности.
+            © ${new Date().getFullYear()} ${localizationManager.get('profile.footerText')}
           </div>
         </div>
 
@@ -163,24 +168,24 @@ export class ProfileScreen {
           <div class="dev-tools-panel">
             <div class="dev-tools-panel__title">
               <i data-lucide="code" style="width:16px;height:16px"></i>
-              Инструменты разработчика
+              ${localizationManager.get('profile.devTools')}
             </div>
             <button class="dev-tools-btn" id="dev-toggle-premium">
               <i data-lucide="crown" style="width:16px;height:16px"></i>
-              ${isPremium ? 'Отключить Премиум' : 'Включить Премиум'}
+              ${isPremium ? localizationManager.get('profile.togglePremiumOff') : localizationManager.get('profile.togglePremiumOn')}
             </button>
             <button class="dev-tools-btn" id="dev-clear-storage">
               <i data-lucide="trash-2" style="width:16px;height:16px"></i>
-              Очистить localStorage
+              ${localizationManager.get('profile.clearStorage')}
             </button>
             <button class="dev-tools-btn" id="dev-toggle-state">
               <i data-lucide="toggle-left" style="width:16px;height:16px"></i>
-              Переключить на release
+              ${localizationManager.get('profile.toggleRelease')}
             </button>
             ${vkUser ? `
             <button class="dev-tools-btn" id="dev-vk-logout">
               <i data-lucide="log-out" style="width:16px;height:16px"></i>
-              Выйти из VK (тест)
+              ${localizationManager.get('profile.logoutVK')}
             </button>
             ` : ''}
           </div>

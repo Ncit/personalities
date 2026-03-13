@@ -1,21 +1,25 @@
+import localizationManager from '../../../locales/LocalizationManager.js';
+
 function getStateManager() { return window.stateManager; }
 
-const ACHIEVEMENTS = [
-  { key: 'firstSteps', icon: 'ach_firstSteps', title: 'Первые шаги', description: 'Пройдите первый тест' },
-  { key: 'onFire', icon: 'ach_onFire', title: 'В ударе', description: '3+ теста за неделю' },
-  { key: 'highAccuracy', icon: 'ach_highAccuracy', title: 'Высокая точность', description: '85%+ показатель уверенности' },
-  { key: 'explorer', icon: 'ach_explorer', title: 'Исследователь', description: 'Откройте 5 разных типов' },
-  { key: 'collector', icon: 'ach_collector', title: 'Коллекционер', description: 'Пройдите тесты 3 разных систем' },
-  { key: 'marathon', icon: 'ach_marathon', title: 'Марафонец', description: 'Пройдите 10 тестов' },
-  { key: 'stable', icon: 'ach_stable', title: 'Стабильность', description: 'Один тип 3 раза подряд' },
-  { key: 'perfectionist', icon: 'ach_perfectionist', title: 'Перфекционист', description: '95%+ показатель уверенности' },
-  { key: 'earlyBird', icon: 'ach_earlyBird', title: 'Ранняя пташка', description: 'Пройдите тест до 7 утра' },
-  { key: 'nightOwl', icon: 'ach_nightOwl', title: 'Ночная сова', description: 'Пройдите тест после полуночи' },
-  { key: 'weekStreak', icon: 'ach_weekStreak', title: 'Неделя роста', description: 'Заходите 7 дней подряд' },
-  { key: 'curious', icon: 'ach_curious', title: 'Любознательный', description: 'Откройте все разделы помощи' },
-  { key: 'specialist', icon: 'ach_specialist', title: 'Специалист', description: 'Пройдите все премиум тесты' },
-  { key: 'master', icon: 'ach_master', title: 'Мастер', description: 'Пройдите все доступные тесты' },
-];
+function getAchievements() {
+  return [
+    { key: 'firstSteps', icon: 'ach_firstSteps', title: localizationManager.get('achievements.firstSteps'), description: localizationManager.get('achievements.firstStepsDesc') },
+    { key: 'onFire', icon: 'ach_onFire', title: localizationManager.get('achievements.onFire'), description: localizationManager.get('achievements.onFireDesc') },
+    { key: 'highAccuracy', icon: 'ach_highAccuracy', title: localizationManager.get('achievements.highAccuracy'), description: localizationManager.get('achievements.highAccuracyDesc') },
+    { key: 'explorer', icon: 'ach_explorer', title: localizationManager.get('achievements.explorer'), description: localizationManager.get('achievements.explorerDesc') },
+    { key: 'collector', icon: 'ach_collector', title: localizationManager.get('achievements.collector'), description: localizationManager.get('achievements.collectorDesc') },
+    { key: 'marathon', icon: 'ach_marathon', title: localizationManager.get('achievements.marathon'), description: localizationManager.get('achievements.marathonDesc') },
+    { key: 'stable', icon: 'ach_stable', title: localizationManager.get('achievements.stable'), description: localizationManager.get('achievements.stableDesc') },
+    { key: 'perfectionist', icon: 'ach_perfectionist', title: localizationManager.get('achievements.perfectionist'), description: localizationManager.get('achievements.perfectionistDesc') },
+    { key: 'earlyBird', icon: 'ach_earlyBird', title: localizationManager.get('achievements.earlyBird'), description: localizationManager.get('achievements.earlyBirdDesc') },
+    { key: 'nightOwl', icon: 'ach_nightOwl', title: localizationManager.get('achievements.nightOwl'), description: localizationManager.get('achievements.nightOwlDesc') },
+    { key: 'weekStreak', icon: 'ach_weekStreak', title: localizationManager.get('achievements.weekStreak'), description: localizationManager.get('achievements.weekStreakDesc') },
+    { key: 'curious', icon: 'ach_curious', title: localizationManager.get('achievements.curious'), description: localizationManager.get('achievements.curiousDesc') },
+    { key: 'specialist', icon: 'ach_specialist', title: localizationManager.get('achievements.specialist'), description: localizationManager.get('achievements.specialistDesc') },
+    { key: 'master', icon: 'ach_master', title: localizationManager.get('achievements.master'), description: localizationManager.get('achievements.masterDesc') },
+  ];
+}
 
 export class AchievementsScreen {
   constructor() {
@@ -30,15 +34,16 @@ export class AchievementsScreen {
   render() {
     const sm = getStateManager();
     const achievements = sm ? (sm.get('achievements') || {}) : {};
-    const earned = ACHIEVEMENTS.filter(a => achievements[a.key]).length;
+    const allAchievements = getAchievements();
+    const earned = allAchievements.filter(a => achievements[a.key]).length;
 
     this.el.innerHTML = `
-      <h1 class="page-title">Достижения</h1>
+      <h1 class="page-title">${localizationManager.get('achievements.title')}</h1>
       <div class="achievements-progress" style="text-align:center;margin-bottom:16px;font-size:13px;color:#8A8A8A">
-        Получено ${earned} из ${ACHIEVEMENTS.length}
+        ${localizationManager.get('achievements.progress', { earned, total: allAchievements.length })}
       </div>
       <div class="achievements-grid">
-        ${ACHIEVEMENTS.map(a => {
+        ${allAchievements.map(a => {
           const isEarned = !!achievements[a.key];
           return `
           <div class="achievement-card ${isEarned ? '' : 'achievement-card--locked'}">

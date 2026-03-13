@@ -1,6 +1,8 @@
 /**
  * Telegram-specific error handling.
  */
+import localizationManager from '../../../locales/LocalizationManager.js';
+
 export class TGErrorHandler {
     constructor(logger) {
         this.logger = logger;
@@ -11,12 +13,12 @@ export class TGErrorHandler {
         this.logger.error(`[TG ${context}]`, error);
 
         if (error?.message?.includes('PAYMENT')) {
-            return 'Ошибка оплаты. Попробуйте позже.';
+            return localizationManager.get('errors.paymentError');
         }
         if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
-            return 'Ошибка сети. Проверьте соединение.';
+            return localizationManager.get('errors.networkErrorShort');
         }
-        return 'Произошла ошибка. Попробуйте позже.';
+        return localizationManager.get('errors.genericErrorShort');
     }
 
     /** Show a Telegram popup with an error message. */
@@ -24,7 +26,7 @@ export class TGErrorHandler {
         try {
             if (window.Telegram?.WebApp?.showPopup) {
                 window.Telegram.WebApp.showPopup({
-                    title: 'Ошибка',
+                    title: localizationManager.get('errors.errorTitle'),
                     message,
                     buttons: [{ type: 'ok' }]
                 });
