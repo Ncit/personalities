@@ -144,7 +144,7 @@ export class PremiumModal {
     const flavor = PlatformDetector.getFlavor();
     if (flavor === 'tg') return 'Открыть Премиум';
     if (flavor === 'vk') return 'Открыть Премиум — 40 голосов';
-    return 'Открыть Премиум — 280 ₽';
+    return 'Открыть Премиум — 150 ₽';
   }
 
   _showToast(message, type) {

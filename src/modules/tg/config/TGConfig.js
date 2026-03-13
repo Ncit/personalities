@@ -25,7 +25,7 @@ export class TGConfig {
             description: 'Access to premium features',
             descriptionRu: 'Доступ к премиум-функциям',
             starsPrice: 75,        // Price in Telegram Stars
-            tochkaPrice: 280,      // Price in rubles (Tochka)
+            tochkaPrice: 150,      // Price in rubles (Tochka)
             currency: 'XTR'        // Telegram Stars currency code
         }
     };
