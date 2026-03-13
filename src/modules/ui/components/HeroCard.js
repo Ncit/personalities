@@ -2,6 +2,20 @@ import { router } from '../../router/Router.js';
 
 const FRAMEWORKS = [
   {
+    key: 'keirsey',
+    badge: 'Скоро',
+    title: 'Темперамент по Кейрси\n4 типа темперамента',
+    gradient: 'linear-gradient(135deg, #7A8EC4 0%, #5A6EA0 100%)',
+    comingSoon: true,
+  },
+  {
+    key: 'cognitive',
+    badge: 'Скоро',
+    title: 'Когнитивные функции\nчистая модель Юнга',
+    gradient: 'linear-gradient(135deg, #9B8EC4 0%, #7A6EA0 100%)',
+    comingSoon: true,
+  },
+  {
     key: 'mbti',
     badge: 'MBTI',
     title: '16 типов личности\nи ваше место среди них',
@@ -25,7 +39,7 @@ export class HeroCard {
   static render() {
     const cards = FRAMEWORKS.map((fw, i) => {
       return `
-        <div class="hero-card" data-framework="${fw.key}" style="background:${fw.gradient}">
+        <div class="hero-card ${fw.comingSoon ? 'hero-card--coming-soon' : ''}" ${fw.comingSoon ? '' : `data-framework="${fw.key}"`} style="background:${fw.gradient}">
           <div class="hero-card__badge">${fw.badge}</div>
           <div class="hero-card__title">${fw.title}</div>
         </div>

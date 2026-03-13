@@ -233,6 +233,10 @@
   font: 500 12px/1.4 var(--font-body);
   opacity: 0.75;
 }
+.hero-card--coming-soon {
+  opacity: 0.7;
+  cursor: default;
+}
 
 /* 14-15. Answer Option */
 .answer-option {
