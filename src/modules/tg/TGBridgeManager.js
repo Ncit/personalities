@@ -199,6 +199,7 @@ export class TGBridgeManager {
         try {
             const { paymentLink, operationId } = await this.paymentService.createTochkaPayment(userId);
             localStorage.setItem('tochka_pending_operation', operationId);
+            localStorage.setItem('tochka_pending_started', String(Date.now()));
             window.Telegram.WebApp.openLink(paymentLink);
         } catch (error) {
             const msg = this.errorHandler.handle('Tochka payment', error);

@@ -3138,6 +3138,8 @@ function setupModalClickOutside() {
  * confirms payment with backend, and activates premium.
  */
 let _tochkaPollingActive = false;
+const TOCHKA_POLL_MAX_MS = 7 * 60 * 1000; // 7 minutes max polling window
+const TOCHKA_POLL_INTERVAL = 5000;          // 5s between checks
 
 async function handleTochkaPaymentReturn() {
     const operationId = localStorage.getItem('tochka_pending_operation');
@@ -3145,7 +3147,15 @@ async function handleTochkaPaymentReturn() {
 
     // If user already has premium, just clean up
     if (isPremium()) {
-        localStorage.removeItem('tochka_pending_operation');
+        _tochkaCleanup();
+        return;
+    }
+
+    // Check if 7-minute window expired
+    const startedAt = parseInt(localStorage.getItem('tochka_pending_started') || '0', 10);
+    if (startedAt && (Date.now() - startedAt > TOCHKA_POLL_MAX_MS)) {
+        logger.warn('Tochka 7-min polling window expired, cleaning up');
+        _tochkaCleanup();
         return;
     }
 
@@ -3156,10 +3166,15 @@ async function handleTochkaPaymentReturn() {
     logger.log('Confirming Tochka payment, operationId:', operationId);
 
     const backendUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
-    const maxRetries = 20;       // 20 retries
-    const retryDelay = 5000;     // 5s apart = up to ~100s total
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    // Poll until confirmed or 7-min window expires
+    while (true) {
+        const elapsed = Date.now() - (startedAt || Date.now());
+        if (elapsed > TOCHKA_POLL_MAX_MS) {
+            logger.warn('Tochka 7-min window reached during polling');
+            break;
+        }
+
         try {
             const resp = await fetch(backendUrl, {
                 method: 'POST',
@@ -3169,7 +3184,7 @@ async function handleTochkaPaymentReturn() {
             const data = await resp.json();
 
             if (data.success && data.has_purchase) {
-                localStorage.removeItem('tochka_pending_operation');
+                _tochkaCleanup();
                 _tochkaPollingActive = false;
                 setPremium(true);
 
@@ -3190,23 +3205,21 @@ async function handleTochkaPaymentReturn() {
                 logger.log('Tochka payment confirmed successfully');
                 return;
             }
-
-            // Not yet approved — wait and retry
-            if (attempt < maxRetries) {
-                logger.log(`Payment not yet confirmed (${attempt}/${maxRetries}), retrying in ${retryDelay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-            }
         } catch (error) {
-            logger.error(`Payment confirmation attempt ${attempt} failed:`, error);
-            if (attempt < maxRetries) {
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-            }
+            logger.error('Payment confirmation poll failed:', error);
         }
+
+        // Wait before next attempt
+        await new Promise(resolve => setTimeout(resolve, TOCHKA_POLL_INTERVAL));
     }
 
-    // All retries exhausted — keep operationId for next visibility check
     _tochkaPollingActive = false;
-    logger.warn('Payment confirmation retries exhausted, will retry on next app focus');
+    logger.warn('Payment not confirmed within window, will retry on next app focus');
+}
+
+function _tochkaCleanup() {
+    localStorage.removeItem('tochka_pending_operation');
+    localStorage.removeItem('tochka_pending_started');
 }
 
 // Initialize VK Bridge Manager

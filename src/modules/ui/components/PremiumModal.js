@@ -22,16 +22,17 @@ export class PremiumModal {
     }
   }
 
-  /** Poll backend to confirm a pending Tochka payment. */
+  /** Poll backend to confirm a pending Tochka payment (up to 7 min from start). */
   async _pollTochkaConfirmation(operationId) {
     this.state = 'processing';
     this.render();
 
     const confirmUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
-    const maxRetries = 20;
-    const retryDelay = 5000; // 5s apart = up to ~100s
+    const pollInterval = 5000;
+    const maxMs = 7 * 60 * 1000;
+    const startedAt = parseInt(localStorage.getItem('tochka_pending_started') || '0', 10) || Date.now();
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    while (Date.now() - startedAt < maxMs) {
       try {
         const resp = await fetch(confirmUrl, {
           method: 'POST',
@@ -42,6 +43,7 @@ export class PremiumModal {
 
         if (data.success && data.has_purchase) {
           localStorage.removeItem('tochka_pending_operation');
+          localStorage.removeItem('tochka_pending_started');
           if (window.stateManager) window.stateManager.setState('isPremium', true);
           this._showToast('Премиум разблокирован!', 'success');
           router.closeOverlay();
@@ -51,12 +53,10 @@ export class PremiumModal {
         logger.error('Tochka confirm poll error:', e);
       }
 
-      if (attempt < maxRetries) {
-        await new Promise(r => setTimeout(r, retryDelay));
-      }
+      await new Promise(r => setTimeout(r, pollInterval));
     }
 
-    // Retries exhausted — don't clear operationId, visibilitychange handler will retry
+    // 7 min expired
     this.state = 'error';
     this.errorMessage = 'Платёж обрабатывается. Премиум активируется автоматически.';
     this.render();
@@ -174,6 +174,7 @@ export class PremiumModal {
         });
 
         localStorage.setItem('tochka_pending_operation', data.operationId);
+        localStorage.setItem('tochka_pending_started', String(Date.now()));
         window.location.href = data.paymentLink;
       } catch (error) {
         logger.error('Payment failed:', error);
