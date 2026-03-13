@@ -3139,17 +3139,15 @@ function setupModalClickOutside() {
  * confirms payment with backend, and activates premium.
  */
 async function handleTochkaPaymentReturn() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment') !== 'success') return;
-
+    // Check if there's a pending Tochka payment to confirm
+    // This runs on every app load — after payment, user returns to VK app
+    // and we detect the pending operationId in localStorage
     const operationId = localStorage.getItem('tochka_pending_operation');
+    if (!operationId) return;
 
-    // Clean URL params regardless of outcome
-    const cleanUrl = window.location.pathname + window.location.hash;
-    window.history.replaceState({}, '', cleanUrl);
-
-    if (!operationId) {
-        logger.warn('Payment return detected but no operationId in localStorage');
+    // If user already has premium, just clean up
+    if (isPremium()) {
+        localStorage.removeItem('tochka_pending_operation');
         return;
     }
 
