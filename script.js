@@ -3133,6 +3133,84 @@ function setupModalClickOutside() {
     });
 }
 
+/**
+ * Handle return from Tochka payment page.
+ * Checks URL for ?payment=success, reads operationId from localStorage,
+ * confirms payment with backend, and activates premium.
+ */
+async function handleTochkaPaymentReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') !== 'success') return;
+
+    const operationId = localStorage.getItem('tochka_pending_operation');
+
+    // Clean URL params regardless of outcome
+    const cleanUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, '', cleanUrl);
+
+    if (!operationId) {
+        logger.warn('Payment return detected but no operationId in localStorage');
+        return;
+    }
+
+    logger.log('Confirming Tochka payment, operationId:', operationId);
+
+    const backendUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
+    const maxRetries = 3;
+    const retryDelay = 3000;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const resp = await fetch(backendUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ operationId })
+            });
+            const data = await resp.json();
+
+            if (data.success && data.has_purchase) {
+                localStorage.removeItem('tochka_pending_operation');
+                setPremium(true);
+
+                // Show success toast
+                const container = document.getElementById('toast-container');
+                if (container) {
+                    const toast = document.createElement('div');
+                    toast.className = 'toast toast--success';
+                    toast.textContent = 'Премиум разблокирован!';
+                    container.appendChild(toast);
+                    setTimeout(() => toast.remove(), 5000);
+                }
+
+                logger.log('Tochka payment confirmed successfully');
+                return;
+            }
+
+            // Not yet approved — wait and retry
+            if (attempt < maxRetries) {
+                logger.log(`Payment not yet confirmed (status: ${data.status}), retrying in ${retryDelay}ms... (${attempt}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
+        } catch (error) {
+            logger.error(`Payment confirmation attempt ${attempt} failed:`, error);
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
+        }
+    }
+
+    // All retries exhausted — show processing message
+    logger.warn('Payment confirmation retries exhausted');
+    const container = document.getElementById('toast-container');
+    if (container) {
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--info';
+        toast.textContent = 'Платёж обрабатывается. Премиум активируется автоматически в течение нескольких минут.';
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 10000);
+    }
+}
+
 // Initialize VK Bridge Manager
 let vkBridgeManager;
 
@@ -3142,7 +3220,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Check for existing user authorization first
     checkExistingUserAuth();
-    
+
+    // Handle return from Tochka payment
+    handleTochkaPaymentReturn();
+
     // Initialize VK Bridge Manager
     try {
         vkBridgeManager = new VKBridgeManager();
