@@ -1,3 +1,7 @@
+.home-screen {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 .home-screen .page-title { margin-bottom: 4px; }
 .home-screen .page-subtitle {
   font: 400 14px/1.4 var(--font-body);
@@ -182,6 +186,8 @@
   display: flex; align-items: center; gap: 16px;
   padding: 16px 20px;
   margin-bottom: 8px;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 .share-card__info { flex: 1; }
 .share-card__title {

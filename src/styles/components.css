@@ -204,7 +204,8 @@
 
 /* 13b. Hero Card */
 .hero-card {
-  width: fit-content;
+  min-width: 260px;
+  max-width: 85vw;
   flex-shrink: 0;
   scroll-snap-align: start;
   background: var(--gradient-sage);
@@ -216,6 +217,7 @@
   flex-direction: column;
   justify-content: space-between;
   white-space: pre-line;
+  box-sizing: border-box;
 }
 .hero-card__badge {
   display: inline-flex; padding: 4px 10px;

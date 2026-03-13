@@ -267,9 +267,8 @@ export class VKBridgeManager {
         }
 
         try {
-            await this.bridge.send('VKWebAppShowWallPostBox', {
-                message: shareText || '',
-                attachments: 'https://vk.com/app53942833'
+            await this.bridge.send('VKWebAppShare', {
+                link: 'https://vk.com/app53942833'
             });
 
             this.analytics.trackSharing(personalityType, true);
