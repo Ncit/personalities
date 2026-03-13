@@ -3236,9 +3236,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleTochkaPaymentReturn();
 
     // Re-check pending payment when app returns to foreground (e.g. after bank redirect)
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener('visibilitychange', async () => {
         if (document.visibilityState === 'visible') {
+            // Invalidate VK premium cache so fresh backend check happens
+            if (window.vkBridgeManager?.userService) {
+                window.vkBridgeManager.userService.cachedPremiumStatus = null;
+                window.vkBridgeManager.userService.premiumStatusCacheTime = null;
+            }
             handleTochkaPaymentReturn();
+
+            // Also force a fresh premium check from backend
+            if (window.vkBridgeManager?.userService && !isPremium()) {
+                try {
+                    const result = await window.vkBridgeManager.userService.checkPremiumStatus();
+                    if (result) {
+                        setPremium(true);
+                        updatePremiumUI();
+                    }
+                } catch (e) { /* ignore */ }
+            }
         }
     });
 
