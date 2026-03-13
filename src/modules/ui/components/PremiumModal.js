@@ -1,5 +1,6 @@
 import { router } from '../../router/Router.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
+import { firebaseAnalytics } from '../../../config/firebase.js';
 
 const logger = new LoggerManager().createModuleLogger('PremiumModal');
 
@@ -118,6 +119,13 @@ export class PremiumModal {
         if (!data.success || !data.paymentLink) {
           throw new Error(data.message || 'Failed to create payment');
         }
+
+        // Track payment initiation in Firebase before redirect
+        firebaseAnalytics.logEvent('payment_initiated', {
+          vk_user_id: vkUserId,
+          operation_id: data.operationId,
+          payment_method: 'tochka'
+        });
 
         // Save operationId for confirmation after redirect back
         localStorage.setItem('tochka_pending_operation', data.operationId);
