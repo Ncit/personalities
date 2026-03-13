@@ -36,7 +36,7 @@ export class PremiumModal {
           <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Без рекламы</li>
         </ul>
         <button class="premium-cta-btn" id="premium-buy" ${isProcessing ? 'disabled' : ''}>
-          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : 'Открыть Премиум — 280 ₽'}
+          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : 'Открыть Премиум — 150 ₽'}
         </button>
         ${this.state === 'error' ? `<div class="premium-error">${this.errorMessage}</div>` : ''}
         <div class="premium-note">Разовый платёж · Без подписки</div>
@@ -58,31 +58,55 @@ export class PremiumModal {
       this.render();
 
       try {
-        if (window.vkBridge || window.vkBridgeManager) {
-          const bridge = window.vkBridgeManager || window.vkBridge;
-          if (bridge.showOrderBox) {
-            await bridge.showOrderBox();
-          } else if (bridge.send) {
-            await bridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'premium_unlock' });
-          }
+        // Get VK user ID
+        let vkUserId = null;
+        let appId = '53942833';
+
+        if (window.vkBridgeManager && window.vkBridgeManager.userService) {
+          const userInfo = window.vkBridgeManager.userService.getUserInfo();
+          if (userInfo) vkUserId = String(userInfo.id);
         }
 
-        const sm = getStateManager();
-        if (sm) sm.setPremium(true);
-        this.state = 'idle';
-        router.closeOverlay();
+        if (!vkUserId) {
+          // Try localStorage fallback
+          try {
+            const localData = localStorage.getItem('vk_user_data_local');
+            if (localData) {
+              const parsed = JSON.parse(localData);
+              vkUserId = String(parsed.id);
+            }
+          } catch {}
+        }
 
-        this._showToast('Премиум разблокирован!', 'success');
+        if (!vkUserId) {
+          throw new Error('User not identified');
+        }
+
+        // Call backend to create Tochka payment
+        const backendUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/create-payment';
+        const resp = await fetch(backendUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vk_user_id: vkUserId, app_id: appId })
+        });
+
+        const data = await resp.json();
+        if (!data.success || !data.paymentLink) {
+          throw new Error(data.message || 'Failed to create payment');
+        }
+
+        // Save operationId for confirmation after redirect
+        localStorage.setItem('tochka_pending_operation', data.operationId);
+
+        // Redirect to Tochka payment page
+        window.location.href = data.paymentLink;
       } catch (error) {
-        if (error.error_data?.error_code === 4) {
-          this.state = 'idle';
-          this.render();
-        } else {
-          logger.error('Payment failed:', error);
-          this.state = 'error';
-          this.errorMessage = 'Ошибка оплаты. Попробуйте снова.';
-          this.render();
-        }
+        logger.error('Payment failed:', error);
+        this.state = 'error';
+        this.errorMessage = error.message === 'User not identified'
+          ? 'Не удалось определить пользователя'
+          : 'Ошибка оплаты. Попробуйте позже.';
+        this.render();
       }
     });
   }

@@ -8,7 +8,9 @@ export class VKConfig {
     static BACKEND_BASE_URL = 'https://nikmobdev.ru/goodsshop';
     static BACKEND_CHECK_PURCHASE_ENDPOINT = '/api/check-purchase';
     static BACKEND_USER_DATA_ENDPOINT = '/admin/api/users';
-    
+    static TOCHKA_CREATE_PAYMENT_ENDPOINT = '/api/tochka/create-payment';
+    static TOCHKA_CONFIRM_PAYMENT_ENDPOINT = '/api/tochka/confirm-payment';
+
     // VK App configuration
     static VK_APP_ID = '53942833';
     
@@ -28,7 +30,7 @@ export class VKConfig {
             id: 'mbti_premium',
             name: 'Премиум тест личности',
             description: 'Доступ к премиум-функциям',
-            price: 40, // Price in kopecks
+            price: 150, // Price in rubles (Tochka acquiring)
             currency: 'Голоса',
             icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzAiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTMyIDEyQzIxLjUgMTIgMTMgMjAuNSAxMyAzMUMxMyA0MS41IDIxLjUgNTAgMzIgNTBDNDIuNSA1MCA1MSA0MS41IDUxIDMxQzUxIDIwLjUgNDIuNSAxMiAzMiAxMloiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTI4IDI0SDM2VjQwSDI4VjI0WiIgZmlsbD0iIzAwMCIvPgo8cGF0aCBkPSJNMjQgMjhIMzZWMzJIMjRWMjhaIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9IjMyIiB5PSIzOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMDAwIj40MDwvdGV4dD4KPC9zdmc+'
             // Optional VK Pay params for iOS VK app; configure in production when merchant is ready
