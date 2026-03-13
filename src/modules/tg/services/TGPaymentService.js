@@ -42,7 +42,15 @@ export class TGPaymentService {
         }
 
         // Open invoice in Telegram
+        // Note: openInvoice callback sometimes doesn't fire — add timeout fallback
         return new Promise((resolve, reject) => {
+            let settled = false;
+            const settle = (value) => {
+                if (settled) return;
+                settled = true;
+                resolve(value);
+            };
+
             window.Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
                 this.logger.log('Invoice status:', status);
                 if (status === 'paid') {
@@ -50,13 +58,36 @@ export class TGPaymentService {
                         method: 'telegram_stars',
                         user_id: tgUserId
                     });
-                    resolve({ success: true, method: 'stars' });
+                    settle({ success: true, method: 'stars' });
                 } else if (status === 'cancelled') {
-                    resolve({ success: false, cancelled: true });
+                    settle({ success: false, cancelled: true });
                 } else {
-                    reject(new Error(`Payment failed with status: ${status}`));
+                    settle({ success: false, error: `Payment status: ${status}` });
                 }
             });
+
+            // Fallback: if callback doesn't fire in 30s, check purchase status
+            setTimeout(async () => {
+                if (settled) return;
+                this.logger.log('Invoice callback timeout — checking purchase status');
+                try {
+                    const checkUrl = TGConfig.getBackendUrl(TGConfig.CHECK_PURCHASE_ENDPOINT);
+                    const checkResp = await fetch(`${checkUrl}?user_id=tg_${tgUserId}&app_id=${TGConfig.APP_ID}&item_id=${config.id}`);
+                    const checkData = await checkResp.json();
+                    if (checkData.is_purchased) {
+                        this.analytics.track(TGConfig.ANALYTICS_EVENTS.paymentSuccess, {
+                            method: 'telegram_stars',
+                            user_id: tgUserId,
+                            fallback: true
+                        });
+                        settle({ success: true, method: 'stars' });
+                    } else {
+                        settle({ success: false, timeout: true });
+                    }
+                } catch {
+                    settle({ success: false, timeout: true });
+                }
+            }, 30000);
         });
     }
 
