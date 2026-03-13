@@ -58,24 +58,48 @@ export class PremiumModal {
       this.render();
 
       try {
-        // Get VK user ID
+        // Get VK user ID — try multiple sources
         let vkUserId = null;
         let appId = '53942833';
 
+        // 1. VK Bridge user service
         if (window.vkBridgeManager && window.vkBridgeManager.userService) {
           const userInfo = window.vkBridgeManager.userService.getUserInfo();
-          if (userInfo) vkUserId = String(userInfo.id);
+          if (userInfo && userInfo.id) vkUserId = String(userInfo.id);
         }
 
+        // 2. Global userInfo (set by handleUserInfo)
+        if (!vkUserId && window.userInfo && window.userInfo.id) {
+          vkUserId = String(window.userInfo.id);
+        }
+
+        // 3. localStorage: vk_user_auth
         if (!vkUserId) {
-          // Try localStorage fallback
+          try {
+            const authData = localStorage.getItem('vk_user_auth');
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              if (parsed.id) vkUserId = String(parsed.id);
+            }
+          } catch {}
+        }
+
+        // 4. localStorage: vk_user_data_local
+        if (!vkUserId) {
           try {
             const localData = localStorage.getItem('vk_user_data_local');
             if (localData) {
               const parsed = JSON.parse(localData);
-              vkUserId = String(parsed.id);
+              if (parsed.id) vkUserId = String(parsed.id);
             }
           } catch {}
+        }
+
+        // 5. URL params (VK launch params)
+        if (!vkUserId) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const vkId = urlParams.get('vk_user_id');
+          if (vkId) vkUserId = vkId;
         }
 
         if (!vkUserId) {
@@ -95,10 +119,12 @@ export class PremiumModal {
           throw new Error(data.message || 'Failed to create payment');
         }
 
-        // Save operationId for confirmation after redirect
+        // Save operationId for confirmation after redirect back
         localStorage.setItem('tochka_pending_operation', data.operationId);
 
-        // Redirect to Tochka payment page
+        // Navigate to Tochka payment page in the same window.
+        // After payment, Tochka redirects to redirectUrl (VK app),
+        // and handleTochkaPaymentReturn() confirms the payment on load.
         window.location.href = data.paymentLink;
       } catch (error) {
         logger.error('Payment failed:', error);

@@ -83,7 +83,7 @@ export class ProfileScreen {
               <div class="premium-cta-mobile__title">Премиум</div>
               <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
             </div>
-            <button class="btn-gold btn-gold--small">299 ₽</button>
+            <button class="btn-gold btn-gold--small">150 ₽</button>
           </div>
         </div>
         ` : ''}
