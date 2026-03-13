@@ -4,6 +4,7 @@ import { TypeCard } from '../components/TypeCard.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
+import { PlatformDetector } from '../../platform/PlatformDetector.js';
 
 const QUIZZES = [
   { title: 'MBTI — 16 типов личности', meta: '60 вопросов · 15 мин · Бесплатно', gradient: 'linear-gradient(135deg, #7C9082 0%, #5A7A64 100%)', framework: 'mbti' },
@@ -74,7 +75,7 @@ export class HomeScreen {
           <div class="premium-cta-mobile__title">Премиум</div>
           <div class="premium-cta-mobile__subtitle">Откройте все тесты и аналитику</div>
         </div>
-        <button class="btn-gold btn-gold--small">150 ₽</button>
+        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? '⭐ 75' : PlatformDetector.isVK() ? '40 гол.' : '280 ₽'}</button>
       </div>
       ` : ''}
       ${BentoGrid.render(hasResults)}
@@ -145,14 +146,20 @@ export class HomeScreen {
         return `${labels[fw]}: ${r.typeCode} — ${r.typeName}${descLine}`;
       }).filter(Boolean);
 
+      const manager = PlatformDetector.getManager();
+      let shareUrl = 'https://vk.com/app53942833_6582162';
+      if (PlatformDetector.isTelegram()) {
+        try { const { TGConfig } = await import('../../tg/config/TGConfig.js'); shareUrl = TGConfig.getMiniAppUrl(); } catch(e) {}
+      }
       const text = lines.length > 0
-        ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\nhttps://vk.com/app53942833_6582162'
+        ? '🧠 Мои результаты:\n\n' + lines.join('\n\n') + '\n\n' + shareUrl
         : '';
       const title = 'Мои типы личности';
-      if (window.vkBridgeManager && window.vkBridgeManager.isVKEnvironment()) {
-        window.vkBridgeManager.shareResults(null, text, title);
+
+      if (manager && (manager.isTGEnvironment?.() || manager.isVKEnvironment?.())) {
+        manager.shareResults(null, text, title);
       } else if (navigator.share) {
-        navigator.share({ title, text, url: 'https://vk.ru/app53942833' }).catch(() => {});
+        navigator.share({ title, text, url: shareUrl }).catch(() => {});
       }
     });
   }

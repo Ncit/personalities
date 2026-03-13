@@ -14,6 +14,7 @@ import { TypeDetailModal } from './components/TypeDetailModal.js';
 import { HelpModal } from './components/HelpModal.js';
 import { resultsStore } from '../results/ResultsStore.js';
 import { LoggerManager } from '../core/LoggerManager.js';
+import { PlatformDetector } from '../platform/PlatformDetector.js';
 
 const logger = new LoggerManager().createModuleLogger('App');
 
@@ -23,11 +24,11 @@ export class App {
     this.overlayContainer = document.getElementById('overlay-container');
     this.tabBar = new TabBar(document.getElementById('tab-bar'));
 
-    // Desktop sidebar (hidden in VK Mini App)
-    const isVKFlavor = new URLSearchParams(window.location.search).get('flavor') === 'vk';
+    // Desktop sidebar (hidden in VK and Telegram flavors)
+    const flavor = PlatformDetector.getFlavor();
     const appEl = document.getElementById('app');
-    if (isVKFlavor) {
-      appEl.dataset.flavor = 'vk';
+    if (flavor === 'vk' || flavor === 'tg') {
+      appEl.dataset.flavor = flavor;
     } else {
       this.sidebar = new Sidebar();
       appEl.insertBefore(this.sidebar.getElement(), this.screenContainer);
@@ -81,6 +82,12 @@ export class App {
       const el = screen.getElement();
       if (!el.parentElement) this.screenContainer.appendChild(el);
     });
+
+    // Telegram BackButton: show when overlay is open, hide on home
+    if (PlatformDetector.isTelegram() && window.tgBridgeManager) {
+      const hasOverlay = !!overlay;
+      window.tgBridgeManager.setBackButtonVisible(hasOverlay, () => router.closeOverlay());
+    }
 
     if (!overlay) {
       // No overlay — clear all

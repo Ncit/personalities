@@ -1,0 +1,49 @@
+/* Telegram Mini App Styles */
+
+/* Theme color variables — set dynamically by TGBridgeManager from Telegram.WebApp.themeParams */
+:root {
+    --tg-bg: #ffffff;
+    --tg-text: #000000;
+    --tg-hint: #999999;
+    --tg-link: #2481cc;
+    --tg-button: #2481cc;
+    --tg-button-text: #ffffff;
+    --tg-secondary-bg: #f0f0f0;
+}
+
+/* Hide sidebar in Telegram flavor */
+[data-flavor="tg"] .sidebar {
+    display: none !important;
+}
+
+/* Remove sidebar offset for screen container */
+[data-flavor="tg"] #screen-container {
+    margin-left: 0 !important;
+}
+
+/* Safe area handling */
+[data-flavor="tg"] {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Extra bottom padding when MainButton is visible */
+[data-flavor="tg"].tg-main-button-visible {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
+}
+
+/* Apply Telegram theme colors */
+[data-flavor="tg"] {
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+}
+
+[data-flavor="tg"] .page-subtitle,
+[data-flavor="tg"] .section-label {
+    color: var(--tg-hint);
+}
+
+/* Hide VK auth container in Telegram */
+[data-flavor="tg"] #vkAuthContainer {
+    display: none !important;
+}

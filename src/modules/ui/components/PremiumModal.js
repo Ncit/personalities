@@ -1,6 +1,7 @@
 import { router } from '../../router/Router.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
 import { firebaseAnalytics } from '../../../config/firebase.js';
+import { PlatformDetector } from '../../platform/PlatformDetector.js';
 
 const logger = new LoggerManager().createModuleLogger('PremiumModal');
 
@@ -37,7 +38,7 @@ export class PremiumModal {
           <li><i data-lucide="circle-check" class="premium-benefits__icon" style="width:20px;height:20px"></i> Без рекламы</li>
         </ul>
         <button class="premium-cta-btn" id="premium-buy" ${isProcessing ? 'disabled' : ''}>
-          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : 'Открыть Премиум — 150 ₽'}
+          ${isProcessing ? '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span> Обработка…' : this._getButtonText()}
         </button>
         ${this.state === 'error' ? `<div class="premium-error">${this.errorMessage}</div>` : ''}
         <div class="premium-note">Разовый платёж · Без подписки</div>
@@ -59,55 +60,57 @@ export class PremiumModal {
       this.render();
 
       try {
-        // Get VK user ID — try multiple sources
+        const manager = PlatformDetector.getManager();
+        const flavor = PlatformDetector.getFlavor();
+
+        if (flavor === 'tg' && manager) {
+          // Telegram: showOrderBox handles Stars/Tochka choice
+          const result = await manager.showOrderBox();
+          if (result?.success) {
+            router.closeOverlay();
+            return;
+          } else if (result?.pending) {
+            // Tochka redirect — modal stays, user will return
+            this.state = 'idle';
+            this.render();
+            return;
+          }
+          // Cancelled or failed — reset
+          this.state = 'idle';
+          this.render();
+          return;
+        }
+
+        // VK / Web: existing Tochka flow
         let vkUserId = null;
         let appId = '53942833';
 
-        // 1. VK Bridge user service
         if (window.vkBridgeManager && window.vkBridgeManager.userService) {
           const userInfo = window.vkBridgeManager.userService.getUserInfo();
           if (userInfo && userInfo.id) vkUserId = String(userInfo.id);
         }
-
-        // 2. Global userInfo (set by handleUserInfo)
         if (!vkUserId && window.userInfo && window.userInfo.id) {
           vkUserId = String(window.userInfo.id);
         }
-
-        // 3. localStorage: vk_user_auth
         if (!vkUserId) {
           try {
             const authData = localStorage.getItem('vk_user_auth');
-            if (authData) {
-              const parsed = JSON.parse(authData);
-              if (parsed.id) vkUserId = String(parsed.id);
-            }
+            if (authData) { const p = JSON.parse(authData); if (p.id) vkUserId = String(p.id); }
           } catch {}
         }
-
-        // 4. localStorage: vk_user_data_local
         if (!vkUserId) {
           try {
-            const localData = localStorage.getItem('vk_user_data_local');
-            if (localData) {
-              const parsed = JSON.parse(localData);
-              if (parsed.id) vkUserId = String(parsed.id);
-            }
+            const ld = localStorage.getItem('vk_user_data_local');
+            if (ld) { const p = JSON.parse(ld); if (p.id) vkUserId = String(p.id); }
           } catch {}
         }
-
-        // 5. URL params (VK launch params)
         if (!vkUserId) {
           const urlParams = new URLSearchParams(window.location.search);
-          const vkId = urlParams.get('vk_user_id');
-          if (vkId) vkUserId = vkId;
+          const vid = urlParams.get('vk_user_id');
+          if (vid) vkUserId = vid;
         }
+        if (!vkUserId) throw new Error('User not identified');
 
-        if (!vkUserId) {
-          throw new Error('User not identified');
-        }
-
-        // Call backend to create Tochka payment
         const backendUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/create-payment';
         const resp = await fetch(backendUrl, {
           method: 'POST',
@@ -116,23 +119,15 @@ export class PremiumModal {
         });
 
         const data = await resp.json();
-        if (!data.success || !data.paymentLink) {
-          throw new Error(data.message || 'Failed to create payment');
-        }
+        if (!data.success || !data.paymentLink) throw new Error(data.message || 'Failed to create payment');
 
-        // Track payment initiation in Firebase before redirect
         firebaseAnalytics.logEvent('payment_initiated', {
           vk_user_id: vkUserId,
           operation_id: data.operationId,
           payment_method: 'tochka'
         });
 
-        // Save operationId for confirmation after redirect back
         localStorage.setItem('tochka_pending_operation', data.operationId);
-
-        // Navigate to Tochka payment page in the same window.
-        // After payment, Tochka redirects to redirectUrl (VK app),
-        // and handleTochkaPaymentReturn() confirms the payment on load.
         window.location.href = data.paymentLink;
       } catch (error) {
         logger.error('Payment failed:', error);
@@ -143,6 +138,13 @@ export class PremiumModal {
         this.render();
       }
     });
+  }
+
+  _getButtonText() {
+    const flavor = PlatformDetector.getFlavor();
+    if (flavor === 'tg') return 'Открыть Премиум';
+    if (flavor === 'vk') return 'Открыть Премиум — 40 голосов';
+    return 'Открыть Премиум — 280 ₽';
   }
 
   _showToast(message, type) {

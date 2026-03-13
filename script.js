@@ -14,6 +14,8 @@ import { MBTI_SPECIALIZED_QUESTIONS as SPECIALIZED_QUESTIONS } from './src/data/
 import { MBTI_SPECIALIZED_QUESTIONS_RU as SPECIALIZED_QUESTIONS_RU } from './src/data/SpecializedQuiz.ru.js';
 import { MBTI_QUESTIONS_RU as PERSONALITY_QUESTIONS_RU } from './src/data/MainQuiz.ru.js';
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
+import { PlatformDetector } from './src/modules/platform/PlatformDetector.js';
+import { TGBridgeManager } from './src/modules/tg/TGBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
 import { productAnalytics } from './src/modules/analytics/AnalyticsEngine.js';
 
@@ -51,13 +53,14 @@ window.handleUserInfo = function(userInfo) {
     if (firebaseAnalytics && userInfo) {
         try {
             setUserId(firebaseAnalytics, userInfo.id?.toString());
+            const userType = userInfo.user_type || (PlatformDetector.isTelegram() ? 'tg_user' : 'vk_user');
             setUserProperties(firebaseAnalytics, {
-                vk_user_id: userInfo.id?.toString(),
-                vk_username: userInfo.screen_name || `user_${userInfo.id}`,
-                vk_first_name: userInfo.first_name || '',
-                vk_last_name: userInfo.last_name || '',
-                vk_has_photo: !!userInfo.photo_100,
-                user_type: 'vk_user'
+                platform_user_id: userInfo.id?.toString(),
+                username: userInfo.screen_name || `user_${userInfo.id}`,
+                first_name: userInfo.first_name || '',
+                last_name: userInfo.last_name || '',
+                has_photo: !!(userInfo.photo_100 || userInfo.photo_url),
+                user_type: userType
             });
             logger.log('Firebase Analytics user properties set');
         } catch (error) {
@@ -72,7 +75,7 @@ window.handleUserInfo = function(userInfo) {
                 user_id: userInfo.id?.toString(),
                 username: userInfo.screen_name || `user_${userInfo.id}`,
                 has_photo: !!userInfo.photo_100,
-                source: 'vk_auth'
+                source: PlatformDetector.isTelegram() ? 'tg_auth' : 'vk_auth'
             });
         } catch (error) {
             logger.error('Failed to track user info event:', error);
@@ -102,14 +105,13 @@ function updateUserInterface(userInfo) {
 
 // Function to check for existing user authorization on page load
 function checkExistingUserAuth() {
-    // Check if we're in VK Mini App environment
-    const urlParams = new URLSearchParams(window.location.search);
-    const isVKFlavor = urlParams.get('flavor') === 'vk';
-    
-    // In VK Mini App, don't check localStorage - VK Bridge will handle authentication
-    if (isVKFlavor) {
-        logger.log('VK Mini App detected - VK Bridge will handle authentication');
-        return false; // Let VK Bridge handle authentication
+    // Check if we're in a Mini App environment
+    const flavor = PlatformDetector.getFlavor();
+
+    // In VK/TG Mini App, don't check localStorage — platform bridge handles auth
+    if (flavor === 'vk' || flavor === 'tg') {
+        logger.log(`${flavor.toUpperCase()} Mini App detected — bridge handles authentication`);
+        return false;
     }
     
     // Only check localStorage for web version
@@ -196,16 +198,13 @@ window.logoutUser = function() {
 
 // Function to check if user is authenticated
 function isUserAuthenticated() {
-    // Check if we're in VK Mini App environment
-    const urlParams = new URLSearchParams(window.location.search);
-    const isVKFlavor = urlParams.get('flavor') === 'vk';
-    
-    if (isVKFlavor) {
-        // In VK Mini App, check if VK Bridge is available and user is authenticated
-        // VK Bridge handles authentication automatically, so we just check if it's available
+    const flavor = PlatformDetector.getFlavor();
+
+    if (flavor === 'vk') {
         return vkBridgeManager && vkBridgeManager.isVKEnvironment();
+    } else if (flavor === 'tg') {
+        return window.tgBridgeManager && window.tgBridgeManager.isTGEnvironment();
     } else {
-        // In web version, check localStorage for VK Auth
         return window.userInfo && window.userInfo.authorized;
     }
 }
@@ -241,30 +240,30 @@ function closeOfferModal() {
 
 // Function to update pricing based on environment
 function updatePricing() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isVKFlavor = urlParams.get('flavor') === 'vk';
-    
+    const flavor = PlatformDetector.getFlavor();
+
     const webPrice = '280 рублей';
     const vkPrice = '40 голосов';
-    
-    const price = isVKFlavor ? vkPrice : webPrice;
-    
+    const tgPrice = '⭐ 75 Stars';
+
+    const price = flavor === 'vk' ? vkPrice : flavor === 'tg' ? tgPrice : webPrice;
+
     // Update all price elements
     const priceElements = [
         'premiumPrice',
-        'subscriptionPrice', 
+        'subscriptionPrice',
         'offerPrice',
         'scriptPrice'
     ];
-    
+
     priceElements.forEach(elementId => {
         const element = document.getElementById(elementId);
         if (element) {
             element.textContent = price;
         }
     });
-    
-    logger.log('Pricing updated for environment:', isVKFlavor ? 'VK Mini App' : 'Web', 'Price:', price);
+
+    logger.log('Pricing updated for environment:', flavor, 'Price:', price);
 }
 
 // Firebase configuration
@@ -3205,28 +3204,43 @@ async function handleTochkaPaymentReturn() {
 // Initialize VK Bridge Manager
 let vkBridgeManager;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Update pricing based on environment
     updatePricing();
-    
+
     // Check for existing user authorization first
     checkExistingUserAuth();
 
     // Handle return from Tochka payment
     handleTochkaPaymentReturn();
 
-    // Initialize VK Bridge Manager
-    try {
-        vkBridgeManager = new VKBridgeManager();
-        window.vkBridgeManager = vkBridgeManager;
-        
-        // Start banner ad timer for non-premium users in VK environment
-        if (vkBridgeManager.isVKEnvironment() && !isPremium()) {
-            startBannerAdTimer();
+    // Initialize platform bridge manager
+    const flavor = PlatformDetector.getFlavor();
+
+    if (flavor === 'tg') {
+        try {
+            const tgManager = new TGBridgeManager();
+            window.tgBridgeManager = tgManager;
+            await tgManager.init();
+            logger.log('Telegram Bridge Manager initialized');
+        } catch (error) {
+            logger.error('Telegram Bridge Manager init failed:', error);
+            window.tgBridgeManager = null;
         }
-    } catch (error) {
-        logger.error('VK Bridge Manager not available:', error);
-        window.vkBridgeManager = null;
+    } else {
+        try {
+            vkBridgeManager = new VKBridgeManager();
+            window.vkBridgeManager = vkBridgeManager;
+            PlatformDetector.setManager(vkBridgeManager);
+
+            // Start banner ad timer for non-premium users in VK environment
+            if (vkBridgeManager.isVKEnvironment() && !isPremium()) {
+                startBannerAdTimer();
+            }
+        } catch (error) {
+            logger.error('VK Bridge Manager not available:', error);
+            window.vkBridgeManager = null;
+        }
     }
     
     // Initialize the quiz
