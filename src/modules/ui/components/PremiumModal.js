@@ -14,6 +14,53 @@ export class PremiumModal {
     this.state = 'idle';
     this.errorMessage = '';
     this.render();
+
+    // If returning from Tochka payment, auto-poll for confirmation
+    const pendingOp = localStorage.getItem('tochka_pending_operation');
+    if (pendingOp) {
+      this._pollTochkaConfirmation(pendingOp);
+    }
+  }
+
+  /** Poll backend to confirm a pending Tochka payment. */
+  async _pollTochkaConfirmation(operationId) {
+    this.state = 'processing';
+    this.render();
+
+    const confirmUrl = 'https://nikmobdev.ru/goodsshop/api/tochka/confirm-payment';
+    const maxRetries = 5;
+    const retryDelay = 3000;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const resp = await fetch(confirmUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ operationId })
+        });
+        const data = await resp.json();
+
+        if (data.success && data.has_purchase) {
+          localStorage.removeItem('tochka_pending_operation');
+          if (window.stateManager) window.stateManager.setState('isPremium', true);
+          this._showToast('Премиум разблокирован!', 'success');
+          router.closeOverlay();
+          return;
+        }
+      } catch (e) {
+        logger.error('Tochka confirm poll error:', e);
+      }
+
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, retryDelay));
+      }
+    }
+
+    // Retries exhausted
+    localStorage.removeItem('tochka_pending_operation');
+    this.state = 'error';
+    this.errorMessage = 'Платёж обрабатывается. Премиум активируется автоматически.';
+    this.render();
   }
 
   getElement() { return this.el; }
