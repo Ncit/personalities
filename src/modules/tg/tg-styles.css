@@ -32,9 +32,8 @@
     padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
 }
 
-/* Apply Telegram theme colors */
+/* Apply Telegram text color — background inherits from app's own theme */
 [data-flavor="tg"] {
-    background-color: var(--tg-bg);
     color: var(--tg-text);
 }
 
