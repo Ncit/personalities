@@ -3197,16 +3197,9 @@ async function handleTochkaPaymentReturn() {
         }
     }
 
-    // All retries exhausted — show processing message
-    logger.warn('Payment confirmation retries exhausted');
-    const container = document.getElementById('toast-container');
-    if (container) {
-        const toast = document.createElement('div');
-        toast.className = 'toast toast--info';
-        toast.textContent = 'Платёж обрабатывается. Премиум активируется автоматически в течение нескольких минут.';
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 10000);
-    }
+    // All retries exhausted — clean up, server-side poller will handle it
+    logger.warn('Payment confirmation retries exhausted, clearing pending operation');
+    localStorage.removeItem('tochka_pending_operation');
 }
 
 // Initialize VK Bridge Manager
