@@ -14,16 +14,16 @@ const DIMENSION_COLORS = {
 };
 
 const SOCIONICS_BARS = [
-  { key: 'L', label: 'Л', color: '#E8A85C' },
-  { key: 'I', label: 'И', color: '#C4843A' },
-  { key: 'Ex', label: 'Э', color: '#D4A574' },
-  { key: 'R', label: 'Р', color: '#B8894E' },
+  { key: 'L', get label() { return localizationManager.get('resultDetail.shortLogic'); }, color: '#E8A85C' },
+  { key: 'I', get label() { return localizationManager.get('resultDetail.shortIntuition'); }, color: '#C4843A' },
+  { key: 'Ex', get label() { return localizationManager.get('resultDetail.shortExtra'); }, color: '#D4A574' },
+  { key: 'R', get label() { return localizationManager.get('resultDetail.shortRat'); }, color: '#B8894E' },
 ];
 
 const ENNEAGRAM_BARS = [
-  { key: 'HC', label: 'С', color: '#C47A8A' },
-  { key: 'HD', label: 'Г', color: '#A05A6A' },
-  { key: 'BD', label: 'Т', color: '#C49A7A' },
+  { key: 'HC', get label() { return localizationManager.get('resultDetail.heart').charAt(0); }, color: '#C47A8A' },
+  { key: 'HD', get label() { return localizationManager.get('resultDetail.head').charAt(0); }, color: '#A05A6A' },
+  { key: 'BD', get label() { return localizationManager.get('resultDetail.body').charAt(0); }, color: '#C49A7A' },
 ];
 
 function getFrameworkLabel(fw) {

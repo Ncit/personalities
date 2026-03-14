@@ -231,8 +231,8 @@ export class VKPaymentService {
         return {
             tier: tier,
             startDate: now.toLocaleDateString(),
-            endDate: tier === 'lifetime' ? 'Бессрочно' : endDate.toLocaleDateString(),
-            nextPayment: tier === 'lifetime' ? 'Нет' : nextPayment.toLocaleDateString(),
+            endDate: tier === 'lifetime' ? localizationManager.get('subscription.lifetime') || 'Lifetime' : endDate.toLocaleDateString(),
+            nextPayment: tier === 'lifetime' ? localizationManager.get('subscription.no') || 'No' : nextPayment.toLocaleDateString(),
             price: `${config.price / 100} RUB`,
             orderId: orderId,
             isActive: true,

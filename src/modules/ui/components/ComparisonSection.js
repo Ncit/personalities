@@ -1,7 +1,15 @@
 import { resultsStore } from '../../results/ResultsStore.js';
 import localizationManager from '../../../locales/LocalizationManager.js';
 
-import { TRAIT_KEYWORDS, PROFILE_DESCRIPTIONS } from '../../../data/TraitKeywords.ru.js';
+import { TRAIT_KEYWORDS as TRAIT_KEYWORDS_RU, PROFILE_DESCRIPTIONS as PROFILE_DESCRIPTIONS_RU } from '../../../data/TraitKeywords.ru.js';
+import { TRAIT_KEYWORDS as TRAIT_KEYWORDS_EN, PROFILE_DESCRIPTIONS as PROFILE_DESCRIPTIONS_EN } from '../../../data/TraitKeywords.js';
+
+function getTraitKeywords() {
+  return localizationManager.getCurrentLocale() === 'en' ? TRAIT_KEYWORDS_EN : TRAIT_KEYWORDS_RU;
+}
+function getProfileDescriptions() {
+  return localizationManager.getCurrentLocale() === 'en' ? PROFILE_DESCRIPTIONS_EN : PROFILE_DESCRIPTIONS_RU;
+}
 
 const CORE_FRAMEWORKS = ['mbti', 'socionics', 'enneagram'];
 const FW_COLORS = { mbti: '#7C9082', socionics: '#E8A85C', enneagram: '#C47A8A' };
@@ -22,21 +30,21 @@ function getMonths() {
 
 const AXIS_CONFIG = {
   mbti: [
-    { key: 'E', label: 'E/I', extract: dims => dims.E ?? 50 },
-    { key: 'S', label: 'S/N', extract: dims => dims.S ?? 50 },
-    { key: 'T', label: 'T/F', extract: dims => dims.T ?? 50 },
-    { key: 'J', label: 'J/P', extract: dims => dims.J ?? 50 },
+    { key: 'E', get label() { return 'E/I'; }, extract: dims => dims.E ?? 50 },
+    { key: 'S', get label() { return 'S/N'; }, extract: dims => dims.S ?? 50 },
+    { key: 'T', get label() { return 'T/F'; }, extract: dims => dims.T ?? 50 },
+    { key: 'J', get label() { return 'J/P'; }, extract: dims => dims.J ?? 50 },
   ],
   socionics: [
-    { key: 'L', label: 'Л/Э', extract: dims => dims.L ?? 50 },
-    { key: 'I', label: 'И/С', extract: dims => dims.I ?? 50 },
-    { key: 'Ex', label: 'Э/И', extract: dims => dims.Ex ?? 50 },
-    { key: 'R', label: 'Р/Ир', extract: dims => dims.R ?? 50 },
+    { key: 'L', get label() { return `${localizationManager.get('resultDetail.shortLogic')}/${localizationManager.get('resultDetail.shortEthics')}`; }, extract: dims => dims.L ?? 50 },
+    { key: 'I', get label() { return `${localizationManager.get('resultDetail.shortIntuition')}/${localizationManager.get('resultDetail.shortSensing')}`; }, extract: dims => dims.I ?? 50 },
+    { key: 'Ex', get label() { return `${localizationManager.get('resultDetail.shortExtra')}/${localizationManager.get('resultDetail.shortIntro')}`; }, extract: dims => dims.Ex ?? 50 },
+    { key: 'R', get label() { return `${localizationManager.get('resultDetail.shortRat')}/${localizationManager.get('resultDetail.shortIrr')}`; }, extract: dims => dims.R ?? 50 },
   ],
   enneagram: [
-    { key: 'HC', label: 'С', extract: dims => Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
-    { key: 'HD', label: 'Г', extract: dims => Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
-    { key: 'BD', label: 'Т', extract: dims => Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
+    { key: 'HC', get label() { return localizationManager.get('resultDetail.heart').charAt(0); }, extract: dims => Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
+    { key: 'HD', get label() { return localizationManager.get('resultDetail.head').charAt(0); }, extract: dims => Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
+    { key: 'BD', get label() { return localizationManager.get('resultDetail.body').charAt(0); }, extract: dims => Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
   ],
 };
 
@@ -253,7 +261,7 @@ export class ComparisonSection {
           <div class="comparison-stability-row">
             <div class="comparison-stability-row__header">
               <span style="color:${color};font-weight:500;font-size:12px">${label}</span>
-              <span style="color:#8A8A8A;font-size:11px">${topCode} — ${topCount} из ${total} (${pct}%)</span>
+              <span style="color:#8A8A8A;font-size:11px">${topCode} — ${topCount} ${localizationManager.get('comparison.of')} ${total} (${pct}%)</span>
             </div>
             <div class="comparison-stability-row__bar">
               <div class="comparison-stability-row__fill" style="width:${pct}%;background:${color}"></div>
@@ -299,7 +307,7 @@ export class ComparisonSection {
       const r = latestByFw[fw];
       // Normalize enneagram typeCode: "Тип 5", "1w2" -> "1"
       const lookupCode = fw === 'enneagram' ? r.typeCode.replace(/\D/g, '').charAt(0) || r.typeCode : r.typeCode;
-      const keywords = TRAIT_KEYWORDS[fw]?.[lookupCode] || [];
+      const keywords = getTraitKeywords()[fw]?.[lookupCode] || [];
       keywords.forEach(trait => {
         if (!traitSources[trait]) traitSources[trait] = [];
         if (!traitSources[trait].includes(fw)) traitSources[trait].push(fw);
@@ -321,27 +329,27 @@ export class ComparisonSection {
       const secondary = secondaryTraits[0]?.trait || '';
       profileName = this._capitalize(coreTraits[0]) + (secondary ? '-' + secondary : '');
     } else if (fwsWithResults.length === 1) {
-      const fwTraits = TRAIT_KEYWORDS[fwsWithResults[0]]?.[latestByFw[fwsWithResults[0]].typeCode] || [];
+      const fwTraits = getTraitKeywords()[fwsWithResults[0]]?.[latestByFw[fwsWithResults[0]].typeCode] || [];
       profileName = fwTraits.length >= 2
         ? this._capitalize(fwTraits[0]) + '-' + fwTraits[1]
-        : this._capitalize(fwTraits[0] || 'Тип');
+        : this._capitalize(fwTraits[0] || localizationManager.get('comparison.type'));
       const fwLabel = { mbti: localizationManager.get('comparison.ofMBTI'), socionics: localizationManager.get('comparison.ofSocionics'), enneagram: localizationManager.get('comparison.ofEnneagram') }[fwsWithResults[0]] || '';
       profileSubtitle = localizationManager.get('comparison.basedOn', { framework: fwLabel });
     } else {
       const topTraits = fwsWithResults.map(fw => {
         const r = latestByFw[fw];
         const lookupCode = fw === 'enneagram' ? r.typeCode.replace(/\D/g, '').charAt(0) || r.typeCode : r.typeCode;
-        const kw = TRAIT_KEYWORDS[fw]?.[lookupCode] || [];
+        const kw = getTraitKeywords()[fw]?.[lookupCode] || [];
         return kw[0];
       }).filter(Boolean);
       profileName = topTraits.length >= 2
         ? this._capitalize(topTraits[0]) + '-' + topTraits[1]
-        : this._capitalize(topTraits[0] || 'Тип');
+        : this._capitalize(topTraits[0] || localizationManager.get('comparison.type'));
     }
 
     const descParts = (coreTraits.length > 0 ? coreTraits : secondaryTraits.map(s => s.trait))
       .slice(0, 3)
-      .map(t => PROFILE_DESCRIPTIONS[t])
+      .map(t => getProfileDescriptions()[t])
       .filter(Boolean);
     const description = descParts.length > 0
       ? localizationManager.get('comparison.profileCombines') + ' ' + descParts.join(', ') + '.'

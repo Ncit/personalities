@@ -349,135 +349,135 @@ export const ADVANCED_INSIGHTS = {
     }
 };
 
-// Famous Personalities Data
+// Famous Personalities Data (International)
 export const FAMOUS_PERSONALITIES = {
     ISTJ: [
         { name: 'Queen Elizabeth II', profession: 'Monarch', image: '👑' },
         { name: 'George Washington', profession: 'President', image: '🇺🇸' },
         { name: 'Angela Merkel', profession: 'Chancellor', image: '🇩🇪' },
-        { name: 'Vladimir Putin', profession: 'President of Russia', image: '🇷🇺' },
-        { name: 'Catherine the Great', profession: 'Empress', image: '👑' }
+        { name: 'Warren Buffett', profession: 'Investor', image: '💰' },
+        { name: 'Natalie Portman', profession: 'Actress', image: '🎬' }
     ],
     ISFJ: [
         { name: 'Mother Teresa', profession: 'Humanitarian', image: '✝️' },
         { name: 'Rosa Parks', profession: 'Civil Rights Activist', image: '🚌' },
         { name: 'Kate Middleton', profession: 'Royal', image: '👑' },
-        { name: 'Anna Akhmatova', profession: 'Poet', image: '📝' },
-        { name: 'Marina Tsvetaeva', profession: 'Poet', image: '✍️' }
+        { name: 'Beyoncé', profession: 'Singer', image: '🎤' },
+        { name: 'Halle Berry', profession: 'Actress', image: '🎬' }
     ],
     INFJ: [
         { name: 'Nelson Mandela', profession: 'Leader', image: '🇿🇦' },
         { name: 'Martin Luther King Jr.', profession: 'Civil Rights Leader', image: '✊' },
         { name: 'Mother Teresa', profession: 'Humanitarian', image: '✝️' },
-        { name: 'Leo Tolstoy', profession: 'Writer', image: '📚' },
-        { name: 'Fyodor Dostoevsky', profession: 'Writer', image: '📖' },
-        { name: 'Alexander Solzhenitsyn', profession: 'Writer', image: '✒️' }
+        { name: 'Carl Jung', profession: 'Psychologist', image: '🧠' },
+        { name: 'Cate Blanchett', profession: 'Actress', image: '🎭' },
+        { name: 'J.K. Rowling', profession: 'Author', image: '📚' }
     ],
     INTJ: [
         { name: 'Elon Musk', profession: 'Entrepreneur', image: '🚀' },
         { name: 'Stephen Hawking', profession: 'Physicist', image: '🌌' },
         { name: 'Mark Zuckerberg', profession: 'Tech CEO', image: '💻' },
-        { name: 'Dmitri Mendeleev', profession: 'Chemist', image: '🧪' },
-        { name: 'Nikolai Lobachevsky', profession: 'Mathematician', image: '📐' },
-        { name: 'Konstantin Tsiolkovsky', profession: 'Scientist', image: '🚀' }
+        { name: 'Nikola Tesla', profession: 'Inventor', image: '⚡' },
+        { name: 'Friedrich Nietzsche', profession: 'Philosopher', image: '📖' },
+        { name: 'Christopher Nolan', profession: 'Director', image: '🎬' }
     ],
     ISTP: [
         { name: 'Michael Jordan', profession: 'Athlete', image: '🏀' },
         { name: 'Tom Cruise', profession: 'Actor', image: '🎬' },
         { name: 'Bruce Lee', profession: 'Martial Artist', image: '🥋' },
-        { name: 'Alexander Ovechkin', profession: 'Hockey Player', image: '🏒' },
-        { name: 'Evgeni Plushenko', profession: 'Figure Skater', image: '⛸️' },
-        { name: 'Alexander Karelin', profession: 'Wrestler', image: '🤼' }
+        { name: 'Clint Eastwood', profession: 'Actor & Director', image: '🎭' },
+        { name: 'Bear Grylls', profession: 'Adventurer', image: '🏔️' },
+        { name: 'Amelia Earhart', profession: 'Aviator', image: '✈️' }
     ],
     ISFP: [
         { name: 'Marilyn Monroe', profession: 'Actress', image: '💄' },
         { name: 'Bob Dylan', profession: 'Musician', image: '🎸' },
         { name: 'Frida Kahlo', profession: 'Artist', image: '🎨' },
-        { name: 'Anna Pavlova', profession: 'Ballerina', image: '🩰' },
-        { name: 'Maya Plisetskaya', profession: 'Ballerina', image: '💃' },
-        { name: 'Valentin Serov', profession: 'Artist', image: '🎨' }
+        { name: 'Michael Jackson', profession: 'Singer', image: '🎵' },
+        { name: 'Lana Del Rey', profession: 'Singer', image: '🎤' },
+        { name: 'Jimi Hendrix', profession: 'Guitarist', image: '🎸' }
     ],
     INFP: [
         { name: 'William Shakespeare', profession: 'Playwright', image: '📜' },
         { name: 'J.R.R. Tolkien', profession: 'Author', image: '📚' },
         { name: 'Vincent van Gogh', profession: 'Artist', image: '🌻' },
-        { name: 'Anton Chekhov', profession: 'Writer', image: '📝' },
-        { name: 'Ivan Turgenev', profession: 'Writer', image: '📖' },
-        { name: 'Mikhail Lermontov', profession: 'Poet', image: '✍️' },
-        { name: 'Sergei Yesenin', profession: 'Poet', image: '🌾' }
+        { name: 'Edgar Allan Poe', profession: 'Writer', image: '📝' },
+        { name: 'Kurt Cobain', profession: 'Musician', image: '🎸' },
+        { name: 'John Lennon', profession: 'Musician', image: '☮️' },
+        { name: 'Tim Burton', profession: 'Director', image: '🎬' }
     ],
     INTP: [
         { name: 'Albert Einstein', profession: 'Physicist', image: '⚡' },
         { name: 'Isaac Newton', profession: 'Scientist', image: '🍎' },
         { name: 'Charles Darwin', profession: 'Naturalist', image: '🐒' },
-        { name: 'Ivan Pavlov', profession: 'Physiologist', image: '🔬' },
-        { name: 'Andrei Sakharov', profession: 'Physicist', image: '⚛️' },
-        { name: 'Vladimir Vernadsky', profession: 'Scientist', image: '🌍' }
+        { name: 'Bill Gates', profession: 'Tech Pioneer', image: '💻' },
+        { name: 'Marie Curie', profession: 'Physicist', image: '⚛️' },
+        { name: 'Larry Page', profession: 'Tech CEO', image: '🔍' }
     ],
     ESTP: [
         { name: 'Ernest Hemingway', profession: 'Author', image: '📖' },
         { name: 'Madonna', profession: 'Singer', image: '🎤' },
         { name: 'Jack Nicholson', profession: 'Actor', image: '🎭' },
-        { name: 'Vladimir Vysotsky', profession: 'Poet and Actor', image: '🎤' },
-        { name: 'Alexander Pushkin', profession: 'Poet', image: '✒️' },
-        { name: 'Mikhail Bulgakov', profession: 'Writer', image: '📚' }
+        { name: 'Eddie Murphy', profession: 'Comedian', image: '😄' },
+        { name: 'Dwayne Johnson', profession: 'Actor', image: '💪' },
+        { name: 'Winston Churchill', profession: 'Statesman', image: '🇬🇧' }
     ],
     ESFP: [
         { name: 'Elvis Presley', profession: 'Singer', image: '🎸' },
         { name: 'Marilyn Monroe', profession: 'Actress', image: '💄' },
         { name: 'Will Smith', profession: 'Actor', image: '🎬' },
-        { name: 'Alla Pugacheva', profession: 'Singer', image: '🎤' },
-        { name: 'Lyudmila Gurchenko', profession: 'Actress', image: '🎭' },
-        { name: 'Philipp Kirkorov', profession: 'Singer', image: '🎵' }
+        { name: 'Adele', profession: 'Singer', image: '🎤' },
+        { name: 'Jamie Oliver', profession: 'Chef', image: '👨‍🍳' },
+        { name: 'Cameron Diaz', profession: 'Actress', image: '🎭' }
     ],
     ENFP: [
         { name: 'Walt Disney', profession: 'Entrepreneur', image: '🏰' },
         { name: 'Robin Williams', profession: 'Actor', image: '😄' },
         { name: 'Oscar Wilde', profession: 'Writer', image: '✒️' },
-        { name: 'Vladimir Mayakovsky', profession: 'Poet', image: '📝' },
-        { name: 'Alexander Blok', profession: 'Poet', image: '🌙' },
-        { name: 'Boris Pasternak', profession: 'Writer', image: '📖' }
+        { name: 'Robert Downey Jr.', profession: 'Actor', image: '🎬' },
+        { name: 'Ellen DeGeneres', profession: 'TV Host', image: '📺' },
+        { name: 'Mark Twain', profession: 'Writer', image: '📚' }
     ],
     ENTP: [
         { name: 'Thomas Edison', profession: 'Inventor', image: '💡' },
         { name: 'Benjamin Franklin', profession: 'Founding Father', image: '⚡' },
         { name: 'Steve Jobs', profession: 'Entrepreneur', image: '🍎' },
-        { name: 'Mikhail Lomonosov', profession: 'Scientist', image: '🔬' },
-        { name: 'Pavel Tretyakov', profession: 'Patron', image: '🏛️' },
-        { name: 'Sergei Korolev', profession: 'Engineer', image: '🚀' }
+        { name: 'Leonardo da Vinci', profession: 'Polymath', image: '🎨' },
+        { name: 'Sacha Baron Cohen', profession: 'Comedian', image: '🎭' },
+        { name: 'Neil deGrasse Tyson', profession: 'Astrophysicist', image: '🔭' }
     ],
     ESTJ: [
         { name: 'Franklin D. Roosevelt', profession: 'President', image: '🇺🇸' },
         { name: 'Margaret Thatcher', profession: 'Prime Minister', image: '🇬🇧' },
         { name: 'John D. Rockefeller', profession: 'Businessman', image: '💰' },
-        { name: 'Peter the Great', profession: 'Emperor', image: '👑' },
-        { name: 'Joseph Stalin', profession: 'Statesman', image: '⚒️' },
-        { name: 'Nikita Khrushchev', profession: 'Statesman', image: '🌽' }
+        { name: 'Judge Judy', profession: 'TV Judge', image: '⚖️' },
+        { name: 'Henry Ford', profession: 'Industrialist', image: '🚗' },
+        { name: 'Sonia Sotomayor', profession: 'Supreme Court Justice', image: '⚖️' }
     ],
     ESFJ: [
         { name: 'Bill Clinton', profession: 'President', image: '🇺🇸' },
         { name: 'Taylor Swift', profession: 'Singer', image: '🎤' },
         { name: 'Sandra Bullock', profession: 'Actress', image: '🎬' },
-        { name: 'Catherine the Great', profession: 'Empress', image: '👑' },
-        { name: 'Alexandra Feodorovna', profession: 'Empress', image: '👑' },
-        { name: 'Valentina Tereshkova', profession: 'Cosmonaut', image: '🚀' }
+        { name: 'Jennifer Garner', profession: 'Actress', image: '🎭' },
+        { name: 'Hugh Jackman', profession: 'Actor', image: '🎬' },
+        { name: 'Desmond Tutu', profession: 'Archbishop', image: '✝️' }
     ],
     ENFJ: [
         { name: 'Barack Obama', profession: 'President', image: '🇺🇸' },
         { name: 'Oprah Winfrey', profession: 'Media Mogul', image: '📺' },
         { name: 'Mahatma Gandhi', profession: 'Leader', image: '🕉️' },
-        { name: 'Vladimir Lenin', profession: 'Revolutionary', image: '⚒️' },
-        { name: 'Alexander II', profession: 'Emperor', image: '👑' },
-        { name: 'Mikhail Gorbachev', profession: 'Statesman', image: '🌍' }
+        { name: 'Maya Angelou', profession: 'Poet', image: '📝' },
+        { name: 'Malala Yousafzai', profession: 'Activist', image: '✊' },
+        { name: 'Michael Moore', profession: 'Filmmaker', image: '🎬' }
     ],
     ENTJ: [
         { name: 'Napoleon Bonaparte', profession: 'Military Leader', image: '⚔️' },
         { name: 'Steve Jobs', profession: 'Entrepreneur', image: '🍎' },
         { name: 'Margaret Thatcher', profession: 'Prime Minister', image: '🇬🇧' },
-        { name: 'Ivan the Terrible', profession: 'Tsar', image: '👑' },
-        { name: 'Alexander Suvorov', profession: 'Military Commander', image: '⚔️' },
-        { name: 'Georgy Zhukov', profession: 'Marshal', image: '🎖️' },
-        { name: 'Yuri Gagarin', profession: 'Cosmonaut', image: '🚀' }
+        { name: 'Julius Caesar', profession: 'Emperor', image: '👑' },
+        { name: 'Gordon Ramsay', profession: 'Chef', image: '👨‍🍳' },
+        { name: 'Jack Welch', profession: 'Business Leader', image: '💼' },
+        { name: 'Jeff Bezos', profession: 'Entrepreneur', image: '📦' }
     ]
 };
 

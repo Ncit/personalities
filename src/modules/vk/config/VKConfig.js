@@ -28,10 +28,13 @@ export class VKConfig {
     static PAYMENT_CONFIG = {
         defaultProduct: {
             id: 'mbti_premium',
-            name: 'Премиум тест личности',
-            description: 'Доступ к премиум-функциям',
+            name: 'Premium Personality Test',
+            nameRu: 'Премиум тест личности',
+            description: 'Access to premium features',
+            descriptionRu: 'Доступ к премиум-функциям',
             price: 150, // Price in rubles (Tochka acquiring)
             currency: 'Голоса',
+            currencyEn: 'Votes',
             icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzAiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTMyIDEyQzIxLjUgMTIgMTMgMjAuNSAxMyAzMUMxMyA0MS41IDIxLjUgNTAgMzIgNTBDNDIuNSA1MCA1MSA0MS41IDUxIDMxQzUxIDIwLjUgNDIuNSAxMiAzMiAxMloiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTI4IDI0SDM2VjQwSDI4VjI0WiIgZmlsbD0iIzAwMCIvPgo8cGF0aCBkPSJNMjQgMjhIMzZWMzJIMjRWMjhaIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9IjMyIiB5PSIzOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMDAwIj40MDwvdGV4dD4KPC9zdmc+'
             // Optional VK Pay params for iOS VK app; configure in production when merchant is ready
             // vkPayParams: { action: 'pay-to-group', params: { amount: '40', description: 'Премиум тест личности', group_id: 123456789 } }

@@ -3,7 +3,13 @@
  * Handles quiz flow, question management, scoring algorithms, and adaptive features
  */
 import { stateManager } from '../core/StateManager.js';
-import { QUIZ_TYPES } from '../../data/QuizData.ru.js';
+import { QUIZ_TYPES as QUIZ_TYPES_RU } from '../../data/QuizData.ru.js';
+import { QUIZ_TYPES as QUIZ_TYPES_EN } from '../../data/QuizData.js';
+import localizationManager from '../../locales/LocalizationManager.js';
+
+function getQuizTypes() {
+  return localizationManager.getCurrentLocale() === 'en' ? QUIZ_TYPES_EN : QUIZ_TYPES_RU;
+}
 import { AdaptiveEngine } from '../adaptive/index.js';
 
 export class QuizEngine {
@@ -387,7 +393,10 @@ export class QuizEngine {
     }
 
     async _calculateSocionicsResults() {
-        const { SOCIONICS_TYPES } = await import('../../data/SocionicsQuiz.ru.js');
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        const { SOCIONICS_TYPES } = isEn
+            ? await import('../../data/SocionicsQuiz.js')
+            : await import('../../data/SocionicsQuiz.ru.js');
         const s = this.scores;
 
         // Find matching type via MBTI equivalent mapping
@@ -425,7 +434,10 @@ export class QuizEngine {
     }
 
     async _calculateEnneagramResults() {
-        const { ENNEAGRAM_TYPES } = await import('../../data/EnneagramQuiz.ru.js');
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        const { ENNEAGRAM_TYPES } = isEn
+            ? await import('../../data/EnneagramTypes.en.js')
+            : await import('../../data/EnneagramQuiz.ru.js');
         const s = this.scores;
 
         // Determine dominant center
@@ -450,7 +462,7 @@ export class QuizEngine {
 
         const typeCode = String(typeNum);
         const typeData = ENNEAGRAM_TYPES[typeCode];
-        const typeName = typeData ? typeData.title : `Тип ${typeCode}`;
+        const typeName = typeData ? typeData.title : localizationManager.get('resultDetail.famousEnneagram', { type: typeCode });
 
         return {
             personalityType: typeCode,
@@ -545,35 +557,64 @@ export class QuizEngine {
     }
 
     async generateMBTIQuestions(isPremium) {
-        const { MBTI_QUESTIONS_RU } = await import('../../data/MainQuiz.ru.js');
-        if (isPremium) {
-            return MBTI_QUESTIONS_RU;
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        let questions;
+        if (isEn) {
+            const { MBTI_QUESTIONS } = await import('../../data/MainQuiz.js');
+            questions = MBTI_QUESTIONS;
         } else {
-            return MBTI_QUESTIONS_RU.slice(0, 20);
+            const { MBTI_QUESTIONS_RU } = await import('../../data/MainQuiz.ru.js');
+            questions = MBTI_QUESTIONS_RU;
         }
+        return isPremium ? questions : questions.slice(0, 20);
     }
 
     async _generateSocionicsQuestions() {
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        if (isEn) {
+            const { SOCIONICS_QUESTIONS } = await import('../../data/SocionicsQuiz.js');
+            return SOCIONICS_QUESTIONS;
+        }
         const { SOCIONICS_QUESTIONS_RU } = await import('../../data/SocionicsQuiz.ru.js');
         return SOCIONICS_QUESTIONS_RU;
     }
 
     async _generateEnneagramQuestions() {
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        if (isEn) {
+            const { ENNEAGRAM_QUESTIONS } = await import('../../data/EnneagramQuiz.js');
+            return ENNEAGRAM_QUESTIONS;
+        }
         const { ENNEAGRAM_QUESTIONS_RU } = await import('../../data/EnneagramQuiz.ru.js');
         return ENNEAGRAM_QUESTIONS_RU;
     }
 
     async generateSpecializedQuestions(quizType) {
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        if (isEn) {
+            const { MBTI_SPECIALIZED_QUESTIONS } = await import('../../data/SpecializedQuiz.js');
+            return MBTI_SPECIALIZED_QUESTIONS[quizType] || [];
+        }
         const { MBTI_SPECIALIZED_QUESTIONS_RU } = await import('../../data/SpecializedQuiz.ru.js');
         return MBTI_SPECIALIZED_QUESTIONS_RU[quizType] || [];
     }
 
     async _generateSocionicsSpecialized(quizType) {
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        if (isEn) {
+            const { SOCIONICS_SPECIALIZED_QUESTIONS } = await import('../../data/SocionicsSpecialized.js');
+            return SOCIONICS_SPECIALIZED_QUESTIONS[quizType] || [];
+        }
         const { SOCIONICS_SPECIALIZED_QUESTIONS_RU } = await import('../../data/SocionicsSpecialized.ru.js');
         return SOCIONICS_SPECIALIZED_QUESTIONS_RU[quizType] || [];
     }
 
     async _generateEnneagramSpecialized(quizType) {
+        const isEn = localizationManager.getCurrentLocale() === 'en';
+        if (isEn) {
+            const { ENNEAGRAM_SPECIALIZED_QUESTIONS } = await import('../../data/EnneagramSpecialized.js');
+            return ENNEAGRAM_SPECIALIZED_QUESTIONS[quizType] || [];
+        }
         const { ENNEAGRAM_SPECIALIZED_QUESTIONS_RU } = await import('../../data/EnneagramSpecialized.ru.js');
         return ENNEAGRAM_SPECIALIZED_QUESTIONS_RU[quizType] || [];
     }
@@ -598,7 +639,8 @@ export class QuizEngine {
     }
 
     getQuizInfo() {
-        return QUIZ_TYPES[this.quizType] || QUIZ_TYPES.mbti;
+        const qt = getQuizTypes();
+        return qt[this.quizType] || qt.mbti;
     }
 
     /**

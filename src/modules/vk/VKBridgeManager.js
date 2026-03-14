@@ -258,7 +258,7 @@ export class VKBridgeManager {
     /**
      * Share results using VK sharing
      */
-    async shareResults(personalityType, shareText, shareTitle = 'MBTI персональные тесты') {
+    async shareResults(personalityType, shareText, shareTitle = localizationManager.get('ui.shareTitle') || 'MBTI Personality Quiz') {
         this.analytics.trackSharing(personalityType, false, null, { action: 'attempted' });
 
         if (!this.bridge) {
@@ -347,7 +347,7 @@ export class VKBridgeManager {
         notification.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div style="flex: 1; margin-right: 10px;">
-                    <div style="font-weight: 600; margin-bottom: 4px;">Уведомление</div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">${localizationManager.get('ui.notification') || 'Notification'}</div>
                     <div style="font-size: 14px; opacity: 0.9;">${message}</div>
                 </div>
                 <button onclick="this.parentElement.parentElement.remove()" style="

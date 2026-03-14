@@ -14,11 +14,18 @@ export class TGUserService {
 
     /** Extract user from Telegram initDataUnsafe and store in memory. */
     init() {
+        // Set locale early: URL ?locale= override takes priority
+        const urlLocale = new URLSearchParams(window.location.search).get('locale');
+
         const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
         if (!tgUser) {
             this.logger.warn('No Telegram user data available (running outside Telegram?)');
             // Try localStorage fallback for ?flavor=tg dev mode
             this._loadFromStorage();
+            // Still apply locale from URL param (or default to ru)
+            const lang = urlLocale || 'ru';
+            const supportedLang = (lang === 'ru' || lang === 'en') ? lang : 'ru';
+            localizationManager.setLocale(supportedLang);
             return;
         }
 
@@ -31,8 +38,7 @@ export class TGUserService {
             language_code: tgUser.language_code || 'ru'
         };
 
-        // Set locale: URL ?locale= override takes priority, then Telegram language
-        const urlLocale = new URLSearchParams(window.location.search).get('locale');
+        // URL ?locale= override takes priority, then Telegram language
         const lang = urlLocale || this.userInfo.language_code;
         const supportedLang = (lang === 'ru' || lang === 'en') ? lang : 'ru';
         localizationManager.setLocale(supportedLang);

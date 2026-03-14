@@ -6,8 +6,9 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAnalytics, logEvent, setUserId, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
 import { getPerformance } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-performance.js';
 
-// Import data from QuizData.js
-import { MBTI_TYPES as PERSONALITY_TYPES, ADVANCED_INSIGHTS, FAMOUS_PERSONALITIES } from './src/data/QuizData.ru.js';
+// Import data from both locales
+import { MBTI_TYPES as PERSONALITY_TYPES_RU, ADVANCED_INSIGHTS as ADVANCED_INSIGHTS_RU, FAMOUS_PERSONALITIES as FAMOUS_PERSONALITIES_RU } from './src/data/QuizData.ru.js';
+import { MBTI_TYPES as PERSONALITY_TYPES_EN, ADVANCED_INSIGHTS as ADVANCED_INSIGHTS_EN, FAMOUS_PERSONALITIES as FAMOUS_PERSONALITIES_EN } from './src/data/QuizData.js';
 import localizationManager from './src/locales/LocalizationManager.js';
 import { MBTI_QUESTIONS as PERSONALITY_QUESTIONS } from './src/data/MainQuiz.js';
 import { MBTI_SPECIALIZED_QUESTIONS as SPECIALIZED_QUESTIONS } from './src/data/SpecializedQuiz.js';
@@ -91,7 +92,7 @@ function updateUserInterface(userInfo) {
     // Update header buttons to show user is logged in
     const cabinetBtn = document.getElementById('clientCabinetBtn');
     if (cabinetBtn && userInfo) {
-        cabinetBtn.innerHTML = `<i class="fas fa-user"></i> ${userInfo.first_name || 'Пользователь'}`;
+        cabinetBtn.innerHTML = `<i class="fas fa-user"></i> ${userInfo.first_name || localizationManager.get('auth.user')}`;
     }
     
     // Hide VK Auth container since user is now logged in
@@ -169,7 +170,7 @@ function clearUserAuth() {
         // Reset UI
         const cabinetBtn = document.getElementById('clientCabinetBtn');
         if (cabinetBtn) {
-            cabinetBtn.innerHTML = `<i class="fas fa-user"></i> Личный кабинет`;
+            cabinetBtn.innerHTML = `<i class="fas fa-user"></i> ${localizationManager.get('auth.cabinet')}`;
         }
         
         // Show VK Auth container again
@@ -190,9 +191,9 @@ window.logoutUser = function() {
     
     // Show confirmation message
     if (window.showAppAlert) {
-        window.showAppAlert('Вы вышли из аккаунта');
+        window.showAppAlert(localizationManager.get('auth.loggedOut'));
     } else {
-        alert('Вы вышли из аккаунта');
+        alert(localizationManager.get('auth.loggedOut'));
     }
 };
 
@@ -210,8 +211,8 @@ function isUserAuthenticated() {
 }
 
 // Function to show authentication required alert
-function showAuthRequiredAlert(action = 'выполнить это действие') {
-    const message = `Для ${action} необходимо войти через VK. Пожалуйста, авторизуйтесь сначала.`;
+function showAuthRequiredAlert(action = localizationManager.get('auth.startTest')) {
+    const message = localizationManager.get('auth.authRequired', { action });
     
     if (window.showAppAlert) {
         window.showAppAlert(message);
@@ -242,8 +243,8 @@ function closeOfferModal() {
 function updatePricing() {
     const flavor = PlatformDetector.getFlavor();
 
-    const webPrice = '280 рублей';
-    const vkPrice = '40 голосов';
+    const webPrice = localizationManager.get('pricing.rubles', { count: 280 });
+    const vkPrice = localizationManager.get('pricing.votes', { count: 40 });
     const tgPrice = '⭐ 75 Stars';
 
     const price = flavor === 'vk' ? vkPrice : flavor === 'tg' ? tgPrice : webPrice;
@@ -416,8 +417,8 @@ class PersonalityQuiz {
         }
         
         // Return the appropriate questions based on current locale
-        // const currentLocale = localizationManager.getCurrentLocale();
-        return PERSONALITY_QUESTIONS_RU; //currentLocale === 'ru' ? PERSONALITY_QUESTIONS_RU : PERSONALITY_QUESTIONS;
+        const currentLocale = localizationManager.getCurrentLocale();
+        return currentLocale === 'ru' ? PERSONALITY_QUESTIONS_RU : PERSONALITY_QUESTIONS;
     }
 
     /**
@@ -426,7 +427,8 @@ class PersonalityQuiz {
     generateAdaptivePersonalityQuestions() {
         try {
             // Get all available questions
-            const allQuestions = PERSONALITY_QUESTIONS_RU;
+            const currentLocale = localizationManager.getCurrentLocale();
+            const allQuestions = currentLocale === 'ru' ? PERSONALITY_QUESTIONS_RU : PERSONALITY_QUESTIONS;
             
             // Initialize adaptive state (no early termination)
             this.adaptiveState = {
@@ -449,7 +451,7 @@ class PersonalityQuiz {
             
         } catch (error) {
             console.warn('Failed to generate adaptive questions, falling back to standard:', error);
-            return PERSONALITY_QUESTIONS_RU;
+            return localizationManager.getCurrentLocale() === 'ru' ? PERSONALITY_QUESTIONS_RU : PERSONALITY_QUESTIONS;
         }
     }
 
@@ -607,7 +609,7 @@ class PersonalityQuiz {
             this.showAdaptiveIndicators();
         }
         
-        // Hide the "На главную" button when starting the quiz
+        // Hide the "To Home" button when starting the quiz
         const onMainPageBtn = document.getElementById('onMainPageBtn');
         if (onMainPageBtn) {
             onMainPageBtn.style.display = 'none';
@@ -686,9 +688,9 @@ class PersonalityQuiz {
 			
 			// Change button text for last question
 			if (this.currentQuestion === this.questions.length - 1) {
-				nextBtn.innerHTML = 'Показать результаты <i class="fas fa-chart-bar"></i>';
+				nextBtn.innerHTML = `${localizationManager.get('quiz.showResults')} <i class="fas fa-chart-bar"></i>`;
 			} else {
-				nextBtn.innerHTML = 'Следующий <i class="fas fa-arrow-right"></i>';
+				nextBtn.innerHTML = `${localizationManager.get('quiz.next')} <i class="fas fa-arrow-right"></i>`;
 			}
 		}
         
@@ -910,7 +912,7 @@ class PersonalityQuiz {
     }
 
     displayPersonalityResults(type) {
-        const personality = PERSONALITY_TYPES[type];
+        const personality = window.PERSONALITY_TYPES[type];
         
         // Get elements with null checks
         const personalityType = document.getElementById('personalityType');
@@ -1130,13 +1132,13 @@ class PersonalityQuiz {
         const pPct = 100 - jPct;
 
         const baseMessage = localizationManager.get('ui.shareMessage', { type: personalityType });
-        const personalityTitle = (PERSONALITY_TYPES[personalityType] && PERSONALITY_TYPES[personalityType].title) ? PERSONALITY_TYPES[personalityType].title : personalityType;
+        const personalityTitle = (window.PERSONALITY_TYPES[personalityType] && window.PERSONALITY_TYPES[personalityType].title) ? window.PERSONALITY_TYPES[personalityType].title : personalityType;
         const personalityLine = localizationManager.get('ui.sharePersonality', { title: personalityTitle, type: personalityType });
 
         // Famous personalities (take first 3 random or top 3)
         let famousNames = '';
         try {
-            const famousList = (FAMOUS_PERSONALITIES[personalityType] || []).slice();
+            const famousList = (window.FAMOUS_PERSONALITIES[personalityType] || []).slice();
             const three = famousList.slice(0, 3).map(p => p.name).join(', ');
             if (three) {
                 famousNames = localizationManager.get('ui.shareFamous', { names: three });
@@ -1158,7 +1160,11 @@ class PersonalityQuiz {
         // Create a simpler, more direct share text that VK might handle better
         let shareText;
         if (localizationManager.getCurrentLocale() === 'ru') {
-            shareText = `Мой тип характера: ${personalityType} (${personalityTitle}). Баллы: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Пройди тест и узнай свой тип!`;
+            shareText = localizationManager.get('ui.shareText', {
+                type: personalityType,
+                title: personalityTitle,
+                e: ePct, i: iPct, s: sPct, n: nPct, t: tPct, f: fPct, j: jPct, p: pPct
+            });
         } else {
             shareText = `My personality type: ${personalityType} (${personalityTitle}). Scores: E:${ePct}% I:${iPct}% S:${sPct}% N:${nPct}% T:${tPct}% F:${fPct}% J:${jPct}% P:${pPct}%. Take the test and discover your type!`;
         }
@@ -1199,7 +1205,7 @@ class PersonalityQuiz {
         const adaptiveIndicators = document.getElementById('adaptiveIndicators');
         if (adaptiveIndicators) {
             adaptiveIndicators.style.display = 'block';
-            this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+            this.updateAdaptiveStatus('active', localizationManager.get('adaptive.learning'));
         }
     }
 
@@ -1462,11 +1468,11 @@ class PersonalityQuiz {
                 const avgConfidence = Object.values(confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(confidenceScores).length;
                 
                 if (avgConfidence >= 0.9) {
-                    this.updateAdaptiveStatus('optimizing', 'Оптимизация завершения...');
+                    this.updateAdaptiveStatus('optimizing', localizationManager.get('adaptive.optimizing'));
                 } else if (avgConfidence >= 0.7) {
-                    this.updateAdaptiveStatus('learning', 'Продолжаем обучение...');
+                    this.updateAdaptiveStatus('learning', localizationManager.get('adaptive.continuing'));
                 } else {
-                    this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+                    this.updateAdaptiveStatus('active', localizationManager.get('adaptive.learning'));
                 }
             }
         } catch (error) {
@@ -1589,7 +1595,7 @@ function openTypesModal() {
         typesList.innerHTML = '';
         
         // Add each personality type with enhanced structure
-        Object.entries(PERSONALITY_TYPES).forEach(([type, data]) => {
+        Object.entries(window.PERSONALITY_TYPES).forEach(([type, data]) => {
             const typeCard = document.createElement('div');
             typeCard.className = `type-card ${getTypeCategory(type)}`;
             typeCard.innerHTML = `
@@ -1610,11 +1616,11 @@ function openTypesModal() {
                 <div class="type-stats">
                     <div class="type-stat">
                         <span class="type-stat-value">${getTypePercentage(type)}%</span>
-                        <span class="type-stat-label">Населения</span>
+                        <span class="type-stat-label">${localizationManager.get('types.population')}</span>
                     </div>
                     <div class="type-stat">
                         <span class="type-stat-value">${getTypeCompatibility(type)}</span>
-                        <span class="type-stat-label">Совместимость</span>
+                        <span class="type-stat-label">${localizationManager.get('types.compatibility')}</span>
                     </div>
                 </div>
             `;
@@ -1668,25 +1674,7 @@ function getTypeIcon(type) {
 }
 
 function getTypeTraits(type) {
-    const traits = {
-        'INTJ': ['Стратегический', 'Аналитический', 'Независимый'],
-        'INTP': ['Логичный', 'Инновационный', 'Любознательный'],
-        'ENTJ': ['Решительный', 'Лидерский', 'Эффективный'],
-        'ENTP': ['Изобретательный', 'Энергичный', 'Адаптивный'],
-        'INFJ': ['Идеалистичный', 'Эмпатичный', 'Творческий'],
-        'INFP': ['Мечтательный', 'Добрый', 'Вдохновляющий'],
-        'ENFJ': ['Харизматичный', 'Заботливый', 'Мотивирующий'],
-        'ENFP': ['Энтузиаст', 'Креативный', 'Общительный'],
-        'ISTJ': ['Практичный', 'Надежный', 'Организованный'],
-        'ISFJ': ['Заботливый', 'Терпеливый', 'Преданный'],
-        'ESTJ': ['Ответственный', 'Прямолинейный', 'Организованный'],
-        'ESFJ': ['Дружелюбный', 'Ответственный', 'Сочувствующий'],
-        'ISTP': ['Гибкий', 'Практичный', 'Спокойный'],
-        'ISFP': ['Художественный', 'Миролюбивый', 'Спонтанный'],
-        'ESTP': ['Энергичный', 'Практичный', 'Спонтанный'],
-        'ESFP': ['Веселый', 'Дружелюбный', 'Спонтанный']
-    };
-    return traits[type] || ['Уникальный', 'Интересный', 'Особенный'];
+    return localizationManager.get(`types.traits.${type}`) || localizationManager.get('types.traits.default');
 }
 
 function getTypePercentage(type) {
@@ -1718,7 +1706,7 @@ function getTypeCompatibility(type) {
         'ESTP': 'ISTP, ESTP, ESFP',
         'ESFP': 'ISFP, ESTP, ESFP'
     };
-    return compatibility[type] || 'Все типы';
+    return compatibility[type] || localizationManager.get('types.allTypes');
 }
 
 function setupTypeFilters() {
@@ -1838,7 +1826,7 @@ function closePremiumModal() {
 async function unlockPremium() {
     // Check authentication for web version
     if (!isUserAuthenticated()) {
-        showAuthRequiredAlert('покупки премиум доступа');
+        showAuthRequiredAlert(localizationManager.get('auth.purchasePremium'));
         return;
     }
     
@@ -1846,7 +1834,7 @@ async function unlockPremium() {
     
     // Show loading state
     if (unlockMsg) {
-        unlockMsg.textContent = 'Обработка запроса...';
+        unlockMsg.textContent = localizationManager.get('premium.processingRequest');
         unlockMsg.style.display = 'block';
         unlockMsg.style.color = '#007bff'; // Blue color for loading state
     }
@@ -1870,7 +1858,7 @@ async function unlockPremium() {
                 if (paymentResult.success) {
                     // Payment successful - unlock premium
                     if (unlockMsg) {
-                        unlockMsg.textContent = '🎉 Премиум доступ открыт!';
+                        unlockMsg.textContent = localizationManager.get('premium.openSuccess');
                         unlockMsg.style.display = 'block';
                         unlockMsg.style.color = '#28a745'; // Green color for success messages
                     }
@@ -1890,7 +1878,7 @@ async function unlockPremium() {
                 } else if (paymentResult.cancelled) {
                     // User cancelled payment
                     if (unlockMsg) {
-                        unlockMsg.textContent = 'Покупка отменена';
+                        unlockMsg.textContent = localizationManager.get('premium.purchaseCancelled');
                         unlockMsg.style.display = 'block';
                         unlockMsg.style.color = '#ffc107'; // Yellow color for cancellation messages
                     }
@@ -1900,7 +1888,7 @@ async function unlockPremium() {
                 } else {
                     // Payment failed
                     if (unlockMsg) {
-                        unlockMsg.textContent = 'Ошибка платежа. Попробуйте еще раз.';
+                        unlockMsg.textContent = localizationManager.get('premium.paymentError');
                         unlockMsg.style.display = 'block';
                         unlockMsg.style.color = '#dc3545'; // Red color for error messages
                     }
@@ -1910,15 +1898,15 @@ async function unlockPremium() {
                 }
             } else {
                 // Order box failed or not supported
-                let errorMessage = 'Платежная система недоступна';
+                let errorMessage = localizationManager.get('premium.systemUnavailable');
                 
                 // Handle specific error cases
                 if (orderResult.error === 'order_configuration_error') {
-                    errorMessage = 'Ошибка конфигурации платежа. Обратитесь в поддержку.';
+                    errorMessage = localizationManager.get('premium.configError');
                 } else if (orderResult.error === 'payment_not_supported') {
-                    errorMessage = 'Платежи не поддерживаются в данной среде';
+                    errorMessage = localizationManager.get('premium.notSupportedEnv');
                 } else if (orderResult.error === 'unsupported_platform') {
-                    errorMessage = 'Платежи доступны только в VK';
+                    errorMessage = localizationManager.get('premium.vkOnly');
                 }
                 
                 if (unlockMsg) {
@@ -1951,7 +1939,7 @@ async function unlockPremium() {
             });
             
             if (unlockMsg) {
-                unlockMsg.textContent = 'Ошибка при обработке платежа';
+                unlockMsg.textContent = localizationManager.get('premium.processError');
                 unlockMsg.style.display = 'block';
                 unlockMsg.style.color = '#dc3545'; // Red color for error messages
             }
@@ -1973,7 +1961,7 @@ async function unlockPremium() {
     } else {
         // Not in VK environment - show fallback or alternative payment method
         if (unlockMsg) {
-            unlockMsg.textContent = 'Премиум доступ временно недоступен';
+            unlockMsg.textContent = localizationManager.get('premium.tempUnavailable');
             unlockMsg.style.display = 'block';
             unlockMsg.style.color = '#dc3545'; // Red color for error messages
         }
@@ -2035,7 +2023,7 @@ function completePremiumUnlock() {
     
     // Show success notification
     if (vkBridgeManager) {
-        vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+        vkBridgeManager.showNotification(localizationManager.get('premium.activated'));
     }
 }
 
@@ -2079,7 +2067,7 @@ function updatePremiumUI() {
 function displayAdvancedInsights(personalityType) {
     if (!isPremium()) return;
     
-    const insights = ADVANCED_INSIGHTS[personalityType];
+    const insights = window.ADVANCED_INSIGHTS[personalityType];
     if (!insights) return;
     
     // Display strengths
@@ -2102,11 +2090,11 @@ function displayAdvancedInsights(personalityType) {
 // Function to display famous personalities
 function displayFamousPersonalities(personalityType) {
     if (!isPremium()) return;
-    const famous = (FAMOUS_PERSONALITIES[personalityType] || []).slice().sort(() => Math.random() - 0.5);
+    const famous = (window.FAMOUS_PERSONALITIES[personalityType] || []).slice().sort(() => Math.random() - 0.5);
     const famousGrid = document.getElementById('famousGrid');
     if (!famousGrid) return;
     if (!famous || !Array.isArray(famous) || famous.length === 0) {
-        famousGrid.innerHTML = `<div style="text-align:center; color:#666; padding:12px 0; font-size:0.95rem;">Список пока пуст</div>`;
+        famousGrid.innerHTML = `<div style="text-align:center; color:#666; padding:12px 0; font-size:0.95rem;">${localizationManager.get('types.emptyList')}</div>`;
         return;
     }
     
@@ -2562,9 +2550,9 @@ function createTimelineChart(clarityValue = 50) {
     const stateX = minX + (Math.max(0, Math.min(100, clarityValue)) / 100) * (maxX - minX);
 
     const points = [
-        { x: minX, label: 'Прошлое', color: '#9ca3af' },
-        { x: midX, label: 'Настоящее', color: '#667eea' },
-        { x: maxX, label: 'Будущее', color: '#9ca3af' }
+        { x: minX, label: localizationManager.get('analytics.past'), color: '#9ca3af' },
+        { x: midX, label: localizationManager.get('analytics.present'), color: '#667eea' },
+        { x: maxX, label: localizationManager.get('analytics.future'), color: '#9ca3af' }
     ];
 
     points.forEach((p, idx) => {
@@ -2626,7 +2614,7 @@ function createTimelineChart(clarityValue = 50) {
     stateLabel.setAttribute('font-family', 'Inter, system-ui, sans-serif');
     stateLabel.setAttribute('font-size', '10');
     stateLabel.setAttribute('fill', '#374151');
-    stateLabel.textContent = 'Текущая позиция';
+    stateLabel.textContent = localizationManager.get('analytics.currentPosition');
     svg.appendChild(stateLabel);
 
     root.appendChild(svg);
@@ -2642,10 +2630,10 @@ function createStrengthsChart(e, s, t, j) {
     svg.setAttribute('width', '100%');
 
     const strengths = [
-        { name: 'Аналитический', value: Math.max(t, 100 - t), color: '#667eea' },
-        { name: 'Креативный', value: Math.max(s, 100 - s), color: '#764ba2' },
-        { name: 'Социальный', value: Math.max(e, 100 - e), color: '#f093fb' },
-        { name: 'Организованный', value: Math.max(j, 100 - j), color: '#f5576c' }
+        { name: localizationManager.get('analytics.analytical'), value: Math.max(t, 100 - t), color: '#667eea' },
+        { name: localizationManager.get('analytics.creative'), value: Math.max(s, 100 - s), color: '#764ba2' },
+        { name: localizationManager.get('analytics.social'), value: Math.max(e, 100 - e), color: '#f093fb' },
+        { name: localizationManager.get('analytics.organized'), value: Math.max(j, 100 - j), color: '#f5576c' }
     ];
 
     const barHeight = 22;
@@ -2802,9 +2790,9 @@ function fillPremiumRandomAnswers() {
     // Check if user is premium
     if (!isPremium()) {
     if (window.showAppAlert) {
-        window.showAppAlert('Премиум функции доступны только для премиум пользователей');
+        window.showAppAlert(localizationManager.get('premium.onlyForPremium'));
     } else {
-        alert('Премиум функции доступны только для премиум пользователей');
+        alert(localizationManager.get('premium.onlyForPremium'));
     }
         return;
     }
@@ -3057,7 +3045,7 @@ function updateQuizTitle(quizType) {
 function startQuizType(quizType) {
     // Check authentication for web version
     if (!isUserAuthenticated()) {
-        showAuthRequiredAlert('начала премиум теста');
+        showAuthRequiredAlert(localizationManager.get('auth.startPremiumTest'));
         return;
     }
     
@@ -3193,7 +3181,7 @@ async function handleTochkaPaymentReturn() {
                 if (container) {
                     const toast = document.createElement('div');
                     toast.className = 'toast toast--success';
-                    toast.textContent = 'Премиум разблокирован!';
+                    toast.textContent = localizationManager.get('ui.premiumUnlocked');
                     container.appendChild(toast);
                     setTimeout(() => toast.remove(), 5000);
                 }
@@ -3334,7 +3322,7 @@ let bannerAdTimer = null;
 function startQuiz() {
     // Check authentication for web version
     if (!isUserAuthenticated()) {
-        showAuthRequiredAlert('начала теста');
+        showAuthRequiredAlert(localizationManager.get('auth.startTest'));
         return;
     }
     
@@ -3724,10 +3712,10 @@ function updateSubscriptionModal() {
     if (statusIndicator) {
         if (isPremiumUser) {
             statusIndicator.className = 'status-indicator premium';
-            statusIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Премиум активен</span>';
+            statusIndicator.innerHTML = `<i class="fas fa-check-circle"></i><span>${localizationManager.get('subscription.active')}</span>`;
         } else {
             statusIndicator.className = 'status-indicator free';
-            statusIndicator.innerHTML = '<i class="fas fa-times-circle"></i><span>Премиум не активен</span>';
+            statusIndicator.innerHTML = `<i class="fas fa-times-circle"></i><span>${localizationManager.get('subscription.inactive')}</span>`;
         }
     }
     
@@ -3757,13 +3745,13 @@ function updateSubscriptionTiers() {
         if (isPremiumUser) {
             freeTier.innerHTML = '';
         } else {
-            freeTier.innerHTML = '<span class="current-plan">Текущий план</span>';
+            freeTier.innerHTML = `<span class="current-plan">${localizationManager.get('subscription.currentPlan')}</span>`;
         }
     }
     
     if (premiumTier) {
         if (isPremiumUser) {
-            premiumTier.innerHTML = '<span class="current-plan">Текущий план</span>';
+            premiumTier.innerHTML = `<span class="current-plan">${localizationManager.get('subscription.currentPlan')}</span>`;
         } else {
             premiumTier.innerHTML = '';
         }
@@ -3781,8 +3769,8 @@ function updateSubscriptionInfo() {
         // Get subscription data from localStorage or use defaults
         const subscriptionData = JSON.parse(localStorage.getItem('mbti_subscription_data') || '{}');
         const startDateValue = subscriptionData.startDate || new Date().toLocaleDateString();
-        const endDateValue = subscriptionData.endDate || 'Бессрочно';
-        const nextPaymentValue = subscriptionData.nextPayment || 'Нет';
+        const endDateValue = subscriptionData.endDate || localizationManager.get('subscription.lifetime');
+        const nextPaymentValue = subscriptionData.nextPayment || localizationManager.get('subscription.no');
         const priceValue = subscriptionData.price || '';
         
         if (startDate) startDate.textContent = startDateValue;
@@ -3798,46 +3786,46 @@ function updateSubscriptionInfo() {
 }
 
 function cancelSubscription() {
-    const confirmed = confirm('Вы уверены, что хотите отменить подписку?');
+    const confirmed = confirm(localizationManager.get('subscription.cancelConfirm'));
     if (confirmed) {
         setPremium(false);
         updateSubscriptionModal();
         updatePremiumUI();
     if (window.showAppAlert) {
-        window.showAppAlert('Подписка отменена. Вы вернулись к бесплатной версии.');
+        window.showAppAlert(localizationManager.get('subscription.cancelled'));
     } else {
-        alert('Подписка отменена. Вы вернулись к бесплатной версии.');
+        alert(localizationManager.get('subscription.cancelled'));
     }
     }
 }
 
 function restoreSubscription() {
-    const confirmed = confirm('Восстановить премиум подписку?');
+    const confirmed = confirm(localizationManager.get('subscription.restoreConfirm'));
     if (confirmed) {
         setPremium(true);
         updateSubscriptionModal();
         updatePremiumUI();
     if (window.showAppAlert) {
-        window.showAppAlert('Премиум подписка восстановлена!');
+        window.showAppAlert(localizationManager.get('subscription.restored'));
     } else {
-        alert('Премиум подписка восстановлена!');
+        alert(localizationManager.get('subscription.restored'));
     }
     }
 }
 
 function contactSupport() {
     if (window.showAppAlert) {
-        window.showAppAlert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru', 'Связаться с поддержкой');
+        window.showAppAlert(localizationManager.get('subscription.supportEmail'), localizationManager.get('ui.contactSupport'));
     } else {
-        alert('Для связи с поддержкой отправьте email на: personalitiesresearch@mail.ru');
+        alert(localizationManager.get('subscription.supportEmail'));
     }
 }
 
 function viewBillingHistory() {
     if (window.showAppAlert) {
-        window.showAppAlert('История платежей будет доступна в будущих обновлениях.');
+        window.showAppAlert(localizationManager.get('subscription.billingFuture'));
     } else {
-        alert('История платежей будет доступна в будущих обновлениях.');
+        alert(localizationManager.get('subscription.billingFuture'));
     }
 }
 
@@ -3899,10 +3887,10 @@ async function purchasePremiumSubscription(tier = 'monthly') {
                 const subscriptionData = {
                     tier: tier,
                     startDate: new Date().toLocaleDateString(),
-                    endDate: tier === 'lifetime' ? 'Бессрочно' : 
+                    endDate: tier === 'lifetime' ? localizationManager.get('subscription.lifetime') : 
                              tier === 'yearly' ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString() :
                              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                    nextPayment: tier === 'lifetime' ? 'Нет' : 
+                    nextPayment: tier === 'lifetime' ? localizationManager.get('subscription.no') : 
                                 tier === 'yearly' ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString() :
                                 new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
                     price: `${config.price / 100} RUB`,
@@ -3912,7 +3900,7 @@ async function purchasePremiumSubscription(tier = 'monthly') {
 
                 
                 // Show success notification
-                vkBridgeManager.showNotification(`Подписка ${config.name} успешно активирована!`);
+                vkBridgeManager.showNotification(localizationManager.get('subscription.activated', { name: config.name }));
                 
                 // Update UI
                 updatePremiumUI();
@@ -3933,36 +3921,35 @@ async function purchasePremiumSubscription(tier = 'monthly') {
                 
             } else if (paymentResult.cancelled) {
                 // User cancelled payment
-    if (window.showAppAlert) {
-        window.showAppAlert('Покупка отменена');
-    } else {
-        alert('Покупка отменена');
-    }
+                if (window.showAppAlert) {
+                    window.showAppAlert(localizationManager.get('premium.purchaseCancelled'));
+                } else {
+                    alert(localizationManager.get('premium.purchaseCancelled'));
+                }
             } else {
                 // Payment failed
-    if (window.showAppAlert) {
-        window.showAppAlert('Ошибка платежа. Попробуйте еще раз.');
-    } else {
-        alert('Ошибка платежа. Попробуйте еще раз.');
-    }
+                if (window.showAppAlert) {
+                    window.showAppAlert(localizationManager.get('premium.paymentError'));
+                } else {
+                    alert(localizationManager.get('premium.paymentError'));
+                }
             }
-        } else {
+            } else {
             // Order box failed
-    if (window.showAppAlert) {
-        window.showAppAlert('Платежная система недоступна');
-    } else {
-        alert('Платежная система недоступна');
-    }
-    }
-} catch (error) {
-    logger.error('Error during subscription purchase:', error);
-    if (window.showAppAlert) {
-        window.showAppAlert('Ошибка при обработке платежа');
-    } else {
-        alert('Ошибка при обработке платежа');
-    }
-}
-}
+            if (window.showAppAlert) {
+                window.showAppAlert(localizationManager.get('premium.systemUnavailable'));
+            } else {
+                alert(localizationManager.get('premium.systemUnavailable'));
+            }
+            }
+            } catch (error) {
+            logger.error('Error during subscription purchase:', error);
+            if (window.showAppAlert) {
+            window.showAppAlert(localizationManager.get('premium.processError'));
+            } else {
+            alert(localizationManager.get('premium.processError'));
+            }
+            }}
 
 // Make purchase function available globally
 window.purchasePremiumSubscription = purchasePremiumSubscription;
@@ -4032,185 +4019,32 @@ function showHelp(topic) {
     // Prevent scrolling of the main page
     if (typeof event !== 'undefined' && event) event.preventDefault();
     
-    const helpContent = {
-        'how-to-test': {
-            title: 'Как пройти тест',
-            content: `
-                <h3>📝 Пошаговая инструкция</h3>
-                <ol>
-                    <li><strong>Выберите тип теста:</strong> Основной тест (61 вопрос) или специализированный тест</li>
-                    <li><strong>Отвечайте честно:</strong> Выбирайте тот вариант, который больше соответствует вашему поведению</li>
-                    <li><strong>Не задумывайтесь долго:</strong> Первая реакция обычно самая точная</li>
-                    <li><strong>Завершите тест:</strong> Пройдите все вопросы до конца</li>
-                    <li><strong>Изучите результаты:</strong> Прочитайте описание вашего типа личности</li>
-                </ol>
-                <p><strong>💡 Совет:</strong> Тест можно проходить несколько раз, но рекомендуется делать перерыв между попытками.</p>
-            `
-        },
-        'understanding-results': {
-            title: 'Понимание результатов',
-            content: `
-                <h3>🧠 Что означают результаты</h3>
-                <p>Тест определяет 4 основные дихотомии личности:</p>
-                <ul>
-                    <li><strong>E/I (Экстраверсия/Интроверсия):</strong> Откуда вы черпаете энергию</li>
-                    <li><strong>S/N (Сенсорика/Интуиция):</strong> Как вы воспринимаете информацию</li>
-                    <li><strong>T/F (Мышление/Чувство):</strong> Как вы принимаете решения</li>
-                    <li><strong>J/P (Суждение/Восприятие):</strong> Как вы относитесь к внешнему миру</li>
-                </ul>
-                <p><strong>📊 Проценты показывают:</strong> Насколько сильно выражена каждая характеристика в вашей личности.</p>
-            `
-        },
-        'premium-features': {
-            title: 'Премиум функции',
-            content: `
-                <h3>⭐ Что включено в премиум</h3>
-                <ul>
-                    <li><strong>Расширенная аналитика:</strong> Подробные графики и диаграммы</li>
-                    <li><strong>Сравнение с известными личностями:</strong> Узнайте, кто из знаменитостей имеет ваш тип</li>
-                    <li><strong>Специализированные тесты:</strong> 12 дополнительных тестов для разных аспектов личности</li>
-                    <li><strong>Без рекламы:</strong> Чистый интерфейс без отвлекающих элементов</li>
-                </ul>
-                <p><strong>💎 Стоимость:</strong> <span id="scriptPrice">280 рублей</span></p>
-            `
-        },
-        'faq': {
-            title: 'Часто задаваемые вопросы',
-            content: `
-                <h3>❓ FAQ</h3>
-                <div class="faq-item">
-                    <h4>Может ли мой тип измениться со временем?</h4>
-                    <p>Да, тип личности может эволюционировать, особенно в молодом возрасте. Рекомендуется проходить тест раз в 1-2 года.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>Почему результаты могут отличаться?</h4>
-                    <p>На результаты влияют настроение, самочувствие и жизненные обстоятельства. Для точности проходите тест в спокойном состоянии.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>Какой тест выбрать?</h4>
-                    <p>Начните с основного теста личности. Специализированные тесты помогут глубже понять отдельные аспекты характера.</p>
-                </div>
-            `
-        },
-        'about-personality': {
-            title: 'О типах личности',
-            content: `
-                <h3>📚 Что такое типы личности</h3>
-                <p>Типы личности — это психологическая модель, основанная на теории психологических типов Карла Юнга.</p>
-                <p><strong>История:</strong> Разработана на основе исследований психологических типов и адаптирована для практического применения.</p>
-                <p><strong>Научная основа:</strong> Основана на теории психологических типов и исследованиях в области психологии личности.</p>
-                <p><strong>Применение:</strong> Используется в образовании, бизнесе, карьерном консультировании и личностном развитии.</p>
-            `
-        },
-        'privacy': {
-            title: 'Конфиденциальность',
-            content: `
-                <h3>🔒 Ваша конфиденциальность</h3>
-                <p>Мы серьезно относимся к защите ваших персональных данных:</p>
-                <ul>
-                    <li>Результаты тестов хранятся только на вашем устройстве</li>
-                    <li>Мы не передаем ваши данные третьим лицам</li>
-                    <li>Используем безопасные методы обработки данных</li>
-                    <li>Вы можете удалить свои данные в любое время</li>
-                </ul>
-                <p><strong>Вопросы по конфиденциальности:</strong> personalitiesresearch@mail.ru</p>
-            `
-        },
-        'terms': {
-            title: 'Условия использования',
-            content: `
-                <h3>📋 Условия использования</h3>
-                <p>Используя наш сервис, вы соглашаетесь со следующими пунктами:</p>
-                <ul>
-                    <li>Результаты тестов предназначены только для личного использования</li>
-                    <li>Не используйте результаты для дискриминации</li>
-                    <li>Сервис предоставляется "как есть"</li>
-                    <li>Мы не несем ответственности за решения, принятые на основе результатов</li>
-                </ul>
-                <p><strong>📅 Последнее обновление:</strong> 23 июля 2025</p>
-            `
-        },
-        'offer': {
-            title: 'Публичная оферта',
-            content: `
-                <h3>Публичная оферта</h3>
-                <p><strong>О предоставлении услуг по тестированию личности</strong></p>
-                <h4>1. ОБЩИЕ ПОЛОЖЕНИЯ</h4>
-                <p>Наименование: Фещун Н.Ю.<br>ИНН: 920352231504</p>
-                <p>1.1. Настоящая публичная оферта (далее — «Оферта») определяет условия предоставления услуг по тестированию личности и является официальным предложением Фещун Н.Ю. (далее — «Исполнитель») заключить договор на указанных ниже условиях с любым физическим лицом (далее — «Заказчик»).</p>
-                <p>1.2. Акцептом настоящей Оферты является совершение Заказчиком действий, направленных на получение услуг, в том числе:</p>
-                <ul>
-                    <li>Регистрация на сайте</li>
-                    <li>Прохождение тестирования</li>
-                    <li>Оплата услуг</li>
-                </ul>
-                <h4>2. ПРЕДМЕТ ДОГОВОРА</h4>
-                <p>2.1. Исполнитель обязуется предоставить Заказчику следующие услуги:</p>
-                <ul>
-                    <li>Доступ к тестам личности на основе типологии MBTI (16 типов личности)</li>
-                    <li>Базовые результаты тестирования</li>
-                    <li>Описание типа личности</li>
-                    <li>Дополнительные премиум-функции (при оплате)</li>
-                </ul>
-                <p>2.2. Премиум-функции включают:</p>
-                <ul>
-                    <li>Расширенные анализы личности</li>
-                    <li>Сравнение с известными личностями</li>
-                    <li>Визуальная аналитика (графики и диаграммы)</li>
-                    <li>Премиум тесты (12 специализированных типов)</li>
-                    <li>Отсутствие рекламы</li>
-                </ul>
-                <h4>3. СТОИМОСТЬ УСЛУГ И ПОРЯДОК РАСЧЕТОВ</h4>
-                <p>3.1. Базовые услуги предоставляются бесплатно.</p>
-                <p>3.2. Стоимость премиум-доступа составляет 40 голосов.</p>
-                <p>3.3. Оплата производится:</p>
-                <ul>
-                    <li>В веб-версии: банковской картой или другими электронными способами</li>
-                    <li>В VK Mini App: голосами ВКонтакте (40 голосов)</li>
-                </ul>
-                <h4>4. ВОЗВРАТ СРЕДСТВ</h4>
-                <p>4.1. Возврат средств возможен в следующих случаях:</p>
-                <ul>
-                    <li>Техническая невозможность предоставления услуг</li>
-                    <li>Двойное списание средств</li>
-                    <li>Ошибка в платеже</li>
-                </ul>
-                <p>4.2. Возврат не производится при:</p>
-                <ul>
-                    <li>Получении услуг в полном объеме</li>
-                    <li>Нарушении условий использования</li>
-                    <li>Истечении 14 дней с момента оплаты</li>
-                </ul>
-                <p>4.3. Заявка на возврат подается на email: personalitiesresearch@mail.ru</p>
-                <h4>5. КОНФИДЕНЦИАЛЬНОСТЬ</h4>
-                <p>5.1. Стороны обязуются не разглашать конфиденциальную информацию.</p>
-                <p>5.2. Персональные данные обрабатываются в соответствии с Федеральным законом «О персональных данных».</p>
-                <p>5.3. Исполнитель может использовать обезличенные данные для улучшения сервиса.</p>
-                <h4>6. КОНТАКТНАЯ ИНФОРМАЦИЯ</h4>
-                <p>Email: personalitiesresearch@mail.ru</p>
-                <p>Дата размещения: 2025<br>Версия: 1.0</p>
-            `
-        },
-        'contacts': {
-            title: 'Контакты',
-            content: `
-                <h3>📬 Свяжитесь с нами</h3>
-                <p>Мы всегда рады вашим вопросам, предложениям и отзывам.</p>
-                <ul>
-                    <li><strong>Email:</strong> <a href="mailto:personalitiesresearch@mail.ru">personalitiesresearch@mail.ru</a></li>
-                    <li><strong>Время ответа:</strong> Обычно в течение 24 часов в рабочие дни</li>
-                </ul>
-                <p>Мы стремимся сделать наш сервис лучше благодаря вашей обратной связи!</p>
-            `
-        }
+    const helpContentMap = {
+        'how-to-test': localizationManager.get('helpContent.howToTest'),
+        'understanding-results': localizationManager.get('helpContent.understandingResults'),
+        'premium-features': (function() {
+            const flavor = typeof PlatformDetector !== 'undefined' ? PlatformDetector.getFlavor() : (window.vkBridgeManager ? 'vk' : 'web');
+            const price = flavor === 'vk' ? localizationManager.get('pricing.votes', { count: 40 }) : localizationManager.get('pricing.rubles', { count: 280 });
+            const content = localizationManager.get('helpContent.premiumFeatures');
+            return {
+                title: content.title,
+                content: content.content.replace('{price}', price)
+            };
+        })(),
+        'faq': localizationManager.get('helpContent.faq'),
+        'about-personality': localizationManager.get('helpContent.aboutPersonality'),
+        'privacy': localizationManager.get('helpContent.privacy'),
+        'terms': localizationManager.get('helpContent.terms'),
+        'offer': localizationManager.get('helpContent.offer'),
+        'contacts': localizationManager.get('helpContent.contacts')
     };
 
-    const help = helpContent[topic];
+    const help = helpContentMap[topic];
     if (!help) {
         if (window.showAppAlert) {
-            window.showAppAlert('Информация по этому разделу будет добавлена в ближайшее время.');
+            window.showAppAlert('Information about this section will be added soon.');
         } else {
-            alert('Информация по этому разделу будет добавлена в ближайшее время.');
+            alert('Information about this section will be added soon.');
         }
         return;
     }
@@ -4225,7 +4059,7 @@ function showHelp(topic) {
             </div>
             <div class="help-modal-actions">
                 <button class="btn btn-primary" onclick="closeHelpModal()">
-                    <i class="fas fa-times"></i> Закрыть
+                    <i class="fas fa-times"></i> ${localizationManager.get('ui.close') || 'Close'}
                 </button>
             </div>
         </div>
@@ -4359,7 +4193,7 @@ window.addEventListener('premiumStatusChanged', function(event) {
         // If this is from a payment success, show success message
         if (event.detail.source === 'payment_success') {
             if (window.vkBridgeManager && typeof window.vkBridgeManager.showNotification === 'function') {
-                window.vkBridgeManager.showNotification('Премиум доступ успешно активирован!');
+                window.vkBridgeManager.showNotification(localizationManager.get('premium.activated'));
             }
         }
 
@@ -4439,8 +4273,8 @@ function getAvailableQuizTypes() {
     const quizTypes = [
         {
             id: 'mbti',
-            name: 'Основной тест личности',
-            description: 'Классический тест на 16 типов личности',
+            name: localizationManager.get('quizTypes.mbti.name'),
+            description: localizationManager.get('quizTypes.mbti.description'),
             isPremium: false
         }
     ];
@@ -4453,29 +4287,29 @@ function getAvailableQuizTypes() {
 
             // Get quiz names/descriptions mapping
             const quizInfo = {
-                'leadership': { name: 'Тест на лидерство', description: 'Определите свой стиль лидерства' },
-                'communication': { name: 'Тест на коммуникацию', description: 'Как вы общаетесь с окружающими' },
-                'stress': { name: 'Тест на стрессоустойчивость', description: 'Как вы справляетесь со стрессом' },
-                'learning': { name: 'Тест на стиль обучения', description: 'Как вы лучше усваиваете информацию' },
-                'relationships': { name: 'Тест на отношения', description: 'Ваши особенности в отношениях' },
-                'creativity': { name: 'Тест на креативность', description: 'Ваша творческая сторона' },
-                'decision': { name: 'Тест на принятие решений', description: 'Как вы принимаете решения' },
-                'teamwork': { name: 'Тест на работу в команде', description: 'Ваши командные навыки' },
-                'career': { name: 'Карьерный тест', description: 'Подходящие карьерные пути' },
-                'conflict': { name: 'Тест на разрешение конфликтов', description: 'Как вы справляетесь с конфликтами' },
-                'motivation': { name: 'Тест на мотивацию', description: 'Что вас мотивирует' },
-                'adaptability': { name: 'Тест на адаптивность', description: 'Как вы адаптируетесь к изменениям' },
-                'emotional': { name: 'Эмоциональный интеллект', description: 'Ваша эмоциональная осведомленность' },
-                'productivity': { name: 'Тест на продуктивность', description: 'Как вы управляете временем' },
-                'social': { name: 'Социальный тест', description: 'Ваши социальные особенности' }
+                'leadership': { name: localizationManager.get('quizTypes.leadership.name'), description: localizationManager.get('quizTypes.leadership.description') },
+                'communication': { name: localizationManager.get('quizTypes.communication.name'), description: localizationManager.get('quizTypes.communication.description') },
+                'stress': { name: localizationManager.get('quizTypes.stress.name'), description: localizationManager.get('quizTypes.stress.description') },
+                'learning': { name: localizationManager.get('quizTypes.learning.name'), description: localizationManager.get('quizTypes.learning.description') },
+                'relationships': { name: localizationManager.get('quizTypes.relationships.name'), description: localizationManager.get('quizTypes.relationships.description') },
+                'creativity': { name: localizationManager.get('quizTypes.creativity.name'), description: localizationManager.get('quizTypes.creativity.description') },
+                'decision': { name: localizationManager.get('quizTypes.decision.name'), description: localizationManager.get('quizTypes.decision.description') },
+                'teamwork': { name: localizationManager.get('quizTypes.teamwork.name'), description: localizationManager.get('quizTypes.teamwork.description') },
+                'career': { name: localizationManager.get('quizTypes.career.name'), description: localizationManager.get('quizTypes.career.description') },
+                'conflict': { name: localizationManager.get('quizTypes.conflict.name'), description: localizationManager.get('quizTypes.conflict.description') },
+                'motivation': { name: localizationManager.get('quizTypes.motivation.name'), description: localizationManager.get('quizTypes.motivation.description') },
+                'adaptability': { name: localizationManager.get('quizTypes.adaptability.name'), description: localizationManager.get('quizTypes.adaptability.description') },
+                'emotional': { name: localizationManager.get('quizTypes.emotional.name'), description: localizationManager.get('quizTypes.emotional.description') },
+                'productivity': { name: localizationManager.get('quizTypes.productivity.name'), description: localizationManager.get('quizTypes.productivity.description') },
+                'social': { name: localizationManager.get('quizTypes.social.name'), description: localizationManager.get('quizTypes.social.description') }
             };
 
             // Add all available specialized quizzes
             Object.keys(specializedQuizzes).forEach(quizId => {
                 if (specializedQuizzes[quizId] && specializedQuizzes[quizId].length > 0) {
                     const info = quizInfo[quizId] || {
-                        name: `Специализированный тест: ${quizId}`,
-                        description: `Тест по теме ${quizId}`
+                        name: localizationManager.get('quizTypes.specialized.name', { id: quizId }),
+                        description: localizationManager.get('quizTypes.specialized.description', { id: quizId })
                     };
 
                     quizTypes.push({
@@ -4613,7 +4447,7 @@ function updateTestProgress() {
         const expandButton = document.createElement('button');
         expandButton.id = 'expandTestsBtn';
         expandButton.className = 'btn btn-secondary expand-btn';
-        expandButton.innerHTML = `<i class="fas fa-chevron-down"></i> Показать еще ${remainingTests.length} тестов`;
+        expandButton.innerHTML = `<i class="fas fa-chevron-down"></i> ${localizationManager.get('status.showMore', { count: remainingTests.length })}`;
         expandButton.onclick = toggleTestExpansion;
 
         // Append elements
@@ -4629,7 +4463,7 @@ function createTestItem(test) {
     const testKey = `mbti_results_${test.id}`;
     const savedResults = localStorage.getItem(testKey);
     let status = 'not-started';
-    let statusText = 'Не пройден';
+    let statusText = localizationManager.get('status.notTaken');
     let statusClass = 'not-started';
 
     if (savedResults) {
@@ -4637,16 +4471,16 @@ function createTestItem(test) {
             const results = JSON.parse(savedResults);
             if (results && results.personalityType) {
                 status = 'completed';
-                statusText = 'Пройден';
+                statusText = localizationManager.get('status.taken');
                 statusClass = 'completed';
             } else {
                 status = 'in-progress';
-                statusText = 'В процессе';
+                statusText = localizationManager.get('status.inProgress');
                 statusClass = 'in-progress';
             }
         } catch (e) {
             status = 'in-progress';
-            statusText = 'В процессе';
+            statusText = localizationManager.get('status.inProgress');
             statusClass = 'in-progress';
         }
     }
@@ -4678,14 +4512,14 @@ function toggleTestExpansion() {
         // Expand
         additionalTests.classList.remove('collapsed');
         additionalTests.classList.add('expanded');
-        expandBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Скрыть тесты';
+        expandBtn.innerHTML = `<i class="fas fa-chevron-up"></i> ${localizationManager.get('status.hideTests')}`;
         expandBtn.classList.add('expanded');
     } else {
         // Collapse
         additionalTests.classList.remove('expanded');
         additionalTests.classList.add('collapsed');
         const remainingCount = additionalTests.children.length;
-        expandBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Показать еще ${remainingCount} тестов`;
+        expandBtn.innerHTML = `<i class="fas fa-chevron-down"></i> ${localizationManager.get('status.showMore', { count: remainingCount })}`;
         expandBtn.classList.remove('expanded');
     }
 }
@@ -4732,7 +4566,7 @@ function updateRecentResults() {
     results.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     if (results.length === 0) {
-        resultsContainer.innerHTML = '<p class="no-results">Результаты не найдены</p>';
+        resultsContainer.innerHTML = `<p class="no-results">${localizationManager.get('status.resultsNotFound')}</p>`;
         return;
     }
 
@@ -4741,9 +4575,9 @@ function updateRecentResults() {
         const resultItem = document.createElement('div');
         resultItem.className = 'result-item';
 
-        const testInfo = getAvailableQuizTypes().find(test => test.id === result.testType);
-        const testName = testInfo ? testInfo.name : `Тест: ${result.testType}`;
-        const date = result.timestamp ? new Date(result.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно';
+        const testInfo = getAvailableQuizTypes().find(t => t.id === result.testType);
+        const testName = testInfo ? testInfo.name : localizationManager.get('status.testLabel', { name: result.testType });
+        const date = result.timestamp ? new Date(result.timestamp).toLocaleDateString(localizationManager.getCurrentLocale() === 'ru' ? 'ru-RU' : 'en-US') : localizationManager.get('status.unknown');
 
         resultItem.innerHTML = `
             <div class="result-header">
@@ -4837,10 +4671,10 @@ function updateMasterAchievement(completedTests, totalTests) {
 
     if (completedTests === totalTests) {
         achievementItem.classList.add('completed');
-        completionStatus.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${completedTests}/${totalTests})`;
+        completionStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')} (${completedTests}/${totalTests})`;
     } else {
         achievementItem.classList.remove('completed');
-        completionStatus.textContent = `Не достигнуто (${completedTests}/${totalTests})`;
+        completionStatus.textContent = `${localizationManager.get('achievementsUI.notReached')} (${completedTests}/${totalTests})`;
     }
 }
 
@@ -4853,10 +4687,10 @@ function updateFirstTestAchievement(completedTests) {
 
     if (completedTests >= 1) {
         achievementItem.classList.add('completed');
-        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто!`;
+        status.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')}`;
     } else {
         achievementItem.classList.remove('completed');
-        status.textContent = 'Не достигнуто';
+        status.textContent = localizationManager.get('achievementsUI.notReached');
     }
 }
 
@@ -4869,10 +4703,10 @@ function updateHighPerformerAchievement(averageScore) {
 
     if (averageScore >= 80) {
         achievementItem.classList.add('completed');
-        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${Math.round(averageScore)}%)`;
+        status.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')} (${Math.round(averageScore)}%)`;
     } else {
         achievementItem.classList.remove('completed');
-        status.textContent = averageScore > 0 ? `Прогресс: ${Math.round(averageScore)}%` : 'Не достигнуто';
+        status.textContent = averageScore > 0 ? localizationManager.get('achievementsUI.progressPct', { count: Math.round(averageScore) }) : localizationManager.get('achievementsUI.notReached');
     }
 }
 
@@ -4885,10 +4719,10 @@ function updateExplorerAchievement(uniqueTestTypes) {
 
     if (uniqueTestTypes >= 5) {
         achievementItem.classList.add('completed');
-        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${uniqueTestTypes} типов)`;
+        status.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')} (${uniqueTestTypes} ${localizationManager.get('achievementsUI.types')})`;
     } else {
         achievementItem.classList.remove('completed');
-        status.textContent = `Прогресс: ${uniqueTestTypes}/5 типов`;
+        status.textContent = localizationManager.get('achievementsUI.progress', { count: uniqueTestTypes, total: 5, unit: localizationManager.get('achievementsUI.types') });
     }
 }
 
@@ -4921,10 +4755,10 @@ function updateStreakAchievement() {
 
     if (completedCount >= 3) {
         achievementItem.classList.add('completed');
-        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто!`;
+        status.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')}`;
     } else {
         achievementItem.classList.remove('completed');
-        status.textContent = `Прогресс: ${completedCount}/3 тестов`;
+        status.textContent = localizationManager.get('achievementsUI.progress', { count: completedCount, total: 3, unit: localizationManager.get('quiz.results') });
     }
 }
 
@@ -4937,13 +4771,13 @@ function updateSpecialistAchievement(premiumCompleted, totalPremium) {
 
     if (totalPremium > 0 && premiumCompleted === totalPremium) {
         achievementItem.classList.add('completed');
-        status.innerHTML = `<i class="fas fa-check-circle"></i> Достигнуто! (${premiumCompleted}/${totalPremium})`;
+        status.innerHTML = `<i class="fas fa-check-circle"></i> ${localizationManager.get('achievementsUI.reached')} (${premiumCompleted}/${totalPremium})`;
     } else if (totalPremium > 0) {
         achievementItem.classList.remove('completed');
-        status.textContent = `Прогресс: ${premiumCompleted}/${totalPremium} премиум`;
+        status.textContent = localizationManager.get('achievementsUI.progress', { count: premiumCompleted, total: totalPremium, unit: localizationManager.get('achievementsUI.premium') });
     } else {
         achievementItem.classList.remove('completed');
-        status.textContent = 'Премиум-тесты недоступны';
+        status.textContent = localizationManager.get('achievementsUI.premiumUnavailable');
     }
 }
 
@@ -4951,7 +4785,7 @@ function updateSpecialistAchievement(premiumCompleted, totalPremium) {
  * Clear all user data
  */
 function clearAllUserData() {
-    if (confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
+    if (confirm(localizationManager.get('userData.clearConfirm'))) {
         // Track data clear action
         productAnalytics.trackUserAction('clear_data', {
             feature: 'cabinet'
@@ -4971,7 +4805,7 @@ function clearAllUserData() {
         // Reload the cabinet data
         loadClientCabinetData();
 
-        alert('Все данные успешно удалены.');
+        alert(localizationManager.get('userData.clearSuccess'));
     }
 }
 
@@ -5007,11 +4841,21 @@ window.closeClientCabinetModal = closeClientCabinetModal;
 window.clearAllUserData = clearAllUserData;
 
 // Expose singletons and data as globals for new UI screens
+// Data is locale-aware — getters return the right dataset based on current locale
 window.quizEngine = quizEngine;
 window.stateManager = stateManager;
-window.PERSONALITY_TYPES = PERSONALITY_TYPES;
-window.ADVANCED_INSIGHTS = ADVANCED_INSIGHTS;
-window.FAMOUS_PERSONALITIES = FAMOUS_PERSONALITIES;
+function getLocalizedData() {
+    const isEn = localizationManager.getCurrentLocale() === 'en';
+    return {
+        types: isEn ? PERSONALITY_TYPES_EN : PERSONALITY_TYPES_RU,
+        insights: isEn ? ADVANCED_INSIGHTS_EN : ADVANCED_INSIGHTS_RU,
+        famous: isEn ? FAMOUS_PERSONALITIES_EN : FAMOUS_PERSONALITIES_RU
+    };
+}
+// Use Object.defineProperty so screens always get the current locale's data
+Object.defineProperty(window, 'PERSONALITY_TYPES', { get: () => getLocalizedData().types, configurable: true });
+Object.defineProperty(window, 'ADVANCED_INSIGHTS', { get: () => getLocalizedData().insights, configurable: true });
+Object.defineProperty(window, 'FAMOUS_PERSONALITIES', { get: () => getLocalizedData().famous, configurable: true });
 
 // Initialize new app shell
 const app = new App();

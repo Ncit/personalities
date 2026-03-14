@@ -1,6 +1,7 @@
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 import localizationManager from '../../../locales/LocalizationManager.js';
+import { PlatformDetector } from '../../platform/PlatformDetector.js';
 
 function getStateManager() { return window.stateManager; }
 
@@ -88,7 +89,7 @@ export class ProfileScreen {
               <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
               <div class="premium-cta-mobile__subtitle">${localizationManager.get('profile.premiumSubtitle')}</div>
             </div>
-            <button class="btn-gold btn-gold--small">150 ₽</button>
+            <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? localizationManager.get('premium.priceTg') : localizationManager.get('premium.priceDefault')}</button>
           </div>
         </div>
         ` : ''}
@@ -221,8 +222,8 @@ export class ProfileScreen {
 
     this.el.querySelector('#dev-vk-login')?.addEventListener('click', () => {
       localStorage.setItem('vk_user_auth', JSON.stringify({
-        first_name: 'Никита',
-        last_name: 'Тестов',
+        first_name: 'Nikita',
+        last_name: 'Test',
         photo_100: '',
       }));
       this.render();

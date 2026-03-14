@@ -116,10 +116,10 @@ export class QuizScreen {
     const base = this.baseFramework || this._getBaseFramework(this.framework);
     if (base === 'socionics') {
       dims = [
-        { label: 'Л/Э', key: 'LE', color: 'var(--color-dim-ei, #7C9082)' },
-        { label: 'И/С', key: 'IN', color: 'var(--color-dim-sn, #E8A85C)' },
-        { label: 'Э/И', key: 'EI', color: 'var(--color-dim-tf, #C47A8A)' },
-        { label: 'Р/Ир', key: 'RJ', color: 'var(--color-dim-jp, #8B7EC8)' },
+        { label: `${localizationManager.get('resultDetail.shortLogic')}/${localizationManager.get('resultDetail.shortEthics')}`, key: 'LE', color: 'var(--color-dim-ei, #7C9082)' },
+        { label: `${localizationManager.get('resultDetail.shortIntuition')}/${localizationManager.get('resultDetail.shortSensing')}`, key: 'IN', color: 'var(--color-dim-sn, #E8A85C)' },
+        { label: `${localizationManager.get('resultDetail.shortExtra')}/${localizationManager.get('resultDetail.shortIntro')}`, key: 'EI', color: 'var(--color-dim-tf, #C47A8A)' },
+        { label: `${localizationManager.get('resultDetail.shortRat')}/${localizationManager.get('resultDetail.shortIrr')}`, key: 'RJ', color: 'var(--color-dim-jp, #8B7EC8)' },
       ];
     } else if (base === 'enneagram') {
       dims = [

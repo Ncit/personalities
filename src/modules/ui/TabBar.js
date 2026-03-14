@@ -16,6 +16,7 @@ export class TabBar {
     this.container = container;
     this.render();
     router.subscribe(() => this.updateActive());
+    window.addEventListener('localeChanged', () => this.render());
   }
 
   render() {

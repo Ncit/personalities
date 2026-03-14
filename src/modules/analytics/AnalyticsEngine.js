@@ -577,7 +577,7 @@ export class AnalyticsEngine {
         ctx.font = 'bold 12px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('Типы личности', centerX, centerY);
+        ctx.fillText(localizationManager.get('home.personalityTypes'), centerX, centerY);
         
         // Add chart title
         ctx.fillStyle = '#333';

@@ -430,11 +430,11 @@ export class UIManager {
                 <div class="type-stats">
                     <div class="type-stat">
                         <span class="type-stat-value">${this.getTypePercentage(type)}%</span>
-                        <span class="type-stat-label">Населения</span>
+                        <span class="type-stat-label">${localizationManager.get('types.population')}</span>
                     </div>
                     <div class="type-stat">
                         <span class="type-stat-value">${this.getTypeCompatibility(type)}</span>
-                        <span class="type-stat-label">Совместимость</span>
+                        <span class="type-stat-label">${localizationManager.get('types.compatibility')}</span>
                     </div>
                 </div>
             `;
@@ -446,88 +446,12 @@ export class UIManager {
     }
 
     getMBTITypes() {
-        return {
-            'INTJ': {
-                title: 'Архитектор',
-                subtitle: 'Стратегический мыслитель',
-                description: 'Инновационные мыслители с неутолимой жаждой знаний. Они видят возможности для улучшения во всем и стремятся к постоянному развитию.'
-            },
-            'INTP': {
-                title: 'Логик',
-                subtitle: 'Инновационный изобретатель',
-                description: 'Философские изобретатели, одержимые логическим анализом, системами и дизайном. Они стремятся понять, как устроен мир.'
-            },
-            'ENTJ': {
-                title: 'Командир',
-                subtitle: 'Смелый, воображаемый лидер',
-                description: 'Смелые, харизматичные и волевые лидеры, способные найти или создать решения практически для любой проблемы.'
-            },
-            'ENTP': {
-                title: 'Новатор',
-                subtitle: 'Умный и любопытный мыслитель',
-                description: 'Умные и любопытные мыслители, которые не могут устоять перед интеллектуальным вызовом.'
-            },
-            'INFJ': {
-                title: 'Адвокат',
-                subtitle: 'Тихий и мистический, но очень вдохновляющий и неутомимый идеалист',
-                description: 'Тихие и мистические, но очень вдохновляющие и неутомимые идеалисты. Хотя и очень сдержанные, они обладают сильным влиянием.'
-            },
-            'INFP': {
-                title: 'Посредник',
-                subtitle: 'Поэтический, добрый и альтруистичный дух',
-                description: 'Поэтические, добрые и альтруистичные люди, всегда стремящиеся помочь хорошему делу.'
-            },
-            'ENFJ': {
-                title: 'Протагонист',
-                subtitle: 'Харизматичный и вдохновляющий лидер',
-                description: 'Харизматичные и вдохновляющие лидеры, способные загипнотизировать свою аудиторию.'
-            },
-            'ENFP': {
-                title: 'Активист',
-                subtitle: 'Энтузиаст, креативный и общительный',
-                description: 'Энтузиасты, креативные и общительные свободные духи, которые всегда могут найти повод для улыбки.'
-            },
-            'ISTJ': {
-                title: 'Логист',
-                subtitle: 'Практичный и фактологический',
-                description: 'Практичные и фактологические люди, надежность которых не может быть поставлена под сомнение.'
-            },
-            'ISFJ': {
-                title: 'Защитник',
-                subtitle: 'Очень преданный и теплый',
-                description: 'Очень преданные и теплые защитники, всегда готовые защитить своих близких.'
-            },
-            'ESTJ': {
-                title: 'Исполнитель',
-                subtitle: 'Отличные управляющие, невероятно надежные',
-                description: 'Отличные управляющие, невероятно надежные и практичные люди, которые гордятся тем, что доводят дела до конца.'
-            },
-            'ESFJ': {
-                title: 'Консул',
-                subtitle: 'Необычайно заботливые, общительные и популярные',
-                description: 'Необычайно заботливые, общительные и популярные люди, всегда готовые помочь.'
-            },
-            'ISTP': {
-                title: 'Виртуоз',
-                subtitle: 'Смелые и практичные экспериментаторы',
-                description: 'Смелые и практичные экспериментаторы, мастера всех видов инструментов.'
-            },
-            'ISFP': {
-                title: 'Авантюрист',
-                subtitle: 'Гибкие и очаровательные художники',
-                description: 'Гибкие и очаровательные художники, всегда готовые исследовать и испытывать что-то новое.'
-            },
-            'ESTP': {
-                title: 'Предприниматель',
-                subtitle: 'Умные, энергичные и очень восприимчивые',
-                description: 'Умные, энергичные и очень восприимчивые люди, которые действительно наслаждаются жизнью.'
-            },
-            'ESFP': {
-                title: 'Развлекатель',
-                subtitle: 'Спонтанные, энергичные и энтузиасты',
-                description: 'Спонтанные, энергичные и энтузиасты - развлекатели, которые не могут устоять перед тем, чтобы быть в центре событий.'
-            }
-        };
+        const types = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP', 'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
+        const result = {};
+        types.forEach(type => {
+            result[type] = localizationManager.get(`types.${type}`);
+        });
+        return result;
     }
 
     getTypeCategory(type) {
@@ -563,25 +487,7 @@ export class UIManager {
     }
 
     getTypeTraits(type) {
-        const traits = {
-            'INTJ': ['Стратегический', 'Аналитический', 'Независимый'],
-            'INTP': ['Логичный', 'Инновационный', 'Любознательный'],
-            'ENTJ': ['Решительный', 'Лидерский', 'Эффективный'],
-            'ENTP': ['Изобретательный', 'Энергичный', 'Адаптивный'],
-            'INFJ': ['Идеалистичный', 'Эмпатичный', 'Творческий'],
-            'INFP': ['Мечтательный', 'Добрый', 'Вдохновляющий'],
-            'ENFJ': ['Харизматичный', 'Заботливый', 'Мотивирующий'],
-            'ENFP': ['Энтузиаст', 'Креативный', 'Общительный'],
-            'ISTJ': ['Практичный', 'Надежный', 'Организованный'],
-            'ISFJ': ['Заботливый', 'Терпеливый', 'Преданный'],
-            'ESTJ': ['Ответственный', 'Прямолинейный', 'Организованный'],
-            'ESFJ': ['Дружелюбный', 'Ответственный', 'Сочувствующий'],
-            'ISTP': ['Гибкий', 'Практичный', 'Спокойный'],
-            'ISFP': ['Художественный', 'Миролюбивый', 'Спонтанный'],
-            'ESTP': ['Энергичный', 'Практичный', 'Спонтанный'],
-            'ESFP': ['Веселый', 'Дружелюбный', 'Спонтанный']
-        };
-        return traits[type] || ['Уникальный', 'Интересный', 'Особенный'];
+        return localizationManager.get(`types.traits.${type}`) || localizationManager.get('types.traits.default');
     }
 
     getTypePercentage(type) {
@@ -613,7 +519,7 @@ export class UIManager {
             'ESTP': 'ISTP, ESTP, ESFP',
             'ESFP': 'ISFP, ESTP, ESFP'
         };
-        return compatibility[type] || 'Все типы';
+        return compatibility[type] || localizationManager.get('types.allTypes');
     }
 
     setupTypeFilters() {
@@ -651,7 +557,7 @@ export class UIManager {
     showAdaptiveIndicators() {
         if (this.elements.adaptiveIndicators) {
             this.elements.adaptiveIndicators.style.display = 'block';
-            this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+            this.updateAdaptiveStatus('active', localizationManager.get('adaptive.learning'));
         }
     }
 
@@ -817,11 +723,11 @@ export class UIManager {
                 const avgConfidence = Object.values(confidence).reduce((sum, val) => sum + val, 0) / Object.values(confidence).length;
                 
                 if (avgConfidence >= 0.9) {
-                    this.updateAdaptiveStatus('optimizing', 'Оптимизация завершения...');
+                    this.updateAdaptiveStatus('optimizing', localizationManager.get('adaptive.optimizing'));
                 } else if (avgConfidence >= 0.7) {
-                    this.updateAdaptiveStatus('learning', 'Продолжаем обучение...');
+                    this.updateAdaptiveStatus('learning', localizationManager.get('adaptive.continuing'));
                 } else {
-                    this.updateAdaptiveStatus('active', 'Обучение вашим предпочтениям...');
+                    this.updateAdaptiveStatus('active', localizationManager.get('adaptive.learning'));
                 }
             }
         } catch (error) {

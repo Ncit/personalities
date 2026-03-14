@@ -3,7 +3,12 @@ import { BentoGrid } from '../components/BentoGrid.js';
 import { TypeCard } from '../components/TypeCard.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
-import { MBTI_TYPES } from '../../../data/QuizData.ru.js';
+import { MBTI_TYPES as MBTI_TYPES_RU } from '../../../data/QuizData.ru.js';
+import { MBTI_TYPES as MBTI_TYPES_EN } from '../../../data/QuizData.js';
+
+function getMbtiTypes() {
+  return localizationManager.getCurrentLocale() === 'en' ? MBTI_TYPES_EN : MBTI_TYPES_RU;
+}
 import { PlatformDetector } from '../../platform/PlatformDetector.js';
 import localizationManager from '../../../locales/LocalizationManager.js';
 
@@ -32,24 +37,36 @@ const SOCIONICS_KEYS = ['ILE','SEI','ESE','LII','EIE','LSI','SLE','IEI','SEE','I
 // Enneagram type keys
 const ENNEAGRAM_KEYS = ['1','2','3','4','5','6','7','8','9'];
 
-// Cache for lazily loaded type data
-let _socionicsTypes = null;
-let _enneagramTypes = null;
+// Cache for lazily loaded type data (per locale)
+let _socionicsTypes = { ru: null, en: null };
+let _enneagramTypes = { ru: null, en: null };
 
 async function getSocionicsTypes() {
-  if (!_socionicsTypes) {
-    const { SOCIONICS_TYPES } = await import('../../../data/SocionicsQuiz.ru.js');
-    _socionicsTypes = SOCIONICS_TYPES;
+  const locale = localizationManager.getCurrentLocale();
+  if (!_socionicsTypes[locale]) {
+    if (locale === 'en') {
+      const { SOCIONICS_TYPES } = await import('../../../data/SocionicsQuiz.js');
+      _socionicsTypes.en = SOCIONICS_TYPES;
+    } else {
+      const { SOCIONICS_TYPES } = await import('../../../data/SocionicsQuiz.ru.js');
+      _socionicsTypes.ru = SOCIONICS_TYPES;
+    }
   }
-  return _socionicsTypes;
+  return _socionicsTypes[locale];
 }
 
 async function getEnneagramTypes() {
-  if (!_enneagramTypes) {
-    const { ENNEAGRAM_TYPES } = await import('../../../data/EnneagramQuiz.ru.js');
-    _enneagramTypes = ENNEAGRAM_TYPES;
+  const locale = localizationManager.getCurrentLocale();
+  if (!_enneagramTypes[locale]) {
+    if (locale === 'en') {
+      const { ENNEAGRAM_TYPES } = await import('../../../data/EnneagramTypes.en.js');
+      _enneagramTypes.en = ENNEAGRAM_TYPES;
+    } else {
+      const { ENNEAGRAM_TYPES } = await import('../../../data/EnneagramQuiz.ru.js');
+      _enneagramTypes.ru = ENNEAGRAM_TYPES;
+    }
   }
-  return _enneagramTypes;
+  return _enneagramTypes[locale];
 }
 
 export class HomeScreen {
@@ -80,7 +97,7 @@ export class HomeScreen {
           <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
           <div class="premium-cta-mobile__subtitle">${localizationManager.get('home.premiumSubtitle')}</div>
         </div>
-        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? (window.tgBridgeManager?.userService?.getLanguage() === 'ru' ? '150 ₽ / ⭐ 75' : '⭐ 75') : '150 ₽'}</button>
+        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? localizationManager.get('premium.priceTg') : localizationManager.get('premium.priceDefault')}</button>
       </div>
       ` : ''}
       ${BentoGrid.render(hasResults)}
@@ -137,7 +154,7 @@ export class HomeScreen {
         if (!r) return null;
         let desc = '';
         if (fw === 'mbti') {
-          const td = MBTI_TYPES?.[r.typeCode];
+          const td = getMbtiTypes()?.[r.typeCode];
           desc = td?.subtitle || td?.description || '';
         } else if (fw === 'socionics' && socTypes) {
           const key = Object.keys(socTypes).find(k => socTypes[k].code === r.typeCode);
@@ -176,7 +193,7 @@ export class HomeScreen {
     let types = [];
     if (this.activeFramework === 'mbti') {
       types = MBTI_CODES.map(code => {
-        const td = MBTI_TYPES?.[code];
+        const td = getMbtiTypes()?.[code];
         return {
           code,
           name: td ? (td.title || td.name || code) : code,
@@ -204,8 +221,8 @@ export class HomeScreen {
       types = ENNEAGRAM_KEYS.map(key => {
         const td = et[key];
         return {
-          code: td ? `Тип ${td.code}` : key,
-          name: td ? td.title : `Тип ${key}`,
+          code: td ? `${localizationManager.get('comparison.type')} ${td.code}` : key,
+          name: td ? td.title : `${localizationManager.get('comparison.type')} ${key}`,
           description: td ? td.subtitle : '',
           fullDescription: td ? (td.description || td.subtitle || '') : '',
           traits: td ? (td.traits || []) : [],

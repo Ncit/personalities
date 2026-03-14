@@ -1,8 +1,13 @@
 import { router } from '../../router/Router.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import localizationManager from '../../../locales/LocalizationManager.js';
+import { MBTI_EXTRA_RU, SOCIONICS_INSIGHTS_RU, ENNEAGRAM_INSIGHTS_RU } from '../../../data/InsightsData.ru.js';
+import { MBTI_EXTRA_EN, SOCIONICS_INSIGHTS_EN, ENNEAGRAM_INSIGHTS_EN } from '../../../data/InsightsData.en.js';
 
 function getStateManager() { return window.stateManager; }
+function getMbtiExtra() { return localizationManager.getCurrentLocale() === 'en' ? MBTI_EXTRA_EN : MBTI_EXTRA_RU; }
+function getSocionicsInsights() { return localizationManager.getCurrentLocale() === 'en' ? SOCIONICS_INSIGHTS_EN : SOCIONICS_INSIGHTS_RU; }
+function getEnneagramInsights() { return localizationManager.getCurrentLocale() === 'en' ? ENNEAGRAM_INSIGHTS_EN : ENNEAGRAM_INSIGHTS_RU; }
 function getTypeData() { return window.PERSONALITY_TYPES || {}; }
 function getAdvancedInsights() { return window.ADVANCED_INSIGHTS || {}; }
 function getFamousPersonalities() { return window.FAMOUS_PERSONALITIES || {}; }
@@ -48,55 +53,9 @@ const INSIGHT_SECTIONS_ENNEAGRAM = [
   { icon: 'alert', get title() { return localizationManager.get('resultDetail.fearsDesires'); }, key: 'fears', bg: '#FF692210', color: '#FF6922' },
 ];
 
-const MBTI_EXTRA = {
-  ISTJ: { communication: ['Прямой и конкретный', 'Предпочитает факты', 'Лаконичный стиль'], stress: ['Перегрузка обязанностями', 'Хаос и беспорядок', 'Непредсказуемые перемены'] },
-  ISFJ: { communication: ['Тактичный и мягкий', 'Внимательный слушатель', 'Избегает конфликтов'], stress: ['Критика близких', 'Нарушение стабильности', 'Необходимость говорить нет'] },
-  INFJ: { communication: ['Глубокий и вдумчивый', 'Метафоры и образы', 'Предпочитает один на один'], stress: ['Поверхностное общение', 'Конфликт ценностей', 'Слишком много общения'] },
-  INTJ: { communication: ['Стратегический и прямой', 'Логичная аргументация', 'Минимум эмоций'], stress: ['Некомпетентность окружающих', 'Потеря контроля', 'Эмоциональные ситуации'] },
-  ISTP: { communication: ['Краткий и по делу', 'Практичные решения', 'Действия вместо слов'], stress: ['Жёсткие правила', 'Эмоциональное давление', 'Рутина без свободы'] },
-  ISFP: { communication: ['Тихий и искренний', 'Через творчество', 'Избегает споров'], stress: ['Давление решать быстро', 'Критика личности', 'Нарушение гармонии'] },
-  INFP: { communication: ['Эмпатичный и глубокий', 'Через истории и ценности', 'Избегает грубости'], stress: ['Несправедливость', 'Ложь и фальшь', 'Утрата смысла'] },
-  INTP: { communication: ['Аналитичный и точный', 'Любит дискуссии', 'Детальный и логичный'], stress: ['Эмоциональные требования', 'Давление на скорость', 'Нелогичные правила'] },
-  ESTP: { communication: ['Энергичный и прямой', 'Юмор и харизма', 'Действие важнее слов'], stress: ['Бездействие', 'Скука и рутина', 'Слишком много теории'] },
-  ESFP: { communication: ['Живой и выразительный', 'Позитивный настрой', 'Любит аудиторию'], stress: ['Изоляция', 'Строгие ограничения', 'Негативная атмосфера'] },
-  ENFP: { communication: ['Вдохновляющий и живой', 'Идеи и возможности', 'Эмоциональная связь'], stress: ['Рутина и ограничения', 'Отвержение', 'Подавление креативности'] },
-  ENTP: { communication: ['Провокационный и остроумный', 'Любит дебаты', 'Фонтан идей'], stress: ['Запрет на инновации', 'Догматизм', 'Медленные процессы'] },
-  ESTJ: { communication: ['Чёткий и организованный', 'Прямые указания', 'Ценит результат'], stress: ['Нарушение правил', 'Лень окружающих', 'Потеря авторитета'] },
-  ESFJ: { communication: ['Тёплый и заботливый', 'Гармония в группе', 'Активный слушатель'], stress: ['Неблагодарность', 'Конфликты в коллективе', 'Ощущение ненужности'] },
-  ENFJ: { communication: ['Харизматичный и эмпатичный', 'Мотивирует других', 'Видит потенциал людей'], stress: ['Разочарование в людях', 'Конфликт ценностей', 'Невозможность помочь'] },
-  ENTJ: { communication: ['Командный и решительный', 'Стратегическое видение', 'Ценит компетентность'], stress: ['Неэффективность', 'Эмоциональные сцены', 'Потеря влияния'] },
-};
+// MBTI_EXTRA data moved to InsightsData.ru.js / InsightsData.en.js
 
-const SOCIONICS_INSIGHTS = {
-  'ИЛЭ': { careers: ['Учёный', 'Программист', 'Предприниматель', 'Изобретатель'], strengths: ['Генерация идей', 'Видение возможностей', 'Креативность', 'Быстрая адаптация'], development: ['Развивать внимание к деталям', 'Учиться практичности', 'Доводить дела до конца'], relations: ['Дуал: СЭИ (Дюма)', 'Активация: ЭСЭ (Гюго)', 'Конфликт: ЭСИ (Драйзер)'], quadra: ['Альфа', 'Ценности: демократия, поиск нового', 'Стихия: воздух и идеи'], functions: ['Базовая: интуиция возможностей', 'Творческая: структурная логика', 'Болевая: этика отношений'] },
-  'СЭИ': { careers: ['Дизайнер', 'Повар', 'Терапевт', 'Флорист'], strengths: ['Создание уюта', 'Забота о близких', 'Чувство прекрасного', 'Гармония'], development: ['Учиться стратегическому мышлению', 'Развивать аналитику', 'Ставить долгосрочные цели'], relations: ['Дуал: ИЛЭ (Дон Кихот)', 'Активация: ЛИЭ (Джек Лондон)', 'Конфликт: ЛИИ (Робеспьер)'], quadra: ['Альфа', 'Ценности: комфорт, позитив', 'Стихия: уют и радость'], functions: ['Базовая: сенсорика ощущений', 'Творческая: этика эмоций', 'Болевая: структурная логика'] },
-  'ЭСЭ': { careers: ['PR-менеджер', 'Учитель', 'Организатор мероприятий', 'Менеджер по продажам'], strengths: ['Энергичность', 'Общительность', 'Оптимизм', 'Эмоциональный заряд'], development: ['Развивать логическое мышление', 'Учиться дистанции', 'Контролировать эмоции'], relations: ['Дуал: ЛИИ (Робеспьер)', 'Активация: СЭИ (Дюма)', 'Конфликт: СЛИ (Габен)'], quadra: ['Альфа', 'Ценности: веселье, общение', 'Стихия: энергия и праздник'], functions: ['Базовая: этика эмоций', 'Творческая: сенсорика ощущений', 'Болевая: интуиция времени'] },
-  'ЛИИ': { careers: ['Математик', 'Аналитик', 'Философ', 'Программист'], strengths: ['Системное мышление', 'Логический анализ', 'Структурирование', 'Объективность'], development: ['Развивать коммуникацию', 'Учиться эмоциональности', 'Быть гибче в отношениях'], relations: ['Дуал: ЭСЭ (Гюго)', 'Активация: ИЛЭ (Дон Кихот)', 'Конфликт: ИЭЭ (Гексли)'], quadra: ['Альфа', 'Ценности: истина и система', 'Стихия: структура и ясность'], functions: ['Базовая: структурная логика', 'Творческая: интуиция возможностей', 'Болевая: сенсорика ощущений'] },
-  'ЭИЭ': { careers: ['Актёр', 'Психолог', 'Журналист', 'Режиссёр'], strengths: ['Эмоциональная глубина', 'Вдохновение других', 'Драматический талант', 'Эмпатия'], development: ['Развивать практичность', 'Учиться спокойствию', 'Контролировать драматизм'], relations: ['Дуал: ЛСИ (Максим Горький)', 'Активация: СЛЭ (Жуков)', 'Конфликт: СЛИ (Габен)'], quadra: ['Бета', 'Ценности: иерархия, страсть', 'Стихия: огонь и воля'], functions: ['Базовая: этика эмоций', 'Творческая: интуиция времени', 'Болевая: деловая логика'] },
-  'ЛСИ': { careers: ['Военный', 'Юрист', 'Администратор', 'Инспектор'], strengths: ['Организованность', 'Надёжность', 'Дисциплина', 'Системный подход'], development: ['Развивать гибкость', 'Учиться принимать перемены', 'Быть открытее к новому'], relations: ['Дуал: ЭИЭ (Гамлет)', 'Активация: ИЭИ (Есенин)', 'Конфликт: ИЭЭ (Гексли)'], quadra: ['Бета', 'Ценности: порядок, система', 'Стихия: структура и власть'], functions: ['Базовая: структурная логика', 'Творческая: волевая сенсорика', 'Болевая: интуиция возможностей'] },
-  'СЛЭ': { careers: ['Предприниматель', 'Спортсмен', 'Управленец', 'Кризис-менеджер'], strengths: ['Воля к победе', 'Решительность', 'Лидерство', 'Практичность'], development: ['Развивать дипломатичность', 'Учиться слушать других', 'Быть терпеливее'], relations: ['Дуал: ИЭИ (Есенин)', 'Активация: ЭИЭ (Гамлет)', 'Конфликт: ЭИИ (Достоевский)'], quadra: ['Бета', 'Ценности: сила, действие', 'Стихия: воля и натиск'], functions: ['Базовая: волевая сенсорика', 'Творческая: структурная логика', 'Болевая: этика отношений'] },
-  'ИЭИ': { careers: ['Поэт', 'Музыкант', 'Консультант', 'Психолог'], strengths: ['Интуиция времени', 'Романтичность', 'Чуткость', 'Предвидение'], development: ['Развивать волю', 'Учиться настойчивости', 'Быть практичнее'], relations: ['Дуал: СЛЭ (Жуков)', 'Активация: ЛСИ (Максим Горький)', 'Конфликт: ЛСЭ (Штирлиц)'], quadra: ['Бета', 'Ценности: глубина, время', 'Стихия: мечты и предчувствия'], functions: ['Базовая: интуиция времени', 'Творческая: этика эмоций', 'Болевая: деловая логика'] },
-  'СЭЭ': { careers: ['Политик', 'Актёр', 'Менеджер по продажам', 'Шоумен'], strengths: ['Харизма', 'Влияние на людей', 'Энергичность', 'Находчивость'], development: ['Развивать терпение', 'Учиться планированию', 'Углублять знания'], relations: ['Дуал: ИЛИ (Бальзак)', 'Активация: ЛИЭ (Джек Лондон)', 'Конфликт: ЛИИ (Робеспьер)'], quadra: ['Гамма', 'Ценности: успех, прагматизм', 'Стихия: амбиции и влияние'], functions: ['Базовая: волевая сенсорика', 'Творческая: этика отношений', 'Болевая: структурная логика'] },
-  'ИЛИ': { careers: ['Аналитик', 'Финансист', 'Критик', 'Исследователь'], strengths: ['Глубокий анализ', 'Предвидение рисков', 'Скептицизм', 'Осторожность'], development: ['Развивать оптимизм', 'Учиться действовать', 'Быть решительнее'], relations: ['Дуал: СЭЭ (Наполеон)', 'Активация: ЭСИ (Драйзер)', 'Конфликт: ЭСЭ (Гюго)'], quadra: ['Гамма', 'Ценности: реализм, глубина', 'Стихия: анализ и прогноз'], functions: ['Базовая: интуиция времени', 'Творческая: деловая логика', 'Болевая: этика эмоций'] },
-  'ЛИЭ': { careers: ['Бизнесмен', 'Инженер', 'Стратег', 'Менеджер проекта'], strengths: ['Деловая хватка', 'Стратегия', 'Эффективность', 'Целеустремлённость'], development: ['Развивать эмпатию', 'Учиться расслабляться', 'Заботиться о здоровье'], relations: ['Дуал: ЭСИ (Драйзер)', 'Активация: СЭЭ (Наполеон)', 'Конфликт: СЭИ (Дюма)'], quadra: ['Гамма', 'Ценности: прибыль, результат', 'Стихия: дело и стратегия'], functions: ['Базовая: деловая логика', 'Творческая: интуиция возможностей', 'Болевая: волевая сенсорика'] },
-  'ЭСИ': { careers: ['Врач', 'Соцработник', 'Учитель', 'Юрист'], strengths: ['Нравственность', 'Верность', 'Забота', 'Чувство долга'], development: ['Развивать гибкость', 'Учиться прощать', 'Быть объективнее'], relations: ['Дуал: ЛИЭ (Джек Лондон)', 'Активация: ИЛИ (Бальзак)', 'Конфликт: ИЛЭ (Дон Кихот)'], quadra: ['Гамма', 'Ценности: мораль, верность', 'Стихия: долг и забота'], functions: ['Базовая: этика отношений', 'Творческая: волевая сенсорика', 'Болевая: интуиция возможностей'] },
-  'ЛСЭ': { careers: ['Управленец', 'Логист', 'Военный', 'Фермер'], strengths: ['Трудолюбие', 'Организация', 'Практичность', 'Ответственность'], development: ['Развивать воображение', 'Учиться мечтать', 'Быть гибче'], relations: ['Дуал: ЭИИ (Достоевский)', 'Активация: ИЭЭ (Гексли)', 'Конфликт: ИЭИ (Есенин)'], quadra: ['Дельта', 'Ценности: труд, порядок', 'Стихия: дело и практика'], functions: ['Базовая: деловая логика', 'Творческая: сенсорика ощущений', 'Болевая: этика эмоций'] },
-  'ЭИИ': { careers: ['Психолог', 'Писатель', 'Педагог', 'Консультант'], strengths: ['Глубокая эмпатия', 'Миротворчество', 'Мудрость', 'Понимание людей'], development: ['Развивать волю', 'Учиться отстаивать себя', 'Быть практичнее'], relations: ['Дуал: ЛСЭ (Штирлиц)', 'Активация: СЛИ (Габен)', 'Конфликт: СЛЭ (Жуков)'], quadra: ['Дельта', 'Ценности: гуманизм, гармония', 'Стихия: мудрость и мир'], functions: ['Базовая: этика отношений', 'Творческая: интуиция времени', 'Болевая: волевая сенсорика'] },
-  'ИЭЭ': { careers: ['Журналист', 'HR-менеджер', 'Тренер', 'Консультант'], strengths: ['Понимание людей', 'Оптимизм', 'Раскрытие потенциала', 'Креативность'], development: ['Развивать дисциплину', 'Учиться системности', 'Быть последовательнее'], relations: ['Дуал: СЛИ (Габен)', 'Активация: ЛСЭ (Штирлиц)', 'Конфликт: ЛСИ (Максим Горький)'], quadra: ['Дельта', 'Ценности: потенциал, идеи', 'Стихия: вдохновение и люди'], functions: ['Базовая: интуиция возможностей', 'Творческая: этика отношений', 'Болевая: сенсорика ощущений'] },
-  'СЛИ': { careers: ['Ремесленник', 'Инженер', 'Спортсмен', 'Технолог'], strengths: ['Мастерство', 'Спокойствие', 'Практичность', 'Надёжность'], development: ['Развивать общительность', 'Учиться выражать чувства', 'Быть активнее'], relations: ['Дуал: ИЭЭ (Гексли)', 'Активация: ЭИИ (Достоевский)', 'Конфликт: ЭИЭ (Гамлет)'], quadra: ['Дельта', 'Ценности: мастерство, покой', 'Стихия: ремесло и комфорт'], functions: ['Базовая: сенсорика ощущений', 'Творческая: деловая логика', 'Болевая: этика эмоций'] },
-};
-
-const ENNEAGRAM_INSIGHTS = {
-  '1': { careers: ['Юрист', 'Редактор', 'Аудитор', 'Преподаватель'], strengths: ['Принципиальность', 'Честность', 'Организованность', 'Стремление к идеалу'], development: ['Принимать несовершенство', 'Учиться расслабляться', 'Развивать терпимость'], relations: ['Совместимы: Тип 7, Тип 2', 'Рост через: Тип 7', 'Сложно: Тип 8'], wings: ['1w9 — Идеалист: спокойный, сдержанный перфекционист', '1w2 — Адвокат: страстный борец за справедливость'], fears: ['Страх: быть испорченным, неправильным', 'Желание: быть хорошим и правильным', 'Стресс → Тип 4: драматизм'] },
-  '2': { careers: ['Врач', 'Психолог', 'Учитель', 'Волонтёр'], strengths: ['Щедрость', 'Эмпатия', 'Забота', 'Умение поддержать'], development: ['Учиться говорить нет', 'Заботиться о себе', 'Признавать свои потребности'], relations: ['Совместимы: Тип 4, Тип 8', 'Рост через: Тип 4', 'Сложно: Тип 5'], wings: ['2w1 — Слуга: альтруистичный, принципиальный помощник', '2w3 — Хозяин: обаятельный, амбициозный покровитель'], fears: ['Страх: быть нелюбимым и ненужным', 'Желание: чувствовать себя любимым', 'Стресс → Тип 8: агрессивность'] },
-  '3': { careers: ['Менеджер', 'Маркетолог', 'Предприниматель', 'Тренер'], strengths: ['Амбициозность', 'Эффективность', 'Адаптивность', 'Мотивация'], development: ['Быть искренним', 'Ценить процесс', 'Принимать уязвимость'], relations: ['Совместимы: Тип 6, Тип 9', 'Рост через: Тип 6', 'Сложно: Тип 4'], wings: ['3w2 — Звезда: обаятельный, общительный лидер', '3w4 — Профессионал: утончённый, глубокий эксперт'], fears: ['Страх: быть никчёмным, неуспешным', 'Желание: быть ценным и успешным', 'Стресс → Тип 9: апатия'] },
-  '4': { careers: ['Художник', 'Писатель', 'Дизайнер', 'Терапевт'], strengths: ['Творческость', 'Глубина чувств', 'Аутентичность', 'Интуиция'], development: ['Развивать дисциплину', 'Ценить обычное', 'Не идеализировать'], relations: ['Совместимы: Тип 1, Тип 9', 'Рост через: Тип 1', 'Сложно: Тип 3'], wings: ['4w3 — Аристократ: амбициозный, выразительный творец', '4w5 — Богемист: глубокий, замкнутый мыслитель'], fears: ['Страх: не иметь идентичности', 'Желание: быть уникальным и настоящим', 'Стресс → Тип 2: навязчивость'] },
-  '5': { careers: ['Аналитик', 'Исследователь', 'Учёный', 'Программист'], strengths: ['Глубокий анализ', 'Независимость', 'Объективность', 'Экспертиза'], development: ['Делиться чувствами', 'Доверять другим', 'Быть в моменте'], relations: ['Совместимы: Тип 8, Тип 2', 'Рост через: Тип 8', 'Сложно: Тип 7'], wings: ['5w4 — Иконоборец: творческий, оригинальный мыслитель', '5w6 — Решатель проблем: практичный, лояльный аналитик'], fears: ['Страх: быть беспомощным, некомпетентным', 'Желание: быть компетентным и знающим', 'Стресс → Тип 7: рассеянность'] },
-  '6': { careers: ['Юрист', 'Аналитик рисков', 'Охранник', 'Менеджер проекта'], strengths: ['Верность', 'Ответственность', 'Предусмотрительность', 'Командный дух'], development: ['Доверять себе', 'Уменьшить тревожность', 'Рисковать чаще'], relations: ['Совместимы: Тип 9, Тип 3', 'Рост через: Тип 9', 'Сложно: Тип 8'], wings: ['6w5 — Защитник: осторожный, аналитичный стратег', '6w7 — Приятель: общительный, оптимистичный товарищ'], fears: ['Страх: остаться без поддержки и защиты', 'Желание: иметь безопасность и опору', 'Стресс → Тип 3: обман'] },
-  '7': { careers: ['Путешественник', 'Маркетолог', 'Ведущий', 'Предприниматель'], strengths: ['Оптимизм', 'Энтузиазм', 'Разносторонность', 'Креативность'], development: ['Учиться сосредоточенности', 'Принимать боль', 'Доводить до конца'], relations: ['Совместимы: Тип 1, Тип 5', 'Рост через: Тип 5', 'Сложно: Тип 6'], wings: ['7w6 — Массовик-затейник: весёлый, верный организатор', '7w8 — Реалист: решительный, прямолинейный искатель'], fears: ['Страх: быть лишённым, в ловушке боли', 'Желание: быть счастливым и удовлетворённым', 'Стресс → Тип 1: критичность'] },
-  '8': { careers: ['Руководитель', 'Предприниматель', 'Адвокат', 'Военный'], strengths: ['Лидерство', 'Решительность', 'Защита слабых', 'Сила воли'], development: ['Показывать уязвимость', 'Слушать других', 'Проявлять мягкость'], relations: ['Совместимы: Тип 2, Тип 9', 'Рост через: Тип 2', 'Сложно: Тип 6'], wings: ['8w7 — Независимый: энергичный, дерзкий лидер', '8w9 — Медведь: спокойный, мощный защитник'], fears: ['Страх: быть контролируемым, уязвимым', 'Желание: защитить себя и свою свободу', 'Стресс → Тип 5: изоляция'] },
-  '9': { careers: ['Медиатор', 'Консультант', 'Дипломат', 'Терапевт'], strengths: ['Миролюбие', 'Принятие', 'Гармония', 'Терпение'], development: ['Отстаивать себя', 'Принимать конфликт', 'Действовать решительно'], relations: ['Совместимы: Тип 3, Тип 6', 'Рост через: Тип 3', 'Сложно: Тип 8'], wings: ['9w8 — Арбитр: уверенный, решительный миротворец', '9w1 — Мечтатель: идеалистичный, спокойный созерцатель'], fears: ['Страх: потеря и разделение, конфликт', 'Желание: внутренний мир и гармония', 'Стресс → Тип 6: тревожность'] },
-};
+// SOCIONICS_INSIGHTS and ENNEAGRAM_INSIGHTS data moved to InsightsData.ru.js / InsightsData.en.js
 
 export class ResultDetailScreen {
   constructor() {
@@ -154,7 +113,7 @@ export class ResultDetailScreen {
         <div class="result-hero__code">${result.typeCode}</div>
         <div class="result-hero__name">${displayName}</div>
         <div class="result-hero__desc">${heroDesc}</div>
-        ${isPremium ? `<span class="result-hero__badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z"></path><path d="M3 20h18"></path></svg> Премиум</span>` : ''}
+        ${isPremium ? `<span class="result-hero__badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z"></path><path d="M3 20h18"></path></svg> ${localizationManager.get('home.premium')}</span>` : ''}
       </div>
     `;
   }
@@ -190,17 +149,17 @@ export class ResultDetailScreen {
     if (framework === 'socionics') return {
       colors: ['#E8A85C', '#C4843A', '#D4A574', '#B8894E'],
       primary: '#E8A85C', primaryRgb: '232,168,92',
-      strengths: ['Логическое', 'Интуитивное', 'Коммуникативное', 'Организаторское'],
+      strengths: localizationManager.get('resultDetail.socionicsStrengths'),
     };
     if (framework === 'enneagram') return {
       colors: ['#C47A8A', '#A05A6A', '#C49A7A'],
       primary: '#C47A8A', primaryRgb: '196,122,138',
-      strengths: ['Эмоциональное', 'Интеллектуальное', 'Инстинктивное'],
+      strengths: localizationManager.get('resultDetail.enneagramStrengths'),
     };
     return {
       colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c'],
       primary: '#7C9082', primaryRgb: '124,144,130',
-      strengths: ['Аналитический', 'Креативный', 'Социальный', 'Организованный'],
+      strengths: localizationManager.get('resultDetail.mbtiStrengths'),
     };
   }
 
@@ -325,9 +284,9 @@ export class ResultDetailScreen {
     } else if (result.framework === 'enneagram') {
       // Enneagram: Triadic centers visualization
       const centers = [
-        { label: 'Сердце', value: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)), color: colors[0] },
-        { label: 'Голова', value: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)), color: colors[1] },
-        { label: 'Тело', value: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)), color: colors[2] },
+        { label: localizationManager.get('resultDetail.heart'), value: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)), color: colors[0] },
+        { label: localizationManager.get('resultDetail.head'), value: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)), color: colors[1] },
+        { label: localizationManager.get('resultDetail.body'), value: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)), color: colors[2] },
       ];
       const triR = 60, triCx = 130, triCy = 110;
       const triPts = centers.map((c, i) => {
@@ -415,37 +374,37 @@ export class ResultDetailScreen {
 
   _getSocionicsFunctions(typeCode) {
     const FUNC_MAP = {
-      'ИЛЭ': [{ label: 'Интуиция возможностей', strength: 90 }, { label: 'Структурная логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Сенсорика ощущений', strength: 25 }],
-      'СЭИ': [{ label: 'Сенсорика ощущений', strength: 90 }, { label: 'Этика эмоций', strength: 75 }, { label: 'Структурная логика', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
-      'ЭСЭ': [{ label: 'Этика эмоций', strength: 90 }, { label: 'Сенсорика ощущений', strength: 75 }, { label: 'Интуиция времени', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
-      'ЛИИ': [{ label: 'Структурная логика', strength: 90 }, { label: 'Интуиция возможностей', strength: 75 }, { label: 'Сенсорика ощущений', strength: 40 }, { label: 'Этика эмоций', strength: 25 }],
-      'ЭИЭ': [{ label: 'Этика эмоций', strength: 90 }, { label: 'Интуиция времени', strength: 75 }, { label: 'Деловая логика', strength: 40 }, { label: 'Сенсорика ощущений', strength: 25 }],
-      'ЛСИ': [{ label: 'Структурная логика', strength: 90 }, { label: 'Волевая сенсорика', strength: 75 }, { label: 'Интуиция возможностей', strength: 40 }, { label: 'Этика отношений', strength: 25 }],
-      'СЛЭ': [{ label: 'Волевая сенсорика', strength: 90 }, { label: 'Структурная логика', strength: 75 }, { label: 'Этика отношений', strength: 40 }, { label: 'Интуиция времени', strength: 25 }],
-      'ИЭИ': [{ label: 'Интуиция времени', strength: 90 }, { label: 'Этика эмоций', strength: 75 }, { label: 'Деловая логика', strength: 40 }, { label: 'Волевая сенсорика', strength: 25 }],
-      'СЭЭ': [{ label: 'Волевая сенсорика', strength: 90 }, { label: 'Этика отношений', strength: 75 }, { label: 'Структурная логика', strength: 40 }, { label: 'Интуиция времени', strength: 25 }],
-      'ИЛИ': [{ label: 'Интуиция времени', strength: 90 }, { label: 'Деловая логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Волевая сенсорика', strength: 25 }],
-      'ЛИЭ': [{ label: 'Деловая логика', strength: 90 }, { label: 'Интуиция возможностей', strength: 75 }, { label: 'Волевая сенсорика', strength: 40 }, { label: 'Этика отношений', strength: 25 }],
-      'ЭСИ': [{ label: 'Этика отношений', strength: 90 }, { label: 'Волевая сенсорика', strength: 75 }, { label: 'Интуиция возможностей', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
-      'ЛСЭ': [{ label: 'Деловая логика', strength: 90 }, { label: 'Сенсорика ощущений', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
-      'ЭИИ': [{ label: 'Этика отношений', strength: 90 }, { label: 'Интуиция времени', strength: 75 }, { label: 'Волевая сенсорика', strength: 40 }, { label: 'Деловая логика', strength: 25 }],
-      'ИЭЭ': [{ label: 'Интуиция возможностей', strength: 90 }, { label: 'Этика отношений', strength: 75 }, { label: 'Сенсорика ощущений', strength: 40 }, { label: 'Структурная логика', strength: 25 }],
-      'СЛИ': [{ label: 'Сенсорика ощущений', strength: 90 }, { label: 'Деловая логика', strength: 75 }, { label: 'Этика эмоций', strength: 40 }, { label: 'Интуиция возможностей', strength: 25 }],
+      'ИЛЭ': [{ label: localizationManager.get('resultDetail.ne'), strength: 90 }, { label: localizationManager.get('resultDetail.ti'), strength: 75 }, { label: localizationManager.get('resultDetail.fe'), strength: 40 }, { label: localizationManager.get('resultDetail.si'), strength: 25 }],
+      'СЭИ': [{ label: localizationManager.get('resultDetail.si'), strength: 90 }, { label: localizationManager.get('resultDetail.fe'), strength: 75 }, { label: localizationManager.get('resultDetail.ti'), strength: 40 }, { label: localizationManager.get('resultDetail.ne'), strength: 25 }],
+      'ЭСЭ': [{ label: localizationManager.get('resultDetail.fe'), strength: 90 }, { label: localizationManager.get('resultDetail.si'), strength: 75 }, { label: localizationManager.get('resultDetail.ni'), strength: 40 }, { label: localizationManager.get('resultDetail.te'), strength: 25 }],
+      'ЛИИ': [{ label: localizationManager.get('resultDetail.ti'), strength: 90 }, { label: localizationManager.get('resultDetail.ne'), strength: 75 }, { label: localizationManager.get('resultDetail.si'), strength: 40 }, { label: localizationManager.get('resultDetail.fe'), strength: 25 }],
+      'ЭИЭ': [{ label: localizationManager.get('resultDetail.fe'), strength: 90 }, { label: localizationManager.get('resultDetail.ni'), strength: 75 }, { label: localizationManager.get('resultDetail.te'), strength: 40 }, { label: localizationManager.get('resultDetail.si'), strength: 25 }],
+      'ЛСИ': [{ label: localizationManager.get('resultDetail.ti'), strength: 90 }, { label: localizationManager.get('resultDetail.se'), strength: 75 }, { label: localizationManager.get('resultDetail.ne'), strength: 40 }, { label: localizationManager.get('resultDetail.fi'), strength: 25 }],
+      'СЛЭ': [{ label: localizationManager.get('resultDetail.se'), strength: 90 }, { label: localizationManager.get('resultDetail.ti'), strength: 75 }, { label: localizationManager.get('resultDetail.fi'), strength: 40 }, { label: localizationManager.get('resultDetail.ni'), strength: 25 }],
+      'ИЭИ': [{ label: localizationManager.get('resultDetail.ni'), strength: 90 }, { label: localizationManager.get('resultDetail.fe'), strength: 75 }, { label: localizationManager.get('resultDetail.te'), strength: 40 }, { label: localizationManager.get('resultDetail.se'), strength: 25 }],
+      'СЭЭ': [{ label: localizationManager.get('resultDetail.se'), strength: 90 }, { label: localizationManager.get('resultDetail.fi'), strength: 75 }, { label: localizationManager.get('resultDetail.ti'), strength: 40 }, { label: localizationManager.get('resultDetail.ni'), strength: 25 }],
+      'ИЛИ': [{ label: localizationManager.get('resultDetail.ni'), strength: 90 }, { label: localizationManager.get('resultDetail.te'), strength: 75 }, { label: localizationManager.get('resultDetail.fe'), strength: 40 }, { label: localizationManager.get('resultDetail.se'), strength: 25 }],
+      'ЛИЭ': [{ label: localizationManager.get('resultDetail.te'), strength: 90 }, { label: localizationManager.get('resultDetail.ni'), strength: 75 }, { label: localizationManager.get('resultDetail.se'), strength: 40 }, { label: localizationManager.get('resultDetail.fi'), strength: 25 }],
+      'ЭСИ': [{ label: localizationManager.get('resultDetail.fi'), strength: 90 }, { label: localizationManager.get('resultDetail.se'), strength: 75 }, { label: localizationManager.get('resultDetail.ne'), strength: 40 }, { label: localizationManager.get('resultDetail.te'), strength: 25 }],
+      'ЛСЭ': [{ label: localizationManager.get('resultDetail.te'), strength: 90 }, { label: localizationManager.get('resultDetail.si'), strength: 75 }, { label: localizationManager.get('resultDetail.fe'), strength: 40 }, { label: localizationManager.get('resultDetail.ne'), strength: 25 }],
+      'ЭИИ': [{ label: localizationManager.get('resultDetail.fi'), strength: 90 }, { label: localizationManager.get('resultDetail.ni'), strength: 75 }, { label: localizationManager.get('resultDetail.se'), strength: 40 }, { label: localizationManager.get('resultDetail.te'), strength: 25 }],
+      'ИЭЭ': [{ label: localizationManager.get('resultDetail.ne'), strength: 90 }, { label: localizationManager.get('resultDetail.fi'), strength: 75 }, { label: localizationManager.get('resultDetail.si'), strength: 40 }, { label: localizationManager.get('resultDetail.ti'), strength: 25 }],
+      'СЛИ': [{ label: localizationManager.get('resultDetail.si'), strength: 90 }, { label: localizationManager.get('resultDetail.te'), strength: 75 }, { label: localizationManager.get('resultDetail.fe'), strength: 40 }, { label: localizationManager.get('resultDetail.ne'), strength: 25 }],
     };
     return FUNC_MAP[typeCode] || [
-      { label: 'Базовая', strength: 85 }, { label: 'Творческая', strength: 70 },
-      { label: 'Ролевая', strength: 45 }, { label: 'Болевая', strength: 20 },
+      { label: localizationManager.get('resultDetail.baseFunc'), strength: 85 }, { label: localizationManager.get('resultDetail.creativeFunc'), strength: 70 },
+      { label: localizationManager.get('resultDetail.roleFunc'), strength: 45 }, { label: localizationManager.get('resultDetail.vulnerableFunc'), strength: 20 },
     ];
   }
 
   _getInsightsData(result) {
-    if (result.framework === 'socionics') return SOCIONICS_INSIGHTS[result.typeCode] || {};
+    if (result.framework === 'socionics') return getSocionicsInsights()[result.typeCode] || {};
     if (result.framework === 'enneagram') {
       const num = result.typeCode.replace(/\D/g, '');
-      return ENNEAGRAM_INSIGHTS[num] || {};
+      return getEnneagramInsights()[num] || {};
     }
     const base = getAdvancedInsights()[result.typeCode] || {};
-    const extra = MBTI_EXTRA[result.typeCode] || {};
+    const extra = getMbtiExtra()[result.typeCode] || {};
     return { ...base, ...extra };
   }
 
@@ -530,24 +489,24 @@ export class ResultDetailScreen {
   _getDimensionBars(framework, dims) {
     if (framework === 'socionics') {
       return [
-        { leftLabel: 'Логика (Л)', rightLabel: 'Этика (Э)', shortLeft: 'Л', shortRight: 'Э', leftPercent: dims.L ?? 50 },
-        { leftLabel: 'Интуиция (И)', rightLabel: 'Сенсорика (С)', shortLeft: 'И', shortRight: 'С', leftPercent: dims.I ?? 50 },
-        { leftLabel: 'Экстраверсия (Э)', rightLabel: 'Интроверсия (И)', shortLeft: 'Экст', shortRight: 'Инт', leftPercent: dims.Ex ?? 50 },
-        { leftLabel: 'Рациональность (Р)', rightLabel: 'Иррациональность (Ир)', shortLeft: 'Рац', shortRight: 'Ирр', leftPercent: dims.R ?? 50 },
+        { leftLabel: localizationManager.get('resultDetail.logicLabel'), rightLabel: localizationManager.get('resultDetail.ethicsLabel'), shortLeft: localizationManager.get('resultDetail.shortLogic'), shortRight: localizationManager.get('resultDetail.shortEthics'), leftPercent: dims.L ?? 50 },
+        { leftLabel: localizationManager.get('resultDetail.intuitionLabel'), rightLabel: localizationManager.get('resultDetail.sensingLabel'), shortLeft: localizationManager.get('resultDetail.shortIntuition'), shortRight: localizationManager.get('resultDetail.shortSensing'), leftPercent: dims.I ?? 50 },
+        { leftLabel: localizationManager.get('resultDetail.extraversionLabel'), rightLabel: localizationManager.get('resultDetail.introversionLabel'), shortLeft: localizationManager.get('resultDetail.shortExtra'), shortRight: localizationManager.get('resultDetail.shortIntro'), leftPercent: dims.Ex ?? 50 },
+        { leftLabel: localizationManager.get('resultDetail.rationalityLabel'), rightLabel: localizationManager.get('resultDetail.irrationalityLabel'), shortLeft: localizationManager.get('resultDetail.shortRat'), shortRight: localizationManager.get('resultDetail.shortIrr'), leftPercent: dims.R ?? 50 },
       ];
     }
     if (framework === 'enneagram') {
       return [
-        { leftLabel: 'Центр Сердца', rightLabel: '', shortLeft: 'Сердце', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
-        { leftLabel: 'Центр Головы', rightLabel: '', shortLeft: 'Голова', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
-        { leftLabel: 'Центр Тела', rightLabel: '', shortLeft: 'Тело', shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
+        { leftLabel: localizationManager.get('resultDetail.heartCenter'), rightLabel: '', shortLeft: localizationManager.get('resultDetail.heart'), shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HC ?? 0) * 3)) },
+        { leftLabel: localizationManager.get('resultDetail.headCenter'), rightLabel: '', shortLeft: localizationManager.get('resultDetail.head'), shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.HD ?? 0) * 3)) },
+        { leftLabel: localizationManager.get('resultDetail.bodyCenter'), rightLabel: '', shortLeft: localizationManager.get('resultDetail.body'), shortRight: '', leftPercent: Math.max(10, Math.min(90, 50 + (dims.BD ?? 0) * 3)) },
       ];
     }
     return [
-      { leftLabel: 'Экстраверсия (E)', rightLabel: 'Интроверсия (I)', shortLeft: 'E', shortRight: 'I', leftPercent: dims.E ?? 50 },
-      { leftLabel: 'Сенсорика (S)', rightLabel: 'Интуиция (N)', shortLeft: 'S', shortRight: 'N', leftPercent: dims.S ?? 50 },
-      { leftLabel: 'Мышление (T)', rightLabel: 'Чувство (F)', shortLeft: 'T', shortRight: 'F', leftPercent: dims.T ?? 50 },
-      { leftLabel: 'Суждение (J)', rightLabel: 'Восприятие (P)', shortLeft: 'J', shortRight: 'P', leftPercent: dims.J ?? 50 },
+      { leftLabel: localizationManager.get('resultDetail.mbtiExtraversion'), rightLabel: localizationManager.get('resultDetail.mbtiIntroversion'), shortLeft: 'E', shortRight: 'I', leftPercent: dims.E ?? 50 },
+      { leftLabel: localizationManager.get('resultDetail.mbtiSensing'), rightLabel: localizationManager.get('resultDetail.mbtiIntuition'), shortLeft: 'S', shortRight: 'N', leftPercent: dims.S ?? 50 },
+      { leftLabel: localizationManager.get('resultDetail.mbtiThinking'), rightLabel: localizationManager.get('resultDetail.mbtiFeeling'), shortLeft: 'T', shortRight: 'F', leftPercent: dims.T ?? 50 },
+      { leftLabel: localizationManager.get('resultDetail.mbtiJudging'), rightLabel: localizationManager.get('resultDetail.mbtiPerceiving'), shortLeft: 'J', shortRight: 'P', leftPercent: dims.J ?? 50 },
     ];
   }
 
@@ -561,10 +520,10 @@ export class ResultDetailScreen {
 
   _getHeroDesc(result) {
     if (result.framework === 'socionics' || result.framework === 'enneagram') {
-      return result.typeName ? `Тип личности ${result.typeCode}` : '';
+      return result.typeName ? localizationManager.get('resultDetail.personalityType', { type: result.typeCode }) : '';
     }
     const typeData = getTypeData()[result.typeCode] || {};
-    return typeData.description || typeData.subtitle || `Тип личности ${result.typeCode}`;
+    return typeData.description || typeData.subtitle || localizationManager.get('resultDetail.personalityType', { type: result.typeCode });
   }
 
   _bind(result) {
@@ -580,7 +539,7 @@ export class ResultDetailScreen {
     this.el.querySelector('#result-share')?.addEventListener('click', () => {
       if (navigator.share) {
         navigator.share({
-          title: `Я — ${result.typeCode} (${result.typeName})`,
+          title: localizationManager.get('ui.shareMessage', { type: result.typeCode }),
           url: window.location.href
         });
       }

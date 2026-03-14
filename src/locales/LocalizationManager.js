@@ -12,12 +12,12 @@ const logger = new LoggerManager().createModuleLogger('LocalizationManager');
 
 class LocalizationManager {
     constructor() {
-        this.currentLocale = 'ru';
+        this.currentLocale = 'en';
         this.locales = {
             en: en,
             ru: ru
         };
-        this.fallbackLocale = 'ru';
+        this.fallbackLocale = 'en';
     }
 
     /**
