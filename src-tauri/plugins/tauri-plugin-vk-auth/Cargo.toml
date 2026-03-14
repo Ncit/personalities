@@ -1,0 +1,14 @@
+[package]
+name = "tauri-plugin-vk-auth"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+
+[lib]
+name = "tauri_plugin_vk_auth"
+crate-type = ["lib", "cdylib", "staticlib"]

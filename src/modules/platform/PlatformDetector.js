@@ -1,6 +1,6 @@
 /**
  * PlatformDetector — thin shared entry point for flavor detection.
- * Returns 'vk' | 'tg' | 'web' and the active platform manager.
+ * Returns 'vk' | 'tg' | 'mobile' | 'web' and the active platform manager.
  */
 export class PlatformDetector {
     static _flavor = null;
@@ -12,8 +12,9 @@ export class PlatformDetector {
      *   1. Telegram WebApp initData present (non-empty) → 'tg'
      *   2. URL param ?flavor=tg → 'tg'
      *   3. URL param ?flavor=vk → 'vk'
-     *   4. VK Bridge environment → 'vk'
-     *   5. Default → 'web'
+     *   4. URL param ?flavor=mobile or Tauri runtime → 'mobile'
+     *   5. VK Bridge environment → 'vk'
+     *   6. Default → 'web'
      */
     static getFlavor() {
         if (this._flavor) return this._flavor;
@@ -38,7 +39,19 @@ export class PlatformDetector {
             return this._flavor;
         }
 
-        // 4. VK Bridge available
+        // 4. Explicit ?flavor=mobile (dev/testing)
+        if (params.get('flavor') === 'mobile') {
+            this._flavor = 'mobile';
+            return this._flavor;
+        }
+
+        // 4.5 Tauri runtime detected (native mobile app)
+        if (window.__TAURI__) {
+            this._flavor = 'mobile';
+            return this._flavor;
+        }
+
+        // 5. VK Bridge available
         if (typeof window.vkBridge !== 'undefined') {
             this._flavor = 'vk';
             return this._flavor;
@@ -67,6 +80,11 @@ export class PlatformDetector {
     /** Convenience: true when flavor is 'vk'. */
     static isVK() {
         return this.getFlavor() === 'vk';
+    }
+
+    /** Convenience: true when flavor is 'mobile' (Tauri). */
+    static isMobile() {
+        return this.getFlavor() === 'mobile';
     }
 
     /** Reset cache (useful for tests). */

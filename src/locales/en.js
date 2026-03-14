@@ -230,6 +230,8 @@ export const en = {
         purchasePremium: 'purchase premium access',
         startPremiumTest: 'start a premium test',
         startTest: 'start the test',
+        loginVkMobile: 'Sign in with VK',
+        loginVkMobileDesc: 'Required for purchase',
     },
 
     // UI
@@ -537,6 +539,8 @@ export const en = {
         processError: 'Error processing payment',
         tempUnavailable: 'Premium access temporarily unavailable',
         onlyForPremium: 'Premium features are only available for premium users',
+        buttonMobile: 'Get Premium',
+        priceMobile: '',
     },
 
     // Subscription

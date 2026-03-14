@@ -17,6 +17,7 @@ import { MBTI_QUESTIONS_RU as PERSONALITY_QUESTIONS_RU } from './src/data/MainQu
 import { VKBridgeManager } from './src/modules/vk/VKBridgeManager.js';
 import { PlatformDetector } from './src/modules/platform/PlatformDetector.js';
 import { TGBridgeManager } from './src/modules/tg/TGBridgeManager.js';
+import { MobileBridgeManager } from './src/modules/mobile/MobileBridgeManager.js';
 import { LoggerManager } from './src/modules/core/LoggerManager.js';
 import { productAnalytics } from './src/modules/analytics/AnalyticsEngine.js';
 
@@ -201,7 +202,9 @@ window.logoutUser = function() {
 function isUserAuthenticated() {
     const flavor = PlatformDetector.getFlavor();
 
-    if (flavor === 'vk') {
+    if (flavor === 'mobile') {
+        return window.mobileBridgeManager?.userService?.isAuthenticated() ?? false;
+    } else if (flavor === 'vk') {
         return vkBridgeManager && vkBridgeManager.isVKEnvironment();
     } else if (flavor === 'tg') {
         return window.tgBridgeManager && window.tgBridgeManager.isTGEnvironment();
@@ -246,8 +249,12 @@ function updatePricing() {
     const webPrice = localizationManager.get('pricing.rubles', { count: 280 });
     const vkPrice = localizationManager.get('pricing.votes', { count: 40 });
     const tgPrice = '⭐ 75 Stars';
+    const mobilePrice = localizationManager.get('premium.buttonMobile');
 
-    const price = flavor === 'vk' ? vkPrice : flavor === 'tg' ? tgPrice : webPrice;
+    const price = flavor === 'mobile' ? mobilePrice
+        : flavor === 'vk' ? vkPrice
+        : flavor === 'tg' ? tgPrice
+        : webPrice;
 
     // Update all price elements
     const priceElements = [
@@ -1736,6 +1743,11 @@ function setupTypeFilters() {
 
 // Premium status logic
 function isPremium() {
+    // Mobile: check RuStore purchase status
+    if (PlatformDetector.isMobile()) {
+        return localStorage.getItem('mobile_premium') === 'true';
+    }
+
     // Check if VK bridge manager is available and has premium status
     if (window.vkBridgeManager && window.vkBridgeManager.userService) {
         try {
@@ -3254,7 +3266,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // TG locale is set by TGUserService.init(); VK defaults to 'ru'
 
     // Initialize platform bridge manager
-    if (flavor === 'tg') {
+    if (flavor === 'mobile') {
+        try {
+            const mobileManager = new MobileBridgeManager();
+            window.mobileBridgeManager = mobileManager;
+            await mobileManager.init();
+            logger.log('Mobile Bridge Manager initialized');
+        } catch (error) {
+            logger.error('Mobile Bridge Manager init failed:', error);
+            window.mobileBridgeManager = null;
+        }
+    } else if (flavor === 'tg') {
         try {
             const tgManager = new TGBridgeManager();
             window.tgBridgeManager = tgManager;

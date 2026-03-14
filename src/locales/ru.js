@@ -230,6 +230,8 @@ export const ru = {
         purchasePremium: 'покупки премиум доступа',
         startPremiumTest: 'начала премиум теста',
         startTest: 'начала теста',
+        loginVkMobile: 'Войти через VK',
+        loginVkMobileDesc: 'Необходимо для покупки',
     },
 
     // UI
@@ -546,6 +548,8 @@ export const ru = {
         processError: 'Ошибка при обработке платежа',
         tempUnavailable: 'Премиум доступ временно недоступен',
         onlyForPremium: 'Премиум функции доступны только для премиум пользователей',
+        buttonMobile: 'Получить Премиум',
+        priceMobile: '',
     },
 
     // Subscription
