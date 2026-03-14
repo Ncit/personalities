@@ -51,6 +51,12 @@ coverage/
 tmp/
 temp/
 
+# Tauri
+src-tauri/target/
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/app/build/
+src-tauri/*.keystore
+
 # Firebase
 .firebase/
 firebase-debug.log

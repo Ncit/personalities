@@ -15,16 +15,19 @@ echo "Source: $LOCAL_DIR"
 echo "Target: $SSH_HOST:$REMOTE_DIR"
 echo ""
 
-# 1. Sync files (exclude .env, database, node_modules, .git)
+# 1. Sync files (exclude database, node_modules, .git)
 echo "→ Syncing files..."
 rsync -avz \
     --exclude='node_modules' \
-    --exclude='.env' \
     --exclude='purchases.db' \
     --exclude='.git' \
     --exclude='*.db-journal' \
     "$LOCAL_DIR/" \
     "$SSH_HOST:$REMOTE_DIR/"
+
+# 1.5 Set .env permissions
+echo "→ Securing .env..."
+ssh "$SSH_HOST" "chmod 600 $REMOTE_DIR/.env"
 
 # 2. Install dependencies if package.json changed
 echo "→ Installing dependencies..."

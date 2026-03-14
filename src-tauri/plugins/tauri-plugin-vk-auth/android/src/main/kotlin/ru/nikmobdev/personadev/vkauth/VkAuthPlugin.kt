@@ -19,8 +19,8 @@ class VkAuthPlugin(private val activity: Activity) : Plugin(activity) {
     private var cachedUser: Map<String, Any?>? = null
 
     companion object {
-        private const val VK_APP_ID = "53942833"
-        private const val REDIRECT_URI = "personadev://auth"
+        private const val VK_APP_ID = "54109191"
+        private const val REDIRECT_URI = "https://nikmobdev.ru/goodsshop/api/vk/auth-callback"
         private const val VK_AUTH_URL = "https://id.vk.com/authorize"
     }
 
