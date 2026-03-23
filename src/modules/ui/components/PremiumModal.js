@@ -130,6 +130,15 @@ export class PremiumModal {
 
         // Mobile (Android): RuStore Pay
         if (flavor === 'mobile' && window.mobileBridgeManager?.paymentService) {
+          if (!window.mobileBridgeManager?.userService?.isAuthenticated()) {
+            try {
+              await window.mobileBridgeManager.userService.authenticate();
+            } catch (e) {
+              this.state = 'idle';
+              this.render();
+              return;
+            }
+          }
           const result = await window.mobileBridgeManager.paymentService.purchasePremium();
           if (result?.success) {
             router.closeOverlay();
