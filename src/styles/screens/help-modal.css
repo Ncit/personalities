@@ -29,7 +29,11 @@
 }
 .help-modal__body {
   padding: 16px 20px 24px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   font: 400 14px/1.6 var(--font-body);
   color: var(--color-text-primary);
 }

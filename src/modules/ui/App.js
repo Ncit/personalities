@@ -27,8 +27,9 @@ export class App {
     // Desktop sidebar (hidden in VK and Telegram flavors)
     const flavor = PlatformDetector.getFlavor();
     const appEl = document.getElementById('app');
-    if (flavor === 'vk' || flavor === 'tg') {
+    if (flavor === 'vk' || flavor === 'tg' || flavor === 'mobile') {
       appEl.dataset.flavor = flavor;
+      document.body.dataset.flavor = flavor;
     } else {
       this.sidebar = new Sidebar();
       appEl.insertBefore(this.sidebar.getElement(), this.screenContainer);

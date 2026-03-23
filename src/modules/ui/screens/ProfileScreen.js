@@ -2,6 +2,7 @@ import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 import localizationManager from '../../../locales/LocalizationManager.js';
 import { PlatformDetector } from '../../platform/PlatformDetector.js';
+import { PremiumCTA } from '../components/PremiumCTA.js';
 
 function getStateManager() { return window.stateManager; }
 
@@ -84,13 +85,7 @@ export class ProfileScreen {
         ${!isPremium && !isGuest ? `
         <!-- Premium CTA — full width -->
         <div class="profile-grid__premium">
-          <div class="premium-cta-mobile" id="premium-cta-mobile">
-            <div class="premium-cta-mobile__text">
-              <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
-              <div class="premium-cta-mobile__subtitle">${localizationManager.get('profile.premiumSubtitle')}</div>
-            </div>
-            <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? localizationManager.get('premium.priceTg') : localizationManager.get('premium.priceDefault')}</button>
-          </div>
+          ${PremiumCTA.render('profile.premiumSubtitle')}
         </div>
         ` : ''}
 
@@ -200,8 +195,12 @@ export class ProfileScreen {
   }
 
   _getVkUser() {
-    // Try VK Bridge Manager first (real VK environment)
-    if (window.vkBridgeManager && window.vkBridgeManager.userService && window.vkBridgeManager.userService.userInfo) {
+    // Mobile Tauri environment
+    if (window.mobileBridgeManager?.userService?.isAuthenticated()) {
+      return window.mobileBridgeManager.userService.getUserInfo();
+    }
+    // VK Bridge Manager (VK Mini App)
+    if (window.vkBridgeManager?.userService?.userInfo) {
       return window.vkBridgeManager.userService.userInfo;
     }
     // Fallback to localStorage (dev/test login)
@@ -212,12 +211,20 @@ export class ProfileScreen {
   }
 
   _bind() {
-    this.el.querySelector('#premium-cta-mobile')?.addEventListener('click', () => {
-      router.openOverlay('premium-modal');
-    });
+    PremiumCTA.bind(this.el, () => router.openOverlay('premium-modal'));
 
-    this.el.querySelector('#vk-signin-mobile')?.addEventListener('click', () => {
-      if (window.vkAuth) window.vkAuth.login();
+    this.el.querySelector('#vk-signin-mobile')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (window.mobileBridgeManager?.userService) {
+        try {
+          await window.mobileBridgeManager.userService.authenticate();
+          this.render();
+        } catch (err) {
+          console.error('VK auth error:', err?.message || err);
+        }
+      } else if (window.vkAuth) {
+        window.vkAuth.login();
+      }
     });
 
     this.el.querySelector('#dev-vk-login')?.addEventListener('click', () => {

@@ -21,9 +21,8 @@ export class MobileBridgeManager {
             this.isMobilePlatform = true;
             PlatformDetector.setManager(this);
 
-            // Set locale from device language
-            const lang = navigator.language?.startsWith('ru') ? 'ru' : 'en';
-            localizationManager.setLocale(lang);
+            // Set locale — always Russian for RuStore app
+            localizationManager.setLocale('ru');
             this.logger.log('Locale set to:', lang);
 
             // Restore purchases (non-blocking)

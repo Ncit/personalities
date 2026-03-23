@@ -1,0 +1,24 @@
+/* Mobile (Tauri) flavor styles */
+
+/* Hide sidebar in mobile */
+[data-flavor="mobile"] .sidebar {
+    display: none !important;
+}
+
+/* Remove sidebar offset */
+[data-flavor="mobile"] #screen-container {
+    margin-left: 0 !important;
+}
+
+/* Safe area handling for Android status bar */
+[data-flavor="mobile"] {
+    padding-top: env(safe-area-inset-top, 28px);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Overlays live outside #app — apply safe area via body flavor */
+body[data-flavor="mobile"] .quiz-screen,
+body[data-flavor="mobile"] .overlay-backdrop,
+body[data-flavor="mobile"] .framework-info-screen {
+    padding-top: env(safe-area-inset-top, 28px);
+}

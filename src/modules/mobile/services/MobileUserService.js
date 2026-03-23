@@ -54,33 +54,38 @@ export class MobileUserService {
      * Opens system browser, waits for deep link callback.
      */
     async authenticate() {
-        if (!window.__TAURI__) {
+        const invoke = window.__TAURI__?.core?.invoke;
+        const addPluginListener = window.__TAURI__?.core?.addPluginListener;
+        if (!invoke || !addPluginListener) {
             throw new Error('Tauri runtime not available');
         }
 
         try {
             this.logger.log('Starting VK auth flow...');
-            await window.__TAURI__.invoke('start_vk_auth');
 
-            return new Promise((resolve, reject) => {
+            // Register listener (don't await — it resolves when event fires)
+            const resultPromise = new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     reject(new Error('VK auth timeout'));
                 }, MobileConfig.TIMEOUTS.auth);
 
-                const unlisten = window.__TAURI__.event.listen('vk-auth-result', (event) => {
+                addPluginListener('vk-auth', 'vk-auth-result', (payload) => {
                     clearTimeout(timeout);
-                    unlisten.then(fn => fn());
-
-                    if (event.payload.success) {
-                        this._userInfo = event.payload.user;
+                    if (payload.success) {
+                        this._userInfo = payload.user;
                         this._saveToStorage();
-                        this.logger.log('VK auth successful:', this._userInfo.id);
+                        this.logger.log('VK auth successful:', this._userInfo?.id);
                         resolve(this._userInfo);
                     } else {
-                        reject(new Error(event.payload.error || 'VK auth failed'));
+                        reject(new Error(payload.error || 'VK auth failed'));
                     }
                 });
             });
+
+            // Start auth flow immediately (don't wait for listener setup)
+            await invoke('plugin:vk-auth|start_vk_auth');
+
+            return resultPromise;
         } catch (error) {
             this.logger.error('VK auth failed:', error);
             throw error;

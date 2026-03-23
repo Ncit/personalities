@@ -13,6 +13,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://artifactory.rustore.ru/artifactory/projects") }
+        maven { url = uri("https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/") }
+        maven { url = uri("https://artifactory-external.vkpartner.ru/artifactory/maven/") }
     }
 }
 

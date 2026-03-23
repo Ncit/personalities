@@ -1,6 +1,7 @@
 import { HeroCard } from '../components/HeroCard.js';
 import { BentoGrid } from '../components/BentoGrid.js';
 import { TypeCard } from '../components/TypeCard.js';
+import { PremiumCTA } from '../components/PremiumCTA.js';
 import { resultsStore } from '../../results/ResultsStore.js';
 import { router } from '../../router/Router.js';
 import { MBTI_TYPES as MBTI_TYPES_RU } from '../../../data/QuizData.ru.js';
@@ -91,15 +92,7 @@ export class HomeScreen {
       <h1 class="page-title">${greeting}</h1>
       <p class="page-subtitle">${localizationManager.get('home.subtitle')}</p>
       ${HeroCard.render()}
-      ${!isPremium ? `
-      <div class="premium-cta-mobile" id="home-premium-cta" style="margin-bottom:12px">
-        <div class="premium-cta-mobile__text">
-          <div class="premium-cta-mobile__title">${localizationManager.get('home.premium')}</div>
-          <div class="premium-cta-mobile__subtitle">${localizationManager.get('home.premiumSubtitle')}</div>
-        </div>
-        <button class="btn-gold btn-gold--small">${PlatformDetector.isTelegram() ? localizationManager.get('premium.priceTg') : localizationManager.get('premium.priceDefault')}</button>
-      </div>
-      ` : ''}
+      ${!isPremium ? `<div style="margin-bottom:12px">${PremiumCTA.render('home.premiumSubtitle')}</div>` : ''}
       ${BentoGrid.render(hasResults)}
       ${hasResults ? this._shareCard() : ''}
 
@@ -128,9 +121,7 @@ export class HomeScreen {
 
     HeroCard.bind(this.el);
     BentoGrid.bind(this.el);
-    this.el.querySelector('#home-premium-cta')?.addEventListener('click', () => {
-      router.openOverlay('premium-modal');
-    });
+    PremiumCTA.bind(this.el, () => router.openOverlay('premium-modal'));
     this._bind();
     this._renderTypes();
 

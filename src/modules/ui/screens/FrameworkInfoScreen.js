@@ -3,6 +3,40 @@ import localizationManager from '../../../locales/LocalizationManager.js';
 
 function getFrameworkData() {
   return {
+    keirsey: {
+      title: localizationManager.get('frameworkInfo.keirseyTitle'),
+      icon: 'thermometer',
+      accent: '#7A8EC4',
+      gradient: 'linear-gradient(135deg, #7A8EC4 0%, #5A6EA0 100%)',
+      description: localizationManager.get('frameworkInfo.keirseyDesc'),
+      dimensions: [
+        { pair: 'SP', name: localizationManager.get('frameworkInfo.keirseySP'), desc: localizationManager.get('frameworkInfo.keirseySPDesc') },
+        { pair: 'SJ', name: localizationManager.get('frameworkInfo.keirseySJ'), desc: localizationManager.get('frameworkInfo.keirseySJDesc') },
+        { pair: 'NT', name: localizationManager.get('frameworkInfo.keirseyNT'), desc: localizationManager.get('frameworkInfo.keirseyNTDesc') },
+        { pair: 'NF', name: localizationManager.get('frameworkInfo.keirseyNF'), desc: localizationManager.get('frameworkInfo.keirseyNFDesc') },
+      ],
+      types: 4,
+      questions: null,
+      time: null,
+      comingSoon: true,
+    },
+    cognitive: {
+      title: localizationManager.get('frameworkInfo.jungTitle'),
+      icon: 'eye',
+      accent: '#9B8EC4',
+      gradient: 'linear-gradient(135deg, #9B8EC4 0%, #7A6EA0 100%)',
+      description: localizationManager.get('frameworkInfo.jungDesc'),
+      dimensions: [
+        { pair: 'Se / Si', name: localizationManager.get('frameworkInfo.jungSeSi'), desc: localizationManager.get('frameworkInfo.jungSeSiDesc') },
+        { pair: 'Ne / Ni', name: localizationManager.get('frameworkInfo.jungNeNi'), desc: localizationManager.get('frameworkInfo.jungNeNiDesc') },
+        { pair: 'Te / Ti', name: localizationManager.get('frameworkInfo.jungTeTi'), desc: localizationManager.get('frameworkInfo.jungTeTiDesc') },
+        { pair: 'Fe / Fi', name: localizationManager.get('frameworkInfo.jungFeFi'), desc: localizationManager.get('frameworkInfo.jungFeFiDesc') },
+      ],
+      types: 8,
+      questions: null,
+      time: null,
+      comingSoon: true,
+    },
     jung: {
       title: localizationManager.get('frameworkInfo.jungTitle'),
       icon: 'eye',
@@ -90,7 +124,9 @@ export class FrameworkInfoScreen {
 
     this.el.innerHTML = `
       <div class="framework-info__scroll">
-        <div class="framework-info__handle"></div>
+        <div class="framework-info__header">
+          <button class="framework-info__close" id="fw-close" aria-label="Close">✕</button>
+        </div>
         <div class="framework-info__hero" style="background:${fw.gradient}">
           <i data-lucide="${fw.icon}" style="width:32px;height:32px;color:#fff"></i>
           <div class="framework-info__title">${fw.title}</div>
@@ -120,6 +156,10 @@ export class FrameworkInfoScreen {
 
     this.el.addEventListener('click', (e) => {
       if (e.target === this.el) router.closeOverlay();
+    });
+
+    this.el.querySelector('#fw-close')?.addEventListener('click', () => {
+      router.closeOverlay();
     });
 
     this.el.querySelector('#fw-start')?.addEventListener('click', () => {

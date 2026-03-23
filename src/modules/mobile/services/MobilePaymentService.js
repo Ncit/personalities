@@ -11,17 +11,15 @@ export class MobilePaymentService {
      * Restores premium if a confirmed purchase exists in RuStore.
      */
     async restorePurchases() {
-        if (!window.__TAURI__) {
+        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
+        if (!invoke) {
             this.logger.warn('Tauri runtime not available, skipping purchase restore');
             return;
         }
 
         try {
-            const purchases = await window.__TAURI__.invoke('get_purchases');
-            const premium = purchases.find(
-                p => p.productId === MobileConfig.PRODUCTS.premium && p.state === 'CONFIRMED'
-            );
-            if (premium) {
+            const result = await invoke('plugin:rustore-pay|check_premium_status');
+            if (result.premium) {
                 localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
                 this.logger.log('Premium restored from RuStore purchases');
             }
@@ -34,10 +32,11 @@ export class MobilePaymentService {
      * Get product info from RuStore (price, title, etc.)
      */
     async getProductInfo() {
-        if (!window.__TAURI__) return null;
+        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
+        if (!invoke) return null;
 
         try {
-            const products = await window.__TAURI__.invoke('get_products');
+            const products = await invoke('plugin:rustore-pay|get_products');
             return products.find(p => p.productId === MobileConfig.PRODUCTS.premium) || null;
         } catch (error) {
             this.logger.warn('Failed to get products:', error);
@@ -50,20 +49,18 @@ export class MobilePaymentService {
      * Returns { success: boolean, purchaseId?: string, error?: string }
      */
     async purchasePremium() {
-        if (!window.__TAURI__) {
+        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
+        if (!invoke) {
             return { success: false, error: 'Tauri runtime not available' };
         }
 
         try {
             this.logger.log('Starting RuStore purchase...');
-            const result = await window.__TAURI__.invoke('purchase_product', {
+            const result = await invoke('plugin:rustore-pay|purchase_product', {
                 productId: MobileConfig.PRODUCTS.premium
             });
 
             if (result.success) {
-                await window.__TAURI__.invoke('confirm_purchase', {
-                    purchaseId: result.purchaseId
-                });
                 localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
                 this.logger.log('Premium purchased and confirmed:', result.purchaseId);
             }

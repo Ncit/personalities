@@ -1,0 +1,23 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile",
+  "description": "Mobile-only permissions for Android",
+  "platforms": ["android"],
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    "core:app:allow-register-listener",
+    "core:app:allow-remove-listener",
+    "vk-auth:allow-start-vk-auth",
+    "vk-auth:allow-get-vk-user",
+    "vk-auth:allow-register-listener",
+    "rustore-pay:allow-get-products",
+    "rustore-pay:allow-purchase-product",
+    "rustore-pay:allow-get-purchases",
+    "rustore-pay:allow-confirm-purchase",
+    "rustore-pay:allow-check-premium-status"
+  ]
+}

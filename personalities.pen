@@ -1,5 +1,5 @@
 {
-  "version": "2.8",
+  "version": "2.9",
   "children": [
     {
       "type": "frame",
@@ -5170,7 +5170,15 @@
                       "y": 48
                     },
                     "s8seR": {
-                      "enabled": false
+                      "enabled": false,
+                      "width": "fit_content",
+                      "height": "fit_content"
+                    },
+                    "p7xab": {
+                      "y": 0.5
+                    },
+                    "B91Gg": {
+                      "x": 18
                     }
                   }
                 },
@@ -5195,7 +5203,15 @@
                       "y": 48
                     },
                     "s8seR": {
-                      "enabled": false
+                      "enabled": false,
+                      "width": "fit_content",
+                      "height": "fit_content"
+                    },
+                    "p7xab": {
+                      "y": 0.5
+                    },
+                    "B91Gg": {
+                      "x": 18
                     }
                   }
                 }
@@ -9434,7 +9450,15 @@
                       "y": 48
                     },
                     "s8seR": {
-                      "enabled": false
+                      "enabled": false,
+                      "width": "fit_content",
+                      "height": "fit_content"
+                    },
+                    "p7xab": {
+                      "y": 0.5
+                    },
+                    "B91Gg": {
+                      "x": 18
                     }
                   }
                 },
@@ -9459,7 +9483,15 @@
                       "y": 48
                     },
                     "s8seR": {
-                      "enabled": false
+                      "enabled": false,
+                      "width": "fit_content",
+                      "height": "fit_content"
+                    },
+                    "p7xab": {
+                      "y": 0.5
+                    },
+                    "B91Gg": {
+                      "x": 18
                     }
                   }
                 }
@@ -10748,9 +10780,11 @@
             {
               "type": "frame",
               "id": "VX7nn",
+              "x": 0,
+              "y": 0,
               "name": "Share Card",
               "enabled": false,
-              "width": "fill_container",
+              "width": "fill_container(0)",
               "fill": "#FFFFFF",
               "cornerRadius": 20,
               "stroke": {
@@ -10798,12 +10832,20 @@
                   "type": "ref",
                   "ref": "o5UlJ",
                   "name": "shareBtn",
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "x": 37,
+                  "y": 31.5,
                   "descendants": {
                     "93lLX": {
-                      "iconFontName": "share-2"
+                      "iconFontName": "share-2",
+                      "x": 24,
+                      "y": 12.5
                     },
                     "Ge0Zj": {
-                      "content": "Share"
+                      "content": "Share",
+                      "x": 48,
+                      "y": 12
                     }
                   }
                 }
@@ -11945,6 +11987,8 @@
             {
               "type": "text",
               "id": "Q1jk3",
+              "x": 0,
+              "y": 0,
               "name": "sectionLabel",
               "enabled": false,
               "fill": "#8A8A8A",
@@ -11957,9 +12001,11 @@
             {
               "type": "frame",
               "id": "iZ0yW",
+              "x": 0,
+              "y": 0,
               "name": "Quiz List",
               "enabled": false,
-              "width": "fill_container",
+              "width": "fill_container(0)",
               "layout": "vertical",
               "gap": 10,
               "children": [
@@ -11969,15 +12015,33 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "q1",
+                  "height": "fit_content",
                   "descendants": {
+                    "6POEH": {
+                      "x": 16,
+                      "y": 16
+                    },
                     "ca6dR": {
-                      "iconFontName": "brain"
+                      "iconFontName": "brain",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "MBTI — 16 Personalities"
                     },
                     "kehnx": {
-                      "content": "60 questions · 15 min · Free"
+                      "content": "60 questions · 15 min · Free",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 },
@@ -11987,19 +12051,36 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "q2",
+                  "height": "fit_content",
+                  "y": 86,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#E8A85C25"
+                      "fill": "#E8A85C25",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "sparkles",
-                      "fill": "#E8A85C"
+                      "fill": "#E8A85C",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Socionics"
                     },
                     "kehnx": {
-                      "content": "48 questions · 12 min · Coming soon"
+                      "content": "48 questions · 12 min · Coming soon",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 },
@@ -12009,19 +12090,36 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "q3",
+                  "height": "fit_content",
+                  "y": 172,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#C47A8A25"
+                      "fill": "#C47A8A25",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "heart",
-                      "fill": "#C47A8A"
+                      "fill": "#C47A8A",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Enneagram"
                     },
                     "kehnx": {
-                      "content": "36 questions · 10 min · Coming soon"
+                      "content": "36 questions · 10 min · Coming soon",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 }
@@ -12030,6 +12128,8 @@
             {
               "type": "text",
               "id": "l3z6l",
+              "x": 0,
+              "y": 0,
               "name": "premLabel",
               "enabled": false,
               "fill": "#8A8A8A",
@@ -12042,9 +12142,11 @@
             {
               "type": "frame",
               "id": "LGlhB",
+              "x": 0,
+              "y": 0,
               "name": "Premium Quiz List",
               "enabled": false,
-              "width": "fill_container",
+              "width": "fill_container(0)",
               "layout": "vertical",
               "gap": 10,
               "children": [
@@ -12054,19 +12156,35 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "pq1",
+                  "height": "fit_content",
                   "descendants": {
                     "6POEH": {
-                      "fill": "#D4A57425"
+                      "fill": "#D4A57425",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "crown",
-                      "fill": "#D4A574"
+                      "fill": "#D4A574",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Leadership Style"
                     },
                     "kehnx": {
-                      "content": "20 questions · 5 min"
+                      "content": "20 questions · 5 min",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 },
@@ -12076,19 +12194,36 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "pq2",
+                  "height": "fit_content",
+                  "y": 86,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#D4A57425"
+                      "fill": "#D4A57425",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "message-circle",
-                      "fill": "#D4A574"
+                      "fill": "#D4A574",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Communication Style"
                     },
                     "kehnx": {
-                      "content": "20 questions · 5 min"
+                      "content": "20 questions · 5 min",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 },
@@ -12098,19 +12233,36 @@
                   "ref": "hnDJt",
                   "width": "fill_container",
                   "name": "pq3",
+                  "height": "fit_content",
+                  "y": 172,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#D4A57425"
+                      "fill": "#D4A57425",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "zap",
-                      "fill": "#D4A574"
+                      "fill": "#D4A574",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Stress Response"
                     },
                     "kehnx": {
-                      "content": "20 questions · 5 min"
+                      "content": "20 questions · 5 min",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 89,
+                      "y": 29
                     }
                   }
                 }
@@ -12953,7 +13105,15 @@
                           "y": 48
                         },
                         "s8seR": {
-                          "enabled": false
+                          "enabled": false,
+                          "width": "fit_content",
+                          "height": "fit_content"
+                        },
+                        "p7xab": {
+                          "y": 0.5
+                        },
+                        "B91Gg": {
+                          "x": 18
                         }
                       }
                     },
@@ -12978,7 +13138,15 @@
                           "y": 48
                         },
                         "s8seR": {
-                          "enabled": false
+                          "enabled": false,
+                          "width": "fit_content",
+                          "height": "fit_content"
+                        },
+                        "p7xab": {
+                          "y": 0.5
+                        },
+                        "B91Gg": {
+                          "x": 18
                         }
                       }
                     }
@@ -13615,9 +13783,11 @@
             {
               "type": "frame",
               "id": "880oe",
+              "x": 0,
+              "y": 0,
               "name": "Quiz Grid",
               "enabled": false,
-              "width": "fill_container",
+              "width": "fill_container(0)",
               "gap": 16,
               "children": [
                 {
@@ -13626,15 +13796,33 @@
                   "ref": "hnDJt",
                   "width": 280,
                   "name": "eq1",
+                  "height": "fit_content",
                   "descendants": {
+                    "6POEH": {
+                      "x": 16,
+                      "y": 16
+                    },
                     "ca6dR": {
-                      "iconFontName": "brain"
+                      "iconFontName": "brain",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "MBTI — 16 Personalities"
                     },
                     "kehnx": {
-                      "content": "60 questions · 15 min · Free"
+                      "content": "60 questions · 15 min · Free",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 246,
+                      "y": 29
                     }
                   }
                 },
@@ -13644,19 +13832,36 @@
                   "ref": "hnDJt",
                   "width": 280,
                   "name": "eq2",
+                  "height": "fit_content",
+                  "x": 296,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#E8A85C25"
+                      "fill": "#E8A85C25",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "sparkles",
-                      "fill": "#E8A85C"
+                      "fill": "#E8A85C",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Socionics"
                     },
                     "kehnx": {
-                      "content": "48 questions · 12 min · Coming soon"
+                      "content": "48 questions · 12 min · Coming soon",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 246,
+                      "y": 29
                     }
                   }
                 },
@@ -13666,19 +13871,36 @@
                   "ref": "hnDJt",
                   "width": 280,
                   "name": "eq3",
+                  "height": "fit_content",
+                  "x": 592,
                   "descendants": {
                     "6POEH": {
-                      "fill": "#C47A8A25"
+                      "fill": "#C47A8A25",
+                      "x": 16,
+                      "y": 16
                     },
                     "ca6dR": {
                       "iconFontName": "heart",
-                      "fill": "#C47A8A"
+                      "fill": "#C47A8A",
+                      "x": 11,
+                      "y": 11
+                    },
+                    "pp7bj": {
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 74,
+                      "y": 21
                     },
                     "I96Yq": {
                       "content": "Enneagram"
                     },
                     "kehnx": {
-                      "content": "36 questions · 10 min · Coming soon"
+                      "content": "36 questions · 10 min · Coming soon",
+                      "y": 19
+                    },
+                    "qP6I2": {
+                      "x": 246,
+                      "y": 29
                     }
                   }
                 }
@@ -17216,7 +17438,15 @@
                           "y": 48
                         },
                         "s8seR": {
-                          "enabled": false
+                          "enabled": false,
+                          "width": "fit_content",
+                          "height": "fit_content"
+                        },
+                        "p7xab": {
+                          "y": 0.5
+                        },
+                        "B91Gg": {
+                          "x": 18
                         }
                       }
                     },
@@ -17241,7 +17471,15 @@
                           "y": 48
                         },
                         "s8seR": {
-                          "enabled": false
+                          "enabled": false,
+                          "width": "fit_content",
+                          "height": "fit_content"
+                        },
+                        "p7xab": {
+                          "y": 0.5
+                        },
+                        "B91Gg": {
+                          "x": 18
                         }
                       }
                     }
@@ -21794,7 +22032,7 @@
       "name": "Results Screen",
       "clip": true,
       "width": 390,
-      "height": 844,
+      "height": 1450,
       "fill": "#FAF8F5",
       "layout": "vertical",
       "children": [
@@ -21806,7 +22044,25 @@
           "name": "sb",
           "x": 0,
           "y": 0,
-          "height": 62
+          "height": 62,
+          "descendants": {
+            "Axqij": {
+              "x": 24,
+              "y": 22
+            },
+            "pvMfO": {
+              "width": "fit_content",
+              "height": "fit_content",
+              "x": 306,
+              "y": 23
+            },
+            "ld0KZ": {
+              "x": 22
+            },
+            "w9TQ8": {
+              "x": 44
+            }
+          }
         },
         {
           "type": "frame",
@@ -22650,14 +22906,17 @@
                   "width": "fill_container",
                   "x": 0,
                   "y": 0,
+                  "height": "fit_content",
                   "descendants": {
                     "93lLX": {
                       "x": 75.5,
-                      "iconFontName": "share-2"
+                      "iconFontName": "share-2",
+                      "y": 12.5
                     },
                     "Ge0Zj": {
                       "x": 99.5,
-                      "content": "Поделиться результатом"
+                      "content": "Поделиться результатом",
+                      "y": 12
                     }
                   }
                 },
@@ -22669,14 +22928,17 @@
                   "width": "fill_container",
                   "x": 0,
                   "y": 53,
+                  "height": "fit_content",
                   "descendants": {
                     "lJnQY": {
                       "x": 111,
-                      "iconFontName": "refresh-cw"
+                      "iconFontName": "refresh-cw",
+                      "y": 12.5
                     },
                     "pmkoh": {
                       "x": 135,
-                      "content": "Пройти заново"
+                      "content": "Пройти заново",
+                      "y": 12
                     }
                   }
                 }
@@ -24795,6 +25057,482 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "tWOma",
+      "x": 14940,
+      "y": -168,
+      "name": "App Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289061341.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "dGbf4",
+      "x": 15296,
+      "y": -168,
+      "name": "App Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289081633.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "Y7raB",
+      "x": 14940,
+      "y": -168,
+      "name": "App Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289099931.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "zkuhk",
+      "x": 14940,
+      "y": 188,
+      "name": "Premium Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289097410.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "AEZlv",
+      "x": 15296,
+      "y": 188,
+      "name": "Premium Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289114140.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "nvCrh",
+      "x": 15296,
+      "y": -168,
+      "name": "App Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289119629.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "LOiZ3",
+      "x": 14940,
+      "y": 188,
+      "name": "Premium Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289141084.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "JvK4F",
+      "x": 14940,
+      "y": -168,
+      "name": "App Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289136356.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "25Ll0",
+      "x": 15296,
+      "y": -168,
+      "name": "App Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289152094.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "bhYKZ",
+      "x": 15296,
+      "y": 188,
+      "name": "Premium Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289174638.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "sCV6U",
+      "x": 14940,
+      "y": 188,
+      "name": "Premium Icon Concept 1",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289174406.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "kDrJI",
+      "x": 15296,
+      "y": 188,
+      "name": "Premium Icon Concept 2",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289191102.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "GIv5e",
+      "x": 15652,
+      "y": -168,
+      "name": "App Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289788765.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "KOsbn",
+      "x": 15952,
+      "y": -168,
+      "name": "App Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289818404.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "Ml1ja",
+      "x": 15652,
+      "y": 188,
+      "name": "Premium Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289839093.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "gMKBh",
+      "x": 15952,
+      "y": 188,
+      "name": "Premium Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289859343.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "kww5i",
+      "x": 15652,
+      "y": -168,
+      "name": "App Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289831248.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "jEYNp",
+      "x": 15952,
+      "y": -168,
+      "name": "App Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289854878.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "NKl7N",
+      "x": 15652,
+      "y": 188,
+      "name": "Premium Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289868682.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "cwtM3",
+      "x": 15952,
+      "y": 188,
+      "name": "Premium Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289892010.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "Uyc1W",
+      "x": 15652,
+      "y": -168,
+      "name": "App Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289880107.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "GkEY4",
+      "x": 15952,
+      "y": -168,
+      "name": "App Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289896067.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "f6Hdi",
+      "x": 15652,
+      "y": 188,
+      "name": "Premium Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289909166.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "SOT4A",
+      "x": 15952,
+      "y": 188,
+      "name": "Premium Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289929177.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "qjpnI",
+      "x": 15652,
+      "y": -168,
+      "name": "App Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774289963902.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "nK9q1",
+      "x": 15952,
+      "y": -168,
+      "name": "App Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774290080093.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "1BdOb",
+      "x": 15652,
+      "y": 188,
+      "name": "Premium Icon Concept A",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774290140248.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
+    },
+    {
+      "type": "frame",
+      "id": "8cCJM",
+      "x": 15952,
+      "y": 188,
+      "name": "Premium Icon Concept B",
+      "clip": true,
+      "width": 256,
+      "height": 256,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/generated-1774290159077.png",
+        "mode": "fill"
+      },
+      "cornerRadius": 56
     }
   ],
   "variables": {

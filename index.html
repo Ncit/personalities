@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="src/styles/screens/help-modal.css">
     <link rel="stylesheet" href="src/modules/vk/vk-styles.css">
     <link rel="stylesheet" href="src/modules/tg/tg-styles.css">
+    <link rel="stylesheet" href="src/modules/mobile/mobile-styles.css">
     <!-- Google Fonts with fallback for SSL errors -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" onerror="handleFontError()">
     <!-- Font Awesome removed — using Lucide icons now -->
@@ -36,7 +37,15 @@
             document.documentElement.style.setProperty('--font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif');
         }
     </script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Lucide icons: local bundle (works offline/mobile) with CDN fallback -->
+    <script src="lucide.js"></script>
+    <script>
+        if (typeof lucide === 'undefined') {
+            var s = document.createElement('script');
+            s.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
+            document.head.appendChild(s);
+        }
+    </script>
 </head>
 <body>
     <div id="app">
@@ -46,18 +55,25 @@
     <div id="overlay-container"></div>
     <div id="toast-container"></div>
 
-    <!-- VK Bridge SDK -->
-    <script src="https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js"></script>
-    <!-- VK Auth SDK -->
-    <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
-    <!-- Telegram Mini App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- Environment detection (legacy — PlatformDetector used in modules) -->
+    <!-- Platform SDKs: load only when needed (non-blocking for mobile) -->
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const isVKFlavor = urlParams.get('flavor') === 'vk';
         const isTGFlavor = urlParams.get('flavor') === 'tg' || !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+        const isMobileFlavor = urlParams.get('flavor') === 'mobile' || !!window.__TAURI__;
+
+        // Only load platform SDKs when not in mobile/Tauri mode
+        if (!isMobileFlavor) {
+            ['https://unpkg.com/@vkontakte/vk-bridge@2/dist/browser.min.js',
+             'https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js',
+             'https://telegram.org/js/telegram-web-app.js'
+            ].forEach(function(src) {
+                var s = document.createElement('script');
+                s.src = src;
+                s.async = true;
+                document.body.appendChild(s);
+            });
+        }
     </script>
 
     <!-- Debug Utilities -->

@@ -128,6 +128,19 @@ export class PremiumModal {
           return;
         }
 
+        // Mobile (Android): RuStore Pay
+        if (flavor === 'mobile' && window.mobileBridgeManager?.paymentService) {
+          const result = await window.mobileBridgeManager.paymentService.purchasePremium();
+          if (result?.success) {
+            router.closeOverlay();
+            return;
+          }
+          this.state = 'error';
+          this.errorMessage = localizationManager.get('errors.paymentFailed');
+          this.render();
+          return;
+        }
+
         // VK / Web: existing Tochka flow
         let vkUserId = null;
         let appId = '53942833';

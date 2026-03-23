@@ -17,9 +17,17 @@ android {
             isMinifyEnabled = false
         }
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {
-    implementation("ru.rustore.sdk:pay:latest")
+    implementation(project(":tauri-android"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("ru.rustore.sdk:billingclient:6.0.0")
 }

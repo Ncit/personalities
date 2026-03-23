@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-confirm-purchase"
+description = "Enables the confirm_purchase command without any pre-configured scope."
+commands.allow = ["confirm_purchase"]
+
+[[permission]]
+identifier = "deny-confirm-purchase"
+description = "Denies the confirm_purchase command without any pre-configured scope."
+commands.deny = ["confirm_purchase"]

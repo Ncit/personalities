@@ -42,7 +42,7 @@ export class HeroCard {
   static render() {
     const cards = getHeroFrameworks().map((fw, i) => {
       return `
-        <div class="hero-card ${fw.comingSoon ? 'hero-card--coming-soon' : ''}" ${fw.comingSoon ? '' : `data-framework="${fw.key}"`} style="background:${fw.gradient}">
+        <div class="hero-card ${fw.comingSoon ? 'hero-card--coming-soon' : ''}" data-framework="${fw.key}" style="background:${fw.gradient}">
           <div class="hero-card__badge">${fw.badge}</div>
           <div class="hero-card__title">${fw.title}</div>
         </div>
@@ -82,7 +82,7 @@ export class HeroCard {
       });
     });
 
-    // Card click opens framework info overlay
+    // Card click opens framework info overlay (including coming-soon cards)
     container.querySelectorAll('.hero-card[data-framework]').forEach(card => {
       card.addEventListener('click', () => {
         router.openOverlay('framework-info', { framework: card.dataset.framework });

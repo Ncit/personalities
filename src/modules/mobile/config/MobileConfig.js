@@ -27,7 +27,7 @@ export class MobileConfig {
     // Timeouts (ms)
     static TIMEOUTS = {
         purchase: 120000,
-        auth: 60000,
+        auth: 300000,
     };
 
     static isFeatureEnabled(feature) {

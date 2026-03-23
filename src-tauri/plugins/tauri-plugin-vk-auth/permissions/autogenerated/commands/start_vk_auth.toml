@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-start-vk-auth"
+description = "Enables the start_vk_auth command without any pre-configured scope."
+commands.allow = ["start_vk_auth"]
+
+[[permission]]
+identifier = "deny-start-vk-auth"
+description = "Denies the start_vk_auth command without any pre-configured scope."
+commands.deny = ["start_vk_auth"]

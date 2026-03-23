@@ -18,6 +18,10 @@ android {
     namespace = "ru.nikmobdev.personadev"
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
+        manifestPlaceholders["VKIDClientID"] = "54483924"
+        manifestPlaceholders["VKIDClientSecret"] = "31A8D96wQ5IiyUxKmHmX"
+        manifestPlaceholders["VKIDRedirectHost"] = "vk.ru"
+        manifestPlaceholders["VKIDRedirectScheme"] = "vk54483924"
         applicationId = "ru.nikmobdev.personadev"
         minSdk = 24
         targetSdk = 36
@@ -62,6 +66,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("com.google.android.material:material:1.12.0")
+    implementation("com.vk.id:vkid:2.6.1")
+    implementation("ru.rustore.sdk:billingclient:6.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.4")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")

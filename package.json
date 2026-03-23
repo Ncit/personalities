@@ -38,6 +38,8 @@
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "prettier": "^2.8.8",
+    "sharp": "^0.34.5",
+    "sharp-ico": "^0.1.5",
     "typescript": "^5.1.6",
     "vite": "^7.0.5",
     "vite-bundle-analyzer": "^0.7.0"

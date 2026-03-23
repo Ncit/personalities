@@ -1,44 +1,87 @@
 package ru.nikmobdev.personadev.vkauth
 
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import app.tauri.annotation.Command
 import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.Invoke
+import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.net.HttpURLConnection
-import java.net.URL
+import androidx.appcompat.app.AppCompatActivity
+import com.vk.id.AccessToken
+import com.vk.id.VKID
+import com.vk.id.VKIDAuthFail
+import com.vk.id.auth.AuthCodeData
+import com.vk.id.auth.VKIDAuthCallback
+import com.vk.id.auth.VKIDAuthParams
 
 @TauriPlugin
 class VkAuthPlugin(private val activity: Activity) : Plugin(activity) {
 
-    private var cachedUser: Map<String, Any?>? = null
-
-    companion object {
-        private const val VK_APP_ID = "54109191"
-        private const val REDIRECT_URI = "https://nikmobdev.ru/goodsshop/api/vk/auth-callback"
-        private const val VK_AUTH_URL = "https://id.vk.com/authorize"
-    }
+    private var cachedUser: JSObject? = null
 
     @Command
     fun startVkAuth(invoke: Invoke) {
-        val authUrl = "$VK_AUTH_URL?" +
-            "client_id=$VK_APP_ID" +
-            "&redirect_uri=$REDIRECT_URI" +
-            "&response_type=code" +
-            "&scope=email" +
-            "&state=vk_auth"
+        val result = JSObject()
+        result.put("started", true)
+        invoke.resolve(result)
 
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
-            activity.startActivity(intent)
-            invoke.resolve(mapOf("started" to true))
-        } catch (e: Exception) {
-            invoke.reject("Failed to open VK auth: ${e.message}")
+        Handler(Looper.getMainLooper()).post {
+            val appCompatActivity = activity as? AppCompatActivity
+            if (appCompatActivity == null) {
+                val errorPayload = JSObject()
+                errorPayload.put("success", false)
+                errorPayload.put("error", "Activity is not AppCompatActivity")
+                trigger("vk-auth-result", errorPayload)
+                return@post
+            }
+
+            val callback = object : VKIDAuthCallback {
+                override fun onAuth(accessToken: AccessToken) {
+                    val user = accessToken.userData
+                    val userObj = JSObject()
+                    userObj.put("id", accessToken.userID)
+                    userObj.put("first_name", user.firstName)
+                    userObj.put("last_name", user.lastName)
+                    userObj.put("photo_100", user.photo200 ?: user.photo100 ?: user.photo50 ?: "")
+                    userObj.put("email", user.email ?: "")
+
+                    cachedUser = userObj
+
+                    val successPayload = JSObject()
+                    successPayload.put("success", true)
+                    successPayload.put("user", userObj)
+                    trigger("vk-auth-result", successPayload)
+                }
+
+                override fun onAuthCode(data: AuthCodeData, isCompletion: Boolean) {
+                    // SDK handles code exchange internally
+                }
+
+                override fun onFail(fail: VKIDAuthFail) {
+                    val errorMsg = when (fail) {
+                        is VKIDAuthFail.Canceled -> "User cancelled"
+                        is VKIDAuthFail.FailedApiCall -> "API error: ${fail.description}"
+                        is VKIDAuthFail.FailedOAuth -> "OAuth error: ${fail.description}"
+                        is VKIDAuthFail.FailedOAuthState -> "State error: ${fail.description}"
+                        is VKIDAuthFail.FailedRedirectActivity -> "Redirect error: ${fail.description}"
+                        is VKIDAuthFail.NoBrowserAvailable -> "No browser available"
+                    }
+                    val errorPayload = JSObject()
+                    errorPayload.put("success", false)
+                    errorPayload.put("error", errorMsg)
+                    trigger("vk-auth-result", errorPayload)
+                }
+            }
+
+            VKID.instance.authorize(
+                lifecycleOwner = appCompatActivity,
+                callback = callback,
+                params = VKIDAuthParams {
+                    scopes = setOf("email")
+                }
+            )
         }
     }
 
@@ -47,43 +90,7 @@ class VkAuthPlugin(private val activity: Activity) : Plugin(activity) {
         if (cachedUser != null) {
             invoke.resolve(cachedUser)
         } else {
-            invoke.resolve(null)
-        }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        val uri = intent.data ?: return
-        if (uri.scheme != "personadev" || uri.host != "auth") return
-
-        val code = uri.getQueryParameter("code") ?: return
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                // Exchange code for token via backend
-                // Exchange code via backend
-                val tokenUrl = "https://nikmobdev.ru/goodsshop/api/vk/exchange-code?code=$code"
-                val connection = URL(tokenUrl).openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                val response = connection.inputStream.bufferedReader().readText()
-
-                val json = org.json.JSONObject(response)
-                cachedUser = mapOf(
-                    "id" to json.getLong("id"),
-                    "firstName" to json.getString("first_name"),
-                    "lastName" to json.getString("last_name"),
-                    "photoUrl" to json.optString("photo_url", null)
-                )
-
-                trigger("vk-auth-result", mapOf(
-                    "success" to true,
-                    "user" to cachedUser
-                ))
-            } catch (e: Exception) {
-                trigger("vk-auth-result", mapOf(
-                    "success" to false,
-                    "error" to (e.message ?: "Auth failed")
-                ))
-            }
+            invoke.resolve(JSObject())
         }
     }
 }

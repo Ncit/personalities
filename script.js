@@ -4879,6 +4879,11 @@ Object.defineProperty(window, 'PERSONALITY_TYPES', { get: () => getLocalizedData
 Object.defineProperty(window, 'ADVANCED_INSIGHTS', { get: () => getLocalizedData().insights, configurable: true });
 Object.defineProperty(window, 'FAMOUS_PERSONALITIES', { get: () => getLocalizedData().famous, configurable: true });
 
+// Set locale synchronously before App init so TabBar and all screens render correctly
+if (PlatformDetector.getFlavor() === 'mobile') {
+    localizationManager.setLocale('ru');
+}
+
 // Initialize new app shell
 const app = new App();
 window.app = app;
