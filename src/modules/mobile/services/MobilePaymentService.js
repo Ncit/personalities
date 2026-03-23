@@ -1,55 +1,63 @@
 import { MobileConfig } from '../config/MobileConfig.js';
 import { LoggerManager } from '../../core/LoggerManager.js';
 
+const BACKEND_URL = 'https://nikmobdev.ru/goodsshop/api/rustore';
+
 export class MobilePaymentService {
     constructor() {
         this.logger = new LoggerManager().createModuleLogger('MobilePaymentService');
+        this._premiumCached = null;
+    }
+
+    _getVkUserId() {
+        const us = window.mobileBridgeManager?.userService;
+        if (us?.isAuthenticated()) {
+            const info = us.getUserInfo();
+            if (info?.id) return String(info.id);
+        }
+        try {
+            const stored = localStorage.getItem(MobileConfig.STORAGE_KEYS.vkUser);
+            if (stored) {
+                const p = JSON.parse(stored);
+                if (p.id) return String(p.id);
+            }
+        } catch {}
+        return null;
     }
 
     /**
-     * Check for existing purchases on app start.
-     * Restores premium if a confirmed purchase exists in RuStore.
+     * Check premium status from backend on app start.
      */
     async restorePurchases() {
-        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
-        if (!invoke) {
-            this.logger.warn('Tauri runtime not available, skipping purchase restore');
+        const vkUserId = this._getVkUserId();
+        if (!vkUserId) {
+            this.logger.log('No user ID, skipping premium check');
             return;
         }
 
         try {
-            const result = await invoke('plugin:rustore-pay|check_premium_status');
-            if (result.premium) {
+            const resp = await fetch(`${BACKEND_URL}/check-premium?vk_user_id=${vkUserId}`);
+            const data = await resp.json();
+            if (data.premium) {
+                this._premiumCached = true;
                 localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
-                this.logger.log('Premium restored from RuStore purchases');
+                this.logger.log('Premium confirmed from backend');
+            } else {
+                this._premiumCached = false;
+                localStorage.removeItem(MobileConfig.STORAGE_KEYS.premium);
             }
         } catch (error) {
-            this.logger.warn('Failed to restore purchases:', error);
-        }
-    }
-
-    /**
-     * Get product info from RuStore (price, title, etc.)
-     */
-    async getProductInfo() {
-        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
-        if (!invoke) return null;
-
-        try {
-            const products = await invoke('plugin:rustore-pay|get_products');
-            return products.find(p => p.productId === MobileConfig.PRODUCTS.premium) || null;
-        } catch (error) {
-            this.logger.warn('Failed to get products:', error);
-            return null;
+            this.logger.warn('Failed to check premium:', error);
+            // Fallback to localStorage
         }
     }
 
     /**
      * Purchase premium via RuStore Pay SDK.
-     * Returns { success: boolean, purchaseId?: string, error?: string }
+     * After purchase, verify with backend.
      */
     async purchasePremium() {
-        const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
+        const invoke = window.__TAURI__?.core?.invoke;
         if (!invoke) {
             return { success: false, error: 'Tauri runtime not available' };
         }
@@ -61,8 +69,28 @@ export class MobilePaymentService {
             });
 
             if (result.success) {
+                // Verify purchase on backend
+                const vkUserId = this._getVkUserId();
+                if (vkUserId) {
+                    try {
+                        await fetch(`${BACKEND_URL}/verify-purchase`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                vk_user_id: vkUserId,
+                                product_id: MobileConfig.PRODUCTS.premium,
+                                purchase_id: result.purchaseId || '',
+                                invoice_id: result.invoiceId || ''
+                            })
+                        });
+                    } catch (e) {
+                        this.logger.warn('Backend verify failed, purchase still valid:', e);
+                    }
+                }
+
+                this._premiumCached = true;
                 localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
-                this.logger.log('Premium purchased and confirmed:', result.purchaseId);
+                this.logger.log('Premium purchased:', result.purchaseId);
             }
 
             return result;
@@ -73,6 +101,7 @@ export class MobilePaymentService {
     }
 
     isPremium() {
+        if (this._premiumCached !== null) return this._premiumCached;
         return localStorage.getItem(MobileConfig.STORAGE_KEYS.premium) === 'true';
     }
 }
