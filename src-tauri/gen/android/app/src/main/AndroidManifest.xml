@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- AndroidTV support -->
@@ -10,7 +11,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.app"
-        android:usesCleartextTraffic="${usesCleartextTraffic}">
+        android:usesCleartextTraffic="${usesCleartextTraffic}"
+        tools:replace="android:usesCleartextTraffic">
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:launchMode="singleTask"
@@ -31,6 +33,10 @@
                 <data android:scheme="personadev" android:host="auth" />
             </intent-filter>
         </activity>
+
+        <!-- RuStore Pay SDK config -->
+        <meta-data android:name="console_app_id_value" android:value="2063702872" />
+        <meta-data android:name="sdk_pay_scheme_value" android:value="personadev" />
 
         <provider
           android:name="androidx.core.content.FileProvider"

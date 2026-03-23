@@ -28,6 +28,18 @@ android {
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
     }
+    val signingProps = Properties().apply {
+        val f = file("${rootProject.projectDir}/../../signing/signing.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    signingConfigs {
+        create("release") {
+            storeFile = file("${rootProject.projectDir}/../../signing/release.keystore")
+            storePassword = signingProps.getProperty("storePassword", "")
+            keyAlias = signingProps.getProperty("keyAlias", "")
+            keyPassword = signingProps.getProperty("keyPassword", "")
+        }
+    }
     buildTypes {
         getByName("debug") {
             manifestPlaceholders["usesCleartextTraffic"] = "true"
@@ -41,7 +53,8 @@ android {
             }
         }
         getByName("release") {
-            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
             proguardFiles(
                 *fileTree(".") { include("**/*.pro") }
                     .plus(getDefaultProguardFile("proguard-android-optimize.txt"))
@@ -67,7 +80,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("com.vk.id:vkid:2.6.1")
-    implementation("ru.rustore.sdk:billingclient:6.0.0")
+    implementation(platform("ru.rustore.sdk:bom:2025.11.01"))
+    implementation("ru.rustore.sdk:pay")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.4")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")

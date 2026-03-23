@@ -8,13 +8,12 @@ import app.tauri.plugin.Invoke
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.JSArray
 import app.tauri.plugin.Plugin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import ru.rustore.sdk.billingclient.RuStoreBillingClient
-import ru.rustore.sdk.billingclient.RuStoreBillingClientFactory
-import ru.rustore.sdk.billingclient.model.purchase.PaymentResult
-import ru.rustore.sdk.billingclient.model.purchase.PurchaseState
+import ru.rustore.sdk.pay.RuStorePayClient
+import ru.rustore.sdk.pay.model.ProductId
+import ru.rustore.sdk.pay.model.ProductPurchaseParams
+import ru.rustore.sdk.pay.model.ProductPurchaseResult
+import ru.rustore.sdk.pay.model.PurchaseId
+import ru.rustore.sdk.pay.model.SdkTheme
 
 @InvokeArg
 internal class PurchaseArgs {
@@ -34,77 +33,47 @@ internal class GetProductsArgs {
 @TauriPlugin
 class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
 
-    private lateinit var billingClient: RuStoreBillingClient
-
-    override fun load(webView: android.webkit.WebView) {
-        super.load(webView)
-        billingClient = RuStoreBillingClientFactory.create(
-            context = activity.application,
-            consoleApplicationId = "2063702872",
-            deeplinkScheme = "personadev",
-            debugLogs = true
-        )
-    }
-
     @Command
     fun getProducts(invoke: Invoke) {
         val args = invoke.parseArgs(GetProductsArgs::class.java)
-        val productIds = args.productIds ?: listOf("premium")
+        val productIds = (args.productIds ?: listOf("premium")).map { ProductId(it) }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val products = billingClient.products.getProducts(productIds).await()
+        RuStorePayClient.instance.getProductInteractor().getProducts(productIds)
+            .addOnSuccessListener { products ->
                 val arr = JSArray()
                 for (product in products) {
                     val p = JSObject()
-                    p.put("productId", product.productId)
+                    p.put("productId", product.productId?.value ?: "")
                     p.put("title", product.title ?: "")
-                    p.put("price", product.priceLabel ?: "")
+                    p.put("price", product.amountLabel ?: "")
                     arr.put(p)
                 }
                 val result = JSObject()
                 result.put("products", arr)
                 invoke.resolve(result)
-            } catch (e: Exception) {
+            }
+            .addOnFailureListener { e: Throwable ->
                 invoke.reject("getProducts failed: ${e.message}")
             }
-        }
     }
 
     @Command
     fun purchaseProduct(invoke: Invoke) {
         val args = invoke.parseArgs(PurchaseArgs::class.java)
 
-        billingClient.purchases.purchaseProduct(args.productId)
-            .addOnSuccessListener { paymentResult: PaymentResult ->
-                when (paymentResult) {
-                    is PaymentResult.Success -> {
-                        val purchaseId = paymentResult.purchaseId
-                        billingClient.purchases.confirmPurchase(purchaseId)
-                            .addOnSuccessListener {
-                                val result = JSObject()
-                                result.put("success", true)
-                                result.put("purchaseId", purchaseId)
-                                invoke.resolve(result)
-                            }
-                            .addOnFailureListener { err: Throwable ->
-                                val result = JSObject()
-                                result.put("success", true)
-                                result.put("purchaseId", purchaseId)
-                                result.put("confirmError", err.message)
-                                invoke.resolve(result)
-                            }
-                    }
-                    is PaymentResult.Failure -> {
-                        invoke.reject("Purchase failed")
-                    }
-                    is PaymentResult.Cancelled -> {
-                        invoke.reject("Purchase cancelled by user")
-                    }
-                    else -> {
-                        invoke.reject("Unknown payment result")
-                    }
-                }
+        val params = ProductPurchaseParams(productId = ProductId(args.productId))
+
+        RuStorePayClient.instance.getPurchaseInteractor().purchase(
+            params = params,
+            sdkTheme = SdkTheme.LIGHT
+        )
+            .addOnSuccessListener { purchaseResult: ProductPurchaseResult ->
+                val result = JSObject()
+                result.put("success", true)
+                result.put("productId", purchaseResult.productId?.value ?: "")
+                result.put("purchaseId", purchaseResult.purchaseId?.value ?: "")
+                result.put("invoiceId", purchaseResult.invoiceId?.toString() ?: "")
+                invoke.resolve(result)
             }
             .addOnFailureListener { e: Throwable ->
                 invoke.reject("purchaseProduct failed: ${e.message}")
@@ -113,31 +82,30 @@ class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
 
     @Command
     fun getPurchases(invoke: Invoke) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val purchases = billingClient.purchases.getPurchases().await()
+        RuStorePayClient.instance.getPurchaseInteractor().getPurchases()
+            .addOnSuccessListener { purchases ->
                 val arr = JSArray()
                 for (purchase in purchases) {
                     val p = JSObject()
-                    p.put("productId", purchase.productId)
-                    p.put("purchaseId", purchase.purchaseId ?: "")
-                    p.put("state", purchase.purchaseState?.name ?: "UNKNOWN")
+                    p.put("purchaseId", purchase.purchaseId?.value ?: "")
+                    p.put("invoiceId", purchase.invoiceId?.toString() ?: "")
+                    p.put("status", purchase.status?.toString() ?: "UNKNOWN")
                     arr.put(p)
                 }
                 val result = JSObject()
                 result.put("purchases", arr)
                 invoke.resolve(result)
-            } catch (e: Exception) {
+            }
+            .addOnFailureListener { e: Throwable ->
                 invoke.reject("getPurchases failed: ${e.message}")
             }
-        }
     }
 
     @Command
     fun confirmPurchase(invoke: Invoke) {
         val args = invoke.parseArgs(ConfirmArgs::class.java)
 
-        billingClient.purchases.confirmPurchase(args.purchaseId)
+        RuStorePayClient.instance.getPurchaseInteractor().confirmTwoStepPurchase(PurchaseId(args.purchaseId))
             .addOnSuccessListener {
                 val result = JSObject()
                 result.put("confirmed", true)
@@ -150,33 +118,19 @@ class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
 
     @Command
     fun checkPremiumStatus(invoke: Invoke) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val purchases = billingClient.purchases.getPurchases().await()
-                val hasPremium = purchases.any { purchase ->
-                    purchase.productId == "premium" &&
-                    (purchase.purchaseState == PurchaseState.PAID ||
-                     purchase.purchaseState == PurchaseState.CONFIRMED)
-                }
-
-                // Auto-confirm PAID purchases
-                for (purchase in purchases) {
-                    if (purchase.productId == "premium" && purchase.purchaseState == PurchaseState.PAID) {
-                        val pid = purchase.purchaseId ?: continue
-                        try {
-                            billingClient.purchases.confirmPurchase(pid).await()
-                        } catch (_: Exception) {}
-                    }
-                }
-
+        // With Pay SDK, getPurchases returns all purchases
+        // A completed non-consumable purchase means premium is active
+        RuStorePayClient.instance.getPurchaseInteractor().getPurchases()
+            .addOnSuccessListener { purchases ->
+                val hasPremium = purchases.isNotEmpty()
                 val result = JSObject()
                 result.put("premium", hasPremium)
                 invoke.resolve(result)
-            } catch (e: Exception) {
+            }
+            .addOnFailureListener { _: Throwable ->
                 val result = JSObject()
                 result.put("premium", false)
                 invoke.resolve(result)
             }
-        }
     }
 }

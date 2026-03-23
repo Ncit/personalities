@@ -29,5 +29,6 @@ android {
 dependencies {
     implementation(project(":tauri-android"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("ru.rustore.sdk:billingclient:6.0.0")
+    implementation(platform("ru.rustore.sdk:bom:2025.11.01"))
+    implementation("ru.rustore.sdk:pay")
 }
