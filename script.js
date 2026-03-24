@@ -4882,6 +4882,15 @@ Object.defineProperty(window, 'FAMOUS_PERSONALITIES', { get: () => getLocalizedD
 // Set locale synchronously before App init so TabBar and all screens render correctly
 if (PlatformDetector.getFlavor() === 'mobile') {
     localizationManager.setLocale('ru');
+    // Detect edge-to-edge: if window.screenY is 0 on Android, content is behind status bar
+    // Samsung devices with One UI force edge-to-edge even without enableEdgeToEdge()
+    setTimeout(() => {
+        // If innerHeight equals screen.availHeight, system bars are NOT overlapping
+        // If innerHeight > screen.availHeight, we're drawing behind system bars
+        if (window.innerHeight > screen.availHeight) {
+            document.documentElement.style.setProperty('--safe-area-top', '28px');
+        }
+    }, 100);
 }
 
 // Initialize new app shell
