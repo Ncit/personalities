@@ -417,6 +417,8 @@ export const ru = {
         signInVK: 'Войти через VK',
         saveResults: 'Сохраняйте результаты и достижения на всех устройствах',
         signIn: 'Войти',
+        logout: 'Выйти из аккаунта',
+        logoutConfirm: 'Вы уверены, что хотите выйти?',
         devSignIn: 'Dev: Войти как тест-юзер',
         devSignInBtn: 'Войти как Никита (test)',
         help: 'Помощь',

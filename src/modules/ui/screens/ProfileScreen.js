@@ -97,7 +97,6 @@ export class ProfileScreen {
               <i data-lucide="log-in" style="width:28px;height:28px"></i>
             </div>
             <div class="vk-signin-card__title">${localizationManager.get('profile.signInVK')}</div>
-            <div class="vk-signin-card__subtitle">${localizationManager.get('profile.saveResults')}</div>
             <button class="btn-sage btn-sage--full">
               <i data-lucide="log-in" style="width:16px;height:16px"></i>
               ${localizationManager.get('profile.signIn')}
@@ -149,6 +148,16 @@ export class ProfileScreen {
             `).join('')}
           </div>
         </div>
+
+        ${!isGuest ? `
+        <!-- Logout -->
+        <div style="text-align:center;padding:8px 0 0;">
+          <button class="btn-secondary" id="btn-logout" style="padding:12px 32px;color:var(--color-text-muted);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;margin:0 auto;">
+            <i data-lucide="log-out" style="width:16px;height:16px;flex-shrink:0;"></i>
+            ${localizationManager.get('profile.logout') || 'Выйти'}
+          </button>
+        </div>
+        ` : ''}
 
         <!-- Footer — full width -->
         <div class="profile-grid__footer">
@@ -225,6 +234,41 @@ export class ProfileScreen {
       } else if (window.vkAuth) {
         window.vkAuth.login();
       }
+    });
+
+    this.el.querySelector('#btn-logout')?.addEventListener('click', () => {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'overlay-backdrop';
+      backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.37);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;';
+      backdrop.innerHTML = `
+        <div style="background:var(--color-card,#fff);border-radius:24px;padding:28px 24px;max-width:320px;width:90%;text-align:center;">
+          <div style="font:400 18px/1.3 var(--font-display);color:var(--color-text-primary);margin-bottom:20px;">
+            ${localizationManager.get('profile.logoutConfirm') || 'Вы уверены, что хотите выйти?'}
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button id="logout-cancel" class="btn-secondary" style="flex:1;padding:12px;">
+              Отмена
+            </button>
+            <button id="logout-confirm" class="btn-primary" style="flex:1;padding:12px;background:var(--color-danger,#e74c3c);border-color:var(--color-danger,#e74c3c);">
+              Выйти
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(backdrop);
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
+      backdrop.querySelector('#logout-cancel').addEventListener('click', () => backdrop.remove());
+      backdrop.querySelector('#logout-confirm').addEventListener('click', () => {
+        backdrop.remove();
+        if (window.mobileBridgeManager?.userService) {
+          window.mobileBridgeManager.userService.logout();
+        }
+        localStorage.removeItem('vk_user_auth');
+        localStorage.removeItem('mobile_vk_user');
+        localStorage.removeItem('mobile_vk_token');
+        localStorage.removeItem('vk_user_data_local');
+        this.render();
+      });
     });
 
     this.el.querySelector('#dev-vk-login')?.addEventListener('click', () => {

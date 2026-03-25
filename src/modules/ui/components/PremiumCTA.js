@@ -9,6 +9,10 @@ export class PremiumCTA {
     }
 
     static render(subtitleKey = 'home.premiumSubtitle') {
+        // Hide if already premium on mobile
+        if (PlatformDetector.isMobile() && window.mobileBridgeManager?.paymentService?.isPremium()) {
+            return '';
+        }
         return `
           <div class="premium-cta-mobile" id="premium-cta">
             <div class="premium-cta-mobile__text">

@@ -4893,6 +4893,20 @@ if (PlatformDetector.getFlavor() === 'mobile') {
     }, 100);
 }
 
-// Initialize new app shell
-const app = new App();
-window.app = app;
+// Initialize new app shell — wait for mobile premium check if needed
+if (PlatformDetector.getFlavor() === 'mobile' && window.__TAURI__?.core?.invoke) {
+    // Wait for RuStore premium check before rendering
+    (async () => {
+        try {
+            const status = await window.__TAURI__.core.invoke('plugin:rustore-pay|check_premium_status');
+            if (status?.premium) {
+                localStorage.setItem('mobile_premium', 'true');
+            }
+        } catch (_) {}
+        const app = new App();
+        window.app = app;
+    })();
+} else {
+    const app = new App();
+    window.app = app;
+}

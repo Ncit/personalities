@@ -130,6 +130,13 @@ export class PremiumModal {
 
         // Mobile (Android): RuStore Pay
         if (flavor === 'mobile' && window.mobileBridgeManager?.paymentService) {
+          const ps = window.mobileBridgeManager.paymentService;
+          // Check if already premium (no login needed)
+          if (ps.isPremium()) {
+            router.closeOverlay();
+            return;
+          }
+          // Require VK auth for purchase tracking
           if (!window.mobileBridgeManager?.userService?.isAuthenticated()) {
             try {
               await window.mobileBridgeManager.userService.authenticate();
@@ -139,7 +146,13 @@ export class PremiumModal {
               return;
             }
           }
-          const result = await window.mobileBridgeManager.paymentService.purchasePremium();
+          // After auth, re-check premium (might already be bought)
+          await ps.restorePurchases();
+          if (ps.isPremium()) {
+            router.closeOverlay();
+            return;
+          }
+          const result = await ps.purchasePremium();
           if (result?.success) {
             router.closeOverlay();
             return;

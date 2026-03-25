@@ -23,12 +23,14 @@ export class MobileBridgeManager {
 
             // Set locale — always Russian for RuStore app
             localizationManager.setLocale('ru');
-            this.logger.log('Locale set to:', lang);
+            this.logger.log('Locale set to: ru');
 
-            // Restore purchases (non-blocking)
-            this.paymentService.restorePurchases().catch(err => {
+            // Restore purchases (blocking — must complete before app renders)
+            try {
+                await this.paymentService.restorePurchases();
+            } catch (err) {
                 this.logger.warn('Purchase restore failed:', err);
-            });
+            }
 
             this.logger.log('MobileBridgeManager initialized');
         } catch (error) {

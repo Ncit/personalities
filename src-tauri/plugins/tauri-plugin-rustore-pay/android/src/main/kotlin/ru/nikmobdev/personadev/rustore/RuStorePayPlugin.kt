@@ -118,19 +118,33 @@ class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
 
     @Command
     fun checkPremiumStatus(invoke: Invoke) {
-        // With Pay SDK, getPurchases returns all purchases
-        // A completed non-consumable purchase means premium is active
-        RuStorePayClient.instance.getPurchaseInteractor().getPurchases()
-            .addOnSuccessListener { purchases ->
-                val hasPremium = purchases.isNotEmpty()
-                val result = JSObject()
-                result.put("premium", hasPremium)
-                invoke.resolve(result)
-            }
-            .addOnFailureListener { _: Throwable ->
-                val result = JSObject()
-                result.put("premium", false)
-                invoke.resolve(result)
-            }
+        android.util.Log.d("RuStorePay", "checkPremiumStatus called")
+        try {
+            RuStorePayClient.instance.getPurchaseInteractor().getPurchases()
+                .addOnSuccessListener { purchases ->
+                    android.util.Log.d("RuStorePay", "getPurchases returned ${purchases.size} items")
+                    for (p in purchases) {
+                        android.util.Log.d("RuStorePay", "  purchase: id=${p.purchaseId} status=${p.status} type=${p.purchaseType}")
+                    }
+                    val hasPremium = purchases.isNotEmpty()
+                    val result = JSObject()
+                    result.put("premium", hasPremium)
+                    result.put("count", purchases.size)
+                    invoke.resolve(result)
+                }
+                .addOnFailureListener { e: Throwable ->
+                    android.util.Log.e("RuStorePay", "getPurchases failed: ${e.message}", e)
+                    val result = JSObject()
+                    result.put("premium", false)
+                    result.put("error", e.message ?: "unknown")
+                    invoke.resolve(result)
+                }
+        } catch (e: Exception) {
+            android.util.Log.e("RuStorePay", "checkPremiumStatus exception: ${e.message}", e)
+            val result = JSObject()
+            result.put("premium", false)
+            result.put("error", e.message ?: "exception")
+            invoke.resolve(result)
+        }
     }
 }

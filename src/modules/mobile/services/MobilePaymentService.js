@@ -26,41 +26,64 @@ export class MobilePaymentService {
     }
 
     /**
-     * Check premium status from backend on app start.
+     * Check premium status on app start.
+     * Works without VK login — checks RuStore SDK directly.
      */
     async restorePurchases() {
-        const vkUserId = this._getVkUserId();
-        if (!vkUserId) {
-            this.logger.log('No user ID, skipping premium check');
-            return;
-        }
-
+        // Always check RuStore SDK first (no VK login needed)
         try {
-            const resp = await fetch(`${BACKEND_URL}/check-premium?vk_user_id=${vkUserId}`);
-            const data = await resp.json();
-            if (data.premium) {
-                this._premiumCached = true;
-                localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
-                this.logger.log('Premium confirmed from backend');
-            } else {
-                this._premiumCached = false;
-                localStorage.removeItem(MobileConfig.STORAGE_KEYS.premium);
+            const invoke = window.__TAURI__?.core?.invoke;
+            if (invoke) {
+                const status = await invoke('plugin:rustore-pay|check_premium_status');
+                this.logger.log('RuStore check result:', JSON.stringify(status));
+                if (status?.premium) {
+                    this._activatePremium();
+                    this.logger.log('Premium restored from RuStore SDK');
+                    return;
+                }
             }
         } catch (error) {
-            this.logger.warn('Failed to check premium:', error);
-            // Fallback to localStorage
+            this.logger.warn('RuStore SDK check failed:', error);
         }
+
+        // Also check backend if VK user is known
+        const vkUserId = this._getVkUserId();
+        if (vkUserId) {
+            try {
+                const resp = await fetch(`${BACKEND_URL}/check-premium?vk_user_id=${vkUserId}`);
+                const data = await resp.json();
+                if (data.premium) {
+                    this._premiumCached = true;
+                    localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
+                    this.logger.log('Premium confirmed from backend');
+                    return;
+                }
+            } catch (error) {
+                this.logger.warn('Backend check failed:', error);
+            }
+        }
+
+        this._premiumCached = false;
+        localStorage.removeItem(MobileConfig.STORAGE_KEYS.premium);
     }
 
     /**
      * Purchase premium via RuStore Pay SDK.
-     * After purchase, verify with backend.
      */
     async purchasePremium() {
         const invoke = window.__TAURI__?.core?.invoke;
         if (!invoke) {
             return { success: false, error: 'Tauri runtime not available' };
         }
+
+        // Check if already purchased before trying to buy
+        try {
+            const status = await invoke('plugin:rustore-pay|check_premium_status');
+            if (status?.premium) {
+                this._activatePremium();
+                return { success: true };
+            }
+        } catch (_) {}
 
         try {
             this.logger.log('Starting RuStore purchase...');
@@ -69,35 +92,41 @@ export class MobilePaymentService {
             });
 
             if (result.success) {
-                // Verify purchase on backend
-                const vkUserId = this._getVkUserId();
-                if (vkUserId) {
-                    try {
-                        await fetch(`${BACKEND_URL}/verify-purchase`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                vk_user_id: vkUserId,
-                                product_id: MobileConfig.PRODUCTS.premium,
-                                purchase_id: result.purchaseId || '',
-                                invoice_id: result.invoiceId || ''
-                            })
-                        });
-                    } catch (e) {
-                        this.logger.warn('Backend verify failed, purchase still valid:', e);
-                    }
-                }
-
-                this._premiumCached = true;
-                localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
-                this.logger.log('Premium purchased:', result.purchaseId);
+                this._activatePremium();
             }
 
             return result;
         } catch (error) {
             this.logger.error('Purchase failed:', error);
+            // Check if already purchased (error from RuStore)
+            try {
+                const status = await invoke('plugin:rustore-pay|check_premium_status');
+                if (status?.premium) {
+                    this._activatePremium();
+                    return { success: true };
+                }
+            } catch (_) {}
             return { success: false, error: error.message || 'Purchase failed' };
         }
+    }
+
+    _activatePremium() {
+        this._premiumCached = true;
+        localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
+        const vkUserId = this._getVkUserId();
+        if (vkUserId) {
+            fetch(`${BACKEND_URL}/verify-purchase`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    vk_user_id: vkUserId,
+                    product_id: MobileConfig.PRODUCTS.premium,
+                    purchase_id: 'restored',
+                    invoice_id: 'restored'
+                })
+            }).catch(() => {});
+        }
+        this.logger.log('Premium activated');
     }
 
     isPremium() {
