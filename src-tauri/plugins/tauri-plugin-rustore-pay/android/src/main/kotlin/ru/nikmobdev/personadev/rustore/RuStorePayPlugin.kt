@@ -18,6 +18,7 @@ import ru.rustore.sdk.pay.model.SdkTheme
 @InvokeArg
 internal class PurchaseArgs {
     lateinit var productId: String
+    var developerPayload: String? = null
 }
 
 @InvokeArg
@@ -61,7 +62,10 @@ class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
     fun purchaseProduct(invoke: Invoke) {
         val args = invoke.parseArgs(PurchaseArgs::class.java)
 
-        val params = ProductPurchaseParams(productId = ProductId(args.productId))
+        val params = ProductPurchaseParams(
+            productId = ProductId(args.productId),
+            developerPayload = ru.rustore.sdk.pay.model.DeveloperPayload(args.developerPayload ?: "")
+        )
 
         RuStorePayClient.instance.getPurchaseInteractor().purchase(
             params = params,
@@ -126,7 +130,11 @@ class RuStorePayPlugin(private val activity: Activity) : Plugin(activity) {
                     for (p in purchases) {
                         android.util.Log.d("RuStorePay", "  purchase: id=${p.purchaseId} status=${p.status} type=${p.purchaseType}")
                     }
-                    val hasPremium = purchases.isNotEmpty()
+                    // Only count CONFIRMED purchases, not refunded/cancelled
+                    val hasPremium = purchases.any { p ->
+                        val status = p.status?.toString()?.uppercase() ?: ""
+                        status == "CONFIRMED" || status == "PAID"
+                    }
                     val result = JSObject()
                     result.put("premium", hasPremium)
                     result.put("count", purchases.size)

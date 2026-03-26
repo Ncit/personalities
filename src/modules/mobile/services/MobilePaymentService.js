@@ -87,12 +87,14 @@ export class MobilePaymentService {
 
         try {
             this.logger.log('Starting RuStore purchase...');
+            const vkUserId = this._getVkUserId();
             const result = await invoke('plugin:rustore-pay|purchase_product', {
-                productId: MobileConfig.PRODUCTS.premium
+                productId: MobileConfig.PRODUCTS.premium,
+                developerPayload: vkUserId ? `vk_user_id:${vkUserId}` : ''
             });
 
             if (result.success) {
-                this._activatePremium();
+                this._activatePremium(result.purchaseId, result.invoiceId);
             }
 
             return result;
@@ -110,7 +112,7 @@ export class MobilePaymentService {
         }
     }
 
-    _activatePremium() {
+    _activatePremium(purchaseId, invoiceId) {
         this._premiumCached = true;
         localStorage.setItem(MobileConfig.STORAGE_KEYS.premium, 'true');
         const vkUserId = this._getVkUserId();
@@ -121,12 +123,12 @@ export class MobilePaymentService {
                 body: JSON.stringify({
                     vk_user_id: vkUserId,
                     product_id: MobileConfig.PRODUCTS.premium,
-                    purchase_id: 'restored',
-                    invoice_id: 'restored'
+                    purchase_id: purchaseId || 'restored',
+                    invoice_id: invoiceId || 'restored'
                 })
             }).catch(() => {});
         }
-        this.logger.log('Premium activated');
+        this.logger.log('Premium activated:', purchaseId || 'restored');
     }
 
     isPremium() {
